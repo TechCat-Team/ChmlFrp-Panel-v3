@@ -1,18 +1,25 @@
 <template>
     <n-space justify="space-between" class="center-aligned">
         <span
-            :style="{ color: themeStore.primaryColor, marginLeft: '24px', fontSize: '26px', transition: 'color 0.2s' }">ChmlFrp</span>
+            :style="{ display: isHidden ? 'none' : 'flex', color: themeStore.primaryColor, marginLeft: '24px', fontSize: '26px', transition: 'color 0.2s' }">ChmlFrp</span>
+        <div :style="{ display: isHidden ? 'flex' : 'none' }">
+            <n-dropdown size="large" :options="menuOptions">
+                <n-button quaternary style="font-size: 18px">
+                    <n-icon :component="MenuOutline" style="cursor: pointer;"></n-icon>
+                </n-button>
+            </n-dropdown>
+        </div>
         <n-space class="center-aligned" justify="space-between">
-            <n-button text style="font-size: 24px">
+            <n-button quaternary style="font-size: 18px">
                 <n-badge :value="2" :max="9">
                     <n-icon :component="ChatbubbleEllipsesOutline" style="cursor: pointer;"></n-icon>
                 </n-badge>
             </n-button>
-            <n-button text style="font-size: 24px;" @click="ThemeSwitcherDrawer('right')">
+            <n-button quaternary style="font-size: 18px;" @click="ThemeSwitcherDrawer('right')">
                 <n-icon :component="SettingsOutline" style="cursor: pointer;"></n-icon>
             </n-button>
             <n-dropdown trigger="hover" :options="userDropdownOptions">
-                <div class="avatar-container">
+                <n-button quaternary size="large" class="avatar-container">
                     <n-avatar round size="large"
                         src="https://q.qlogo.cn/headimg_dl?dst_uin=242247494&spec=640&img_type=jpg"
                         style="cursor: pointer;"></n-avatar>
@@ -20,7 +27,7 @@
                         <div class="text-top">chaoji</div>
                         <div class="text-bottom">超级会员</div>
                     </div>
-                </div>
+                </n-button>
             </n-dropdown>
         </n-space>
     </n-space>
@@ -35,19 +42,23 @@
 import { SettingsOutline, ChatbubbleEllipsesOutline } from '@vicons/ionicons5'
 import { defineComponent, ref, h, Component } from 'vue';
 import { useThemeStore } from '@/stores/theme';
+import { useScreenStore } from '@/stores/useScreen';
+import { storeToRefs } from 'pinia';
 import { NAvatar, NText, NIcon, useMessage, type DrawerPlacement } from 'naive-ui'
 import ThemeSwitcher from './ThemeSwitcher.vue';
 import { useRouter } from 'vue-router';
+import { menuOptions } from './Options/Menu'
 import {
     PersonCircleOutline as UserIcon,
-    LogOutOutline as LogoutIcon
+    LogOutOutline as LogoutIcon,
+    MenuOutline
 } from '@vicons/ionicons5'
 
 // UserDropdown图标函数
 const renderIcon = (icon: Component, color?: string) => {
-  return () => {
-    return h(NIcon, { size: '24', color }, { default: () => h(icon) });
-  };
+    return () => {
+        return h(NIcon, { size: '24', color }, { default: () => h(icon) });
+    };
 };
 
 // 纯内容渲染-用户基本资料
@@ -87,6 +98,10 @@ export default defineComponent({
         // 顶部消息
         const message = useMessage()
 
+        // 基础的手机端适配
+        const screenStore = useScreenStore();
+        const { isHidden } = storeToRefs(screenStore);
+
         const themeSwitcherDrawer = ref(false)
         const placement = ref<DrawerPlacement>('right')
         const themeStore = useThemeStore(); // 使用useThemeStore获取主题色
@@ -102,7 +117,9 @@ export default defineComponent({
             // 抽屉
             themeSwitcherDrawer,
             ThemeSwitcherDrawer,
-
+            isHidden,
+            MenuOutline,
+            menuOptions,
             userDropdownOptions: [
                 {
                     key: 'header',

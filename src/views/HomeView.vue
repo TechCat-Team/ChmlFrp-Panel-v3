@@ -2,22 +2,12 @@
   <n-space vertical size="large" style="height: 100%;">
     <n-layout style="height: 100%;">
       <n-layout-header bordered>
-        <HeaderComponent/>
+        <HeaderComponent />
       </n-layout-header>
       <n-layout has-sider>
-        <n-layout-sider
-          bordered 
-          collapse-mode="width"
-          :collapsed-width="64"
-          :width="240"
-          :collapsed="collapsed"
-          show-trigger
-          @collapse="handleCollapse"
-          @expand="handleExpand"
-          :native-scrollbar="false"
-          style="height: 92vh"
-        >
-          <MenuComponent/>
+        <n-layout-sider :style="{ display: isHidden ? 'none' : 'flex' }" bordered collapse-mode="width" :collapsed-width="64" :width="240" :collapsed="collapsed"
+          show-trigger @collapse="handleCollapse" @expand="handleExpand" :native-scrollbar="false" style="height: 92vh">
+          <MenuComponent />
         </n-layout-sider>
         <n-layout-content content-style="padding: 24px;" :native-scrollbar="false">
           <router-view></router-view>
@@ -32,6 +22,8 @@ import { defineComponent, computed } from 'vue';
 import { useLayoutStore } from '@/stores/useLayout';
 import MenuComponent from '@/components/MenuComponent.vue';
 import HeaderComponent from '@/components/HeaderComponent.vue';
+import { useScreenStore } from '@/stores/useScreen';
+import { storeToRefs } from 'pinia';
 
 export default defineComponent({
   components: {
@@ -39,6 +31,11 @@ export default defineComponent({
     HeaderComponent
   },
   setup() {
+    // 菜单适配手机端，自动隐藏sider
+    const screenStore = useScreenStore();
+    const { isHidden } = storeToRefs(screenStore);
+
+
     const layoutStore = useLayoutStore();
     const collapsed = computed(() => layoutStore.collapsed);
 
@@ -54,6 +51,7 @@ export default defineComponent({
       collapsed,
       handleCollapse,
       handleExpand,
+      isHidden
     };
   }
 });
