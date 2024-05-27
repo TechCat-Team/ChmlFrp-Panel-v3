@@ -15,7 +15,17 @@ import {
   GridOutline as GridIcon,
   ListOutline as ListIcon,
   HomeOutline as HomeIcon,
-  PersonCircleOutline
+  PersonCircleOutline,
+  DocumentsOutline,
+  ExtensionPuzzleOutline,
+  InformationCircleOutline,
+  EllipsisHorizontalCircleOutline,
+  LinkOutline,
+  PawOutline,
+  PrismOutline,
+  PricetagOutline,
+  PlanetOutline
+  
 } from '@vicons/ionicons5';
 
 // 菜单图标渲染函数
@@ -55,7 +65,7 @@ const menuOptions: MenuOption[] = [
   },
   {
     label: '隧道管理',
-    key: 'dance-dance-dance',
+    key: '隧道管理',
     icon: renderIcon(ListIcon),
     children: [
       {
@@ -103,7 +113,94 @@ const menuOptions: MenuOption[] = [
         icon: renderIcon(CloudDownloadIcon)
       }
     ]
-  }
+  },
+  {
+    label: '扩展功能',
+    key: '扩展功能',
+    icon: renderIcon(ExtensionPuzzleOutline),
+    children: [
+      {
+        label: () => h(
+          RouterLink,
+          {
+            to: { name: '免费域名' }
+          },
+          { default: () => '免费域名' }
+        ),
+        key: '免费域名',
+        icon: renderIcon(LinkOutline)
+      }
+    ]
+  },
+  {
+    label: '增值中心',
+    key: '增值中心',
+    icon: renderIcon(PrismOutline),
+    children: [
+      {
+        label: () => h(
+          RouterLink,
+          {
+            to: { name: '积分充值' }
+          },
+          { default: () => '积分充值' }
+        ),
+        key: '积分充值',
+        icon: renderIcon(PlanetOutline)
+      },
+      {
+        label: () => h(
+          RouterLink,
+          {
+            to: { name: '积分商城' }
+          },
+          { default: () => '积分商城' }
+        ),
+        key: '积分商城',
+        icon: renderIcon(PricetagOutline)
+      },
+      {
+        label: () => h(
+          RouterLink,
+          {
+            to: { name: '消费记录' }
+          },
+          { default: () => '消费记录' }
+        ),
+        key: '消费记录',
+        icon: renderIcon(PawOutline)
+      }
+    ]
+  },
+  {
+    label: '其他信息',
+    key: '其他信息',
+    icon: renderIcon(EllipsisHorizontalCircleOutline),
+    children: [
+      {
+        label: () => h(
+          RouterLink,
+          {
+            to: { name: '关于面板' }
+          },
+          { default: () => '关于面板' }
+        ),
+        key: '关于面板',
+        icon: renderIcon(InformationCircleOutline)
+      },
+      {
+        label: () => h(
+          RouterLink,
+          {
+            to: { name: '帮助文档' }
+          },
+          { default: () => '帮助文档' }
+        ),
+        key: '帮助文档',
+        icon: renderIcon(DocumentsOutline)
+      },
+    ]
+  },
 ];
 
 export default defineComponent({

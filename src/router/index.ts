@@ -12,6 +12,11 @@ const routes: Array<RouteRecordRaw> = [
         name: '首页',
         component: () => import('@/pages/HomePage.vue'),
       },
+      {
+        path: '/user',
+        name: '个人资料',
+        component: () => import('@/pages/UserPage.vue')
+      }
     ]
   },
   {
@@ -41,6 +46,57 @@ const routes: Array<RouteRecordRaw> = [
       },
     ]
   },
+  {
+    path: '/',
+    name: '扩展功能',
+    component: () => import('@/views/HomeView.vue'),
+    children: [
+      {
+        path: '/expand/domainname',
+        name: '免费域名',
+        component: () => import('@/pages/Expand/Domainname.vue'),
+      },
+    ]
+  },
+  {
+    path: '/',
+    name: '增值中心',
+    component: () => import('@/views/HomeView.vue'),
+    children: [
+      {
+        path: '/shop/topup',
+        name: '积分充值',
+        component: () => import('@/pages/Shop/Topup.vue'),
+      },
+      {
+        path: '/other/buy',
+        name: '积分商城',
+        component: () => import('@/pages/Shop/Buy.vue'),
+      },
+      {
+        path: '/other/record',
+        name: '消费记录',
+        component: () => import('@/pages/Shop/Record.vue'),
+      },
+    ]
+  },
+  {
+    path: '/',
+    name: '其他信息',
+    component: () => import('@/views/HomeView.vue'),
+    children: [
+      {
+        path: '/other/about',
+        name: '关于面板',
+        component: () => import('@/pages/Other/About.vue'),
+      },
+      {
+        path: '/other/document',
+        name: '帮助文档',
+        component: () => import('@/pages/Other/Document.vue'),
+      },
+    ]
+  }
   // {
   //   path: '/login',
   //   name: '登录',
