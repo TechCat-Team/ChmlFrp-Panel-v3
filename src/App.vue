@@ -31,8 +31,15 @@ const themeOverrides = computed(() => {
     primaryColorSuppl: themeStore.primaryColor,
   };
 
+  const lightThemeOverrides = {
+    bodyColor: '#f5f5f5', // 更改亮色主题下的背景颜色
+  };
+
   return {
-    common: commonColors,
+    common: {
+      ...commonColors,
+      ...(themeStore.theme === 'light' ? lightThemeOverrides : {}),
+    },
     Button: {
       // 调整Primary按钮，让它看起来更合适
       textColorPrimary: '#fff',
@@ -64,7 +71,7 @@ const ViewComponent = defineComponent({
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  text-align: center;
+  // text-align: center;
   color: #2c3e50;
 }
 </style>
