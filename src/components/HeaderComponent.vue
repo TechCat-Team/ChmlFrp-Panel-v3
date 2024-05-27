@@ -11,14 +11,17 @@
             <n-button text style="font-size: 24px;" @click="ThemeSwitcherDrawer('right')">
                 <n-icon :component="SettingsOutline" style="cursor: pointer;"></n-icon>
             </n-button>
-            <div class="avatar-container">
-                <n-avatar round size="large" src="https://q.qlogo.cn/headimg_dl?dst_uin=242247494&spec=640&img_type=jpg"
-                    style="cursor: pointer;"></n-avatar>
-                <div class="text-container">
-                    <div class="text-top">chaoji</div>
-                    <div class="text-bottom">[超级会员]</div>
+            <n-dropdown trigger="hover" :options="userDropdownOptions">
+                <div class="avatar-container">
+                    <n-avatar round size="large"
+                        src="https://q.qlogo.cn/headimg_dl?dst_uin=242247494&spec=640&img_type=jpg"
+                        style="cursor: pointer;"></n-avatar>
+                    <div class="text-container">
+                        <div class="text-top">chaoji</div>
+                        <div class="text-bottom">超级会员</div>
+                    </div>
                 </div>
-            </div>
+            </n-dropdown>
         </n-space>
     </n-space>
     <n-drawer v-model:show="themeSwitcherDrawer" :placement="placement" :default-width="251" resizable>
@@ -30,16 +33,60 @@
 
 <script lang="ts">
 import { SettingsOutline, ChatbubbleEllipsesOutline } from '@vicons/ionicons5'
-import { defineComponent, ref } from 'vue';
+import { defineComponent, ref, h, Component } from 'vue';
 import { useThemeStore } from '@/stores/theme';
-import type { DrawerPlacement } from 'naive-ui'
+import { NAvatar, NText, NIcon, useMessage, type DrawerPlacement } from 'naive-ui'
 import ThemeSwitcher from './ThemeSwitcher.vue';
+import { useRouter } from 'vue-router';
+import {
+    PersonCircleOutline as UserIcon,
+    LogOutOutline as LogoutIcon
+} from '@vicons/ionicons5'
+
+// UserDropdown图标函数
+const renderIcon = (icon: Component, color?: string) => {
+  return () => {
+    return h(NIcon, { size: '24', color }, { default: () => h(icon) });
+  };
+};
+
+// 纯内容渲染-用户基本资料
+function renderCustomHeader() {
+    return h(
+        'div',
+        {
+            style: 'display: flex; align-items: center; padding: 8px 12px;'
+        },
+        [
+            h(NAvatar, {
+                round: true,
+                style: 'margin-right: 12px;',
+                src: 'https://q.qlogo.cn/headimg_dl?dst_uin=242247494&spec=640&img_type=jpg'
+            }),
+            h('div', null, [
+                h('div', null, [h(NText, { depth: 2 }, { default: () => 'chaoji233' })]),
+                h('div', { style: 'font-size: 12px;' }, [
+                    h(
+                        NText,
+                        { depth: 3 },
+                        { default: () => 'chaoji@chcat.cn' }
+                    )
+                ])
+            ])
+        ]
+    )
+}
 
 export default defineComponent({
     components: {
         ThemeSwitcher
     },
     setup() {
+        // Router
+        const router = useRouter();
+        // 顶部消息
+        const message = useMessage()
+
         const themeSwitcherDrawer = ref(false)
         const placement = ref<DrawerPlacement>('right')
         const themeStore = useThemeStore(); // 使用useThemeStore获取主题色
@@ -54,7 +101,35 @@ export default defineComponent({
             placement,
             // 抽屉
             themeSwitcherDrawer,
-            ThemeSwitcherDrawer
+            ThemeSwitcherDrawer,
+
+            userDropdownOptions: [
+                {
+                    key: 'header',
+                    type: 'render',
+                    render: renderCustomHeader
+                },
+                {
+                    label: '用户资料',
+                    key: 'profile',
+                    icon: renderIcon(UserIcon),
+                    props: {
+                        onClick: () => {
+                            router.push('/user');
+                        }
+                    }
+                },
+                {
+                    label: '退出登录',
+                    key: 'logout',
+                    icon: renderIcon(LogoutIcon, '#f5222d'),
+                    props: {
+                        onClick: () => {
+                            message.info('此版本为UI预览版，无法退出登录');
+                        },
+                    },
+                },
+            ],
         };
     }
 })
