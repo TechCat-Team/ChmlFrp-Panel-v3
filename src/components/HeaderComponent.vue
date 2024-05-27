@@ -1,0 +1,97 @@
+<template>
+    <n-space justify="space-between" class="center-aligned">
+        <span
+            :style="{ color: themeStore.primaryColor, marginLeft: '24px', fontSize: '26px', transition: 'color 0.2s' }">ChmlFrp</span>
+        <n-space class="center-aligned" justify="space-between">
+            <n-button text style="font-size: 24px">
+                <n-badge :value="2" :max="9">
+                    <n-icon :component="ChatbubbleEllipsesOutline" style="cursor: pointer;"></n-icon>
+                </n-badge>
+            </n-button>
+            <n-button text style="font-size: 24px;" @click="ThemeSwitcherDrawer('right')">
+                <n-icon :component="SettingsOutline" style="cursor: pointer;"></n-icon>
+            </n-button>
+            <div class="avatar-container">
+                <n-avatar round size="large" src="https://q.qlogo.cn/headimg_dl?dst_uin=242247494&spec=640&img_type=jpg"
+                    style="cursor: pointer;"></n-avatar>
+                <div class="text-container">
+                    <div class="text-top">chaoji</div>
+                    <div class="text-bottom">[超级会员]</div>
+                </div>
+            </div>
+        </n-space>
+    </n-space>
+    <n-drawer v-model:show="themeSwitcherDrawer" :placement="placement" :default-width="251" resizable>
+        <n-drawer-content title="面板配置">
+            <ThemeSwitcher />
+        </n-drawer-content>
+    </n-drawer>
+</template>
+
+<script lang="ts">
+import { SettingsOutline, ChatbubbleEllipsesOutline } from '@vicons/ionicons5'
+import { defineComponent, ref } from 'vue';
+import { useThemeStore } from '@/stores/theme';
+import type { DrawerPlacement } from 'naive-ui'
+import ThemeSwitcher from './ThemeSwitcher.vue';
+
+export default defineComponent({
+    components: {
+        ThemeSwitcher
+    },
+    setup() {
+        const themeSwitcherDrawer = ref(false)
+        const placement = ref<DrawerPlacement>('right')
+        const themeStore = useThemeStore(); // 使用useThemeStore获取主题色
+        const ThemeSwitcherDrawer = (place: DrawerPlacement) => {
+            themeSwitcherDrawer.value = true
+            placement.value = place
+        }
+        return {
+            themeStore,
+            SettingsOutline,
+            ChatbubbleEllipsesOutline,
+            placement,
+            // 抽屉
+            themeSwitcherDrawer,
+            ThemeSwitcherDrawer
+        };
+    }
+})
+</script>
+
+<style>
+.center-aligned {
+    display: flex;
+    align-items: center;
+    margin-top: 5px;
+    margin-bottom: 5px
+}
+
+.avatar-container {
+    display: flex;
+    align-items: center;
+    margin-right: 12px;
+}
+
+.text-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin-left: 8px;
+}
+
+.text-top,
+.text-bottom {
+    font-size: 12px;
+    text-align: left;
+}
+
+.text-top {
+    font-weight: bold;
+}
+
+.text-bottom {
+    color: #999;
+}
+</style>
