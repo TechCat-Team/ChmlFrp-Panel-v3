@@ -1,20 +1,19 @@
 <template>
-  <n-space vertical size="large" style="height: 100%;">
-    <n-layout style="height: 100%;">
-      <n-layout-header bordered>
-        <HeaderComponent />
-      </n-layout-header>
-      <n-layout has-sider>
-        <n-layout-sider :style="{ display: isHidden ? 'none' : 'flex' }" bordered collapse-mode="width" :collapsed-width="64" :width="240" :collapsed="collapsed"
-          show-trigger @collapse="handleCollapse" @expand="handleExpand" :native-scrollbar="false" style="height: 92vh">
-          <MenuComponent />
-        </n-layout-sider>
-        <n-layout-content content-style="padding: 24px;" :native-scrollbar="false">
-          <router-view></router-view>
-        </n-layout-content>
+  <n-layout style="height: 100vh">
+    <n-layout-header bordered>
+      <HeaderComponent />
+    </n-layout-header>
+    <n-layout position="absolute" style="top: 64px;" has-sider>
+      <n-layout-sider :style="{ display: isHidden ? 'none' : 'flex' }" bordered collapse-mode="width"
+        :collapsed-width="64" :width="240" :collapsed="collapsed" show-trigger @collapse="handleCollapse"
+        @expand="handleExpand" :native-scrollbar="false">
+        <MenuComponent />
+      </n-layout-sider>
+      <n-layout content-style="padding: 24px;" :native-scrollbar="false">
+        <router-view></router-view>
       </n-layout>
     </n-layout>
-  </n-space>
+  </n-layout>
 </template>
 
 <script lang="ts">

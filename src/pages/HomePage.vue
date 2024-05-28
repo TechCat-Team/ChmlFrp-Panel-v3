@@ -6,7 +6,7 @@
                     <n-avatar :size="72" round :style="{ display: isHidden ? 'none' : 'flex' }"
                         src="https://q.qlogo.cn/headimg_dl?dst_uin=242247494&spec=640&img_type=jpg" />
                     <div :style="textStyle">
-                        <h3 style="margin: 0;">早上好，chaoji，今天又是充满活力的一天!</h3>
+                        <h3 style="margin: 0;">{{ greeting }}</h3>
                         <p style="margin: 0; margin-top: 4px;">{{ apiText }}</p>
                     </div>
                 </div>
@@ -20,6 +20,10 @@
             <n-gi :span="3">
                 <n-card style="border-radius: 10px;">
                     <div id="main" style="width: 100%; height: 400px;"></div>
+                </n-card>
+                <n-card style="border-radius: 10px; margin-top: 15px">
+                    <n-result status="success" title="ChmlFrp - Panel v3.0" description="总感觉怪怪的">
+                    </n-result>
                 </n-card>
             </n-gi>
             <n-gi :span="2">
@@ -89,6 +93,38 @@ const textStyle = computed(() => ({
     textAlign: 'left' as const
 }));
 
+// 根据时间设置欢迎文字
+const currentTime = ref(new Date());
+
+setInterval(() => {
+    currentTime.value = new Date();
+}, 1000);
+
+const greeting = computed(() => {
+    const hour = currentTime.value.getHours();
+    if (hour >= 0 && hour < 6) {
+        return "夜深了，chaoji，夜晚依然静谧，但新的希望已经开始萌芽。";
+    }
+    else if (hour >= 6 && hour < 11) {
+        return "早上好，chaoji，今天又是充满活力的一天。";
+    }
+    else if (hour >= 11 && hour < 14) {
+        return "中午好，chaoji，享受这温暖的阳光和美味的午餐吧。";
+    }
+    else if (hour >= 14 && hour < 15) {
+        return "饮茶先啦，chaoji，做那么多都没用的，老板不会喜欢你的，喂喝一下茶先吧";
+    }
+    else if (hour >= 15 && hour < 17) {
+        return "下午好，chaoji，午后的时光总是最适合专注与思考。";
+    }
+    else if (hour >= 17 && hour < 22) {
+        return "晚上好，chaoji，夜幕降临，是时候享受片刻宁静了。";
+    }
+    else {
+        return "少熬夜，chaoji，愿你有一个宁静而甜美的梦境。";
+    }
+});
+
 // 一言
 const apiText = ref('');
 onMounted(async () => {
@@ -132,13 +168,13 @@ const updateChart = () => {
             yAxis: {
                 type: 'value',
                 axisLabel: {
-                    formatter: '{value} MiB',
+                    formatter: '{value} M',
                     color: themeVars.value.textColorBase
                 }
             },
             series: [
                 {
-                    name: '上传',
+                    name: '上传(MiB)',
                     type: 'line',
                     data: [0, 11, 19, 0, 21, 12, 9],
                     stack: 'Total',
@@ -165,7 +201,7 @@ const updateChart = () => {
                     },
                 },
                 {
-                    name: '下载',
+                    name: '下载(MiB)',
                     type: 'line',
                     data: [0, 14, 19, 2, 21, 12, 9],
                     stack: 'Total',
