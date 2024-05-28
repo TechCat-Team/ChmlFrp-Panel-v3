@@ -16,6 +16,7 @@
     "echarts": "^5.5.0",
     "naive-ui": "^2.38.2",
     "pinia": "^2.1.7",
+    "tinycolor2": "^1.6.0",
     "vfonts": "^0.0.3",
     "vue": "^3.2.13",
     "vue-class-component": "^8.0.0-0",

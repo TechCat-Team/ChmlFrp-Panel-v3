@@ -182,9 +182,11 @@ export const menuOptions: MenuOption[] = [
       },
       {
         label: () => h(
-          RouterLink,
+          'a',
           {
-            to: { name: '帮助文档' }
+            href: 'https://docs.chcat.cn',
+            target: '_blank',
+            rel: 'noopenner noreferrer'
           },
           { default: () => '帮助文档' }
         ),

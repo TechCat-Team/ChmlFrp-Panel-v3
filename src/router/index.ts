@@ -90,11 +90,6 @@ const routes: Array<RouteRecordRaw> = [
         name: '关于面板',
         component: () => import('@/pages/Other/About.vue'),
       },
-      {
-        path: '/other/document',
-        name: '帮助文档',
-        component: () => import('@/pages/Other/Document.vue'),
-      },
     ]
   }
   // {

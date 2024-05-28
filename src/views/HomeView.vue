@@ -3,7 +3,7 @@
     <n-layout-header bordered>
       <HeaderComponent />
     </n-layout-header>
-    <n-layout position="absolute" style="top: 64px;" has-sider>
+    <n-layout position="absolute" style="top: 60px;" has-sider>
       <n-layout-sider :style="{ display: isHidden ? 'none' : 'flex' }" bordered collapse-mode="width"
         :collapsed-width="64" :width="240" :collapsed="collapsed" show-trigger @collapse="handleCollapse"
         @expand="handleExpand" :native-scrollbar="false">

@@ -1,6 +1,6 @@
 <template>
     <n-flex vertical>
-        <n-card style="border-radius: 10px;">
+        <n-card>
             <n-space justify="space-between">
                 <div style="display: flex; align-items: center;">
                     <n-avatar :size="72" round :style="{ display: isHidden ? 'none' : 'flex' }"
@@ -16,29 +16,49 @@
                 </n-space>
             </n-space>
         </n-card>
+        <n-grid style="margin-top: 15px" cols="1 s:2 m:4" responsive="screen" :x-gap="15" :y-gap="20">
+            <n-gi v-for="(card, index) in cards" :key="index">
+                <n-card :style="getCardStyle(index)" :title="card.title" size="small">
+                    <n-flex justify="space-between" align="center">
+                        <n-icon size="32">
+                            <component :is="card.icon" />
+                        </n-icon>
+                        <n-statistic tabular-nums>
+                            <n-number-animation :from="0" :to="card.value" :precision="card.precision" />
+                            <template v-if="card.suffix" #suffix>
+                                {{ card.suffix }}
+                            </template>
+                        </n-statistic>
+                    </n-flex>
+                </n-card>
+            </n-gi>
+        </n-grid>
         <n-grid style="margin-top: 15px" cols="1 s:5" responsive="screen" :x-gap="15" :y-gap="20">
             <n-gi :span="3">
-                <n-card style="border-radius: 10px;">
+                <n-card>
                     <div id="main" style="width: 100%; height: 400px;"></div>
                 </n-card>
-                <n-card style="border-radius: 10px; margin-top: 15px">
+                <n-card style="margin-top: 15px">
                     <n-result status="success" title="ChmlFrp - Panel v3.0" description="总感觉怪怪的">
                     </n-result>
                 </n-card>
             </n-gi>
             <n-gi :span="2">
-                <n-card title="常见问题" style="border-radius: 10px;">
-                    <n-alert title="提示" type="info">
+                <n-card title="常见问题">
+                    <n-alert title="您尚未实名" type="warning" @click="goToUserPage">
+                        不实名则无法使用ChmlFrp提供的服务，点击此提示可前往个人中心实名
+                    </n-alert>
+                    <n-alert title="提示" type="info" style="margin-top: 10px">
                         如果这里没有您想了解的，可以前往<n-button text tag="a" href="https://docs.chcat.cn" target="_blank"
                             type="primary">
                             TechCat Docs
                         </n-button>或TechCatQQ交流群询问。
                     </n-alert>
                     <n-flex style="margin-top: 20px">
-                        <n-button tertiary type="primary">
+                        <n-button style="border-radius: 5px" tertiary type="primary" tag="a" href="https://qm.qq.com/q/ip5zGz1f9K" target="_blank">
                             QQ交流群一群
                         </n-button>
-                        <n-button tertiary type="primary">
+                        <n-button style="border-radius: 5px" tertiary type="primary" tag="a" href="https://qm.qq.com/q/MJ0aeYCi8S" target="_blank">
                             QQ交流群二群
                         </n-button>
                     </n-flex>
@@ -83,7 +103,49 @@ import { useScreenStore } from '@/stores/useScreen';
 import { useThemeVars } from 'naive-ui';
 import { storeToRefs } from 'pinia';
 import * as echarts from 'echarts';
+import { LinkOutline, ServerOutline, ArrowUpCircleOutline, ArrowDownCircleOutline } from '@vicons/ionicons5';
 import axios from 'axios';
+import { useThemeStore } from '@/stores/theme';
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
+const goToUserPage = () => {
+    router.push('/user')
+}
+
+const cards = [
+    { title: '连接数', value: 214, icon: LinkOutline, precision: 0 },
+    { title: '总上传', value: 12.43, icon: ArrowUpCircleOutline, precision: 2, suffix: 'TiB' },
+    { title: '总下载', value: 31.79, icon: ArrowDownCircleOutline, precision: 2, suffix: 'TiB' },
+    { title: '积分数', value: 241248, icon: ServerOutline, precision: 0 },
+]
+
+const themeStore = useThemeStore();
+
+const getCardStyle = (index: number) => {
+    const primaryColor = themeStore.primaryColor;
+    const rgbaColor = hexToRgba(primaryColor, 0.15); // Adjust the last parameter to change the transparency
+    return {
+        borderRadius: '10px',
+        backgroundColor: rgbaColor,
+    };
+};
+
+function hexToRgba(hex: string, alpha: number): string {
+    let r = 0, g = 0, b = 0;
+
+    if (hex.length == 4) {
+        r = parseInt(hex[1] + hex[1], 16);
+        g = parseInt(hex[2] + hex[2], 16);
+        b = parseInt(hex[3] + hex[3], 16);
+    } else if (hex.length == 7) {
+        r = parseInt(hex[1] + hex[2], 16);
+        g = parseInt(hex[3] + hex[4], 16);
+        b = parseInt(hex[5] + hex[6], 16);
+    }
+
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
 
 const screenStore = useScreenStore();
 const { isHidden, screenWidth } = storeToRefs(screenStore);
@@ -174,7 +236,7 @@ const updateChart = () => {
             },
             series: [
                 {
-                    name: '上传(MiB)',
+                    name: '上传',
                     type: 'line',
                     data: [0, 11, 19, 0, 21, 12, 9],
                     stack: 'Total',
@@ -201,7 +263,7 @@ const updateChart = () => {
                     },
                 },
                 {
-                    name: '下载(MiB)',
+                    name: '下载',
                     type: 'line',
                     data: [0, 14, 19, 2, 21, 12, 9],
                     stack: 'Total',
