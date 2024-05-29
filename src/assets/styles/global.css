@@ -1,7 +1,9 @@
-.n-alert {
+.n-alert,
+.n-drawer {
     border-radius: 8px !important;
 }
 
-.n-card {
+.n-card,
+.n-message {
     border-radius: 10px !important;
 }

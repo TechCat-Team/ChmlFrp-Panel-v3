@@ -1,4 +1,5 @@
 <template>
+    <n-back-top :right="100" />
     <n-flex vertical>
         <n-card>
             <n-space justify="space-between">
@@ -18,7 +19,7 @@
         </n-card>
         <n-grid style="margin-top: 15px" cols="1 s:2 m:4" responsive="screen" :x-gap="15" :y-gap="20">
             <n-gi v-for="(card, index) in cards" :key="index">
-                <n-card :style="getCardStyle(index)" :title="card.title" size="small">
+                <n-card :style="cardStyle" :title="card.title" size="small">
                     <n-flex justify="space-between" align="center">
                         <n-icon size="32">
                             <component :is="card.icon" />
@@ -45,7 +46,10 @@
             </n-gi>
             <n-gi :span="2">
                 <n-card title="常见问题">
-                    <n-alert title="您尚未实名" type="warning" @click="goToUserPage">
+                    <n-alert title="您的账户已被封禁" type="error">
+                        您的账号因为违规被封禁，具体原因请查看消息，如有异议可前往交流群申述。
+                    </n-alert>
+                    <n-alert title="您尚未实名" style="margin-top: 10px" type="warning" @click="goToUserPage">
                         不实名则无法使用ChmlFrp提供的服务，点击此提示可前往个人中心实名
                     </n-alert>
                     <n-alert title="提示" type="info" style="margin-top: 10px">
@@ -55,10 +59,12 @@
                         </n-button>或TechCatQQ交流群询问。
                     </n-alert>
                     <n-flex style="margin-top: 20px">
-                        <n-button style="border-radius: 5px" tertiary type="primary" tag="a" href="https://qm.qq.com/q/ip5zGz1f9K" target="_blank">
+                        <n-button style="border-radius: 5px" tertiary type="primary" tag="a"
+                            href="https://qm.qq.com/q/ip5zGz1f9K" target="_blank">
                             QQ交流群一群
                         </n-button>
-                        <n-button style="border-radius: 5px" tertiary type="primary" tag="a" href="https://qm.qq.com/q/MJ0aeYCi8S" target="_blank">
+                        <n-button style="border-radius: 5px" tertiary type="primary" tag="a"
+                            href="https://qm.qq.com/q/MJ0aeYCi8S" target="_blank">
                             QQ交流群二群
                         </n-button>
                     </n-flex>
@@ -77,8 +83,8 @@
                         </n-collapse-item>
                         <n-collapse-item title="信息安全" name="4">
                             <div>我们会保存用户的实名信息及用户数据，但是留存的用户数据全部采用业内标准的加密格式
-                                实名信息采用AES 256 CBC加密。密码信息通过MD5加密
-                                我们承诺不会泄露用户的任何信息，也不会拿用户的信息开玩笑。API数据传递通过SSL加密，API也经过了一层混淆加密。
+                                实名信息采用AES 256 CBC加密。密码信息通过Bcrypt加密
+                                我们承诺不会泄露用户的任何信息，也不会拿用户的信息开玩笑。
                             </div>
                         </n-collapse-item>
                         <n-collapse-item title="禁止内容" name="5">
@@ -100,13 +106,17 @@
 <script lang="ts" setup>
 import { computed, onMounted, watch, ref } from 'vue';
 import { useScreenStore } from '@/stores/useScreen';
-import { useThemeVars } from 'naive-ui';
 import { storeToRefs } from 'pinia';
+import { useThemeVars } from 'naive-ui';
 import * as echarts from 'echarts';
 import { LinkOutline, ServerOutline, ArrowUpCircleOutline, ArrowDownCircleOutline } from '@vicons/ionicons5';
 import axios from 'axios';
-import { useThemeStore } from '@/stores/theme';
+// 根据主题自适应样式背景颜色
+import { useStyleStore } from '@/stores/style';
 import { useRouter } from 'vue-router';
+
+const styleStore = useStyleStore();
+const cardStyle = computed(() => styleStore.getCardStyle());
 
 const router = useRouter();
 const goToUserPage = () => {
@@ -119,33 +129,6 @@ const cards = [
     { title: '总下载', value: 31.79, icon: ArrowDownCircleOutline, precision: 2, suffix: 'TiB' },
     { title: '积分数', value: 241248, icon: ServerOutline, precision: 0 },
 ]
-
-const themeStore = useThemeStore();
-
-const getCardStyle = (index: number) => {
-    const primaryColor = themeStore.primaryColor;
-    const rgbaColor = hexToRgba(primaryColor, 0.15); // Adjust the last parameter to change the transparency
-    return {
-        borderRadius: '10px',
-        backgroundColor: rgbaColor,
-    };
-};
-
-function hexToRgba(hex: string, alpha: number): string {
-    let r = 0, g = 0, b = 0;
-
-    if (hex.length == 4) {
-        r = parseInt(hex[1] + hex[1], 16);
-        g = parseInt(hex[2] + hex[2], 16);
-        b = parseInt(hex[3] + hex[3], 16);
-    } else if (hex.length == 7) {
-        r = parseInt(hex[1] + hex[2], 16);
-        g = parseInt(hex[3] + hex[4], 16);
-        b = parseInt(hex[5] + hex[6], 16);
-    }
-
-    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
-}
 
 const screenStore = useScreenStore();
 const { isHidden, screenWidth } = storeToRefs(screenStore);
@@ -198,6 +181,7 @@ onMounted(async () => {
     }
 });
 
+// ECharts
 const themeVars = useThemeVars();
 
 const updateChart = () => {

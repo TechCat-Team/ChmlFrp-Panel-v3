@@ -1,4 +1,5 @@
 <template>
+    <n-back-top :right="100" />
     <div>
     </div>
 </template>

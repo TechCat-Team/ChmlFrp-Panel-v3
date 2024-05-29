@@ -22,8 +22,8 @@ export default defineComponent({
       activeKey.value = key;
       const targetOption = menuOptions.find(option => option.key === key);
       if (targetOption && typeof targetOption.label === 'function') {
-        const labelVNode = targetOption.label() as any;
-        const to = (labelVNode.props as any).to;
+        const labelVNode = targetOption.label();
+        const to = (labelVNode.props).to;
         router.push(to);
       }
     };

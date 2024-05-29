@@ -156,8 +156,7 @@ export default defineComponent({
 .center-aligned {
     display: flex;
     align-items: center;
-    margin-top: 5px;
-    margin-bottom: 5px
+    height: 60px;
 }
 
 .avatar-container {

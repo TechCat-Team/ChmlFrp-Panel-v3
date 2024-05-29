@@ -34,80 +34,64 @@
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent, ref, watch, CSSProperties } from 'vue';
+<script lang="ts" setup>
+import { ref, watch, CSSProperties } from 'vue';
 import { useThemeStore } from '@/stores/theme';
 import { NSwitch, NColorPicker } from 'naive-ui';
 import { Sparkles, Sunny } from '@vicons/ionicons5';
 
-export default defineComponent({
-  components: {
-    NSwitch,
-    NColorPicker,
-  },
-  setup() {
-    const themeStore = useThemeStore();
-    const isDarkTheme = ref(themeStore.theme === 'dark');
-    const primaryColor = ref(themeStore.primaryColor);
+const themeStore = useThemeStore();
+const isDarkTheme = ref(themeStore.theme === 'dark');
+const primaryColor = ref(themeStore.primaryColor);
 
-    const presetColors = [
-      '#18a058', '#2080f0', '#f5222d', '#fa541c', '#faad14', '#13c2c2', '#52c41a', '#eb2f96', '#722ed1', '#2f54eb'
-    ];
+const presetColors = [
+  '#18a058', '#2080f0', '#f5222d', '#fa541c', '#faad14', '#13c2c2', '#52c41a', '#eb2f96', '#722ed1', '#2f54eb'
+];
 
-    const changeTheme = (isDark: boolean) => {
-      const theme = isDark ? 'dark' : 'light';
-      themeStore.setTheme(theme);
-      document.documentElement.setAttribute('data-theme', theme);
-    };
+const changeTheme = (isDark: boolean) => {
+  const theme = isDark ? 'dark' : 'light';
+  themeStore.setTheme(theme);
+  document.documentElement.setAttribute('data-theme', theme);
+};
 
-    const changePrimaryColor = (color: string) => {
-      themeStore.setPrimaryColor(color);
-    };
+const changePrimaryColor = (color: string) => {
+  themeStore.setPrimaryColor(color);
+};
 
-    const setPresetColor = (color: string) => {
-      primaryColor.value = color;
-      changePrimaryColor(color);
-    };
+const setPresetColor = (color: string) => {
+  primaryColor.value = color;
+  changePrimaryColor(color);
+};
 
-    watch(isDarkTheme, (newIsDark) => {
-      changeTheme(newIsDark);
-    });
-
-    watch(primaryColor, (newColor) => {
-      changePrimaryColor(newColor);
-    });
-
-    return {
-      isDarkTheme,
-      primaryColor,
-      presetColors,
-      setPresetColor,
-      Sparkles,
-      Sunny,
-      railStyle: ({
-        focused,
-        checked
-      }: {
-        focused: boolean
-        checked: boolean
-      }) => {
-        const style: CSSProperties = {}
-        if (checked) {
-          style.background = '#000000'
-          if (focused) {
-            style.boxShadow = '0 0 0 2px #00000040'
-          }
-        } else {
-          style.background = '#CDD0D6'
-          if (focused) {
-            style.boxShadow = '0 0 0 2px #CDD0D640'
-          }
-        }
-        return style
-      }
-    };
-  },
+watch(isDarkTheme, (newIsDark) => {
+  changeTheme(newIsDark);
 });
+
+watch(primaryColor, (newColor) => {
+  changePrimaryColor(newColor);
+});
+
+const railStyle = ({
+  focused,
+  checked
+}: {
+  focused: boolean
+  checked: boolean
+}) => {
+  const style: CSSProperties = {}
+  if (checked) {
+    style.background = '#000000'
+    if (focused) {
+      style.boxShadow = '0 0 0 2px #00000040'
+    }
+  } else {
+    style.background = '#CDD0D6'
+    if (focused) {
+      style.boxShadow = '0 0 0 2px #CDD0D640'
+    }
+  }
+  return style
+}
 </script>
 
 <style lang="scss">

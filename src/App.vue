@@ -15,7 +15,7 @@ import { defineComponent, h, computed } from 'vue';
 import { useThemeStore } from '@/stores/theme';
 import { RouterView } from 'vue-router';
 import { useProviderStore } from './stores/provider';
-import { NLoadingBarProvider, useLoadingBar, lightTheme, darkTheme } from 'naive-ui';
+import { NLoadingBarProvider, useLoadingBar, lightTheme, darkTheme, NMessageProvider } from 'naive-ui';
 
 const themeStore = useThemeStore();
 
