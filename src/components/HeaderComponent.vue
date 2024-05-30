@@ -15,9 +15,14 @@
                     <n-icon :component="ChatbubbleEllipsesOutline" style="cursor: pointer;"></n-icon>
                 </n-badge>
             </n-button>
-            <n-button quaternary style="font-size: 18px;" @click="ThemeSwitcherDrawer('right')">
-                <n-icon :component="SettingsOutline" style="cursor: pointer;"></n-icon>
-            </n-button>
+            <n-popover trigger="hover">
+                <template #trigger>
+                    <n-button quaternary style="font-size: 18px;" @click="ThemeSwitcherDrawer('right')">
+                        <n-icon :component="SettingsOutline" style="cursor: pointer;"></n-icon>
+                    </n-button>
+                </template>
+                <span>面板设置</span>
+            </n-popover>
             <n-dropdown trigger="hover" :options="userDropdownOptions">
                 <n-button quaternary size="large" class="avatar-container">
                     <n-avatar round size="large"

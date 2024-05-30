@@ -3,7 +3,7 @@ import { useThemeStore } from '@/stores/theme';
 
 export const useStyleStore = defineStore('style', {
   actions: {
-    getCardStyle() { // 不再需要传递 colorStyle 参数
+    getCardStyle() {
       const themeStore = useThemeStore();
       const primaryColor = themeStore.primaryColor;
       const rgbaColor = this.hexToRgba(primaryColor, 0.15);

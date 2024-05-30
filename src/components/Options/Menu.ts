@@ -2,12 +2,12 @@ import { h, Component } from 'vue';
 import { RouterLink } from 'vue-router';
 import { NIcon, MenuOption } from 'naive-ui';
 import {
-  StatsChartOutline as StatsChartIcon,
-  DocumentTextOutline as DocumentTextIcon,
-  CloudDownloadOutline as CloudDownloadIcon,
-  GridOutline as GridIcon,
-  ListOutline as ListIcon,
-  HomeOutline as HomeIcon,
+  StatsChartOutline,
+  DocumentTextOutline,
+  CloudDownloadOutline,
+  GridOutline,
+  ListOutline,
+  HomeOutline,
   PersonCircleOutline,
   DocumentsOutline,
   ExtensionPuzzleOutline,
@@ -36,7 +36,7 @@ export const menuOptions: MenuOption[] = [
       { default: () => '首页' }
     ),
     key: '首页',
-    icon: renderIcon(HomeIcon)
+    icon: renderIcon(HomeOutline)
   },
   {
     type: 'divider',
@@ -58,7 +58,7 @@ export const menuOptions: MenuOption[] = [
   {
     label: '隧道管理',
     key: '隧道管理',
-    icon: renderIcon(ListIcon),
+    icon: renderIcon(ListOutline),
     children: [
       {
         label: () => h(
@@ -69,7 +69,7 @@ export const menuOptions: MenuOption[] = [
           { default: () => '隧道列表' }
         ),
         key: '隧道列表',
-        icon: renderIcon(GridIcon)
+        icon: renderIcon(GridOutline)
       },
       {
         label: () => h(
@@ -80,7 +80,7 @@ export const menuOptions: MenuOption[] = [
           { default: () => '配置文件' }
         ),
         key: '配置文件',
-        icon: renderIcon(DocumentTextIcon)
+        icon: renderIcon(DocumentTextOutline)
       },
       {
         label: () => h(
@@ -91,7 +91,7 @@ export const menuOptions: MenuOption[] = [
           { default: () => '节点状态' }
         ),
         key: '节点状态',
-        icon: renderIcon(StatsChartIcon)
+        icon: renderIcon(StatsChartOutline)
       },
       {
         label: () => h(
@@ -102,7 +102,7 @@ export const menuOptions: MenuOption[] = [
           { default: () => '软件下载' }
         ),
         key: '软件下载',
-        icon: renderIcon(CloudDownloadIcon)
+        icon: renderIcon(CloudDownloadOutline)
       }
     ]
   },

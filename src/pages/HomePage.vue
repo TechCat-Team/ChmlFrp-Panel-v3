@@ -13,7 +13,17 @@
                 </div>
                 <n-space justify="end" style="margin-top: 15px;">
                     <n-button type="primary" strong secondary>签到</n-button>
-                    <n-button strong secondary>签到信息</n-button>
+                    <n-popover trigger="hover">
+                        <template #trigger>
+                            <n-button strong secondary>签到信息</n-button>
+                        </template>
+                        <n-thing title="统计信息" content-style="margin-top: 10px;">
+                            上次签到时间：2024-05-24<br>
+                            累计签到积分：20842<br>
+                            累计签到次数：121<br>
+                            今日签到人数：2
+                        </n-thing>
+                    </n-popover>
                 </n-space>
             </n-space>
         </n-card>

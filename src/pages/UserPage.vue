@@ -3,104 +3,101 @@
     <n-flex vertical>
         <n-grid cols="1 s:5" responsive="screen" :x-gap="15" :y-gap="20">
             <n-gi :span="2">
-                <n-flex vertical>
-                    <!-- <n-card title="实名认证">
-                        <n-form ref="formRef" :model="realNameModel" :rules="realNameRules" label-placement="left"
-                            label-width="auto">
-                            <n-form-item path="name" label="姓名" show-require-mark="true">
-                                <n-input v-model:value="realNameModel.name" @keydown.enter.prevent />
-                            </n-form-item>
-                            <n-form-item path="idcard" label="身份证" show-require-mark="true">
-                                <n-input v-model:value="realNameModel.idCard" @keydown.enter.prevent />
-                            </n-form-item>
-                            <n-row :gutter="[0, 24]">
-                                <n-col :span="24">
-                                    <div style="display: flex; justify-content: flex-end">
-                                        <n-button
-                                            :disabled="realNameModel.name === null || realNameModel.idCard === null"
-                                            round type="primary" @click="realNameHandleValidateButtonClick">
-                                            验证
-                                        </n-button>
-                                    </div>
-                                </n-col>
-                            </n-row>
-                        </n-form>
-                    </n-card> -->
-                    <n-card title="使用兑换码">
-                        <n-form ref="formRef" :model="realNameModel" :rules="exchangeCodeRules" label-placement="left"
-                            label-width="auto">
-                            <n-form-item path="exchangeCode" label="兑换码" show-require-mark="true">
-                                <n-input v-model:value="exchangeCodeModel.exchangeCode" round @keydown.enter.prevent />
-                            </n-form-item>
-                            <n-row :gutter="[0, 24]">
-                                <n-col :span="24">
-                                    <div style="display: flex; justify-content: flex-end">
-                                        <n-button :disabled="exchangeCodeModel.exchangeCode === null" round
-                                            type="primary" @click="exchangeCodeHandleValidateButtonClick">
-                                            验证
-                                        </n-button>
-                                    </div>
-                                </n-col>
-                            </n-row>
-                        </n-form>
-                    </n-card>
-                    <n-card style="display: flex; justify-content: center; margin-top: 10px ">
-                        <n-space justify="center">
-                            <div
-                                style="display: flex; align-items: center; justify-content: center; flex-direction: column;">
-                                <n-avatar :size="72" round
-                                    src="https://q.qlogo.cn/headimg_dl?dst_uin=242247494&spec=640&img_type=jpg" />
-                                <div style="text-align: center;">
-                                    <h3 style="margin: 0;">Hi，chaoji
-                                        <span style="color: gray; font-size: 14px;">#1</span>
-                                    </h3>
-                                    <p style="margin: 0; margin-top: 4px;">chaoji@chcat.cn</p>
+                <n-card title="实名认证" style="margin-bottom: 15px">
+                    <n-form ref="formRef" :model="realNameModel" :rules="realNameRules" label-placement="left"
+                        label-width="auto">
+                        <n-form-item path="name" label="姓名" show-require-mark="true">
+                            <n-input v-model:value="realNameModel.name" @keydown.enter.prevent />
+                        </n-form-item>
+                        <n-form-item path="idcard" label="身份证" show-require-mark="true">
+                            <n-input v-model:value="realNameModel.idCard" @keydown.enter.prevent />
+                        </n-form-item>
+                        <n-row :gutter="[0, 24]">
+                            <n-col :span="24">
+                                <div style="display: flex; justify-content: flex-end">
+                                    <n-button :disabled="realNameModel.name === null || realNameModel.idCard === null"
+                                        round type="primary" @click="realNameHandleValidateButtonClick">
+                                        验证
+                                    </n-button>
                                 </div>
+                            </n-col>
+                        </n-row>
+                    </n-form>
+                </n-card>
+                <n-card title="使用兑换码">
+                    <n-form ref="formRef" :model="realNameModel" :rules="exchangeCodeRules" label-placement="left"
+                        label-width="auto">
+                        <n-form-item path="exchangeCode" label="兑换码" show-require-mark="true">
+                            <n-input v-model:value="exchangeCodeModel.exchangeCode" round @keydown.enter.prevent />
+                        </n-form-item>
+                        <n-row :gutter="[0, 24]">
+                            <n-col :span="24">
+                                <div style="display: flex; justify-content: flex-end">
+                                    <n-button :disabled="exchangeCodeModel.exchangeCode === null" round type="primary"
+                                        @click="exchangeCodeHandleValidateButtonClick">
+                                        验证
+                                    </n-button>
+                                </div>
+                            </n-col>
+                        </n-row>
+                    </n-form>
+                </n-card>
+                <n-card style="display: flex; justify-content: center; margin-top: 15px ">
+                    <n-space justify="center">
+                        <div
+                            style="display: flex; align-items: center; justify-content: center; flex-direction: column;">
+                            <n-avatar :size="72" round
+                                src="https://q.qlogo.cn/headimg_dl?dst_uin=242247494&spec=640&img_type=jpg" />
+                            <div style="text-align: center;">
+                                <h3 style="margin: 0;">Hi，chaoji
+                                    <span style="color: gray; font-size: 14px;">#1</span>
+                                </h3>
+                                <p style="margin: 0; margin-top: 4px;">chaoji@chcat.cn</p>
                             </div>
-                        </n-space>
-                        <n-card :style="cardStyle" style="margin-top: 15px; text-align: center;">
-                            <n-descriptions label-placement="top" column="3" label-align="center" size="large">
-                                <n-descriptions-item label="注册时间">
-                                    2077-5-30
-                                </n-descriptions-item>
-                                <n-descriptions-item label="QQ">
-                                    242247494
-                                </n-descriptions-item>
-                                <n-descriptions-item label="权限组">
-                                    超级会员
-                                </n-descriptions-item>
-                                <n-descriptions-item label="到期时间">
-                                    9999-9-9
-                                </n-descriptions-item>
-                                <n-descriptions-item label="实名状态">
-                                    已实名
-                                </n-descriptions-item>
-                                <n-descriptions-item label="剩余积分">
-                                    241248
-                                </n-descriptions-item>
-                                <n-descriptions-item label="隧道限制">
-                                    4 / 16
-                                </n-descriptions-item>
-                                <n-descriptions-item label="带宽限制">
-                                    国内32m | 国外128m
-                                </n-descriptions-item>
-                            </n-descriptions>
-                        </n-card>
-                        <div style="display: flex; justify-content: center;">
-                            <n-tag v-if="!showNewContent" round :bordered="false" type="primary"
-                                style="margin-top: 15px;" @click="toggleContent">
-                                点击显示Token
-                                <template #icon>
-                                    <n-icon :component="KeyOutline" />
-                                </template>
-                            </n-tag>
-                            <n-tag round v-if="showNewContent" @click="toggleContent" :bordered="false" type="primary"
-                                style="margin-top: 15px;">
-                                ChmlFrpTokenPreview
-                            </n-tag>
                         </div>
+                    </n-space>
+                    <n-card :style="cardStyle" style="margin-top: 15px; text-align: center;">
+                        <n-descriptions label-placement="top" column="3" label-align="center" size="large">
+                            <n-descriptions-item label="注册时间">
+                                2077-5-30
+                            </n-descriptions-item>
+                            <n-descriptions-item label="QQ">
+                                242247494
+                            </n-descriptions-item>
+                            <n-descriptions-item label="权限组">
+                                超级会员
+                            </n-descriptions-item>
+                            <n-descriptions-item label="到期时间">
+                                9999-9-9
+                            </n-descriptions-item>
+                            <n-descriptions-item label="实名状态">
+                                已实名
+                            </n-descriptions-item>
+                            <n-descriptions-item label="剩余积分">
+                                241248
+                            </n-descriptions-item>
+                            <n-descriptions-item label="隧道限制">
+                                4 / 16
+                            </n-descriptions-item>
+                            <n-descriptions-item label="带宽限制">
+                                国内32m | 国外128m
+                            </n-descriptions-item>
+                        </n-descriptions>
                     </n-card>
-                </n-flex>
+                    <div style="display: flex; justify-content: center;">
+                        <n-tag v-if="!showNewContent" round :bordered="false" type="primary" style="margin-top: 15px;"
+                            @click="toggleContent">
+                            点击显示Token
+                            <template #icon>
+                                <n-icon :component="KeyOutline" />
+                            </template>
+                        </n-tag>
+                        <n-tag round v-if="showNewContent" @click="toggleContent" :bordered="false" type="primary"
+                            style="margin-top: 15px;">
+                            ChmlFrpTokenPreview
+                        </n-tag>
+                    </div>
+                </n-card>
             </n-gi>
             <n-gi :span="3">
                 <n-card title="消息">

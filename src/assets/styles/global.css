@@ -7,3 +7,7 @@
 .n-message {
     border-radius: 10px !important;
 }
+
+.n-card .n-card__action {
+    border-radius: 8px 8px 10px 10px;
+}

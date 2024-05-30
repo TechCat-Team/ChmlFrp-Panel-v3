@@ -27,22 +27,22 @@ const routes: Array<RouteRecordRaw> = [
       {
         path: '/tunnel/list',
         name: '隧道列表',
-        component: () => import('@/pages/Tunnel/List.vue'),
+        component: () => import('@/pages/Tunnel/ListPage.vue'),
       },
       {
         path: '/tunnel/download',
         name: '软件下载',
-        component: () => import('@/pages/Tunnel/Download.vue'),
+        component: () => import('@/pages/Tunnel/DownloadPage.vue'),
       },
       {
         path: '/tunnel/config',
         name: '配置文件',
-        component: () => import('@/pages/Tunnel/Config.vue'),
+        component: () => import('@/pages/Tunnel/ConfigPage.vue'),
       },
       {
         path: '/tunnel/status',
         name: '节点状态',
-        component: () => import('@/pages/Tunnel/Status.vue'),
+        component: () => import('@/pages/Tunnel/StatusPage.vue'),
       },
     ]
   },
@@ -54,7 +54,7 @@ const routes: Array<RouteRecordRaw> = [
       {
         path: '/expand/domainname',
         name: '免费域名',
-        component: () => import('@/pages/Expand/Domainname.vue'),
+        component: () => import('@/pages/Expand/DomainName.vue'),
       },
     ]
   },
@@ -66,17 +66,17 @@ const routes: Array<RouteRecordRaw> = [
       {
         path: '/shop/topup',
         name: '积分充值',
-        component: () => import('@/pages/Shop/Topup.vue'),
+        component: () => import('@/pages/Shop/TopUp.vue'),
       },
       {
         path: '/other/buy',
         name: '积分商城',
-        component: () => import('@/pages/Shop/Buy.vue'),
+        component: () => import('@/pages/Shop/BuyPage.vue'),
       },
       {
         path: '/other/record',
         name: '消费记录',
-        component: () => import('@/pages/Shop/Record.vue'),
+        component: () => import('@/pages/Shop/RecordPage.vue'),
       },
     ]
   },
@@ -88,7 +88,7 @@ const routes: Array<RouteRecordRaw> = [
       {
         path: '/other/about',
         name: '关于面板',
-        component: () => import('@/pages/Other/About.vue'),
+        component: () => import('@/pages/Other/AboutPage.vue'),
       },
     ]
   }
