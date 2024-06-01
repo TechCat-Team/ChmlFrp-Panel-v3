@@ -1,5 +1,5 @@
 <template>
-  <n-config-provider :theme="computedTheme" :theme-overrides="themeOverrides">
+  <n-config-provider :hljs="hljs" :theme="computedTheme" :theme-overrides="themeOverrides">
     <!-- 加载条 -->
     <n-loading-bar-provider>
       <!-- 顶部信息 -->
@@ -16,6 +16,12 @@ import { useThemeStore } from '@/stores/theme';
 import { RouterView } from 'vue-router';
 import { useProviderStore } from './stores/provider';
 import { NLoadingBarProvider, useLoadingBar, lightTheme, darkTheme, NMessageProvider } from 'naive-ui';
+import hljs from 'highlight.js/lib/core'
+import ini from 'highlight.js/lib/languages/ini'
+import nginx from 'highlight.js/lib/languages/nginx'
+
+hljs.registerLanguage('ini', ini)
+hljs.registerLanguage('nginx', nginx)
 
 const themeStore = useThemeStore();
 

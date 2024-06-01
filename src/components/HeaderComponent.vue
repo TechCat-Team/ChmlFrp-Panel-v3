@@ -1,7 +1,9 @@
 <template>
     <n-space justify="space-between" class="center-aligned">
         <span
-            :style="{ display: isHidden ? 'none' : 'flex', color: themeStore.primaryColor, marginLeft: '24px', fontSize: '26px', transition: 'color 0.2s' }">ChmlFrp</span>
+            :style="{ display: isHidden ? 'none' : 'flex', color: themeStore.primaryColor, marginLeft: '24px', fontSize: '26px', transition: 'color 0.2s' }">
+            ChmlFrp
+        </span>
         <div :style="{ display: isHidden ? 'flex' : 'none' }">
             <n-dropdown size="large" :options="menuOptions">
                 <n-button quaternary style="font-size: 18px">
@@ -29,7 +31,9 @@
                         src="https://q.qlogo.cn/headimg_dl?dst_uin=242247494&spec=640&img_type=jpg"
                         style="cursor: pointer;"></n-avatar>
                     <div class="text-container">
-                        <div class="text-top">chaoji</div>
+                        <n-performant-ellipsis style="max-width: 90px">
+                            <div class="text-top">chaoji</div>
+                        </n-performant-ellipsis>
                         <div class="text-bottom">超级会员</div>
                     </div>
                 </n-button>

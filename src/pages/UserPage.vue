@@ -4,13 +4,13 @@
         <n-grid cols="1 s:5" responsive="screen" :x-gap="15" :y-gap="20">
             <n-gi :span="2">
                 <n-card title="实名认证" style="margin-bottom: 15px">
-                    <n-form ref="formRef" :model="realNameModel" :rules="realNameRules" label-placement="left"
+                    <n-form ref="realNameFormRef" :model="realNameModel" :rules="realNameRules" label-placement="left"
                         label-width="auto">
                         <n-form-item path="name" label="姓名" show-require-mark="true">
-                            <n-input v-model:value="realNameModel.name" @keydown.enter.prevent />
+                            <n-input v-model:value="realNameModel.name" round />
                         </n-form-item>
-                        <n-form-item path="idcard" label="身份证" show-require-mark="true">
-                            <n-input v-model:value="realNameModel.idCard" @keydown.enter.prevent />
+                        <n-form-item path="idCard" label="身份证" show-require-mark="true">
+                            <n-input v-model:value="realNameModel.idCard" round />
                         </n-form-item>
                         <n-row :gutter="[0, 24]">
                             <n-col :span="24">
@@ -25,10 +25,10 @@
                     </n-form>
                 </n-card>
                 <n-card title="使用兑换码">
-                    <n-form ref="formRef" :model="realNameModel" :rules="exchangeCodeRules" label-placement="left"
-                        label-width="auto">
+                    <n-form ref="exchangeCodeFormRef" :model="exchangeCodeModel" :rules="exchangeCodeRules"
+                        label-placement="left" label-width="auto">
                         <n-form-item path="exchangeCode" label="兑换码" show-require-mark="true">
-                            <n-input v-model:value="exchangeCodeModel.exchangeCode" round @keydown.enter.prevent />
+                            <n-input v-model:value="exchangeCodeModel.exchangeCode" round />
                         </n-form-item>
                         <n-row :gutter="[0, 24]">
                             <n-col :span="24">
@@ -113,12 +113,20 @@
                 </n-card>
                 <n-card title="账户设置" style="margin-top: 15px">
                     <template #header-extra>
-                        <n-button quaternary type="primary">
+                        <n-button quaternary type="primary" round>
                             签到
                         </n-button>
-                        <n-button quaternary>
-                            签到信息
-                        </n-button>
+                        <n-popover trigger="hover">
+                            <template #trigger>
+                                <n-button quaternary round>签到信息</n-button>
+                            </template>
+                            <n-thing title="统计信息" content-style="margin-top: 10px;">
+                                上次签到时间：2024-05-24<br>
+                                累计签到积分：20842<br>
+                                累计签到次数：121<br>
+                                今日签到人数：2
+                            </n-thing>
+                        </n-popover>
                     </template>
                     <n-grid cols="1 l:2" responsive="screen" :x-gap="5" :y-gap="5">
                         <n-gi>
@@ -154,7 +162,7 @@
                                         <n-icon size="28" :component="ImageOutline" />
                                         <div style="margin-left: 15px">
                                             <p style="margin: 0; font-size: 15px">更改头像</p>
-                                            <p style="margin: 0; font-size: 12px">不支持上传图片文件，请将图片上传到后再填写链接</p>
+                                            <p style="margin: 0; font-size: 12px">不支持上传图片文件，请将图片上传到图床后再填写链接</p>
                                         </div>
                                     </div>
                                 </n-space>
@@ -196,93 +204,82 @@
 <script setup lang="ts">
 import { KeyOutline, PersonOutline, ImageOutline, MailOutline, LockClosedOutline } from '@vicons/ionicons5'
 import { ref, computed } from 'vue';
-import {
-    NTag, NIcon, FormInst,
-    useMessage,
-    FormRules
-} from 'naive-ui';
-// 根据主题自适应样式背景颜色
+import { NTag, NIcon, FormInst, useMessage, FormRules } from 'naive-ui';
 import { useStyleStore } from '@/stores/style';
 
 const styleStore = useStyleStore();
 const cardStyle = computed(() => styleStore.getCardStyle());
 
 // 实名认证表单
-interface realNameModelType {
-    name: string | null
-    idCard: string | null
+interface RealNameModelType {
+    name: string | null;
+    idCard: string | null;
 }
 
-const realNameFormRef = ref<FormInst | null>(null)
-const message = useMessage()
-const realNameModel = ref<realNameModelType>({
+const realNameFormRef = ref<FormInst | null>(null);
+const message = useMessage();
+const realNameModel = ref<RealNameModelType>({
     name: null,
     idCard: null,
-})
+});
 
 const realNameRules: FormRules = {
     name: [
         {
             required: true,
-            message: '请输入真实姓名'
-        }
+            message: '请输入真实姓名',
+        },
     ],
     idCard: [
         {
             required: true,
-            message: '请输入身份证号'
-        }
+            message: '请输入身份证号',
+        },
     ],
-}
+};
 
 const realNameHandleValidateButtonClick = (e: MouseEvent) => {
-    e.preventDefault()
+    e.preventDefault();
     realNameFormRef.value?.validate((errors) => {
         if (!errors) {
-            message.success('实名认证成功')
+            message.success('实名认证成功');
         } else {
-            console.log(errors)
-            message.error('实名认证失败')
+            console.error(errors);
+            message.error('实名认证失败');
         }
-    })
-}
+    });
+};
 
 // 兑换码表单
-interface exchangeCodeType {
-    exchangeCode: string | null
+interface ExchangeCodeType {
+    exchangeCode: string | null;
 }
 
-const exchangeCodeFormRef = ref<FormInst | null>(null)
-const exchangeCodeModel = ref<exchangeCodeType>({
+const exchangeCodeFormRef = ref<FormInst | null>(null);
+const exchangeCodeModel = ref<ExchangeCodeType>({
     exchangeCode: null,
-})
+});
 
 const exchangeCodeRules: FormRules = {
-    name: [
+    exchangeCode: [
         {
             required: true,
-            message: '请输入真实姓名'
-        }
+            message: '请输入兑换码',
+        },
     ],
-    idCard: [
-        {
-            required: true,
-            message: '请输入身份证号'
-        }
-    ],
-}
+};
 
 const exchangeCodeHandleValidateButtonClick = (e: MouseEvent) => {
-    e.preventDefault()
+    e.preventDefault();
     exchangeCodeFormRef.value?.validate((errors) => {
         if (!errors) {
-            message.success('兑换成功，内容：超级会员1月')
+            message.success('兑换成功，内容：超级会员1月');
         } else {
-            console.log(errors)
-            message.error('兑换失败')
+            console.error(errors);
+            message.error('兑换失败');
         }
-    })
-}
+    });
+};
 
 // 显示Token
 const showNewContent = ref(false);

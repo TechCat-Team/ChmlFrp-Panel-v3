@@ -1,18 +1,97 @@
 <template>
     <n-back-top :right="100" />
+    <n-modal v-model:show="createTunnelModal">
+        <n-card :style="widthStyle" title="选择节点" :bordered="false" role="dialog" aria-modal="true">
+            <n-alert type="info" style="bottom: 12px;">
+                为确保您的体验，请尽量选择负载低，距离近的节点。
+            </n-alert>
+            <n-flex justify="space-between" align="center">
+                <n-flex>
+                    <n-checkbox>
+                        UDP
+                    </n-checkbox>
+                    <n-checkbox>
+                        无权限
+                    </n-checkbox>
+                </n-flex>
+                <n-flex>
+                    <n-button-group>
+                        <n-button size="small" type="primary" strong secondary round>
+                            全部
+                        </n-button>
+                        <n-button size="small">
+                            可建站
+                        </n-button>
+                        <n-button size="small" round>
+                            不可建站
+                        </n-button>
+                    </n-button-group>
+                    <n-button-group>
+                        <n-button size="small" type="primary" strong secondary round>
+                            全部
+                        </n-button>
+                        <n-button size="small">
+                            中国
+                        </n-button>
+                        <n-button size="small" round>
+                            境外
+                        </n-button>
+                    </n-button-group>
+                </n-flex>
+            </n-flex>
+            <n-grid style="margin-top: 12px" cols="1 m:3 xl:4 2xl:5" :x-gap="12" :y-gap="12" responsive="screen">
+                <n-grid-item v-for="(nodeCard, index) in nodeCards" :key="index">
+                    <n-card size="small" style="height: 90px" hoverable @click="handleNodeCardClick(nodeCard.title)">
+                        <template #header>
+                            <span style="color: gray;">
+                                {{ nodeCard.id }}
+                            </span>
+                            <n-divider vertical />
+                            {{ nodeCard.title }}
+                        </template>
+                        <template #header-extra v-if="nodeCard.group === 'vip'">
+                            <n-tag size="small" round type="warning">
+                                VIP
+                            </n-tag>
+                        </template>
+                        <n-space>
+                            <n-tag :bordered="false" round size="small" type="success" v-if="nodeCard.web === 'yes'">
+                                <template #icon>
+                                    <n-icon :component="EarthOutline" />
+                                </template>
+                                建站
+                            </n-tag>
+                            <n-tag :bordered="false" round size="small" type="error" v-if="nodeCard.udp === 'false'">
+                                <template #icon>
+                                    <n-icon :component="BanOutline" />
+                                </template>
+                                UDP
+                            </n-tag>
+                            <n-tag :bordered="false" round size="small" type="info" v-if="nodeCard.defense === 'yes'">
+                                <template #icon>
+                                    <n-icon :component="ShieldCheckmarkOutline" />
+                                </template>
+                                防御
+                            </n-tag>
+                        </n-space>
+                    </n-card>
+                </n-grid-item>
+            </n-grid>
+        </n-card>
+    </n-modal>
     <n-card style="margin-bottom: 20px;" title="隧道列表">
         <template #header-extra>
-            <n-button type="primary" quaternary>
-                <template #icon>
-                    <n-icon :component="AddOutline" />
-                </template>
-                添加隧道
-            </n-button>
-            <n-button quaternary>
+            <n-button round quaternary>
                 <template #icon>
                     <n-icon :component="RefreshOutline" />
                 </template>
                 刷新
+            </n-button>
+            <n-button @click="createTunnelModal = true" type="primary" round quaternary>
+                <template #icon>
+                    <n-icon :component="AddOutline" />
+                </template>
+                添加隧道
             </n-button>
         </template>
     </n-card>
@@ -43,8 +122,8 @@
                 <n-thing content-style="margin-top: 10px;">
                     <template #description>
                         <n-space size="small" style="margin-top: 4px">
-                            <n-tag v-for="(tag, tagIndex) in card.tags" :key="tagIndex" :bordered="false" type="primary"
-                                size="small">
+                            <n-tag round v-for="(tag, tagIndex) in card.tags" :key="tagIndex" :bordered="false"
+                                type="primary" size="small">
                                 {{ tag }}
                             </n-tag>
                         </n-space>
@@ -80,19 +159,19 @@
                 </template>
                 <template #action>
                     <n-flex justify="space-around">
-                        <n-button round quaternary>
+                        <n-button round quaternary type="primary">
                             <template #icon>
                                 <n-icon :component="CreateOutline" />
                             </template>
                             编辑
                         </n-button>
-                        <n-button round quaternary>
+                        <n-button round quaternary type="primary">
                             <template #icon>
                                 <n-icon :component="EyeOutline" />
                             </template>
                             查看
                         </n-button>
-                        <n-button round quaternary>
+                        <n-button round quaternary type="error">
                             <template #icon>
                                 <n-icon :component="TrashOutline" />
                             </template>
@@ -106,11 +185,48 @@
 </template>
 
 <script setup lang="ts">
-import { RefreshOutline, AddOutline, ArrowUpOutline, ArrowDownOutline, EyeOutline, TrashOutline, CreateOutline } from '@vicons/ionicons5'
-import { ref } from 'vue'
+import { RefreshOutline, AddOutline, ArrowUpOutline, ArrowDownOutline, EyeOutline, TrashOutline, CreateOutline, BanOutline, EarthOutline, ShieldCheckmarkOutline } from '@vicons/ionicons5'
+import { ref, computed } from 'vue'
 import { useMessage } from 'naive-ui';
+import { useScreenStore } from '@/stores/useScreen';
+import { storeToRefs } from 'pinia';
 
 const message = useMessage()
+
+const createTunnelModal = ref(false)
+
+const screenStore = useScreenStore();
+const { screenWidth } = storeToRefs(screenStore);
+
+// 根据屏幕宽度决定创建隧道对话框大小
+const widthStyle = computed(() => ({
+    width: screenWidth.value >= 600 ? '70%' : '100%',
+}));
+
+const nodeCards = ref([
+    {
+        id: '#1',
+        title: '火星CN2-1',
+        group: 'vip',
+        web: 'yes',
+        china: 'yes',
+        defense: 'yes',
+        udp: 'false',
+    },
+    {
+        id: '#2',
+        title: '月球直连',
+        group: 'user',
+        web: 'no',
+        china: 'yes',
+        defense: 'yes',
+        udp: 'true',
+    }
+])
+
+const handleNodeCardClick = (title: any) => {
+    const selectedTitle = title;
+}
 
 const cards = ref([
     {
