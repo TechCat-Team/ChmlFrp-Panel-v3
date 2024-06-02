@@ -224,8 +224,9 @@ const nodeCards = ref([
     }
 ])
 
-const handleNodeCardClick = (title: any) => {
+const handleNodeCardClick = (title: string) => {
     const selectedTitle = title;
+    console.log('选中了:', selectedTitle);
 }
 
 const cards = ref([

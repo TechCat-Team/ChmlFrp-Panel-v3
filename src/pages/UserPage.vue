@@ -6,10 +6,10 @@
                 <n-card title="实名认证" style="margin-bottom: 15px">
                     <n-form ref="realNameFormRef" :model="realNameModel" :rules="realNameRules" label-placement="left"
                         label-width="auto">
-                        <n-form-item path="name" label="姓名" show-require-mark="true">
+                        <n-form-item path="name" label="姓名" :show-require-mark="true">
                             <n-input v-model:value="realNameModel.name" round />
                         </n-form-item>
-                        <n-form-item path="idCard" label="身份证" show-require-mark="true">
+                        <n-form-item path="idCard" label="身份证" :show-require-mark="true">
                             <n-input v-model:value="realNameModel.idCard" round />
                         </n-form-item>
                         <n-row :gutter="[0, 24]">
@@ -27,7 +27,7 @@
                 <n-card title="使用兑换码">
                     <n-form ref="exchangeCodeFormRef" :model="exchangeCodeModel" :rules="exchangeCodeRules"
                         label-placement="left" label-width="auto">
-                        <n-form-item path="exchangeCode" label="兑换码" show-require-mark="true">
+                        <n-form-item path="exchangeCode" label="兑换码" :show-require-mark="true">
                             <n-input v-model:value="exchangeCodeModel.exchangeCode" round />
                         </n-form-item>
                         <n-row :gutter="[0, 24]">
@@ -57,7 +57,7 @@
                         </div>
                     </n-space>
                     <n-card :style="cardStyle" style="margin-top: 15px; text-align: center;">
-                        <n-descriptions label-placement="top" column="3" label-align="center" size="large">
+                        <n-descriptions label-placement="top" :column="3" label-align="center" size="large">
                             <n-descriptions-item label="注册时间">
                                 2077-5-30
                             </n-descriptions-item>

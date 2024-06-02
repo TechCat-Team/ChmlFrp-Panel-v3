@@ -88,8 +88,8 @@ const copyToClipboard = () => {
     navigator.clipboard.writeText(tunnelConfig).then(() => {
         message.success('配置文件复制成功')
     }).catch(err => {
-        console.error('复制连接地址失败:', err);
-        message.error('连接地址复制失败')
+        console.error('复制配置文件失败:', err);
+        message.error('配置文件复制失败')
     });
 };
 
