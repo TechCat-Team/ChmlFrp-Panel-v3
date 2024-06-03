@@ -8,7 +8,8 @@
                         src="https://q.qlogo.cn/headimg_dl?dst_uin=242247494&spec=640&img_type=jpg" />
                     <div :style="textStyle">
                         <h3 style="margin: 0;">{{ greeting }}</h3>
-                        <p style="margin: 0; margin-top: 4px;">{{ apiText }}</p>
+                        <n-skeleton v-if="loadingTest" width="100%" style="margin-top: 8px" :sharp="false" text />
+                        <p v-else style="margin: 0; margin-top: 4px;">{{ apiText }}</p>
                     </div>
                 </div>
                 <n-space justify="end" style="margin-top: 15px;">
@@ -125,6 +126,8 @@ import axios from 'axios';
 import { useStyleStore } from '@/stores/style';
 import { useRouter } from 'vue-router';
 
+const loadingTest = ref(true)
+
 const styleStore = useStyleStore();
 const cardStyle = computed(() => styleStore.getCardStyle());
 
@@ -184,8 +187,9 @@ const greeting = computed(() => {
 const apiText = ref('');
 onMounted(async () => {
     try {
-        const response = await axios.get('https://v1.hitokoto.cn');
-        apiText.value = response.data.hitokoto;
+        const response = await axios.get('/uapi/say?type=json');
+        apiText.value = response.data.message;
+        loadingTest.value = false;
     } catch (error) {
         console.error('API调用失败：', error);
     }
