@@ -151,39 +151,55 @@
                     </n-collapse-item>
                 </n-collapse>
             </n-card>
-            <n-card style="margin-top: 24px; height: 500px " title="关联程序">
+            <n-card style="margin-top: 24px;" title="关联程序">
                 <template #header-extra>
                     <n-select v-model:value="value" :options="options" style="width: 100px;" placeholder="关联程序" />
                 </template>
-                <div class="state" style="display: flex; align-items: center;">
-                    <n-image width="72" :src="imgSrc" />
-                    <div style="text-align: left; margin-left: 16px">
-                        <h3 style="margin: 0;">yq.frp.one:21421</h3>
-                        <div style="margin: 0; margin-top: 4px;" v-html="htmlMotd"></div>
+                <div v-if="value === '我的世界'">
+                    <div class="state" style="display: flex; align-items: center;">
+                        <n-image width="72" :src="imgSrc" />
+                        <div style="text-align: left; margin-left: 16px">
+                            <h3 style="margin: 0;">yq.frp.one:21421</h3>
+                            <div style="margin: 0; margin-top: 4px;" v-html="htmlMotd"></div>
+                        </div>
                     </div>
+                    <n-card style="margin-top: 15px;" :style="cardStyle">
+                        <n-descriptions label-placement="top" :column="screenWidth >= 600 ? 6 : 2" size="large">
+                            <n-descriptions-item label="状态">
+                                {{ mconline }}
+                            </n-descriptions-item>
+                            <n-descriptions-item label="MC版本">
+                                {{ mcversion }}
+                            </n-descriptions-item>
+                            <n-descriptions-item label="人数">
+                                {{ mcplayersonline }} / {{ mcplayersmax }}
+                            </n-descriptions-item>
+                            <n-descriptions-item label="PING">
+                                {{ ping }}
+                            </n-descriptions-item>
+                            <n-descriptions-item label="SRV解析">
+                                {{ srv }}
+                            </n-descriptions-item>
+                            <n-descriptions-item label="software">
+                                {{ software }}
+                            </n-descriptions-item>
+                        </n-descriptions>
+                    </n-card>
+                    <n-divider>
+                        玩家列表(虚假的在线人数或人数过多的服务器不会显示)
+                    </n-divider>
+                    <n-card>
+                        <MinecraftSkinViewer
+                            skinUrl="http://textures.minecraft.net/texture/d9e065e0c8f874f1cac8eb3d96c09931282084e5930b76b3288577025f7af9c1"
+                            capeUrl="http://textures.minecraft.net/texture/f9a76537647989f9a0b6d001e320dac591c359e9e61a31f4ce11c88f207f0ad4"
+                            playerName="mc_chaoji" />
+                    </n-card>
                 </div>
-                <n-card style="margin-top: 15px;" :style="cardStyle">
-                    <n-descriptions label-placement="top" :column="screenWidth >= 600 ? 6 : 2" size="large">
-                        <n-descriptions-item label="状态">
-                            {{ mconline }}
-                        </n-descriptions-item>
-                        <n-descriptions-item label="MC版本">
-                            {{ mcversion }}
-                        </n-descriptions-item>
-                        <n-descriptions-item label="人数">
-                            {{ mcplayersonline }} / {{ mcplayersmax }}
-                        </n-descriptions-item>
-                        <n-descriptions-item label="PING">
-                            {{ ping }}
-                        </n-descriptions-item>
-                        <n-descriptions-item label="SRV解析">
-                            {{ srv }}
-                        </n-descriptions-item>
-                        <n-descriptions-item label="software">
-                            {{ software }}
-                        </n-descriptions-item>
-                    </n-descriptions>
-                </n-card>
+                <div v-if="value === '网页'">
+                </div>
+                <div v-if="value === '无'">
+                    <n-empty description="暂无隧道关联程序" />
+                </div>
             </n-card>
         </n-layout-content>
     </n-layout>
@@ -198,6 +214,7 @@ import { useMessage } from 'naive-ui';
 import { useStyleStore } from '@/stores/style';
 import { useScreenStore } from '@/stores/useScreen';
 import { storeToRefs } from 'pinia';
+import MinecraftSkinViewer from '@/components/MinecraftSkinViewer.vue';
 
 const screenStore = useScreenStore();
 const { screenWidth } = storeToRefs(screenStore);
@@ -266,6 +283,10 @@ const options = [
     {
         label: '我的世界',
         value: '我的世界'
+    },
+    {
+        label: '网页',
+        value: '网页'
     }
 ]
 
