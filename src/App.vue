@@ -19,9 +19,11 @@ import { NLoadingBarProvider, useLoadingBar, lightTheme, darkTheme, NMessageProv
 import hljs from 'highlight.js/lib/core'
 import ini from 'highlight.js/lib/languages/ini'
 import nginx from 'highlight.js/lib/languages/nginx'
+import powershell from 'highlight.js/lib/languages/powershell'
 
 hljs.registerLanguage('ini', ini)
 hljs.registerLanguage('nginx', nginx)
+hljs.registerLanguage('powershell', powershell)
 
 // 获取当前年份
 const currentDate = new Date();

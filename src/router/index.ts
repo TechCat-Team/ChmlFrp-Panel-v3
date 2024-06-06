@@ -16,7 +16,7 @@ const routes: Array<RouteRecordRaw> = [
         path: '/user',
         name: '个人资料',
         component: () => import('@/pages/UserPage.vue')
-      }
+      },
     ]
   },
   {
@@ -91,11 +91,25 @@ const routes: Array<RouteRecordRaw> = [
         component: () => import('@/pages/Other/AboutPage.vue'),
       },
     ]
-  }
+  },
+  {
+    path: '/login',
+    name: '登录',
+    component: () => import('@/views/LoginView.vue')
+  },
+  {
+    path: '/tunnel/info',
+    name: '隧道详情',
+    component: () => import('@/views/TunnelInfoView.vue')
+  },
   // {
-  //   path: '/login',
-  //   name: '登录',
-  //   component: () => import('@/views/LoginView.vue')
+  //   path: '/404',
+  //   name: 'NotFound',
+  //   component: () => import('@/views/NotFound.vue')
+  // },
+  // {
+  //   path: '*',
+  //   redirect: '/404'
   // }
 ]
 
