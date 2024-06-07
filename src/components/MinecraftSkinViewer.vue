@@ -72,7 +72,7 @@ export default defineComponent({
   left: 50%;
   transform: translateX(-50%);
   color: white;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: rgba(0, 0, 0, 0.3);
   padding: 5px 10px;
   border-radius: 5px;
 }

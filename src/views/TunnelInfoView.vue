@@ -188,12 +188,37 @@
                     <n-divider>
                         玩家列表(虚假的在线人数或人数过多的服务器不会显示)
                     </n-divider>
-                    <n-card>
-                        <MinecraftSkinViewer
-                            skinUrl="http://textures.minecraft.net/texture/d9e065e0c8f874f1cac8eb3d96c09931282084e5930b76b3288577025f7af9c1"
-                            capeUrl="http://textures.minecraft.net/texture/f9a76537647989f9a0b6d001e320dac591c359e9e61a31f4ce11c88f207f0ad4"
-                            playerName="mc_chaoji" />
-                    </n-card>
+                    <n-grid cols="1 s:2 m:4 l:5 xl:6 2xl:7" :y-gap="8" :x-gap="8" responsive="screen">
+                        <n-grid-item>
+                            <n-card>
+                                <MinecraftSkinViewer
+                                    skinUrl="http://textures.minecraft.net/texture/d9e065e0c8f874f1cac8eb3d96c09931282084e5930b76b3288577025f7af9c1"
+                                    capeUrl="http://textures.minecraft.net/texture/f9a76537647989f9a0b6d001e320dac591c359e9e61a31f4ce11c88f207f0ad4"
+                                    playerName="mc_chaoji" />
+                            </n-card>
+                        </n-grid-item>
+                        <n-grid-item>
+                            <n-card>
+                                <MinecraftSkinViewer
+                                    skinUrl="https://crafatar.com/skins/f6e4c79c159b47af8c2e8f3e5be88ae3"
+                                    playerName="keqityh" />
+                            </n-card>
+                        </n-grid-item>
+                        <n-grid-item>
+                            <n-card>
+                                <MinecraftSkinViewer
+                                    skinUrl="https://crafatar.com/skins/460c4e73a6b045978a7919e546ca425d"
+                                    playerName="404Control" />
+                            </n-card>
+                        </n-grid-item>
+                        <n-grid-item>
+                            <n-card>
+                                <MinecraftSkinViewer
+                                    skinUrl="https://crafatar.com/skins/a271adc118a84c819375d4f5de7e093d"
+                                    playerName="MilkyMay5201314" />
+                            </n-card>
+                        </n-grid-item>
+                    </n-grid>
                 </div>
                 <div v-if="value === '网页'">
                 </div>
