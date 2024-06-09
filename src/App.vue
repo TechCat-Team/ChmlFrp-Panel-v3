@@ -11,7 +11,7 @@
 </template>
 
 <script setup lang="ts">
-import { defineComponent, h, computed } from 'vue';
+import { defineComponent, h, computed, watch, onMounted, onUnmounted } from 'vue';
 import { useThemeStore } from '@/stores/theme';
 import { RouterView } from 'vue-router';
 import { useProviderStore } from './stores/provider';
@@ -86,6 +86,55 @@ const ViewComponent = defineComponent({
     provider.setLoadingBar(useLoadingBar());
   },
 });
+
+let animationFrameId: number | null = null;
+let isRGBRunning = false;
+
+const animatePrimaryColor = () => {
+  if (isRGBRunning) return;
+  isRGBRunning = true;
+
+  let r = 255, g = 0, b = 0;
+  let dr = -5, dg = 5, db = 0;
+
+  const step = () => {
+    if (!themeStore.isRGBMode) {
+      isRGBRunning = false;
+      return;
+    }
+    if (r <= 0 && g >= 255) { dr = 0; dg = -5; db = 5; }
+    if (g <= 0 && b >= 255) { dr = 5; dg = 0; db = -5; }
+    if (b <= 0 && r >= 255) { dr = -5; dg = 5; db = 0; }
+    r += dr; g += dg; b += db;
+
+    themeStore.primaryColor = `rgb(${r}, ${g}, ${b})`;
+    animationFrameId = requestAnimationFrame(step);
+  };
+
+  step();
+};
+
+watch(() => themeStore.isRGBMode, (newVal) => {
+  if (newVal) {
+    animatePrimaryColor();
+  } else if (animationFrameId) {
+    cancelAnimationFrame(animationFrameId);
+    animationFrameId = null;
+  }
+});
+
+onMounted(() => {
+  if (themeStore.isRGBMode) {
+    animatePrimaryColor();
+  }
+});
+
+onUnmounted(() => {
+  if (animationFrameId) {
+    cancelAnimationFrame(animationFrameId);
+    animationFrameId = null;
+  }
+});
 </script>
 
 <style lang="scss">
@@ -93,7 +142,6 @@ const ViewComponent = defineComponent({
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  // text-align: center;
   color: #2c3e50;
 }
 </style>

@@ -151,7 +151,8 @@ export default defineComponent({
                     icon: renderIcon(LogoutIcon, '#f5222d'),
                     props: {
                         onClick: () => {
-                            message.info('此版本为UI预览版，无法退出登录');
+                            message.success('成功退出登陆，用户信息已清空');
+                            router.push('/login')
                         },
                     },
                 },

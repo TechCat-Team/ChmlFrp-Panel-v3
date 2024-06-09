@@ -4,7 +4,7 @@
     <div class="theme-switch">
       <span style="margin-right: 10px;">手动</span>
       <n-switch size="large" v-model:value="isAutoTheme" :checked-value="true" :unchecked-value="false">
-        <template #checked>跟随系统</template>
+        <template #checked>自动切换</template>
         <template #unchecked>手动切换</template>
       </n-switch>
       <span style="margin-left: 10px;">自动</span>
@@ -28,13 +28,18 @@
     <n-color-picker v-model:value="primaryColor" :show-preview="true" />
     <div class="preset-colors">
       <div v-for="color in presetColors" :key="color" :style="{ backgroundColor: color }" class="preset-color"
-        @click="setPresetColor(color)"></div>
+        @click="setPresetColor(color)">
+      </div>
     </div>
+    <n-flex style="margin-top: 24px" justify="space-between">
+      <span style="margin-right: 84px">RGB模式</span>
+      <n-switch size="large" v-model:value="isRGBMode" :checked-value="true" :unchecked-value="false" />
+    </n-flex>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { ref, watch, onMounted, onUnmounted, CSSProperties } from 'vue';
+import { ref, watch, CSSProperties } from 'vue';
 import { useThemeStore } from '@/stores/theme';
 import { NSwitch, NColorPicker, NDivider, NIcon } from 'naive-ui';
 import { Sparkles, Sunny } from '@vicons/ionicons5';
@@ -43,6 +48,7 @@ const themeStore = useThemeStore();
 const isDarkTheme = ref(themeStore.theme === 'dark');
 const primaryColor = ref(themeStore.primaryColor);
 const isAutoTheme = ref(themeStore.isAutoTheme);
+const isRGBMode = ref(themeStore.isRGBMode);
 
 const presetColors = [
   '#18a058', '#2080f0', '#f5222d', '#fa541c', '#faad14', '#13c2c2', '#52c41a', '#eb2f96', '#722ed1', '#2f54eb'
@@ -63,6 +69,16 @@ const setPresetColor = (color: string) => {
   changePrimaryColor(color);
 };
 
+const setAutoTheme = (isAuto: boolean) => {
+  isAutoTheme.value = isAuto;
+  themeStore.setAutoTheme(isAuto);
+};
+
+const setRGBMode = (isRGB: boolean) => {
+  isRGBMode.value = isRGB;
+  themeStore.setRGBMode(isRGB);
+};
+
 watch(isDarkTheme, (newIsDark) => {
   if (!isAutoTheme.value) {
     changeTheme(newIsDark);
@@ -73,13 +89,8 @@ watch(primaryColor, (newColor) => {
   changePrimaryColor(newColor);
 });
 
-const handleSystemThemeChange = (e: MediaQueryListEvent) => {
-  isDarkTheme.value = e.matches;
-  changeTheme(isDarkTheme.value);
-};
-
 watch(isAutoTheme, (newVal) => {
-  themeStore.setAutoTheme(newVal);
+  setAutoTheme(newVal);
   if (newVal) {
     const systemDarkTheme = window.matchMedia('(prefers-color-scheme: dark)');
     isDarkTheme.value = systemDarkTheme.matches;
@@ -89,6 +100,10 @@ watch(isAutoTheme, (newVal) => {
     const systemDarkTheme = window.matchMedia('(prefers-color-scheme: dark)');
     systemDarkTheme.removeEventListener('change', handleSystemThemeChange);
   }
+});
+
+watch(isRGBMode, (newVal) => {
+  setRGBMode(newVal);
 });
 
 const railStyle = ({
@@ -108,21 +123,10 @@ const railStyle = ({
   return style
 };
 
-onMounted(() => {
-  if (isAutoTheme.value) {
-    const systemDarkTheme = window.matchMedia('(prefers-color-scheme: dark)');
-    systemDarkTheme.addEventListener('change', handleSystemThemeChange);
-    isDarkTheme.value = systemDarkTheme.matches;
-    changeTheme(isDarkTheme.value);
-  } else {
-    changeTheme(isDarkTheme.value);
-  }
-});
-
-onUnmounted(() => {
-  const systemDarkTheme = window.matchMedia('(prefers-color-scheme: dark)');
-  systemDarkTheme.removeEventListener('change', handleSystemThemeChange);
-});
+const handleSystemThemeChange = (e: MediaQueryListEvent) => {
+  isDarkTheme.value = e.matches;
+  changeTheme(isDarkTheme.value);
+};
 </script>
 
 <style lang="scss">
