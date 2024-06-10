@@ -12,11 +12,6 @@
             </n-dropdown>
         </div>
         <n-space class="center-aligned" justify="space-between">
-            <n-button quaternary style="font-size: 18px">
-                <n-badge :value="2" :max="9">
-                    <n-icon :component="ChatbubbleEllipsesOutline" style="cursor: pointer;"></n-icon>
-                </n-badge>
-            </n-button>
             <n-popover trigger="hover">
                 <template #trigger>
                     <n-button quaternary style="font-size: 18px;" @click="ThemeSwitcherDrawer('right')">
@@ -47,9 +42,9 @@
     </n-drawer>
 </template>
 
-<script lang="ts">
-import { SettingsOutline, ChatbubbleEllipsesOutline } from '@vicons/ionicons5'
-import { defineComponent, ref, h, Component } from 'vue';
+<script lang="ts" setup>
+import { SettingsOutline } from '@vicons/ionicons5'
+import { ref, h, Component } from 'vue';
 import { useThemeStore } from '@/stores/theme';
 import { useScreenStore } from '@/stores/useScreen';
 import { storeToRefs } from 'pinia';
@@ -96,70 +91,50 @@ function renderCustomHeader() {
         ]
     )
 }
+// Router
+const router = useRouter();
+// 顶部消息
+const message = useMessage()
 
-export default defineComponent({
-    components: {
-        ThemeSwitcher
+// 基础的手机端适配
+const screenStore = useScreenStore();
+const { isHidden } = storeToRefs(screenStore);
+
+const themeSwitcherDrawer = ref(false)
+const placement = ref<DrawerPlacement>('right')
+const themeStore = useThemeStore(); // 使用useThemeStore获取主题色
+const ThemeSwitcherDrawer = (place: DrawerPlacement) => {
+    themeSwitcherDrawer.value = true
+    placement.value = place
+}
+const userDropdownOptions = [
+    {
+        key: 'header',
+        type: 'render',
+        render: renderCustomHeader
     },
-    setup() {
-        // Router
-        const router = useRouter();
-        // 顶部消息
-        const message = useMessage()
-
-        // 基础的手机端适配
-        const screenStore = useScreenStore();
-        const { isHidden } = storeToRefs(screenStore);
-
-        const themeSwitcherDrawer = ref(false)
-        const placement = ref<DrawerPlacement>('right')
-        const themeStore = useThemeStore(); // 使用useThemeStore获取主题色
-        const ThemeSwitcherDrawer = (place: DrawerPlacement) => {
-            themeSwitcherDrawer.value = true
-            placement.value = place
+    {
+        label: '用户资料',
+        key: 'profile',
+        icon: renderIcon(UserIcon),
+        props: {
+            onClick: () => {
+                router.push('/user');
+            }
         }
-        return {
-            themeStore,
-            SettingsOutline,
-            ChatbubbleEllipsesOutline,
-            placement,
-            // 抽屉
-            themeSwitcherDrawer,
-            ThemeSwitcherDrawer,
-            isHidden,
-            MenuOutline,
-            menuOptions,
-            userDropdownOptions: [
-                {
-                    key: 'header',
-                    type: 'render',
-                    render: renderCustomHeader
-                },
-                {
-                    label: '用户资料',
-                    key: 'profile',
-                    icon: renderIcon(UserIcon),
-                    props: {
-                        onClick: () => {
-                            router.push('/user');
-                        }
-                    }
-                },
-                {
-                    label: '退出登录',
-                    key: 'logout',
-                    icon: renderIcon(LogoutIcon, '#f5222d'),
-                    props: {
-                        onClick: () => {
-                            message.success('成功退出登陆，用户信息已清空');
-                            router.push('/login')
-                        },
-                    },
-                },
-            ],
-        };
-    }
-})
+    },
+    {
+        label: '退出登录',
+        key: 'logout',
+        icon: renderIcon(LogoutIcon, '#f5222d'),
+        props: {
+            onClick: () => {
+                message.success('成功退出登陆，用户信息已清空');
+                router.push('/login')
+            },
+        },
+    },
+]
 </script>
 
 <style>

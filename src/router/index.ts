@@ -109,7 +109,7 @@ const routes: Array<RouteRecordRaw> = [
         }
       },
       {
-        path: '/other/buy',
+        path: '/shop/buy',
         name: '积分商城',
         component: () => import('@/pages/Shop/BuyPage.vue'),
         meta: {
@@ -119,7 +119,7 @@ const routes: Array<RouteRecordRaw> = [
         }
       },
       {
-        path: '/other/record',
+        path: '/shop/record',
         name: '消费记录',
         component: () => import('@/pages/Shop/RecordPage.vue'),
         meta: {

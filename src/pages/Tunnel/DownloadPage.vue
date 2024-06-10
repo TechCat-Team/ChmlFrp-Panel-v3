@@ -5,9 +5,5 @@
     </n-card>
 </template>
 
-<script lang="ts">
-import { Vue } from 'vue-class-component';
-
-export default class DownloadPage extends Vue {
-}
+<script lang="ts" setup>
 </script>

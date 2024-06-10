@@ -16,44 +16,29 @@
   </n-layout>
 </template>
 
-<script lang="ts">
-import { defineComponent, computed } from 'vue';
+<script lang="ts" setup>
+import { computed } from 'vue';
 import { useLayoutStore } from '@/stores/useLayout';
 import MenuComponent from '@/components/MenuComponent.vue';
 import HeaderComponent from '@/components/HeaderComponent.vue';
 import { useScreenStore } from '@/stores/useScreen';
 import { storeToRefs } from 'pinia';
 
-export default defineComponent({
-  components: {
-    MenuComponent,
-    HeaderComponent
-  },
-  setup() {
-    // 菜单适配手机端，自动隐藏sider
-    const screenStore = useScreenStore();
-    const { isHidden } = storeToRefs(screenStore);
+// 菜单适配手机端，自动隐藏sider
+const screenStore = useScreenStore();
+const { isHidden } = storeToRefs(screenStore);
 
 
-    const layoutStore = useLayoutStore();
-    const collapsed = computed(() => layoutStore.collapsed);
+const layoutStore = useLayoutStore();
+const collapsed = computed(() => layoutStore.collapsed);
 
-    const handleCollapse = () => {
-      layoutStore.setCollapse(true);
-    };
+const handleCollapse = () => {
+  layoutStore.setCollapse(true);
+};
 
-    const handleExpand = () => {
-      layoutStore.setCollapse(false);
-    };
-
-    return {
-      collapsed,
-      handleCollapse,
-      handleExpand,
-      isHidden
-    };
-  }
-});
+const handleExpand = () => {
+  layoutStore.setCollapse(false);
+};
 </script>
 
 <style lang="scss">
