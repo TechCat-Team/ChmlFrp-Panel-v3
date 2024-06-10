@@ -1,46 +1,45 @@
 <template>
     <n-layout style="height: 100vh">
         <n-layout-content>
-            <!-- 登录 -->
-            <div id="page" class="site">
-                <div class="container">
-                    <div class="login">
-                        <div class="hero">
-                            <h1>Sign In to<br>ChmlFrp Panel</h1>
-                            <p>如果您还没有账号<br>请
-                                <n-button text type="primary">点击这里</n-button>
-                                进行注册.
-                            </p>
-                        </div>
-                        <div style="flex: 1 0 33.3333%">
+            <n-grid cols="6" item-responsive responsive="screen">
+                <n-grid-item span="0 m:4" class="center-content">
+                    <div class="hero">
+                        <h1>Sign In to<br>ChmlFrp Panel</h1>
+                        <p>如果您还没有账号<br>请
+                            <n-button text type="primary">点击这里</n-button>
+                            进行注册.
+                        </p>
+                    </div>
+                </n-grid-item>
+                <n-grid-item span="6 m:2" class="center-content">
+                    <n-card style="height: 100vh;">
+                        <n-form ref="formRef" :model="model" :rules="rules" class="center-form">
                             <n-alert title="隐私策略&服务条款有更新" type="info">
                                 登录即代表您同意更新后的条款。点我查看隐私策略&服务条款。
                             </n-alert>
-                            <n-form ref="formRef" :model="model" :rules="rules">
-                                <n-form-item path="email">
-                                    <n-input v-model:value="model.email" size="large" round placeholder="用户名或邮箱"
-                                        maxlength="30" clearable />
-                                </n-form-item>
-                                <n-form-item path="password">
-                                    <n-input v-model:value="model.password" size="large" round placeholder="密码"
-                                        type="password" maxlength="64" />
-                                </n-form-item>
-                                <div style="display: flex; justify-content: flex-end;">
-                                    <n-button text color="#9398b3">
-                                        重置密码
-                                    </n-button>
-                                </div>
-                                <div style="display: flex; justify-content: flex-end; margin-top: 20px">
-                                    <n-button :disabled="model.email === null || model.password === null" round type="primary" style="width: 100%;"
-                                        size="large" @click="handleValidateButtonClick">
-                                        登录
-                                    </n-button>
-                                </div>
-                            </n-form>
-                        </div>
-                    </div>
-                </div>
-            </div>
+                            <n-form-item path="email">
+                                <n-input v-model:value="model.email" size="large" round placeholder="用户名或邮箱"
+                                    maxlength="30" clearable />
+                            </n-form-item>
+                            <n-form-item path="password">
+                                <n-input v-model:value="model.password" size="large" round placeholder="密码"
+                                    type="password" maxlength="64" />
+                            </n-form-item>
+                            <div style="display: flex; justify-content: flex-end;">
+                                <n-button text color="#9398b3">
+                                    重置密码
+                                </n-button>
+                            </div>
+                            <div style="display: flex; justify-content: flex-end; margin-top: 24px">
+                                <n-button :disabled="model.email === null || model.password === null" round
+                                    type="primary" style="width: 100%;" size="large" @click="handleValidateButtonClick">
+                                    登录
+                                </n-button>
+                            </div>
+                        </n-form>
+                    </n-card>
+                </n-grid-item>
+            </n-grid>
         </n-layout-content>
     </n-layout>
 </template>
@@ -94,7 +93,6 @@ const handleValidateButtonClick = (e: MouseEvent) => {
         }
     })
 }
-
 </script>
 
 <style lang="scss">
@@ -109,27 +107,7 @@ h1 {
     line-height: normal;
 }
 
-.site {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 100vh;
-}
-
-.container {
-    max-width: 1000px;
-    width: 100%;
-    padding: 0 30px;
-    margin: 0 auto;
-}
-
-.login {
-    display: flex;
-    flex-wrap: wrap;
-}
-
 .hero {
-    flex: 1 0 66.6666%;
     position: relative;
     display: flex;
     flex-direction: column;
@@ -172,5 +150,18 @@ h1 {
     animation: moveGradient 5s ease infinite;
     z-index: 1;
     filter: blur(70px);
+}
+
+.center-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.center-form {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    height: 100%;
 }
 </style>
