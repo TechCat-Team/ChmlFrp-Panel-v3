@@ -27,9 +27,9 @@ jobs:
         uses: easingthemes/ssh-deploy@v2.1.1
         env:
           SSH_PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
-          ARGS: "-avzr --delete"
+          ARGS: "-avzr"
           SOURCE: "./public/"
           REMOTE_HOST: ${{ secrets.HOST }}
           REMOTE_USER: "root"
           TARGET: '/www/wwwroot/preview.panel.chmlfrp.cn'
-          EXCLUDE: "/node_modules/"
+          EXCLUDE: "/node_modules/ .user.ini"
