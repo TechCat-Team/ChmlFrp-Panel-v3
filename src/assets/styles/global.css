@@ -1,5 +1,6 @@
 .n-alert,
-.n-drawer {
+.n-drawer,
+.n-dialog {
     border-radius: 8px !important;
 }
 

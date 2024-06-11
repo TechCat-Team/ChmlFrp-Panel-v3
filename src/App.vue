@@ -4,7 +4,10 @@
     <n-loading-bar-provider>
       <!-- 顶部信息 -->
       <n-message-provider>
-        <ViewComponent />
+        <!-- 对话框 -->
+        <n-dialog-provider>
+          <ViewComponent />
+        </n-dialog-provider>
       </n-message-provider>
     </n-loading-bar-provider>
   </n-config-provider>
@@ -15,7 +18,7 @@ import { defineComponent, h, computed, watch, onMounted, onUnmounted } from 'vue
 import { useThemeStore } from '@/stores/theme';
 import { RouterView } from 'vue-router';
 import { useProviderStore } from './stores/provider';
-import { NLoadingBarProvider, useLoadingBar, lightTheme, darkTheme, NMessageProvider } from 'naive-ui';
+import { NLoadingBarProvider, useLoadingBar, lightTheme, darkTheme, NMessageProvider, NDialogProvider } from 'naive-ui';
 import hljs from 'highlight.js/lib/core'
 import ini from 'highlight.js/lib/languages/ini'
 import nginx from 'highlight.js/lib/languages/nginx'

@@ -23,7 +23,7 @@
                             </n-form-item>
                             <n-form-item path="password">
                                 <n-input v-model:value="model.password" size="large" round placeholder="密码"
-                                    type="password" maxlength="64" />
+                                    type="password" maxlength="64" show-password-on="mousedown"/>
                             </n-form-item>
                             <div style="display: flex; justify-content: flex-end;">
                                 <n-button text color="#9398b3">

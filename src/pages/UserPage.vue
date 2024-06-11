@@ -33,7 +33,7 @@
                     </template>
                     <n-grid cols="1 l:2" responsive="screen" :x-gap="5" :y-gap="5">
                         <n-gi>
-                            <n-card hoverable size="small" :bordered="false">
+                            <n-card hoverable size="small" :bordered="false" @click="resetToken">
                                 <n-space justify="space-between" align="center">
                                     <div style="display: flex; align-items: center;">
                                         <n-icon size="28" :component="KeyOutline" />
@@ -46,7 +46,7 @@
                             </n-card>
                         </n-gi>
                         <n-gi>
-                            <n-card hoverable size="small" :bordered="false">
+                            <n-card hoverable size="small" :bordered="false" @click="changeTheUsernameModal = true">
                                 <n-space justify="space-between" align="center">
                                     <div style="display: flex; align-items: center;">
                                         <n-icon size="28" :component="PersonOutline" />
@@ -59,7 +59,7 @@
                             </n-card>
                         </n-gi>
                         <n-gi>
-                            <n-card hoverable size="small" :bordered="false">
+                            <n-card hoverable size="small" :bordered="false" @click="modifyAvatarModal = true">
                                 <n-space justify="space-between" align="center">
                                     <div style="display: flex; align-items: center;">
                                         <n-icon size="28" :component="ImageOutline" />
@@ -72,7 +72,7 @@
                             </n-card>
                         </n-gi>
                         <n-gi>
-                            <n-card hoverable size="small" :bordered="false">
+                            <n-card hoverable size="small" :bordered="false" @click="changePasswordModal = true">
                                 <n-space justify="space-between" align="center">
                                     <div style="display: flex; align-items: center;">
                                         <n-icon size="28" :component="LockClosedOutline" />
@@ -85,7 +85,7 @@
                             </n-card>
                         </n-gi>
                         <n-gi>
-                            <n-card hoverable size="small" :bordered="false">
+                            <n-card hoverable size="small" :bordered="false" @click="changeTheMailboxModal = true">
                                 <n-space justify="space-between" align="center">
                                     <div style="display: flex; align-items: center;">
                                         <n-icon size="28" :component="MailOutline" />
@@ -98,20 +98,10 @@
                             </n-card>
                         </n-gi>
                         <n-gi>
-                            <n-card hoverable size="small" :bordered="false">
+                            <n-card hoverable size="small" :bordered="false" @click="changeQQModal = true">
                                 <n-space justify="space-between" align="center">
                                     <div style="display: flex; align-items: center;">
-                                        <n-icon size="28">
-                                            <svg height="28" viewBox="0 0 32 32" width="32"
-                                                xmlns="http://www.w3.org/2000/svg">
-                                                <g fill="none" fill-rule="evenodd">
-                                                    <path d="m0 0h32v32h-32z" />
-                                                    <path
-                                                        d="m15.9998867 0-.3175962.00373031c-6.8340705.16105657-10.59798873 5.52198001-10.62328209 13.09956699l.00099159.2727027-.86256398 2.1053645c-.34339269.8459887-.59479858 1.4918602-.8236549 2.1249911-.16246446.4494579-.31092035.8862129-.4515632 1.3302912-1.41043336 4.4529342-1.46997142 7.7313526 1.14979123 8.0424546l.19586827.0182568c.69853306.0462522 1.18775172-.1357889 1.69345756-.5695745l.04666502-.0427837.10703497.1859114.16295747.2641667.09000756.1369219-.10203891.0725127c-1.18457469.8599516-1.78515849 2.0422997-.8749963 3.5478041.72014893 1.1919865 1.68579016 1.3851809 4.67654251 1.4059241h1.2781117l.7210113-.0101194c1.4578857-.0287327 2.9764342-.1065736 3.9343697-.2001215l.2555297.0243167c1.1291243.09698 2.8606159.1735357 4.3993902.1859242h1.2781118c2.9907546-.0207471 3.95642-.2139816 4.6768437-1.4064227l.0983227-.1723424c.764361-1.4241985.1648309-2.548721-.9747412-3.3755348l-.1034569-.072941.0912293-.1362605.1629318-.2641511.1068389-.1855884.0466679.0427821c.5516504.4732059 1.0836451.6468525 1.8890001.5513616 2.6200145-.3116105 2.5604594-3.5895097 1.1502083-8.0424822-.136678-.4315245-.2810058-.8567817-.4385987-1.2939849l-.1781698-.4846461c-.0923296-.2464665-.1903348-.5013359-.2976536-.7744519l-.3954267-.9868956-.8290275-2.020683.0009399-.279262c-.038761-7.60576089-3.8169423-12.93053326-10.6187985-13.09291824zm.0001023 2c6.339972.00032813 9.0947051 5.25726658 8.9334981 11.7557738l.8516442 2.0748544c.5606846 1.3708665.9939584 2.4718584 1.3860782 3.7098724 1.2134003 3.8314013.8203049 5.4169539.5209683 5.4525554-.6424867.0761796-2.5006035-2.8842697-2.5006035-2.8842697 0 1.7141775-.8994592 3.9510027-2.8457046 5.5664147l.3377045.1073023c1.0249215.341207 2.6653848 1.0302704 2.2154641 1.7750936-.4078113.675007-6.9962271.4309917-8.8982689.2207732l-.4753503.0452169c-2.33636.195172-8.04423656.3608021-8.42291849-.2659901-.50418989-.8339832 1.61195836-1.5976385 2.55205373-1.8820678-1.94652419-1.615412-2.84615056-3.852456-2.84615056-5.5667428l-.32111727.4924567c-.56063792.838483-1.70355568 2.4482423-2.17943051 2.391813-.29933663-.0355468-.69254342-1.6211541.52102408-5.4525554l.21887662-.6654718c.52220361-1.5311231 1.13363576-2.9515889 2.01884579-5.1193097-.17029299-6.39290578 2.5220086-11.75539097 8.93338651-11.7557191z"
-                                                        fill="#000" fill-rule="nonzero" />
-                                                </g>
-                                            </svg>
-                                        </n-icon>
+                                        <n-icon size="28" :component="ChatboxEllipsesOutline" />
                                         <div style="margin-left: 15px">
                                             <p style="margin: 0; font-size: 15px">更改QQ号</p>
                                             <p style="margin: 0; font-size: 12px">不正确的QQ号可能会影响到后续功能</p>
@@ -222,16 +212,159 @@
             </n-gi>
         </n-grid>
     </n-flex>
+    <n-modal v-model:show="changeTheUsernameModal">
+        <n-card style="width: 400px">
+            <n-form>
+                <n-form-item-row label="更改后的用户名">
+                    <n-input round />
+                </n-form-item-row>
+            </n-form>
+            <n-button round type="primary" block secondary strong>
+                确定
+            </n-button>
+        </n-card>
+    </n-modal>
+    <n-modal v-model:show="modifyAvatarModal">
+        <n-card style="width: 400px">
+            <n-tabs class="card-tabs" default-value="Link" size="large" animated pane-wrapper-style="margin: 0 -4px"
+                pane-style="padding-left: 4px; padding-right: 4px; box-sizing: border-box;">
+                <n-tab-pane name="Link" tab="图片链接">
+                    <n-alert title="提示" type="info" style="margin-bottom: 16px">
+                        图片链接仅支持直链，且无反盗链的链接
+                    </n-alert>
+                    <n-input round />
+                    <n-button round type="primary" block secondary strong style="margin-top: 16px">
+                        提交
+                    </n-button>
+                </n-tab-pane>
+                <n-tab-pane name="QQ" tab="根据QQ">
+                    <n-alert title="提示" type="info" style="margin-bottom: 16px">
+                        这里可以根据您绑定的QQ号自动获取头像
+                    </n-alert>
+                    <n-flex justify="space-between">
+                        <n-avatar round :size="48"
+                            src="https://q.qlogo.cn/headimg_dl?dst_uin=242247494&spec=640&img_type=jpg" />
+                        <n-p>242247494</n-p>
+                    </n-flex>
+                    <n-button round type="primary" block secondary strong style="margin-top: 16px">
+                        提交
+                    </n-button>
+                </n-tab-pane>
+                <n-tab-pane name="Cravatar" tab="Cravatar">
+                    <n-alert title="提示" type="info" style="margin-bottom: 16px">
+                        根据您的邮箱绑定的Cravatar获取头像
+                    </n-alert>
+                    <n-flex justify="space-between">
+                        <n-avatar round :size="48" src="https://cravatar.cn/avatar/2c36ed2f12241a2a22a2d55af893ffb2" />
+                        <n-p>chaoji@chcat.cn</n-p>
+                    </n-flex>
+                    <n-button round type="primary" block secondary strong style="margin-top: 16px">
+                        提交
+                    </n-button>
+                </n-tab-pane>
+            </n-tabs>
+        </n-card>
+    </n-modal>
+    <n-modal v-model:show="changePasswordModal">
+        <n-card style="width: 400px">
+            <n-form>
+                <n-form-item-row label="原密码">
+                    <n-input round type="password" show-password-on="mousedown" />
+                </n-form-item-row>
+                <n-form-item-row label="新密码">
+                    <n-input round type="password" maxlength="64" show-password-on="mousedown" />
+                </n-form-item-row>
+                <n-form-item-row label="重复新密码">
+                    <n-input round type="password" maxlength="64" show-count clearable />
+                </n-form-item-row>
+            </n-form>
+            <n-button round type="primary" block secondary strong>
+                确定
+            </n-button>
+        </n-card>
+    </n-modal>
+    <n-modal v-model:show="changeTheMailboxModal">
+        <n-card style="width: 400px">
+            <n-form>
+                <n-form-item-row label="旧邮箱验证码">
+                    <n-grid cols="6" :x-gap="12" item-responsive responsive="screen">
+                        <n-grid-item span="4">
+                            <n-input round maxlength="8" />
+                        </n-grid-item>
+                        <n-grid-item span="2">
+                            <n-popover trigger="hover" raw :show-arrow="false">
+                                <template #trigger>
+                                    <n-button round style="width: 100%;">发送验证码</n-button>
+                                </template>
+                                <CaptchaComponent @verified="onCaptchaVerified" />
+                            </n-popover>
+                        </n-grid-item>
+                    </n-grid>
+                </n-form-item-row>
+                <n-form-item-row label="新邮箱">
+                    <n-input round maxlength="32" show-count clearable />
+                </n-form-item-row>
+                <n-form-item-row label="新邮箱验证码">
+                    <n-grid cols="6" :x-gap="12" item-responsive responsive="screen">
+                        <n-grid-item span="4">
+                            <n-input round maxlength="8" />
+                        </n-grid-item>
+                        <n-grid-item span="2">
+                            <n-popover trigger="hover" raw :show-arrow="false">
+                                <template #trigger>
+                                    <n-button round style="width: 100%;">发送验证码</n-button>
+                                </template>
+                                <CaptchaComponent @verified="onCaptchaVerified" />
+                            </n-popover>
+                        </n-grid-item>
+                    </n-grid>
+                </n-form-item-row>
+            </n-form>
+            <n-button round type="primary" block secondary strong>
+                确定
+            </n-button>
+        </n-card>
+    </n-modal>
+    <n-modal v-model:show="changeQQModal">
+        <n-card style="width: 400px">
+            <n-form>
+                <n-form-item-row label="新QQ号">
+                    <n-input round maxlength="24" show-count clearable/>
+                </n-form-item-row>
+            </n-form>
+            <n-button round type="primary" block secondary strong>
+                确定
+            </n-button>
+        </n-card>
+    </n-modal>
 </template>
 
 <script setup lang="ts">
-import { KeyOutline, PersonOutline, ImageOutline, MailOutline, LockClosedOutline } from '@vicons/ionicons5'
+import { KeyOutline, PersonOutline, ImageOutline, MailOutline, LockClosedOutline, ChatboxEllipsesOutline } from '@vicons/ionicons5'
 import { ref, computed } from 'vue';
-import { NTag, NIcon, FormInst, useMessage, FormRules } from 'naive-ui';
+import { NTag, NIcon, FormInst, useMessage, FormRules, useDialog } from 'naive-ui';
 import { useStyleStore } from '@/stores/style';
+import CaptchaComponent from '@/components/CaptchaComponent.vue';
 
 const styleStore = useStyleStore();
 const cardStyle = computed(() => styleStore.getCardStyle());
+const dialog = useDialog()
+const message = useMessage()
+
+// 更改 用户名 模态框状态
+const changeTheUsernameModal = ref(false)
+
+// 更改 头像 模态框状态
+const modifyAvatarModal = ref(false)
+
+// 更改 密码 模态框状态
+const changePasswordModal = ref(false)
+
+// 更改 邮箱 模态框状态
+const changeTheMailboxModal = ref(false)
+
+// 更改 QQ 模态框状态
+const changeQQModal = ref(false)
 
 // 实名认证表单
 interface RealNameModelType {
@@ -240,11 +373,23 @@ interface RealNameModelType {
 }
 
 const realNameFormRef = ref<FormInst | null>(null);
-const message = useMessage();
 const realNameModel = ref<RealNameModelType>({
     name: null,
     idCard: null,
 });
+
+// 重置TOKEN提示框
+const resetToken = () => {
+    dialog.warning({
+        title: '警告',
+        content: '重置TOKEN后旧的配置文件均无法使用，这代表着您的所有隧道需要重新获取配置文件再启动、且所有保存登录的设备均需重新登录。',
+        positiveText: '确定',
+        negativeText: '取消',
+        onPositiveClick: () => {
+            message.success('TOKEN已重置，请重新登录')
+        },
+    })
+}
 
 const realNameRules: FormRules = {
     name: [
@@ -272,6 +417,10 @@ const realNameHandleValidateButtonClick = (e: MouseEvent) => {
         }
     });
 };
+
+const onCaptchaVerified = (token: string) => {
+    console.log('Captcha已验证，令牌：', token);
+}
 
 // 兑换码表单
 interface ExchangeCodeType {
