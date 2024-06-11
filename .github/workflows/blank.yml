@@ -2,7 +2,7 @@ name: Deploy My Server
 
 on:
   push:
-    branches: [ master ]
+    branches: [ main ]
   workflow_dispatch:
 
 jobs:
@@ -27,8 +27,8 @@ jobs:
         uses: easingthemes/ssh-deploy@v2.1.1
         env:
           SSH_PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
-          ARGS: "-avzr"
-          SOURCE: "./public/"
+          ARGS: "-avzr --exclude .user.ini"
+          SOURCE: "./dist/"
           REMOTE_HOST: ${{ secrets.HOST }}
           REMOTE_USER: "root"
           TARGET: '/www/wwwroot/preview.panel.chmlfrp.cn'
