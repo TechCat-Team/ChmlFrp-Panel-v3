@@ -9,7 +9,7 @@
                     <div :style="textStyle">
                         <h3 style="margin: 0;">{{ greeting }}</h3>
                         <n-skeleton v-if="loadingTest" width="100%" style="margin-top: 8px" :sharp="false" text />
-                        <p v-else style="margin: 0; margin-top: 4px;">{{ apiText }}</p>
+                        <p v-else style="margin: 0; margin-top: 4px;">{{ aWordApiText }}</p>
                     </div>
                 </div>
                 <n-space justify="end" style="margin-top: 15px;">
@@ -116,12 +116,12 @@
 
 <script lang="ts" setup>
 import { computed, onMounted, watch, ref } from 'vue';
+import api from '@/utils/apiClient';
 import { useScreenStore } from '@/stores/useScreen';
 import { storeToRefs } from 'pinia';
 import { useThemeVars } from 'naive-ui';
 import * as echarts from 'echarts';
 import { LinkOutline, ServerOutline, ArrowUpCircleOutline, ArrowDownCircleOutline } from '@vicons/ionicons5';
-import axios from 'axios';
 // 根据主题自适应样式背景颜色
 import { useStyleStore } from '@/stores/style';
 import { useRouter } from 'vue-router';
@@ -184,15 +184,21 @@ const greeting = computed(() => {
 });
 
 // 一言
-const apiText = ref('');
-onMounted(async () => {
+const aWordApiText = ref('');
+
+const aWord = async () => {
     try {
-        const response = await axios.get('/uapi/say?type=json');
-        apiText.value = response.data.message;
+        const responseUapi = await api.getDataFromUapi('/say?type=json');
+        aWordApiText.value = responseUapi.data.message;
         loadingTest.value = false;
     } catch (error) {
         console.error('API调用失败：', error);
     }
+};
+
+
+onMounted(() => {
+    aWord();
 });
 
 // ECharts
