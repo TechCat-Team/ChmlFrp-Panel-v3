@@ -1,10 +1,8 @@
 const { defineConfig } = require('@vue/cli-service')
 module.exports = defineConfig({
-  transpileDependencies: true
-})
-
-module.exports = {
+  transpileDependencies: true,
   devServer: {
+    open: true,
     proxy: {
       '/uapi': {
         target: 'https://uapis.cn/api',
@@ -13,4 +11,4 @@ module.exports = {
       },
     },
   },
-};
+})

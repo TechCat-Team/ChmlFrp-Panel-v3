@@ -17,7 +17,9 @@ import {
   PawOutline,
   PrismOutline,
   PricetagOutline,
-  PlanetOutline
+  PlanetOutline,
+  KeyOutline,
+  ShieldCheckmarkOutline
 } from '@vicons/ionicons5';
 
 // 菜单图标渲染函数
@@ -121,6 +123,28 @@ export const menuOptions: MenuOption[] = [
         ),
         key: '免费域名',
         icon: renderIcon(LinkOutline)
+      },
+      {
+        label: () => h(
+          RouterLink,
+          {
+            to: { name: '域名过白' }
+          },
+          { default: () => '域名过白' }
+        ),
+        key: '域名过白',
+        icon: renderIcon(ShieldCheckmarkOutline)
+      },
+      {
+        label: () => h(
+          RouterLink,
+          {
+            to: { name: '免费SSL' }
+          },
+          { default: () => '免费SSL' }
+        ),
+        key: '免费SSL',
+        icon: renderIcon(KeyOutline)
       }
     ]
   },

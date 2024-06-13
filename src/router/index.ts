@@ -91,6 +91,26 @@ const routes: Array<RouteRecordRaw> = [
           description: '在ChmlFrp获取和管理您的免费域名。'
         }
       },
+      {
+        path: '/expand/toowhite',
+        name: '域名过白',
+        component: () => import('@/pages/Expand/TooWhite.vue'),
+        meta: {
+          title: '域名过白 - ChmlFrp',
+          keywords: 'ChmlFrp, 域名过白, 域名放行, 端口映射, frp, 免费frp, 映射',
+          description: '使用中国境内节点需验证域名是备案，未备案的域名无法使用中国境内节点，您可以在这里添加域名白名单。'
+        }
+      },
+      {
+        path: '/expand/freessl',
+        name: '免费SSL',
+        component: () => import('@/pages/Expand/FreeSSL.vue'),
+        meta: {
+          title: '免费SSL - ChmlFrp',
+          keywords: 'ChmlFrp, 免费SSL证书, SSL, 端口映射, frp, 免费frp, 映射',
+          description: '您可以在ChmlFrp免费申请SSL证书'
+        }
+      }
     ]
   },
   {
