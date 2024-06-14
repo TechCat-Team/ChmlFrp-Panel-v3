@@ -168,7 +168,7 @@
                         </div>
                     </n-space>
                     <n-card :style="cardStyle" style="margin-top: 15px; text-align: center;">
-                        <n-descriptions label-placement="top" :column="3" label-align="center" size="large">
+                        <n-descriptions label-placement="top" :column="screenWidth >= 600 ? 3 : 2" label-align="center" size="large">
                             <n-descriptions-item label="注册时间">
                                 2077-5-30
                             </n-descriptions-item>
@@ -345,6 +345,11 @@ import { ref, computed } from 'vue';
 import { NTag, NIcon, FormInst, useMessage, FormRules, useDialog } from 'naive-ui';
 import { useStyleStore } from '@/stores/style';
 import CaptchaComponent from '@/components/CaptchaComponent.vue';
+import { useScreenStore } from '@/stores/useScreen';
+import { storeToRefs } from 'pinia';
+
+const screenStore = useScreenStore();
+const { screenWidth } = storeToRefs(screenStore);
 
 const styleStore = useStyleStore();
 const cardStyle = computed(() => styleStore.getCardStyle());

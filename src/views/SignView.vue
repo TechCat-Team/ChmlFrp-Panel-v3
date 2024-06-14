@@ -50,18 +50,18 @@
                         </template>
                         <template v-else>
                             <n-form ref="formRef" :model="registerModel" :rules="registerRules" class="center-form">
-                                <n-form-item path="email">
+                                <n-form-item path="邮箱">
                                     <n-input v-model:value="registerModel.email" size="large" round placeholder="邮箱"
                                         maxlength="30" clearable />
                                 </n-form-item>
-                                <n-form-item path="password">
+                                <!-- <n-form-item path="password">
                                     <n-input v-model:value="registerModel.password" size="large" round placeholder="密码"
                                         type="password" maxlength="64" />
                                 </n-form-item>
                                 <n-form-item path="confirmPassword">
                                     <n-input v-model:value="registerModel.confirmPassword" size="large" round placeholder="确认密码"
                                         type="password" maxlength="64" />
-                                </n-form-item>
+                                </n-form-item> -->
                                 <div style="display: flex; justify-content: flex-end; margin-top: 24px">
                                     <n-button :disabled="registerModel.email === null || registerModel.password === null || registerModel.confirmPassword === null" round
                                         type="primary" style="width: 100%;" size="large" @click="handleRegisterButtonClick">

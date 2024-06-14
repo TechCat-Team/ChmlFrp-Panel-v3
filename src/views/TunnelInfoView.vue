@@ -237,9 +237,9 @@ import HeaderComponent from '@/components/HeaderComponent.vue';
 import { EarthOutline, LinkOutline, ArrowUpOutline, ArrowDownOutline, HardwareChipOutline } from '@vicons/ionicons5'
 import { useMessage } from 'naive-ui';
 import { useStyleStore } from '@/stores/style';
+import MinecraftSkinViewer from '@/components/MinecraftSkinViewer.vue';
 import { useScreenStore } from '@/stores/useScreen';
 import { storeToRefs } from 'pinia';
-import MinecraftSkinViewer from '@/components/MinecraftSkinViewer.vue';
 
 const screenStore = useScreenStore();
 const { screenWidth } = storeToRefs(screenStore);
@@ -265,35 +265,39 @@ const software = ref<string>('');
 onMounted(async () => {
     try {
         const response = await axios.get('https://api.mcsrvstat.us/3/mc.hypixel.net');
-        // MC服务器MOTD(介绍)
-        let motdContent = response.data.motd.html;
-        if (Array.isArray(motdContent)) {
-            htmlMotd.value = motdContent.join('<br/>');
+        if (response.data.online) {
+            // MC服务器MOTD(介绍)
+            let motdContent = response.data.motd.html;
+            if (Array.isArray(motdContent)) {
+                htmlMotd.value = motdContent.join('<br/>');
+            } else {
+                console.error('API响应中需要一个数组');
+            }
+            // MC服务器头像
+            imgSrc.value = response.data.icon
+            // MC服务器版本
+            mcversion.value = response.data.version
+            // MC服务器在线状态
+            mconline.value = '在线'
+            mcplayersmax.value = response.data.players.max
+            mcplayersonline.value = response.data.players.online
+            if (response.data.debug.ping) {
+                ping.value = '允许'
+            } else {
+                ping.value = '不允许'
+            }
+            if (response.data.debug.srv) {
+                srv.value = '是'
+            } else {
+                srv.value = '否'
+            }
+            if (response.data.software !== undefined) {
+                software.value = response.data.software
+            } else {
+                software.value = '未提供'
+            }
         } else {
-            console.error('API响应中需要一个数组');
-        }
-        // MC服务器头像
-        imgSrc.value = response.data.icon
-        // MC服务器版本
-        mcversion.value = response.data.version
-        // MC服务器在线状态
-        mconline.value = '在线'
-        mcplayersmax.value = response.data.players.max
-        mcplayersonline.value = response.data.players.online
-        if (response.data.debug.ping) {
-            ping.value = '允许'
-        } else {
-            ping.value = '不允许'
-        }
-        if (response.data.debug.srv) {
-            srv.value = '是'
-        } else {
-            srv.value = '否'
-        }
-        if (response.data.software !== undefined) {
-            software.value = response.data.software
-        } else {
-            software.value = '未提供'
+            mconline.value = '离线'
         }
     } catch (error) {
         console.error('无法获取数据：', error);
