@@ -130,7 +130,7 @@ const userDropdownOptions = [
         props: {
             onClick: () => {
                 message.success('成功退出登陆，用户信息已清空');
-                router.push('/login')
+                router.push('/sign')
             },
         },
     },

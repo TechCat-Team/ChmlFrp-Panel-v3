@@ -1,10 +1,10 @@
 <template>
   <n-layout style="height: 100vh">
-    <n-layout-header round class="custom-header">
+    <n-layout-header round>
       <HeaderComponent />
     </n-layout-header>
     <n-layout :inverted="true" position="absolute" style="top: 60px;" has-sider>
-      <n-layout-sider class="custom-sider" :style="{ display: isHidden ? 'none' : 'flex' }" collapse-mode="width"
+      <n-layout-sider :style="{ display: isHidden ? 'none' : 'flex' }" collapse-mode="width"
         :collapsed-width="64" :width="240" :collapsed="collapsed" show-trigger @collapse="handleCollapse"
         @expand="handleExpand" :native-scrollbar="false">
         <MenuComponent />
@@ -44,14 +44,5 @@ const handleExpand = () => {
 <style lang="scss">
 span {
   transition: color 0.3s;
-}
-
-.custom-header {
-  border-top-left-radius: 10px;
-  border-top-right-radius: 10px;
-}
-
-.custom-sider {
-  border-bottom-left-radius: 10px;
 }
 </style>

@@ -168,9 +168,9 @@ const routes: Array<RouteRecordRaw> = [
     ]
   },
   {
-    path: '/login',
+    path: '/sign',
     name: '登录',
-    component: () => import('@/views/LoginView.vue'),
+    component: () => import('@/views/SignView.vue'),
     meta: {
       title: '登录 - ChmlFrp',
       keywords: 'ChmlFrp, 登录, 用户认证, 内网穿透, 端口映射, frp, 免费frp, 映射',
