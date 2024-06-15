@@ -7,7 +7,6 @@ import '@/assets/styles/global.css'
 
 const app = createApp(App)
 
-import naive from 'naive-ui'
 // 通用字体
 import 'vfonts/Lato.css'
 // 等宽字体
@@ -46,7 +45,6 @@ router.beforeEach((to, from, next) => {
     next();
 });
 
-app.use(naive)
 app.use(createPinia())
 app.use(router)
 app.mount('#app')

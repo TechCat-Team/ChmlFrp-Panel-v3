@@ -8,7 +8,6 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, ref } from 'vue';
 import { SkinViewer, WalkingAnimation } from 'skinview3d';
 
 export default defineComponent({

@@ -17,7 +17,6 @@
 </template>
 
 <script lang="ts" setup>
-import { computed } from 'vue';
 import { useLayoutStore } from '@/stores/useLayout';
 import MenuComponent from '@/components/MenuComponent.vue';
 import HeaderComponent from '@/components/HeaderComponent.vue';

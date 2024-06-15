@@ -4,7 +4,6 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, computed, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useLayoutStore } from '@/stores/useLayout';
 import { menuOptions } from '@/components/Options/Menu';  // 导入菜单选项数组

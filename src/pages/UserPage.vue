@@ -342,7 +342,7 @@
 <script setup lang="ts">
 import { KeyOutline, PersonOutline, ImageOutline, MailOutline, LockClosedOutline, ChatboxEllipsesOutline } from '@vicons/ionicons5'
 import { ref, computed } from 'vue';
-import { NTag, NIcon, FormInst, useMessage, FormRules, useDialog } from 'naive-ui';
+import { FormInst, FormRules } from 'naive-ui';
 import { useStyleStore } from '@/stores/style';
 import CaptchaComponent from '@/components/CaptchaComponent.vue';
 import { useScreenStore } from '@/stores/useScreen';

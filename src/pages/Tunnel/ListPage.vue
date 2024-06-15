@@ -186,8 +186,6 @@
 
 <script setup lang="ts">
 import { RefreshOutline, AddOutline, ArrowUpOutline, ArrowDownOutline, EyeOutline, TrashOutline, CreateOutline, BanOutline, EarthOutline, ShieldCheckmarkOutline } from '@vicons/ionicons5'
-import { ref, computed } from 'vue'
-import { useMessage } from 'naive-ui';
 import { useScreenStore } from '@/stores/useScreen';
 import { storeToRefs } from 'pinia';
 

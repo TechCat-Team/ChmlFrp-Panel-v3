@@ -39,9 +39,8 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, watch, CSSProperties } from 'vue';
+import { CSSProperties } from 'vue';
 import { useThemeStore } from '@/stores/theme';
-import { NSwitch, NColorPicker, NDivider, NIcon } from 'naive-ui';
 import { Sparkles, Sunny } from '@vicons/ionicons5';
 
 const themeStore = useThemeStore();

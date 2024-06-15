@@ -1,12 +1,11 @@
 <template>
-  <n-card size="small" :bordered="false" style="min-width: 200px;">
+  <n-card size="small" :bordered="false" style="min-width: 300px;">
     <n-skeleton v-if="loading" text :repeat="3"/>
     <div v-else ref="recaptchaContainer" class="g-recaptcha" :data-sitekey="recaptchaSiteKey"></div>
   </n-card>
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, ref, nextTick } from 'vue';
 import { NCard, NSkeleton } from 'naive-ui';
 import { loadScript } from '@/utils/loadScript';
 

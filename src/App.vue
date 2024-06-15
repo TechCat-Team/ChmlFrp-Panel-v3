@@ -14,11 +14,9 @@
 </template>
 
 <script setup lang="ts">
-import { defineComponent, h, computed, watch, onMounted, onUnmounted } from 'vue';
 import { useThemeStore } from '@/stores/theme';
 import { RouterView } from 'vue-router';
 import { useProviderStore } from './stores/provider';
-import { NLoadingBarProvider, useLoadingBar, lightTheme, darkTheme, NMessageProvider, NDialogProvider } from 'naive-ui';
 import hljs from 'highlight.js/lib/core'
 import ini from 'highlight.js/lib/languages/ini'
 import nginx from 'highlight.js/lib/languages/nginx'

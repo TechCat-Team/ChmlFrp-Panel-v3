@@ -115,7 +115,6 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, onMounted, watch, ref } from 'vue';
 import { useScreenStore } from '@/stores/useScreen';
 import { storeToRefs } from 'pinia';
 import { useThemeVars } from 'naive-ui';

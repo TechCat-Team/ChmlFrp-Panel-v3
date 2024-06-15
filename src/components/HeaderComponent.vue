@@ -44,11 +44,10 @@
 
 <script lang="ts" setup>
 import { SettingsOutline } from '@vicons/ionicons5'
-import { ref, h, Component } from 'vue';
 import { useThemeStore } from '@/stores/theme';
 import { useScreenStore } from '@/stores/useScreen';
 import { storeToRefs } from 'pinia';
-import { NAvatar, NText, NIcon, useMessage, type DrawerPlacement } from 'naive-ui'
+import { NAvatar, NText, NIcon, type DrawerPlacement } from 'naive-ui'
 import ThemeSwitcher from './ThemeSwitcher.vue';
 import { useRouter } from 'vue-router';
 import { menuOptions } from './Options/Menu'

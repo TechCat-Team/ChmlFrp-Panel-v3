@@ -231,11 +231,9 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, computed } from 'vue';
 import axios from 'axios';
 import HeaderComponent from '@/components/HeaderComponent.vue';
 import { EarthOutline, LinkOutline, ArrowUpOutline, ArrowDownOutline, HardwareChipOutline } from '@vicons/ionicons5'
-import { useMessage } from 'naive-ui';
 import { useStyleStore } from '@/stores/style';
 import MinecraftSkinViewer from '@/components/MinecraftSkinViewer.vue';
 import { useScreenStore } from '@/stores/useScreen';

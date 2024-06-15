@@ -88,7 +88,6 @@
 </template>
 
 <script lang="ts" setup>
-import { ref } from 'vue';
 import { LinkOutline, BarcodeOutline, ArrowUpOutline, ArrowDownOutline } from '@vicons/ionicons5'
 
 const nodeStatusCards = ref([
