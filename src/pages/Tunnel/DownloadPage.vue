@@ -18,16 +18,16 @@
         </div>
       </div>
     </div>
-    <n-row gutter="10" style="margin-top: 50px;">
-      <n-col :span="6" v-for="os in osList" :key="os.name">
+    <n-grid :x-gap="20" :y-gap="20" cols="1 s:2 m:4" style="margin-top: 32px;" responsive="screen">
+      <n-grid-item v-for="os in osList" :key="os.name">
         <n-card style="text-align: center;" @click="showCard(os.name)"
           :class="{ 'card-selected': selectedOS === os.name }">
           <n-icon :size="60" :component="os.icon" :color="os.color" />
           <n-divider></n-divider>
-          <h1>{{ os.label }}</h1>
+          <h2>{{ os.label }}</h2>
         </n-card>
-      </n-col>
-    </n-row>
+      </n-grid-item>
+    </n-grid>
     <n-infinite-scroll v-if="loading" :distance="1" @load="handleLoad">
       <n-skeleton v-for="i in count" :key="i" style="margin-top: 20px; height: 64px; border-radius: 10px" :sharp="false"
         size="medium" />
@@ -37,11 +37,12 @@
         <n-icon :size="18" style="top: 4px" :component="osIcon[selectedOS]" :color="osColors[selectedOS]" />
         <n-divider vertical />
         <span>{{ item.architecture }}</span>
-        <n-divider vertical />
-        <span style="color: #909399;">{{ time }}</span>
-        <n-button text type="primary" :href="link + item.route" style="float: right; padding: 3px 0">
+        <n-divider vertical v-if="!isHidden" />
+        <span style="color: #909399;" v-if="!isHidden">{{ time }}</span>
+        <n-button v-if="!isHidden" text tag="a" target="_blank" type="primary" :href="link + item.route" style="float: right; padding: 3px 0">
           {{ link }}{{ item.route }}
         </n-button>
+        <n-button v-else text tag="a" target="_blank" type="primary" :href="link + item.route" style="float: right; padding: 3px 0">下载</n-button>
       </n-card>
     </div>
   </n-card>
@@ -52,6 +53,12 @@ import axios from 'axios';
 import { LogoWindows, LogoApple, LogoTux } from '@vicons/ionicons5';
 import { Freebsd } from '@vicons/fa';
 import { ref, onMounted, computed } from 'vue';
+import { storeToRefs } from 'pinia';
+import { useScreenStore } from '@/stores/useScreen';
+
+// 基础的手机端适配
+const screenStore = useScreenStore();
+const { isHidden } = storeToRefs(screenStore);
 
 interface SystemData {
   windows: Array<{ route: string, architecture: string }>;
