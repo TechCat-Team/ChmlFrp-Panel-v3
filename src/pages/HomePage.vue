@@ -51,7 +51,7 @@
                     <div id="main" style="width: 100%; height: 400px;"></div>
                 </n-card>
                 <n-card style="margin-top: 15px">
-                    <n-result status="success" title="ChmlFrp - Panel v3.0" description="总感觉怪怪的">
+                    <n-result status="success" title="ChmlFrp - Panel v3.0" description="简约 大气 开源">
                     </n-result>
                 </n-card>
             </n-gi>

@@ -7,11 +7,11 @@
         <div>
           <n-p>Windows图形客户端目前有BUG，请尽量使用原生客户端二次开发的客户端。架构一般为amd64。</n-p>
         </div>
-        <n-button text tag="a" target="_blank" type="primary"
+        <n-button v-if="!isHidden" text tag="a" target="_blank" type="primary"
           href="https://docs.chcat.cn/docs/chmlfrp/%E4%BD%BF%E7%94%A8%E6%96%87%E6%A1%A3/tutorial">
           如果您是初次使用，请点击此链接查看教程！
         </n-button>
-        <div>
+        <div v-if="!isHidden">
           <n-button text tag="a" target="_blank" type="primary" href="https://chaojixyz.lanzoub.com/b04jwt94d">
             下载速度慢？点击前往蓝奏云下载。访问密码：1234
           </n-button>
@@ -118,7 +118,7 @@ const selectedOSData = computed(() => {
 
 onMounted(async () => {
   try {
-    const response = await axios.get<ApiResponse>('/v1/dw.php');
+    const response = await axios.get<ApiResponse>('https://panel.chmlfrp.cn/api/dw.php');
     Windows.value = response.data.system.windows;
     Linux.value = response.data.system.linux;
     freeBSD.value = response.data.system.freebsd;
