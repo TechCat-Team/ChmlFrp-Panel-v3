@@ -52,7 +52,36 @@
                 </n-card>
                 <n-card style="margin-top: 15px">
                     <n-result status="success" title="ChmlFrp - Panel v3.0" description="简约 大气 开源">
+                        <n-descriptions label-placement="left" :column="screenWidth >= 600 ? 3 : 1">
+                            <n-descriptions-item label="隧道数">
+                                8420
+                            </n-descriptions-item>
+                            <n-descriptions-item label="用户数">
+                                8354
+                            </n-descriptions-item>
+                            <n-descriptions-item label="节点数">
+                                29
+                            </n-descriptions-item>
+                        </n-descriptions>
                     </n-result>
+                    <n-divider />
+                    <n-space style="margin-top: 24px">
+                        <n-button text tag="a" href="https://www.ixmu.net" target="_blank">
+                            黑软小栈
+                        </n-button>
+                        <n-button text tag="a" href="https://cloud.fengidc.cn" target="_blank">
+                            FENGIDC
+                        </n-button>
+                        <n-button text tag="a" href="https://www.axtn.net" target="_blank">
+                            AxT
+                        </n-button>
+                        <n-button text tag="a" href="https://www.saivsi.com" target="_blank">
+                            SAIVSI
+                        </n-button>
+                        <n-button text tag="a" href="https://dom.cloudery.cn" target="_blank">
+                            云竹域名
+                        </n-button>
+                    </n-space>
                 </n-card>
             </n-gi>
             <n-gi :span="2">
@@ -80,32 +109,99 @@
                         </n-button>
                     </n-flex>
                     <n-collapse style="margin-top: 20px;">
-                        <n-collapse-item title="注意事项" name="1">
-                            <div>使用chmlfrp映射远程桌面、数据库等，映射后会暴露在公网环境。您应该注意您的数据安全，设置安全的密码。因此类问题造成的锁机·重要文件被盗，我们概不负责。</div>
+                        <n-collapse-item title="数据安全" name="1">
+                            <div>
+                                <n-p>
+                                    使用chmlfrp映射远程桌面、数据库等，映射后会暴露在公网环境。您应该注意您的数据安全，设置安全的密码。因此类问题造成的锁机·重要文件被盗，我们概不负责。
+                                </n-p>
+                                <n-p>
+                                    除此之外，您需要注意不要泄露TOKEN，如果不小心泄露，请立刻重置TOKEN。
+                                </n-p>
+                            </div>
                         </n-collapse-item>
                         <n-collapse-item title="关于实名" name="2">
-                            <div>实名认证接口对接阿里云二要素接口。允许未成年认证，但是请不要使用非本人身份证。
-                                如果实名认证接口出现实名认证失败等问题请加入交流群联系群主。或发送邮件至chaoji@chcat.cn</div>
+                            <div>
+                                实名认证接口对接阿里云二要素接口。允许未成年认证，但是请不要使用非本人身份证。
+                                <br />
+                                如果实名认证接口出现实名认证失败等问题请加入交流群联系群主。或发送邮件至chaoji@chcat.cn
+                            </div>
                         </n-collapse-item>
                         <n-collapse-item title="延迟问题" name="3">
-                            <div>节点请选择离你(开服者)最近的节点。您可以根据节点状态页中的节点负载选择负载较低的节点，这能够优化您的体验。
+                            <div>
+                                节点请选择离你(开服者)最近的节点。您可以根据节点状态页中的节点负载选择负载较低的节点，这能够优化您的体验。
+                                <br />
                                 服务器卡顿不一定为映射的原因。这里使用mc服务器举例，您可以通过查看服务器TPS或MSPT查看是否为服务器硬件负载过高。若MSPT或TPS在正常范围内，但服务器延迟依旧很高，您可以考虑购买会员获得更高的带宽。
                             </div>
                         </n-collapse-item>
-                        <n-collapse-item title="信息安全" name="4">
-                            <div>我们会保存用户的实名信息及用户数据，但是留存的用户数据全部采用业内标准的加密格式
+                        <n-collapse-item title="端口问题" name="4">
+                            <div>
+                                内网端口选择你要映射的端口，外网端口推荐随机。
+                                <br />
+                                内网端口不受限制，外网端口不能与其他用户的外网端口重复(会自动检测)。
+                                <br />
+                                此外，端口类型选择HTTP则外网端口默认使用80，选择HTTPS则默认443。
+                            </div>
+                        </n-collapse-item>
+                        <n-collapse-item title="关于节点" name="5">
+                            <div>
+                                我们不能保证所有的节点都稳定可用。使用人数越多，带宽占用越大的节点越容易出现卡顿情况。
+                                <br />
+                                会员拥有会员专属节点，如果想要稳定且高速的节点，可以购买vip使用vip专属节点。
+                            </div>
+                        </n-collapse-item>
+                        <n-collapse-item title="关于带宽" name="6">
+                            <div>
+                                ChmlFrp的带宽分为境内、境外两种。境外节点的带宽速度为境内的四倍。假如您的境内带宽为8m，境外带宽则为8*4=32m。
+                                <br />
+                                我们带宽的计量单位为mbps，计算方式：8mbps=1MiB/s。此外，ChmlFrp的带宽为共享峰值带宽，不能保证高峰期能跑满应有的速度。
+                                <br />
+                                需要注意的是，一些特殊网络环境的节点，如：香港、台湾节点 会根据多个因素(如:线路优化/节点总带宽)判定计算国内还是国外带宽，具体请加入交流群询问。
+                            </div>
+                        </n-collapse-item>
+                        <n-collapse-item title="信息安全" name="7">
+                            <div>
+                                我们会保存用户的实名信息及用户数据，但是留存的用户数据全部采用业内标准的加密格式
+                                <br />
                                 实名信息采用AES 256 CBC加密。密码信息通过Bcrypt加密
+                                <br />
                                 我们承诺不会泄露用户的任何信息，也不会拿用户的信息开玩笑。
                             </div>
                         </n-collapse-item>
-                        <n-collapse-item title="禁止内容" name="5">
-                            <div>不能使用映射搭建关于赌博, 黄色, 血腥, 暴力, 爆破, 发包, 代刷网, 发卡网等违反中国法律的站点或服务
-                                一旦发现，我们有权强行停止您的映射服务。并且上报给公安机关。</div>
+                        <n-collapse-item title="禁止内容" name="8">
+                            <div>
+                                不能使用映射搭建关于赌博, 黄色, 血腥, 暴力, 爆破, 发包, 代刷网, 发卡网等任何违反中国法律的站点或服务
+                                <br />
+                                一旦发现，我们有权强行停止您的映射服务。并且上报给公安机关。
+                                <br />
+                                除此之外，部分节点有节点自己的规则，例如："禁止连续大带宽(如网盘、图床)/禁止攻击服务(遭受攻击频繁)"这类的限制，同样需要遵守。如多次违反，则直接封禁账户。
+                            </div>
                         </n-collapse-item>
-                        <n-collapse-item title="友链申请" name="6">
+                        <n-collapse-item title="贡献节点" name="9">
+                            <div>
+                                <n-h3>
+                                    贡献节点有两种形式
+                                </n-h3>
+                                <n-p>
+                                    一种是您将您的家宽公网或vps服务器卖给我们作为节点使用，价格私聊商议，这种形式您不会获得任何积分等奖励，且节点权限组为会员节点或免费节点由我们决定。除此之外，您需要保证您服务器的稳定性。
+                                </n-p>
+                                <n-p>
+                                    另一种是您将您的家宽公网或vps服务器无偿捐赠给我们作为节点使用，但是您每个月均可获得不固定积分报酬，且无偿捐赠的节点均为免费节点，提供给所有用户免费使用。
+                                </n-p>
+                                <n-h3>
+                                    联系方式
+                                </n-h3>
+                                <n-p>
+                                    您可以通过QQ：242247494或邮箱：chaoji@chcat.cn联系我们。
+                                </n-p>
+                            </div>
+                        </n-collapse-item>
+                        <n-collapse-item title="友链申请" name="10">
                             <div>我们目前允许添加友链，不过友情链接需要是不违反国家法律的网站。非盈利性网站可直接申请添加。盈利性网站需要附带网站备案号以及营业执照副本图片。
-                                友链的期限不固定，如发现违规，我们有权直接删除友链。并且友链的期限不是永久，我们有权不通知你直接删除。
-                                友链申请详情规则请前往：https://docs.chcat.cn/docs/chmlfrp/yl</div>
+                                <br />
+                                友链的期限不固定，如发现违规，我们有权直接删除友链。需要注意的是友链的期限不是永久，我们可能会在不通知您的情况下直接删除。
+                                <br />
+                                友链申请详情规则请前往：https://docs.chcat.cn/docs/chmlfrp/yl
+                            </div>
                         </n-collapse-item>
                     </n-collapse>
                 </n-card>
