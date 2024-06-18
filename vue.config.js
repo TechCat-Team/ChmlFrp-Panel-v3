@@ -5,6 +5,17 @@ const AutoImport = require('unplugin-auto-import/webpack').default;
 
 module.exports = defineConfig({
   transpileDependencies: true,
+  devServer: {
+    proxy: {
+      '/v1': {
+        target: 'https://panel.chmlfrp.cn/api',
+        changeOrigin: true,
+        pathRewrite: {
+          '^/v1': ''
+        }
+      }
+    }
+  },
   configureWebpack: {
     plugins: [
       Components({

@@ -1,6 +1,9 @@
 .n-alert,
 .n-drawer,
-.n-dialog {
+.n-dialog,
+.n-dropdown,
+.n-dropdown-menu,
+.n-dropdown-option {
     border-radius: 8px !important;
 }
 
@@ -12,3 +15,8 @@
 .n-card .n-card__action {
     border-radius: 8px 8px 10px 10px;
 }
+
+/* 模态框遮罩毛玻璃
+.n-modal-mask {
+  backdrop-filter: blur(10px);
+} */

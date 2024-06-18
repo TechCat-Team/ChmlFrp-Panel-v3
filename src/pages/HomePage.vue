@@ -14,7 +14,7 @@
                 </div>
                 <n-space justify="end" style="margin-top: 15px;">
                     <n-button type="primary" strong secondary>签到</n-button>
-                    <n-popover trigger="hover">
+                    <n-popover trigger="hover" style="border-radius: 8px;">
                         <template #trigger>
                             <n-button strong secondary>签到信息</n-button>
                         </template>
@@ -99,12 +99,12 @@
                         </n-button>或TechCatQQ交流群询问。
                     </n-alert>
                     <n-flex style="margin-top: 20px">
-                        <n-button style="border-radius: 5px" tertiary type="primary" tag="a"
-                            href="https://qm.qq.com/q/ip5zGz1f9K" target="_blank">
+                        <n-button style="border-radius: 5px" tertiary type="primary"
+                            @click="GoToQqGroup('https://qm.qq.com/q/ip5zGz1f9K')">
                             QQ交流群一群
                         </n-button>
-                        <n-button style="border-radius: 5px" tertiary type="primary" tag="a"
-                            href="https://qm.qq.com/q/MJ0aeYCi8S" target="_blank">
+                        <n-button style="border-radius: 5px" tertiary type="primary"
+                            @click="GoToQqGroup('https://qm.qq.com/q/MJ0aeYCi8S')">
                             QQ交流群二群
                         </n-button>
                     </n-flex>
@@ -223,6 +223,8 @@ import { useRouter } from 'vue-router';
 
 const loadingTest = ref(true)
 
+const dialog = useDialog()
+
 const styleStore = useStyleStore();
 const cardStyle = computed(() => styleStore.getCardStyle());
 
@@ -289,6 +291,36 @@ onMounted(async () => {
         console.error('一言API调用失败：', error);
     }
 });
+
+// 前往QQ群提示群规、提问准则
+const GoToQqGroup = (Link: string) => {
+    dialog.warning({
+        title: '警告',
+        content: 'QQ交流群提问前请一定要看群规，第二次违反规定将被禁言30天。',
+        positiveText: '我知道了',
+        negativeText: '取消',
+        onPositiveClick: () => {
+            knew(Link)
+        },
+    })
+}
+
+// 您真的知道了吗？
+const knew = (Link: string) => {
+    dialog.warning({
+        title: '警告',
+        content: '您真的知道了吗？',
+        positiveText: '知道了',
+        negativeText: '再看一眼',
+        onPositiveClick: () => {
+            window.open(Link, '_blank');
+        },
+        onNegativeClick: () => {
+            GoToQqGroup(Link)
+        }
+    })
+}
+
 
 // ECharts
 const themeVars = useThemeVars();

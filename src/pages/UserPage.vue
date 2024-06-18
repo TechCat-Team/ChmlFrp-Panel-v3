@@ -139,7 +139,8 @@
                     <n-form ref="exchangeCodeFormRef" :model="exchangeCodeModel" :rules="exchangeCodeRules"
                         label-placement="left" label-width="auto">
                         <n-form-item path="exchangeCode" label="兑换码" :show-require-mark="true">
-                            <n-input v-model:value="exchangeCodeModel.exchangeCode" round />
+                            <n-input placeholder="XXXX-XXXX-XXXX-XXXX" v-model:value="exchangeCodeModel.exchangeCode"
+                                round />
                         </n-form-item>
                         <n-row :gutter="[0, 24]">
                             <n-col :span="24">
@@ -168,7 +169,8 @@
                         </div>
                     </n-space>
                     <n-card :style="cardStyle" style="margin-top: 15px; text-align: center;">
-                        <n-descriptions label-placement="top" :column="screenWidth >= 600 ? 3 : 2" label-align="center" size="large">
+                        <n-descriptions label-placement="top" :column="screenWidth >= 600 ? 3 : 2" label-align="center"
+                            size="large">
                             <n-descriptions-item label="注册时间">
                                 2077-5-30
                             </n-descriptions-item>
@@ -296,7 +298,9 @@
                                 <template #trigger>
                                     <n-button round style="width: 100%;">发送验证码</n-button>
                                 </template>
-                                <CaptchaComponent @verified="onCaptchaVerified" />
+                                <n-card size="small">
+                                    <TurnstileComponent siteKey="0x4AAAAAAAcW3Jd-caD0HMti" />
+                                </n-card>
                             </n-popover>
                         </n-grid-item>
                     </n-grid>
@@ -314,7 +318,9 @@
                                 <template #trigger>
                                     <n-button round style="width: 100%;">发送验证码</n-button>
                                 </template>
-                                <CaptchaComponent @verified="onCaptchaVerified" />
+                                <n-card size="small">
+                                    <TurnstileComponent siteKey="0x4AAAAAAAcW3Jd-caD0HMti" />
+                                </n-card>
                             </n-popover>
                         </n-grid-item>
                     </n-grid>
@@ -329,7 +335,7 @@
         <n-card style="width: 400px">
             <n-form>
                 <n-form-item-row label="新QQ号">
-                    <n-input round maxlength="24" show-count clearable/>
+                    <n-input round maxlength="24" show-count clearable />
                 </n-form-item-row>
             </n-form>
             <n-button round type="primary" block secondary strong>
@@ -344,9 +350,9 @@ import { KeyOutline, PersonOutline, ImageOutline, MailOutline, LockClosedOutline
 import { ref, computed } from 'vue';
 import { FormInst, FormRules } from 'naive-ui';
 import { useStyleStore } from '@/stores/style';
-import CaptchaComponent from '@/components/CaptchaComponent.vue';
 import { useScreenStore } from '@/stores/useScreen';
 import { storeToRefs } from 'pinia';
+import TurnstileComponent from '@/components/TurnstileComponent.vue';
 
 const screenStore = useScreenStore();
 const { screenWidth } = storeToRefs(screenStore);
@@ -422,10 +428,6 @@ const realNameHandleValidateButtonClick = (e: MouseEvent) => {
         }
     });
 };
-
-const onCaptchaVerified = (token: string) => {
-    console.log('Captcha已验证，令牌：', token);
-}
 
 // 兑换码表单
 interface ExchangeCodeType {

@@ -232,10 +232,8 @@
 
 <script setup lang="ts">
 import axios from 'axios';
-import HeaderComponent from '@/components/HeaderComponent.vue';
 import { EarthOutline, LinkOutline, ArrowUpOutline, ArrowDownOutline, HardwareChipOutline } from '@vicons/ionicons5'
 import { useStyleStore } from '@/stores/style';
-import MinecraftSkinViewer from '@/components/MinecraftSkinViewer.vue';
 import { useScreenStore } from '@/stores/useScreen';
 import { storeToRefs } from 'pinia';
 
