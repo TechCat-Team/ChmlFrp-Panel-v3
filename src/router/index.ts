@@ -187,19 +187,94 @@ const routes: Array<RouteRecordRaw> = [
       description: 'ChmlFrp用户隧道详情，这里会展示隧道连接数，今日流量，节点负载信息，隧道基础信息及关联程序等。'
     }
   },
-  // {
-  //   path: '/404',
-  //   name: 'NotFound',
-  //   component: () => import('@/views/NotFound.vue')
-  // },
-  // {
-  //   path: '*',
-  //   redirect: '/404'
-  // }
+  {
+    path: '/',
+    name: '管理面板',
+    component: () => import('@/views/HomeView.vue'),
+    children: [
+      {
+        path: '/admin/overall',
+        name: '系统总览',
+        component: () => import('@/pages/Admin/OverallPage.vue'),
+        meta: {
+          title: '总览 - 管理员控制台 - ChmlFrp',
+        }
+      },
+      {
+        path: '/admin/panel',
+        name: '面板管理',
+        component: () => import('@/pages/Admin/PanelSettings.vue'),
+        meta: {
+          title: '面板管理 - 管理员控制台 - ChmlFrp',
+        }
+      },
+      {
+        path: '/admin/node',
+        name: '节点管理',
+        component: () => import('@/pages/Admin/NodeManagement.vue'),
+        meta: {
+          title: '节点管理 - 管理员控制台 - ChmlFrp',
+        }
+      },
+      {
+        path: '/admin/user',
+        name: '用户管理',
+        component: () => import('@/pages/Admin/UserManagement.vue'),
+        meta: {
+          title: '用户管理 - 管理员控制台 - ChmlFrp',
+        }
+      },
+      {
+        path: '/admin/tunnel',
+        name: '管理隧道',
+        component: () => import('@/pages/Admin/TunnelManagement.vue'),
+        meta: {
+          title: '隧道管理 - 管理员控制台 - ChmlFrp',
+        }
+      },
+      {
+        path: '/admin/exchangecode',
+        name: '兑换码管理',
+        component: () => import('@/pages/Admin/ExchangeCode.vue'),
+        meta: {
+          title: '兑换码管理 - 管理员控制台 - ChmlFrp',
+        }
+      },
+      {
+        path: '/admin/domainname',
+        name: '免费域名管理',
+        component: () => import('@/pages/Admin/DomainNameManagement.vue'),
+        meta: {
+          title: '免费域名管理 - 管理员控制台 - ChmlFrp',
+        }
+      },
+      {
+        path: '/admin/toowhite',
+        name: '域名过白管理',
+        component: () => import('@/pages/Admin/WhiteTreatment.vue'),
+        meta: {
+          title: '兑换码管理 - 管理员控制台 - ChmlFrp',
+        }
+      },
+      {
+        path: '/admin/freessl',
+        name: '免费SSL管理',
+        component: () => import('@/pages/Admin/SSLManagement.vue'),
+        meta: {
+          title: '兑换码管理 - 管理员控制台 - ChmlFrp',
+        }
+      },
+    ]
+  },
+  {
+    path: '/:pathMatch(.*)*',
+    name: 'NotFound',
+    component: () => import('@/views/NotFound.vue'),
+  }
 ]
 
 const router = createRouter({
-  history: createWebHistory(),
+  history: createWebHistory(process.env.BASE_URL),
   routes
 })
 

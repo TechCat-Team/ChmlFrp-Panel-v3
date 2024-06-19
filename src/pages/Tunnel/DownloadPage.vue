@@ -118,7 +118,7 @@ const selectedOSData = computed(() => {
 
 onMounted(async () => {
   try {
-    const response = await axios.get<ApiResponse>('/v1/dw.php');
+    const response = await axios.get<ApiResponse>('https://panel.chmlfrp.cn/api/dw.php');
     Windows.value = response.data.system.windows;
     Linux.value = response.data.system.linux;
     freeBSD.value = response.data.system.freebsd;

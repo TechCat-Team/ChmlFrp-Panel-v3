@@ -19,7 +19,14 @@ import {
   PricetagOutline,
   PlanetOutline,
   KeyOutline,
-  ShieldCheckmarkOutline
+  ShieldCheckmarkOutline,
+  PieChartOutline,
+  BrowsersOutline,
+  GiftOutline,
+  PeopleOutline,
+  ConstructOutline,
+  ListCircleOutline,
+  ServerOutline
 } from '@vicons/ionicons5';
 
 // 菜单图标渲染函数
@@ -219,4 +226,137 @@ export const menuOptions: MenuOption[] = [
       },
     ]
   },
+  {
+    type: 'divider',
+    props: {
+      style: { marginLeft: '32px' }
+    }
+  },
+  {
+    label: '管理面板',
+    key: '管理面板',
+    icon: renderIcon(BrowsersOutline),
+    children: [
+      {
+        type: 'group',
+        label: '面板',
+        key: 'people',
+        children: [
+          {
+            label: () => h(
+              RouterLink,
+              {
+                to: { name: '系统总览' }
+              },
+              { default: () => '系统总览' }
+            ),
+            key: '系统总览',
+            icon: renderIcon(PieChartOutline)
+          },
+          {
+            label: () => h(
+              RouterLink,
+              {
+                to: { name: '面板管理' }
+              },
+              { default: () => '面板管理' }
+            ),
+            key: '面板管理',
+            icon: renderIcon(ConstructOutline)
+          },
+        ]
+      },
+      {
+        type: 'group',
+        label: '映射',
+        key: 'people',
+        children: [
+          {
+            label: () => h(
+              RouterLink,
+              {
+                to: { name: '节点管理' }
+              },
+              { default: () => '节点管理' }
+            ),
+            key: '节点管理',
+            icon: renderIcon(ServerOutline)
+          },
+          {
+            label: () => h(
+              RouterLink,
+              {
+                to: { name: '用户管理' }
+              },
+              { default: () => '用户管理' }
+            ),
+            key: '用户管理',
+            icon: renderIcon(PeopleOutline)
+          },
+          {
+            label: () => h(
+              RouterLink,
+              {
+                to: { name: '管理隧道' }
+              },
+              { default: () => '管理隧道' }
+            ),
+            key: '管理隧道',
+            icon: renderIcon(ListCircleOutline)
+          },
+          {
+            label: () => h(
+              RouterLink,
+              {
+                to: { name: '兑换码管理' }
+              },
+              { default: () => '兑换码管理' }
+            ),
+            key: '兑换码管理',
+            icon: renderIcon(GiftOutline)
+          }
+        ]
+      },
+      {
+        type: 'group',
+        label: '扩展',
+        key: 'people',
+        children: [
+          {
+            label: () => h(
+              RouterLink,
+              {
+                to: { name: '免费域名管理' }
+              },
+              { default: () => '免费域名管理' }
+            ),
+            key: '免费域名管理',
+            icon: renderIcon(LinkOutline)
+          },
+          {
+            label: () => h(
+              RouterLink,
+              {
+                to: { name: '域名过白管理' }
+              },
+              { default: () => '域名过白管理' }
+            ),
+            key: '域名过白管理',
+            icon: renderIcon(ShieldCheckmarkOutline)
+          },
+          {
+            label: () => h(
+              RouterLink,
+              {
+                to: { name: '免费SSL管理' }
+              },
+              { default: () => '免费SSL管理' }
+            ),
+            key: '免费SSL管理',
+            icon: renderIcon(KeyOutline)
+          }
+        ]
+      },
+    ]
+  }
 ];

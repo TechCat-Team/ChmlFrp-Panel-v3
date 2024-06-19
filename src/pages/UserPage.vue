@@ -299,7 +299,6 @@
                                     <n-button round style="width: 100%;">发送验证码</n-button>
                                 </template>
                                 <n-card size="small">
-                                    <TurnstileComponent siteKey="0x4AAAAAAAcW3Jd-caD0HMti" />
                                 </n-card>
                             </n-popover>
                         </n-grid-item>
@@ -319,7 +318,6 @@
                                     <n-button round style="width: 100%;">发送验证码</n-button>
                                 </template>
                                 <n-card size="small">
-                                    <TurnstileComponent siteKey="0x4AAAAAAAcW3Jd-caD0HMti" />
                                 </n-card>
                             </n-popover>
                         </n-grid-item>
@@ -352,7 +350,6 @@ import { FormInst, FormRules } from 'naive-ui';
 import { useStyleStore } from '@/stores/style';
 import { useScreenStore } from '@/stores/useScreen';
 import { storeToRefs } from 'pinia';
-import TurnstileComponent from '@/components/TurnstileComponent.vue';
 
 const screenStore = useScreenStore();
 const { screenWidth } = storeToRefs(screenStore);
@@ -383,12 +380,6 @@ interface RealNameModelType {
     idCard: string | null;
 }
 
-const realNameFormRef = ref<FormInst | null>(null);
-const realNameModel = ref<RealNameModelType>({
-    name: null,
-    idCard: null,
-});
-
 // 重置TOKEN提示框
 const resetToken = () => {
     dialog.warning({
@@ -401,6 +392,12 @@ const resetToken = () => {
         },
     })
 }
+
+const realNameFormRef = ref<FormInst | null>(null);
+const realNameModel = ref<RealNameModelType>({
+    name: null,
+    idCard: null,
+});
 
 const realNameRules: FormRules = {
     name: [
