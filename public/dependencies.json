@@ -1,14 +1,4 @@
 {
-  "name": "chmlfrp-panel-v3",
-  "version": "0.1.0",
-  "private": true,
-  "scripts": {
-    "serve": "vue-cli-service serve",
-    "prebuild": "node generate-dependencies.js",
-    "build": "vue-cli-service build",
-    "test:unit": "vue-cli-service test:unit",
-    "lint": "vue-cli-service lint"
-  },
   "dependencies": {
     "@types/three": "^0.165.0",
     "@vicons/fa": "^0.12.0",
@@ -55,48 +45,5 @@
     "typescript": "~4.5.5",
     "unplugin-auto-import": "^0.17.6"
   },
-  "eslintConfig": {
-    "root": true,
-    "env": {
-      "node": true
-    },
-    "extends": [
-      "plugin:vue/vue3-essential",
-      "eslint:recommended",
-      "@vue/typescript/recommended"
-    ],
-    "settings": {
-      "import/resolver": {
-        "webpack": {
-          "config": "vue.config.js"
-        }
-      }
-    },
-    "parserOptions": {
-      "ecmaVersion": 2020
-    },
-    "rules": {
-      "no-undef": "off"
-    },
-    "overrides": [
-      {
-        "files": [
-          "**/__tests__/*.{j,t}s?(x)",
-          "**/tests/unit/**/*.spec.{j,t}s?(x)"
-        ],
-        "env": {
-          "jest": true
-        }
-      }
-    ]
-  },
-  "browserslist": [
-    "> 1%",
-    "last 2 versions",
-    "not dead",
-    "not ie 11"
-  ],
-  "jest": {
-    "preset": "@vue/cli-plugin-unit-jest/presets/typescript-and-babel"
-  }
+  "buildTime": "2024-06-20 10:28:16"
 }
