@@ -12,7 +12,7 @@
             </n-dropdown>
         </div>
         <n-space class="center-aligned" justify="space-between">
-            <n-popover trigger="hover">
+            <n-popover trigger="hover" style="border-radius: 6px;">
                 <template #trigger>
                     <n-button quaternary style="font-size: 18px;" @click="ThemeSwitcherDrawer('right')">
                         <n-icon :component="SettingsOutline" style="cursor: pointer;"></n-icon>
@@ -48,7 +48,6 @@ import { useThemeStore } from '@/stores/theme';
 import { useScreenStore } from '@/stores/useScreen';
 import { storeToRefs } from 'pinia';
 import { NAvatar, NText, NIcon, type DrawerPlacement } from 'naive-ui'
-import ThemeSwitcher from './ThemeSwitcher.vue';
 import { useRouter } from 'vue-router';
 import { menuOptions } from './Options/Menu'
 import {

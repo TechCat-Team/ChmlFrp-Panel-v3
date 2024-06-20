@@ -196,7 +196,7 @@ const createTunnelModal = ref(false)
 const screenStore = useScreenStore();
 const { screenWidth } = storeToRefs(screenStore);
 
-// 根据屏幕宽度决定创建隧道对话框大小
+// 根据屏幕宽度决定对话框大小
 const widthStyle = computed(() => ({
     width: screenWidth.value >= 600 ? '70%' : '100%',
 }));
@@ -267,7 +267,7 @@ const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text).then(() => {
         message.success('连接地址复制成功')
     }).catch(err => {
-        console.error('复制连接地址失败:', err);
+        console.error('隧道列表 - 复制连接地址失败:', err);
         message.error('连接地址复制失败')
     });
 };

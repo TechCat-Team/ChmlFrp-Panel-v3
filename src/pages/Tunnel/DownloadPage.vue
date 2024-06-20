@@ -21,7 +21,7 @@
     <n-grid :x-gap="20" :y-gap="20" cols="1 s:2 m:4" style="margin-top: 32px;" responsive="screen">
       <n-grid-item v-for="os in osList" :key="os.name">
         <n-card style="text-align: center;" @click="showCard(os.name)"
-          :class="{ 'card-selected': selectedOS === os.name }">
+          :class="{ 'card-selected': selectedOS === os.name }" hoverable>
           <n-icon :size="60" :component="os.icon" :color="os.color" />
           <n-divider></n-divider>
           <h2>{{ os.label }}</h2>

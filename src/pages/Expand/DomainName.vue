@@ -15,116 +15,56 @@
                 新增域名
             </n-button>
         </template>
-        <n-data-table :bordered="false" :columns="columns" :data="data" :pagination="pagination" />
     </n-card>
+    <n-grid cols="1 m:2 l:3 xl:4 2xl:5" :x-gap="12" :y-gap="12" responsive="screen">
+        <n-grid-item>
+            <n-card size="small" title="mc.frp.wtf">
+                <template #header-extra>
+                    <n-tooltip trigger="hover">
+                        <template #trigger>
+                            <n-tag round :bordered="false" type="primary">
+                                SRV
+                            </n-tag>
+                        </template>
+                        此域名通过SRV解析隐藏了MCjava服务器端口，可直接通过mc.frp.wtf连接
+                    </n-tooltip>
+                </template>
+                <n-tag round :bordered="false" type="primary" size="small">
+                    解析隧道：ChmlFrp-Tunnel
+                </n-tag>
+                <template #footer>
+                    名称：_minecraft._tcp.mc
+                    <br />
+                    内容：5 0 25598 bj.frp.one
+                    <br />
+                    TTL：1分钟
+                </template>
+            </n-card>
+        </n-grid-item>
+        <n-grid-item>
+            <n-card size="small" title="chaoji.frp.wtf">
+                <template #header-extra>
+                    <n-tag round :bordered="false" type="primary">
+                        CNAME
+                    </n-tag>
+                </template>
+                <n-tag round :bordered="false" type="primary" size="small">
+                    自定义地址
+                </n-tag>
+                <template #footer>
+                    名称：chaoji
+                    <br />
+                    内容：bj.frp.one
+                    <br />
+                    TTL：1分钟
+                </template>
+            </n-card>
+        </n-grid-item>
+    </n-grid>
 </template>
 
 <script lang="ts" setup>
 import { RefreshOutline, AddOutline } from '@vicons/ionicons5'
 
 const createDomainNameModal = ref(false)
-
-import { NTag, NButton, useMessage } from 'naive-ui'
-import type { DataTableColumns } from 'naive-ui'
-
-type RowData = {
-    key: number
-    name: string
-    age: number
-    address: string
-    tags: string[]
-}
-
-const createColumns = ({
-    sendMail
-}: {
-    sendMail: (rowData: RowData) => void
-}): DataTableColumns<RowData> => {
-    return [
-        {
-            title: 'Name',
-            key: 'name'
-        },
-        {
-            title: 'Age',
-            key: 'age'
-        },
-        {
-            title: 'Address',
-            key: 'address'
-        },
-        {
-            title: 'Tags',
-            key: 'tags',
-            render(row) {
-                const tags = row.tags.map((tagKey) => {
-                    return h(
-                        NTag,
-                        {
-                            style: {
-                                marginRight: '6px'
-                            },
-                            type: 'info',
-                            bordered: false
-                        },
-                        {
-                            default: () => tagKey
-                        }
-                    )
-                })
-                return tags
-            }
-        },
-        {
-            title: 'Action',
-            key: 'actions',
-            render(row) {
-                return h(
-                    NButton,
-                    {
-                        size: 'small',
-                        onClick: () => sendMail(row)
-                    },
-                    { default: () => 'Send Email' }
-                )
-            }
-        }
-    ]
-}
-
-const createData = (): RowData[] => [
-    {
-        key: 0,
-        name: 'John Brown',
-        age: 32,
-        address: 'New York No. 1 Lake Park',
-        tags: ['nice', 'developer']
-    },
-    {
-        key: 1,
-        name: 'Jim Green',
-        age: 42,
-        address: 'London No. 1 Lake Park',
-        tags: ['wow']
-    },
-    {
-        key: 2,
-        name: 'Joe Black',
-        age: 32,
-        address: 'Sidney No. 1 Lake Park',
-        tags: ['cool', 'teacher']
-    }
-]
-
-const message = useMessage()
-
-const data = ref(createData())
-const columns = createColumns({
-    sendMail(rowData) {
-        message.info('send mail to ' + rowData.name)
-    }
-})
-const pagination = ref({
-    pageSize: 10
-})
 </script>
