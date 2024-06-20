@@ -17,7 +17,8 @@
             <n-tag round type="primary">
                 版本：Preview
             </n-tag>
-            <n-tag round type="primary">
+            <n-skeleton v-if="loading" :width="247" round :sharp="false" size="small" />
+            <n-tag round type="primary" v-else>
                 最后构建时间：{{ buildTime }}
             </n-tag>
         </n-flex>
@@ -26,14 +27,16 @@
         </n-p>
     </n-card>
     <n-card title="开发环境依赖" style="margin-top: 15px">
-        <n-descriptions label-placement="left" bordered :column="screenWidth >= 900 ? 3 : 1">
+        <n-skeleton v-if="loading" text :repeat="8" :sharp="false" />
+        <n-descriptions v-else label-placement="left" bordered :column="screenWidth >= 900 ? 3 : 1">
             <n-descriptions-item v-for="(version, name) in devDependencies" :key="name" :label="name">
                 {{ version }}
             </n-descriptions-item>
         </n-descriptions>
     </n-card>
     <n-card title="生产环境依赖" style="margin-top: 15px">
-        <n-descriptions label-placement="left" bordered :column="screenWidth >= 900 ? 3 : 1">
+        <n-skeleton v-if="loading" text :repeat="6" :sharp="false" />
+        <n-descriptions v-else label-placement="left" bordered :column="screenWidth >= 900 ? 3 : 1">
             <n-descriptions-item v-for="(version, name) in dependencies" :key="name" :label="name">
                 {{ version }}
             </n-descriptions-item>
@@ -47,6 +50,10 @@ import { LogoGithub } from '@vicons/ionicons5';
 import { useScreenStore } from '@/stores/useScreen';
 import { storeToRefs } from 'pinia';
 
+// 加载状态，默认true
+const loading = ref(true)
+
+// 基础的手机端适配
 const screenStore = useScreenStore();
 const { screenWidth } = storeToRefs(screenStore);
 
@@ -67,8 +74,9 @@ onMounted(async () => {
     buildTime.value = data.buildTime;
     dependencies.value = data.dependencies;
     devDependencies.value = data.devDependencies;
+    loading.value = false;
   } catch (error) {
-    console.error('Failed to load dependencies:', error);
+    console.error('"关于面板"页面 - 未能加载依赖项：', error);
   }
 });
 </script>
