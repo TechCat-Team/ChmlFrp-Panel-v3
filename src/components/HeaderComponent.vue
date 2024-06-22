@@ -12,7 +12,7 @@
             </n-dropdown>
         </div>
         <n-space class="center-aligned" justify="space-between">
-            <n-popover trigger="hover" style="border-radius: 6px;">
+            <n-popover trigger="hover" style="border-radius: 8px;">
                 <template #trigger>
                     <n-button quaternary style="font-size: 18px;" @click="ThemeSwitcherDrawer('right')">
                         <n-icon :component="SettingsOutline" style="cursor: pointer;"></n-icon>

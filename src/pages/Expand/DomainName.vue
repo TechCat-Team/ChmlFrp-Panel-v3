@@ -35,6 +35,8 @@
                 <template #footer>
                     名称：_minecraft._tcp.mc
                     <br />
+                    域名：frp.wtf
+                    <br />
                     内容：5 0 25598 bj.frp.one
                     <br />
                     TTL：1分钟
@@ -53,6 +55,8 @@
                 </n-tag>
                 <template #footer>
                     名称：chaoji
+                    <br />
+                    域名：frp.wtf
                     <br />
                     内容：bj.frp.one
                     <br />

@@ -13,10 +13,15 @@
 }
 
 .n-card .n-card__action {
-    border-radius: 8px 8px 10px 10px;
+    border-radius: 0px 0px 10px 10px;
 }
 
-/* 模态框遮罩毛玻璃
+.n-tooltip {
+    max-width: calc(100vw - 100px);
+    border-radius: 8px !important;
+}
+
+/* 模态框遮罩毛玻璃 */
 .n-modal-mask {
-  backdrop-filter: blur(10px);
-} */
+  backdrop-filter: blur(var(--modal-filter));
+}

@@ -31,9 +31,15 @@
         @click="setPresetColor(color)">
       </div>
     </div>
-    <n-flex style="margin-top: 24px" justify="space-between">
-      <span style="margin-right: 84px">RGB模式</span>
-      <n-switch size="large" v-model:value="isRGBMode" :checked-value="true" :unchecked-value="false" />
+    <n-flex vertical style="margin-top: 24px">
+      <n-flex justify="space-between" style="width: 200px">
+        <span>RGB模式</span>
+        <n-switch size="large" v-model:value="isRGBMode" :checked-value="true" :unchecked-value="false" />
+      </n-flex>
+      <n-flex justify="space-between">
+        <span>对话框毛玻璃</span>
+        <n-switch size="large" v-model:value="isDialogBoxHairGlass" :checked-value="true" :unchecked-value="false" />
+      </n-flex>
     </n-flex>
   </div>
 </template>
@@ -48,6 +54,7 @@ const isDarkTheme = ref(themeStore.theme === 'dark');
 const primaryColor = ref(themeStore.primaryColor);
 const isAutoTheme = ref(themeStore.isAutoTheme);
 const isRGBMode = ref(themeStore.isRGBMode);
+const isDialogBoxHairGlass = ref(themeStore.isDialogBoxHairGlass);
 
 const presetColors = [
   '#18a058', '#2080f0', '#f5222d', '#fa541c', '#faad14', '#13c2c2', '#52c41a', '#eb2f96', '#722ed1', '#2f54eb'
@@ -77,6 +84,20 @@ const setRGBMode = (isRGB: boolean) => {
   isRGBMode.value = isRGB;
   themeStore.setRGBMode(isRGB);
 };
+
+const setDialogBoxHairGlass = (isDBH: boolean) => {
+  isDialogBoxHairGlass.value = isDBH;
+  themeStore.setDialogBoxHairGlass(isDBH);
+};
+
+watch(isDialogBoxHairGlass, (newVal) => {
+  setDialogBoxHairGlass(newVal);
+  if (newVal) {
+    document.documentElement.style.setProperty('--modal-filter', '10px');
+  } else {
+    document.documentElement.style.setProperty('--modal-filter', '0px');
+  }
+});
 
 watch(isDarkTheme, (newIsDark) => {
   if (!isAutoTheme.value) {
