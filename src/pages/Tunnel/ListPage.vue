@@ -88,7 +88,10 @@
     <n-modal v-model:show="tunnelInfoModal">
         <n-card :style="widthStyle" title="节点详情" :bordered="false" transform-origin="center" role="dialog"
             aria-modal="true">
-            <MapComponent :width="'100%'" :height="'500px'" :markers="markers" />
+            <n-alert title="提示" type="info">
+                地图来自中国地理信息公共服务平台，"我的位置"经纬度通过ip获取(目前是固定位置)，可能会有误差。
+            </n-alert>
+            <MapComponent style="margin-top: 16px" :width="'100%'" :height="'500px'" :markers="markers" />
             <template #footer>
                 <n-flex justify="end">
                     <n-button>上一步</n-button>
@@ -220,15 +223,15 @@ const latitude = ref('');
 const longitude = ref('');
 
 onMounted(async () => {
-  try {
-    const response = await axios.get('https://uapis.cn/api/myip.php');
-    const data = response.data;
+    try {
+        const response = await axios.get('https://uapis.cn/api/myip.php');
+        const data = response.data;
 
-    latitude.value = data.latitude;
-    longitude.value = data.longitude;
-  } catch (error) {
-    console.error('Failed to fetch location data:', error);
-  }
+        latitude.value = data.latitude;
+        longitude.value = data.longitude;
+    } catch (error) {
+        console.error('Failed to fetch location data:', error);
+    }
 });
 
 // 根据屏幕宽度决定对话框大小
@@ -330,9 +333,9 @@ const CreareTunnelInfoModal = (title: string) => {
 }
 
 const markers = [
-        { position: [116.397428, 39.90923], title: '我的位置' },
-        { position: [116.407428, 39.91923], title: '节点位置' }
-      ]
+    { position: [116.397428, 39.90923], title: '我的位置' },
+    { position: [116.407428, 39.91923], title: '节点位置' }
+]
 
 // 监听 filters 变化，并保存到本地存储
 watch(filters, (newFilters) => {
