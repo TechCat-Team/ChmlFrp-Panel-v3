@@ -86,12 +86,18 @@
         </n-card>
     </n-modal>
     <n-modal v-model:show="tunnelInfoModal">
-        <n-card :style="widthStyle" title="节点详情" :bordered="false" transform-origin="center" role="dialog"
-            aria-modal="true">
-            <n-alert title="提示" type="info">
-                地图来自中国地理信息公共服务平台，"我的位置"经纬度通过ip获取(目前是固定位置)，可能会有误差。
-            </n-alert>
-            <MapComponent style="margin-top: 16px" :width="'100%'" :height="'500px'" :markers="markers" />
+        <n-card :style="widthStyle" :bordered="false" transform-origin="center" role="dialog" aria-modal="true">
+            <n-tabs type="line" size="large" :tabs-padding="20" pane-style="padding: 20px;">
+                <n-tab-pane name="节点详情">
+                    还没做( •̀ ω •́ )✧
+                </n-tab-pane>
+                <n-tab-pane name="节点地图">
+                    <n-alert title="提示" type="info">
+                        地图来自中国地理信息公共服务平台，"我的位置"经纬度通过ip获取(目前是固定位置)，可能会有误差。
+                    </n-alert>
+                    <MapComponent style="margin-top: 16px" :width="'100%'" :height="'500px'" :markers="markers" />
+                </n-tab-pane>
+            </n-tabs>
             <template #footer>
                 <n-flex justify="end">
                     <n-button>上一步</n-button>
@@ -219,8 +225,20 @@ const tunnelInfoModal = ref(false)
 const screenStore = useScreenStore();
 const { screenWidth } = storeToRefs(screenStore);
 
-const latitude = ref('');
-const longitude = ref('');
+const latitude = ref<number | null>(null);
+const longitude = ref<number | null>(null);
+
+onMounted(async () => {
+    try {
+        const response = await axios.get('https://uapis.cn/api/myip.php');
+        const data = response.data;
+
+        latitude.value = data.latitude;
+        longitude.value = data.longitude;
+    } catch (error) {
+        console.error('Failed to fetch location data:', error);
+    }
+});
 
 onMounted(async () => {
     try {
@@ -333,7 +351,7 @@ const CreareTunnelInfoModal = (title: string) => {
 }
 
 const markers = [
-    { position: [116.397428, 39.90923], title: '我的位置' },
+    { position: [104.87095, 28.65406], title: '我的位置' },
     { position: [116.407428, 39.91923], title: '节点位置' }
 ]
 
