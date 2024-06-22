@@ -14,8 +14,9 @@
             ChmlFrp面板是由TechCat开发的映射管理面板，此项目采用Apache-2.0开源。
         </n-p>
         <n-flex>
-            <n-tag round type="primary">
-                版本：Preview
+            <n-skeleton v-if="loading" :width="91" round :sharp="false" size="small" />
+            <n-tag v-else round type="primary">
+                版本：{{ version }}
             </n-tag>
             <n-skeleton v-if="loading" :width="247" round :sharp="false" size="small" />
             <n-tag round type="primary" v-else>
@@ -63,6 +64,7 @@ const currentYear = currentDate.getFullYear();
 
 // 定义响应式状态
 const buildTime = ref<string>('');
+const version = ref<string>('');
 const dependencies = ref<{ [key: string]: string }>({});
 const devDependencies = ref<{ [key: string]: string }>({});
 
@@ -72,11 +74,12 @@ onMounted(async () => {
     const response = await fetch('/dependencies.json');
     const data = await response.json();
     buildTime.value = data.buildTime;
+    version.value = data.version;
     dependencies.value = data.dependencies;
     devDependencies.value = data.devDependencies;
     loading.value = false;
   } catch (error) {
-    console.error('"关于面板"页面 - 未能加载依赖项：', error);
+    console.error('"关于面板"页面 - 未能加载基础信息：', error);
   }
 });
 </script>

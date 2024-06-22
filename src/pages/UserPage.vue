@@ -19,7 +19,7 @@
                         <n-button quaternary type="primary" round>
                             签到
                         </n-button>
-                        <n-popover trigger="hover">
+                        <n-popover trigger="hover" style="border-radius: 8px;">
                             <template #trigger>
                                 <n-button quaternary round>签到信息</n-button>
                             </template>

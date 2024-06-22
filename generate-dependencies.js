@@ -22,6 +22,7 @@ function generateDependencies() {
   const dependencies = {
     dependencies: packageJson.dependencies,
     devDependencies: packageJson.devDependencies,
+    version: packageJson.version,
     buildTime: buildTime
   };
 

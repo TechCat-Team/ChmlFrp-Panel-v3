@@ -7,40 +7,46 @@
             </n-alert>
             <n-flex justify="space-between" align="center">
                 <n-flex>
-                    <n-checkbox>
+                    <n-checkbox v-model:checked="filters.udp">
                         UDP
                     </n-checkbox>
-                    <n-checkbox>
+                    <n-checkbox v-model:checked="filters.noPermission">
                         无权限
                     </n-checkbox>
                 </n-flex>
                 <n-flex>
                     <n-button-group>
-                        <n-button size="small" type="primary" strong secondary round>
+                        <n-button round size="small" :type="filters.web === 'all' ? 'primary' : 'default'"
+                            @click="filterWeb('all')">
                             全部
                         </n-button>
-                        <n-button size="small">
+                        <n-button size="small" :type="filters.web === 'yes' ? 'primary' : 'default'"
+                            @click="filterWeb('yes')">
                             可建站
                         </n-button>
-                        <n-button size="small" round>
+                        <n-button round size="small" :type="filters.web === 'no' ? 'primary' : 'default'"
+                            @click="filterWeb('no')">
                             不可建站
                         </n-button>
                     </n-button-group>
                     <n-button-group>
-                        <n-button size="small" type="primary" strong secondary round>
+                        <n-button round size="small" :type="filters.region === 'all' ? 'primary' : 'default'"
+                            @click="filterRegion('all')">
                             全部
                         </n-button>
-                        <n-button size="small">
+                        <n-button size="small" :type="filters.region === 'china' ? 'primary' : 'default'"
+                            @click="filterRegion('china')">
                             中国
                         </n-button>
-                        <n-button size="small" round>
+                        <n-button round size="small" :type="filters.region === 'overseas' ? 'primary' : 'default'"
+                            @click="filterRegion('overseas')">
                             境外
                         </n-button>
                     </n-button-group>
                 </n-flex>
             </n-flex>
             <n-grid style="margin-top: 12px" cols="1 m:3 xl:4 2xl:5" :x-gap="12" :y-gap="12" responsive="screen">
-                <n-grid-item v-for="(nodeCard, index) in nodeCards" :key="index">
+                <n-grid-item v-for="(nodeCard, index) in filteredNodeCards" :key="index">
                     <n-card size="small" style="height: 90px" hoverable @click="handleNodeCardClick(nodeCard.title)">
                         <template #header>
                             <span style="color: gray;">
@@ -77,6 +83,18 @@
                     </n-card>
                 </n-grid-item>
             </n-grid>
+        </n-card>
+    </n-modal>
+    <n-modal v-model:show="tunnelInfoModal">
+        <n-card :style="widthStyle" title="节点详情" :bordered="false" transform-origin="center" role="dialog"
+            aria-modal="true">
+            <MapComponent :width="'100%'" :height="'500px'" :markers="markers" />
+            <template #footer>
+                <n-flex justify="end">
+                    <n-button>上一步</n-button>
+                    <n-button type="primary">继续</n-button>
+                </n-flex>
+            </template>
         </n-card>
     </n-modal>
     <n-card style="margin-bottom: 20px;" title="隧道列表">
@@ -188,18 +206,38 @@
 import { RefreshOutline, AddOutline, ArrowUpOutline, ArrowDownOutline, EyeOutline, TrashOutline, CreateOutline, BanOutline, EarthOutline, ShieldCheckmarkOutline } from '@vicons/ionicons5'
 import { useScreenStore } from '@/stores/useScreen';
 import { storeToRefs } from 'pinia';
+import axios from 'axios';
 
 const message = useMessage()
 
 const createTunnelModal = ref(false)
+const tunnelInfoModal = ref(false)
 
 const screenStore = useScreenStore();
 const { screenWidth } = storeToRefs(screenStore);
+
+const latitude = ref('');
+const longitude = ref('');
+
+onMounted(async () => {
+  try {
+    const response = await axios.get('https://uapis.cn/api/myip.php');
+    const data = response.data;
+
+    latitude.value = data.latitude;
+    longitude.value = data.longitude;
+  } catch (error) {
+    console.error('Failed to fetch location data:', error);
+  }
+});
 
 // 根据屏幕宽度决定对话框大小
 const widthStyle = computed(() => ({
     width: screenWidth.value >= 600 ? '70%' : '100%',
 }));
+
+// 模拟用户权限为超级会员
+const userGroup = ref('免费用户')
 
 const nodeCards = ref([
     {
@@ -210,6 +248,7 @@ const nodeCards = ref([
         china: 'yes',
         defense: 'yes',
         udp: 'false',
+        area: '火星'
     },
     {
         id: '#2',
@@ -219,13 +258,86 @@ const nodeCards = ref([
         china: 'yes',
         defense: 'yes',
         udp: 'true',
+        area: '月球广寒宫'
+    },
+    {
+        id: '#3',
+        title: '美国日本',
+        group: 'user',
+        web: 'yes',
+        china: 'no',
+        defense: 'no',
+        udp: 'true',
+        area: '美国日本'
+    },
+    {
+        id: '#4',
+        title: '中国台湾',
+        group: 'vip',
+        web: 'yes',
+        china: 'yes',
+        defense: 'yes',
+        udp: 'true',
+        area: '中国台湾省'
     }
 ])
 
-const handleNodeCardClick = (title: string) => {
-    const selectedTitle = title;
-    console.log('选中了:', selectedTitle);
+// 从本地存储中恢复过滤器状态
+const storedFilters = localStorage.getItem('nodeFilters')
+const filters = ref(storedFilters ? JSON.parse(storedFilters) : {
+    udp: false,
+    noPermission: true,
+    web: 'all',
+    region: 'all'
+})
+
+const filterWeb = (web: string) => {
+    filters.value.web = web
 }
+
+const filterRegion = (region: string) => {
+    filters.value.region = region
+}
+
+const filteredNodeCards = computed(() => {
+    return nodeCards.value.filter(node => {
+        const matchUdp = filters.value.udp ? node.udp === 'true' : true
+
+        let matchNoPermission = true
+        if (userGroup.value) {
+            matchNoPermission = filters.value.noPermission ? true : node.group === 'user'
+        } else {
+            matchNoPermission = filters.value.noPermission ? true : true
+        }
+
+        const matchWeb = filters.value.web === 'all' || node.web === filters.value.web
+        const matchRegion = filters.value.region === 'all' ||
+            (filters.value.region === 'china' && node.china === 'yes') ||
+            (filters.value.region === 'overseas' && (node.china === 'no' || node.area.includes('香港') || node.area.includes('台湾')))
+
+        return matchUdp && matchNoPermission && matchWeb && matchRegion
+    })
+})
+
+const handleNodeCardClick = (title: string) => {
+    CreareTunnelInfoModal(title)
+}
+
+const CreareTunnelInfoModal = (title: string) => {
+    console.log('选中了:', title);
+    createTunnelModal.value = false
+    tunnelInfoModal.value = true
+}
+
+const markers = [
+        { position: [116.397428, 39.90923], title: '我的位置' },
+        { position: [116.407428, 39.91923], title: '节点位置' }
+      ]
+
+// 监听 filters 变化，并保存到本地存储
+watch(filters, (newFilters) => {
+    localStorage.setItem('nodeFilters', JSON.stringify(newFilters))
+}, { deep: true })
 
 const cards = ref([
     {
@@ -288,5 +400,10 @@ const copyToClipboard = (text: string) => {
 .center-content n-row,
 .center-content n-col {
     justify-content: center;
+}
+
+.mapDiv {
+    width: 100%;
+    height: 100%;
 }
 </style>

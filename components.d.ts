@@ -8,6 +8,7 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     HeaderComponent: typeof import('./src/components/HeaderComponent.vue')['default']
+    MapComponent: typeof import('./src/components/MapComponent.vue')['default']
     MenuComponent: typeof import('./src/components/MenuComponent.vue')['default']
     MinecraftSkinViewer: typeof import('./src/components/MinecraftSkinViewer.vue')['default']
     NAlert: typeof import('naive-ui')['NAlert']
