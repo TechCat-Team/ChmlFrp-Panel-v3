@@ -1,6 +1,6 @@
 <template>
     <n-back-top :right="100" />
-    <n-modal v-model:show="createTunnelModal">
+    <n-modal v-model:show="nodeListModal">
         <n-card :style="widthStyle" title="选择节点" :bordered="false" role="dialog" aria-modal="true">
             <n-alert type="info" style="bottom: 12px;">
                 为确保您的体验，请尽量选择负载低，距离近的节点。
@@ -85,14 +85,76 @@
             </n-grid>
         </n-card>
     </n-modal>
-    <n-modal v-model:show="tunnelInfoModal">
-        <n-card :style="widthStyle" :bordered="false" transform-origin="center" role="dialog" aria-modal="true">
-            <n-tabs type="line" size="large" :tabs-padding="20" pane-style="padding: 20px;">
+    <n-modal v-model:show="nodeInfoModal">
+        <n-card :style="widthStyle" size="small" :bordered="false" transform-origin="center" role="dialog"
+            aria-modal="true">
+            <n-tabs type="line" size="large" :tabs-padding="20">
                 <n-tab-pane name="节点详情">
-                    还没做( •̀ ω •́ )✧
+                    <n-p>节点负载</n-p>
+                    <n-progress type="line" :percentage="24" :indicator-placement="'inside'" />
+                    <n-p style="margin-top: 12px">节点详情</n-p>
+                    <n-descriptions label-placement="left" size="medium" :column="screenWidth >= 600 ? 3 : 1" bordered>
+                        <n-descriptions-item label="节点名">
+                            {{ selectNode }}
+                        </n-descriptions-item>
+                        <n-descriptions-item label="地区">
+                            美国俄亥俄州辛辛那提
+                        </n-descriptions-item>
+                        <n-descriptions-item label="权限组">
+                            <n-tag type="info">
+                                user
+                            </n-tag>
+                        </n-descriptions-item>
+                        <n-descriptions-item label="禁PING">
+                            <n-tag type="warning">
+                                是
+                            </n-tag>
+                        </n-descriptions-item>
+                        <n-descriptions-item label="防御">
+                            200G
+                        </n-descriptions-item>
+                        <n-descriptions-item label="建站">
+                            <n-tag type="success">
+                                允许
+                            </n-tag>
+                        </n-descriptions-item>
+                        <n-descriptions-item label="UDP">
+                            <n-tag type="success">
+                                允许
+                            </n-tag>
+                        </n-descriptions-item>
+                        <n-descriptions-item label="域名过白">
+                            <n-tooltip trigger="hover">
+                                <template #trigger>
+                                    域名无需备案过白
+                                </template>
+                                此节点为国外或中国特别行政区，域名无需备案
+                            </n-tooltip>
+                        </n-descriptions-item>
+                        <n-descriptions-item label="端口限制">
+                            10000~65535
+                        </n-descriptions-item>
+                        <n-descriptions-item label="域名">
+                            bj.frp.one
+                        </n-descriptions-item>
+                        <n-descriptions-item label="IP">
+                            111.67.195.88
+                        </n-descriptions-item>
+                        <n-descriptions-item label="带宽">
+                            <n-tooltip trigger="hover">
+                                <template #trigger>
+                                    国外带宽
+                                </template>
+                                此节点走ChmlFrp国外带宽，您的国外带宽上限为128m
+                            </n-tooltip>
+                        </n-descriptions-item>
+                        <n-descriptions-item label="介绍">
+                            超高带宽，三网直连
+                        </n-descriptions-item>
+                    </n-descriptions>
                 </n-tab-pane>
                 <n-tab-pane name="节点地图">
-                    <n-alert title="提示" type="info">
+                    <n-alert type="info">
                         地图来自中国地理信息公共服务平台，"我的位置"经纬度通过ip获取(目前是固定位置)，可能会有误差。
                     </n-alert>
                     <MapComponent style="margin-top: 16px" :width="'100%'" :height="'500px'" :markers="markers" />
@@ -100,10 +162,15 @@
             </n-tabs>
             <template #footer>
                 <n-flex justify="end">
-                    <n-button>上一步</n-button>
-                    <n-button type="primary">继续</n-button>
+                    <n-button @click="nodeDetails">上一步</n-button>
+                    <n-button @click="goToTheTunnelDetails" type="primary">继续</n-button>
                 </n-flex>
             </template>
+        </n-card>
+    </n-modal>
+    <n-modal v-model:show="tunnelInfoModal">
+        <n-card style="width: 600px" title="创建隧道" :bordered="false" size="huge" role="dialog" aria-modal="true">
+            还没做( •̀ ω •́ )✧
         </n-card>
     </n-modal>
     <n-card style="margin-bottom: 20px;" title="隧道列表">
@@ -114,7 +181,7 @@
                 </template>
                 刷新
             </n-button>
-            <n-button @click="createTunnelModal = true" type="primary" round quaternary>
+            <n-button @click="nodeListModal = true" type="primary" round quaternary>
                 <template #icon>
                     <n-icon :component="AddOutline" />
                 </template>
@@ -215,42 +282,17 @@
 import { RefreshOutline, AddOutline, ArrowUpOutline, ArrowDownOutline, EyeOutline, TrashOutline, CreateOutline, BanOutline, EarthOutline, ShieldCheckmarkOutline } from '@vicons/ionicons5'
 import { useScreenStore } from '@/stores/useScreen';
 import { storeToRefs } from 'pinia';
-import axios from 'axios';
 
 const message = useMessage()
 
-const createTunnelModal = ref(false)
-const tunnelInfoModal = ref(false)
+const nodeListModal = ref(false) // 节点列表模态框
+const nodeInfoModal = ref(false) // 节点信息模态框
+const tunnelInfoModal = ref(false) // 隧道信息模态框
 
 const screenStore = useScreenStore();
 const { screenWidth } = storeToRefs(screenStore);
 
-const latitude = ref<number | null>(null);
-const longitude = ref<number | null>(null);
-
-onMounted(async () => {
-    try {
-        const response = await axios.get('https://uapis.cn/api/myip.php');
-        const data = response.data;
-
-        latitude.value = data.latitude;
-        longitude.value = data.longitude;
-    } catch (error) {
-        console.error('Failed to fetch location data:', error);
-    }
-});
-
-onMounted(async () => {
-    try {
-        const response = await axios.get('https://uapis.cn/api/myip.php');
-        const data = response.data;
-
-        latitude.value = data.latitude;
-        longitude.value = data.longitude;
-    } catch (error) {
-        console.error('Failed to fetch location data:', error);
-    }
-});
+const selectNode = ref(''); // 选中节点名
 
 // 根据屏幕宽度决定对话框大小
 const widthStyle = computed(() => ({
@@ -320,6 +362,7 @@ const filterRegion = (region: string) => {
     filters.value.region = region
 }
 
+// 节点分类
 const filteredNodeCards = computed(() => {
     return nodeCards.value.filter(node => {
         const matchUdp = filters.value.udp ? node.udp === 'true' : true
@@ -341,13 +384,20 @@ const filteredNodeCards = computed(() => {
 })
 
 const handleNodeCardClick = (title: string) => {
-    CreareTunnelInfoModal(title)
+    console.log('选中了:', title); // 控制台输出选中结果
+    selectNode.value = title
+    nodeListModal.value = false // 取消显示节点选择模态框
+    nodeInfoModal.value = true // 显示节点详情模态框
 }
 
-const CreareTunnelInfoModal = (title: string) => {
-    console.log('选中了:', title);
-    createTunnelModal.value = false
-    tunnelInfoModal.value = true
+const nodeDetails = () => {
+    nodeListModal.value = true // 显示节点选择模态框
+    nodeInfoModal.value = false // 取消显示节点详情模态框
+}
+
+const goToTheTunnelDetails = () => {
+    nodeInfoModal.value = false // 取消显示节点详情模态框
+    tunnelInfoModal.value = true // 显示创建隧道详情拟态框
 }
 
 const markers = [

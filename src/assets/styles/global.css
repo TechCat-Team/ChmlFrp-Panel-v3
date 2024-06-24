@@ -23,5 +23,5 @@
 
 /* 模态框遮罩毛玻璃 */
 .n-modal-mask {
-  backdrop-filter: blur(var(--modal-filter));
+    backdrop-filter: blur(var(--modal-filter));
 }
