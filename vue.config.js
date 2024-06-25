@@ -19,7 +19,8 @@ module.exports = defineConfig({
               'useLoadingBar',
               'lightTheme',
               'darkTheme',
-              'useDialog'
+              'useDialog',
+              'useNotification'
             ]
           }
         ],
