@@ -26,7 +26,8 @@ import {
   PeopleOutline,
   ConstructOutline,
   ListCircleOutline,
-  ServerOutline
+  ServerOutline,
+  BanOutline
 } from '@vicons/ionicons5';
 
 // 菜单图标渲染函数
@@ -200,6 +201,17 @@ export const menuOptions: MenuOption[] = [
     key: '其他信息',
     icon: renderIcon(EllipsisHorizontalCircleOutline),
     children: [
+      {
+        label: () => h(
+          RouterLink,
+          {
+            to: { name: '封禁列表' }
+          },
+          { default: () => '封禁列表' }
+        ),
+        key: '封禁列表',
+        icon: renderIcon(BanOutline)
+      },
       {
         label: () => h(
           RouterLink,

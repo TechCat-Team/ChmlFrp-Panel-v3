@@ -157,6 +157,16 @@ const routes: Array<RouteRecordRaw> = [
     children: [
       {
         path: '/other/about',
+        name: '封禁列表',
+        component: () => import('@/pages/Other/BlockedList.vue'),
+        meta: {
+          title: '封禁列表 - ChmlFrp',
+          keywords: 'ChmlFrp, 封禁列表, 内网穿透, 端口映射, frp, 免费frp, 映射',
+          description: '公示因为违规被封禁的所有账户，用于警示其余用户'
+        }
+      },
+      {
+        path: '/other/about',
         name: '关于面板',
         component: () => import('@/pages/Other/AboutPage.vue'),
         meta: {
