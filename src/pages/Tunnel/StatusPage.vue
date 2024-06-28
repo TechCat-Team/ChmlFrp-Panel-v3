@@ -1,6 +1,16 @@
 <template>
     <n-back-top :right="100" />
     <n-card title="统计信息">
+        <template #header-extra>
+            <n-switch>
+                <template #checked>
+                    可用性
+                </template>
+                <template #unchecked>
+                    状  态
+                </template>
+            </n-switch>
+        </template>
         <n-grid cols="2 m:5 xl:7" responsive="screen">
             <n-grid-item>
                 <n-statistic label="当前总在线隧道" tabular-nums>
@@ -47,7 +57,7 @@
             </n-grid-item>
         </n-grid>
     </n-card>
-    <n-grid cols="1 m:3 l:4 xl:5 2xl:6" style="margin-top: 20px;" :x-gap="12" :y-gap="12" responsive="screen">
+    <n-grid cols="1 m:2 l:3 xl:4 2xl:5" style="margin-top: 20px;" :x-gap="12" :y-gap="12" responsive="screen">
         <n-grid-item v-for="(nodeStatusCard, index) in nodeStatusCards" :key="index">
             <n-card size="small">
                 <template #header>

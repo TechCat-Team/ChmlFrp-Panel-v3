@@ -82,7 +82,7 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import('@/views/HomeView.vue'),
     children: [
       {
-        path: '/expand/domainname',
+        path: '/expand/domain-name',
         name: '免费域名',
         component: () => import('@/pages/Expand/DomainName.vue'),
         meta: {
@@ -92,7 +92,7 @@ const routes: Array<RouteRecordRaw> = [
         }
       },
       {
-        path: '/expand/toowhite',
+        path: '/expand/too-white',
         name: '域名过白',
         component: () => import('@/pages/Expand/TooWhite.vue'),
         meta: {
@@ -102,7 +102,7 @@ const routes: Array<RouteRecordRaw> = [
         }
       },
       {
-        path: '/expand/freessl',
+        path: '/expand/free-ssl',
         name: '免费SSL',
         component: () => import('@/pages/Expand/FreeSSL.vue'),
         meta: {
@@ -119,7 +119,7 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import('@/views/HomeView.vue'),
     children: [
       {
-        path: '/shop/topup',
+        path: '/shop/top-up',
         name: '积分充值',
         component: () => import('@/pages/Shop/TopUp.vue'),
         meta: {
@@ -156,7 +156,7 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import('@/views/HomeView.vue'),
     children: [
       {
-        path: '/other/about',
+        path: '/other/blocked-list',
         name: '封禁列表',
         component: () => import('@/pages/Other/BlockedList.vue'),
         meta: {
@@ -190,11 +190,21 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/tunnel/info',
     name: '隧道详情',
-    component: () => import('@/views/TunnelInfoView.vue'),
+    component: () => import('@/views/TunnelInfo.vue'),
     meta: {
       title: '隧道详情 - ChmlFrp',
       keywords: 'ChmlFrp, 隧道详情, 内网穿透, 端口映射, frp, 免费frp, 映射',
       description: 'ChmlFrp用户隧道详情，这里会展示隧道连接数，今日流量，节点负载信息，隧道基础信息及关联程序等。'
+    }
+  },
+  {
+    path: '/status/node/info',
+    name: '节点详情',
+    component: () => import('@/views/NodeInfo.vue'),
+    meta: {
+      title: '节点详情 - ChmlFrp',
+      keywords: 'ChmlFrp, 节点详情, 内网穿透, 端口映射, frp, 免费frp, 映射',
+      description: 'ChmlFrp单个节点详情，这里会展示映射节点关联数据。'
     }
   },
   {
@@ -243,7 +253,7 @@ const routes: Array<RouteRecordRaw> = [
         }
       },
       {
-        path: '/admin/exchangecode',
+        path: '/admin/gift-code',
         name: '兑换码管理',
         component: () => import('@/pages/Admin/ExchangeCode.vue'),
         meta: {
@@ -251,7 +261,7 @@ const routes: Array<RouteRecordRaw> = [
         }
       },
       {
-        path: '/admin/domainname',
+        path: '/admin/domain-name',
         name: '免费域名管理',
         component: () => import('@/pages/Admin/DomainNameManagement.vue'),
         meta: {
@@ -259,7 +269,7 @@ const routes: Array<RouteRecordRaw> = [
         }
       },
       {
-        path: '/admin/toowhite',
+        path: '/admin/too-white',
         name: '域名过白管理',
         component: () => import('@/pages/Admin/WhiteTreatment.vue'),
         meta: {
@@ -267,7 +277,7 @@ const routes: Array<RouteRecordRaw> = [
         }
       },
       {
-        path: '/admin/freessl',
+        path: '/admin/free-ssl',
         name: '免费SSL管理',
         component: () => import('@/pages/Admin/SSLManagement.vue'),
         meta: {
