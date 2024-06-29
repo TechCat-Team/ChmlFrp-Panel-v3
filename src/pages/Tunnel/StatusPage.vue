@@ -2,12 +2,12 @@
     <n-back-top :right="100" />
     <n-card title="统计信息">
         <template #header-extra>
-            <n-switch>
+            <n-switch v-model:value="available">
                 <template #checked>
                     可用性
                 </template>
                 <template #unchecked>
-                    状  态
+                    状 态
                 </template>
             </n-switch>
         </template>
@@ -57,9 +57,10 @@
             </n-grid-item>
         </n-grid>
     </n-card>
-    <n-grid cols="1 m:2 l:3 xl:4 2xl:5" style="margin-top: 20px;" :x-gap="12" :y-gap="12" responsive="screen">
+    <n-grid v-if="!available" cols="1 m:2 l:3 xl:4 2xl:5" style="margin-top: 20px;" :x-gap="12" :y-gap="12"
+        responsive="screen">
         <n-grid-item v-for="(nodeStatusCard, index) in nodeStatusCards" :key="index">
-            <n-card size="small">
+            <n-card size="small" hoverable @click="goToNodeInfo">
                 <template #header>
                     {{ nodeStatusCard.title }}
                     <span style="color: gray; font-size: 14px;">{{ nodeStatusCard.id }}</span>
@@ -95,10 +96,36 @@
             </n-card>
         </n-grid-item>
     </n-grid>
+    <n-grid v-else :cols="1" style="margin-top: 20px;" :x-gap="12" :y-gap="12" responsive="screen">
+        <n-grid-item>
+            <n-card hoverable @click="goToNodeInfo">
+                <ServiceUptime />
+            </n-card>
+        </n-grid-item>
+        <n-grid-item>
+            <n-card hoverable @click="goToNodeInfo">
+                <ServiceUptime />
+            </n-card>
+        </n-grid-item>
+        <n-grid-item>
+            <n-card hoverable @click="goToNodeInfo">
+                <ServiceUptime />
+            </n-card>
+        </n-grid-item>
+    </n-grid>
 </template>
 
 <script lang="ts" setup>
 import { LinkOutline, BarcodeOutline, ArrowUpOutline, ArrowDownOutline } from '@vicons/ionicons5'
+import { useRouter } from 'vue-router';
+
+const available = ref(false)
+
+const router = useRouter();
+const goToNodeInfo = () => {
+    const url = router.resolve({ path: '/status/node/info' }).href;
+    window.open(url, '_blank');
+}
 
 const nodeStatusCards = ref([
     {

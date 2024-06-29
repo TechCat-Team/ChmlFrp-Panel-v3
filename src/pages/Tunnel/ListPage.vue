@@ -203,7 +203,7 @@
     </n-card>
     <n-grid v-else cols="1 m:2 l:3 xl:4 2xl:5" :x-gap="12" :y-gap="12" responsive="screen">
         <n-grid-item v-for="(card, index) in cards" :key="index">
-            <n-card size="small" hoverable>
+            <n-card size="small">
                 <template #header>
                     {{ card.title }}
                     <span style="color: gray; font-size: 14px;">{{ card.id }}</span>
@@ -259,7 +259,7 @@
                             </template>
                             编辑
                         </n-button>
-                        <n-button round quaternary type="primary">
+                        <n-button @click="goToTunnelInfo" round quaternary type="primary">
                             <template #icon>
                                 <n-icon :component="EyeOutline" />
                             </template>
@@ -282,6 +282,13 @@
 import { RefreshOutline, AddOutline, ArrowUpOutline, ArrowDownOutline, EyeOutline, TrashOutline, CreateOutline, BanOutline, EarthOutline, ShieldCheckmarkOutline } from '@vicons/ionicons5'
 import { useScreenStore } from '@/stores/useScreen';
 import { storeToRefs } from 'pinia';
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
+const goToTunnelInfo = () => {
+    const url = router.resolve({ path: '/tunnel/info' }).href;
+    window.open(url, '_blank');
+}
 
 const message = useMessage()
 

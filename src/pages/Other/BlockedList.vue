@@ -66,11 +66,7 @@ type Song = {
     state: string
 }
 
-const createColumns = ({
-    play
-}: {
-    play: (row: Song) => void
-}): DataTableColumns<Song> => {
+const createColumns = (): DataTableColumns<Song> => {
     return [
         {
             title: 'id',
@@ -95,6 +91,9 @@ const createColumns = ({
         {
             title: '状态',
             key: 'state',
+            render(row) {
+                return h(NTag, { type: cardTagType(row.state), bordered: false, round: true }, { default: () => row.state });
+            }
         },
     ]
 }
@@ -105,11 +104,6 @@ const data: Song[] = [
     { id: 12, email: '133****1926@163.com', length: '因为没有被封禁，所以被封禁', prohibitionTime: '2044-3-12 35:92', unblockingTime: '永久封禁', state: '未知' }
 ]
 
-const message = useMessage()
-const columns = createColumns({
-    play(row: Song) {
-        message.info(`Play ${row.email}`)
-    }
-})
+const columns = createColumns()
 const pagination = false as const
 </script>
