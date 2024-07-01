@@ -198,7 +198,7 @@ const routes: Array<RouteRecordRaw> = [
     }
   },
   {
-    path: '/status/node/info',
+    path: '/node/info',
     name: '节点详情',
     component: () => import('@/views/NodeInfo.vue'),
     meta: {

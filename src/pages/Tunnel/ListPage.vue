@@ -36,7 +36,7 @@
                         </n-button>
                         <n-button size="small" :type="filters.region === 'china' ? 'primary' : 'default'"
                             @click="filterRegion('china')">
-                            中国
+                            境内
                         </n-button>
                         <n-button round size="small" :type="filters.region === 'overseas' ? 'primary' : 'default'"
                             @click="filterRegion('overseas')">
@@ -47,10 +47,10 @@
             </n-flex>
             <n-grid style="margin-top: 12px" cols="1 m:3 xl:4 2xl:5" :x-gap="12" :y-gap="12" responsive="screen">
                 <n-grid-item v-for="(nodeCard, index) in filteredNodeCards" :key="index">
-                    <n-card size="small" style="height: 90px" hoverable @click="handleNodeCardClick(nodeCard.title)">
+                    <n-card size="small" style="height: 90px" hoverable @click="handleNodeCardClick(nodeCard)">
                         <template #header>
                             <span style="color: gray;">
-                                {{ nodeCard.id }}
+                                #{{ nodeCard.id }}
                             </span>
                             <n-divider vertical />
                             {{ nodeCard.title }}
@@ -73,7 +73,7 @@
                                 </template>
                                 UDP
                             </n-tag>
-                            <n-tag :bordered="false" round size="small" type="info" v-if="nodeCard.defense === 'yes'">
+                            <n-tag :bordered="false" round size="small" type="info" v-if="nodeCard.defense === 'true'">
                                 <template #icon>
                                     <n-icon :component="ShieldCheckmarkOutline" />
                                 </template>
@@ -181,20 +181,22 @@
                 </template>
                 刷新
             </n-button>
-            <n-button @click="nodeListModal = true" type="primary" round quaternary>
+            <n-button @click="createNodes" :loading="addTheTunnelButtonShow" type="primary" round quaternary
+                :disabled="addTheTunnelButtonShow">
                 <template #icon>
-                    <n-icon :component="AddOutline" />
+                    <n-icon v-if="!addTheTunnelButtonShow" :component="AddOutline" />
                 </template>
                 添加隧道
             </n-button>
         </template>
     </n-card>
-    <n-card v-if="cards === null">
+    <n-card v-if="tunnelCards === null">
         <n-empty description="您似乎还没创建隧道">
             <template #extra>
-                <n-button size="small">
+                <n-button size="small" :loading="addTheTunnelButtonShow" @click="createNodes"
+                    :disabled="addTheTunnelButtonShow">
                     <template #icon>
-                        <n-icon :component="AddOutline" />
+                        <n-icon v-if="!addTheTunnelButtonShow" :component="AddOutline" />
                     </template>
                     创建隧道
                 </n-button>
@@ -202,7 +204,7 @@
         </n-empty>
     </n-card>
     <n-grid v-else cols="1 m:2 l:3 xl:4 2xl:5" :x-gap="12" :y-gap="12" responsive="screen">
-        <n-grid-item v-for="(card, index) in cards" :key="index">
+        <n-grid-item v-for="(card, index) in tunnelCards" :key="index">
             <n-card size="small">
                 <template #header>
                     {{ card.title }}
@@ -265,7 +267,7 @@
                             </template>
                             查看
                         </n-button>
-                        <n-button round quaternary type="error">
+                        <n-button round quaternary type="error" @click="handleConfirm(card.title)">
                             <template #icon>
                                 <n-icon :component="TrashOutline" />
                             </template>
@@ -283,6 +285,7 @@ import { RefreshOutline, AddOutline, ArrowUpOutline, ArrowDownOutline, EyeOutlin
 import { useScreenStore } from '@/stores/useScreen';
 import { storeToRefs } from 'pinia';
 import { useRouter } from 'vue-router';
+import axios from 'axios';
 
 const router = useRouter();
 const goToTunnelInfo = () => {
@@ -291,10 +294,13 @@ const goToTunnelInfo = () => {
 }
 
 const message = useMessage()
+const dialog = useDialog()
 
 const nodeListModal = ref(false) // 节点列表模态框
 const nodeInfoModal = ref(false) // 节点信息模态框
 const tunnelInfoModal = ref(false) // 隧道信息模态框
+
+const addTheTunnelButtonShow = ref(false)
 
 const screenStore = useScreenStore();
 const { screenWidth } = storeToRefs(screenStore);
@@ -306,54 +312,60 @@ const widthStyle = computed(() => ({
     width: screenWidth.value >= 600 ? '70%' : '100%',
 }));
 
-// 模拟用户权限为超级会员
+// 模拟用户权限为免费用户
 const userGroup = ref('免费用户')
 
-const nodeCards = ref([
-    {
-        id: '#1',
-        title: '火星CN2-1',
-        group: 'vip',
-        web: 'yes',
-        china: 'yes',
-        defense: 'yes',
-        udp: 'false',
-        area: '火星'
-    },
-    {
-        id: '#2',
-        title: '月球直连',
-        group: 'user',
-        web: 'no',
-        china: 'yes',
-        defense: 'yes',
-        udp: 'true',
-        area: '月球广寒宫'
-    },
-    {
-        id: '#3',
-        title: '美国日本',
-        group: 'user',
-        web: 'yes',
-        china: 'no',
-        defense: 'no',
-        udp: 'true',
-        area: '美国日本'
-    },
-    {
-        id: '#4',
-        title: '中国台湾',
-        group: 'vip',
-        web: 'yes',
-        china: 'yes',
-        defense: 'yes',
-        udp: 'true',
-        area: '中国台湾省'
+const handleConfirm = (title: string) => {
+    dialog.warning({
+        title: '警告',
+        content: '您正在删除隧道：' + title + '，请确认是否删除。',
+        positiveText: '确定',
+        negativeText: '取消',
+        onPositiveClick: () => {
+            message.success('成功删除隧道：' + title)
+        },
+    })
+}
+
+interface NodeCard {
+    id: number;
+    title: string;
+    group: string;
+    web: string;
+    china: string;
+    defense: string;
+    udp: string;
+    area: string;
+}
+
+const nodeCards = ref<NodeCard[]>([]);
+
+const createNodes = async () => {
+    addTheTunnelButtonShow.value = true // 新建隧道按钮加载
+    // 加载节点列表
+    try {
+        const response = await axios.get('https://panel.chmlfrp.cn/api/unode.php');
+        nodeCards.value = response.data.map((node: any) => ({
+            id: node.id, // 节点ID
+            title: node.name, // 节点名
+            group: node.nodegroup, // 权限组
+            web: node.web, // 是否允许建站
+            china: node.china, // 是否为境内带宽
+            defense: node.fangyu, // 防御
+            udp: node.udp, // 是否允许UDP
+            area: node.area // 地区
+        }));
+        nodeListModal.value = true // 显示节点列表模态框
+    } catch (error) {
+        console.error('[隧道列表]从api获取节点列表数据失败', error);
+        message.error('从api获取节点列表数据失败' + error);
     }
-])
+    addTheTunnelButtonShow.value = false // 新建隧道按钮取消加载
+}
 
 // 从本地存储中恢复过滤器状态
 const storedFilters = localStorage.getItem('nodeFilters')
+// 默认分类
 const filters = ref(storedFilters ? JSON.parse(storedFilters) : {
     udp: false,
     noPermission: true,
@@ -372,27 +384,32 @@ const filterRegion = (region: string) => {
 // 节点分类
 const filteredNodeCards = computed(() => {
     return nodeCards.value.filter(node => {
-        const matchUdp = filters.value.udp ? node.udp === 'true' : true
+        const matchUdp = filters.value.udp ? node.udp === 'true' : true;
 
-        let matchNoPermission = true
+        let matchNoPermission = true;
         if (userGroup.value) {
-            matchNoPermission = filters.value.noPermission ? true : node.group === 'user'
+            matchNoPermission = filters.value.noPermission ? true : node.group === 'user';
         } else {
-            matchNoPermission = filters.value.noPermission ? true : true
+            matchNoPermission = filters.value.noPermission ? true : true;
         }
 
-        const matchWeb = filters.value.web === 'all' || node.web === filters.value.web
+        const matchWeb = filters.value.web === 'all' || node.web === filters.value.web;
         const matchRegion = filters.value.region === 'all' ||
             (filters.value.region === 'china' && node.china === 'yes') ||
-            (filters.value.region === 'overseas' && (node.china === 'no' || node.area.includes('香港') || node.area.includes('台湾')))
+            (filters.value.region === 'overseas' && (node.china === 'no' || node.area.includes('香港') || node.area.includes('台湾')));
 
-        return matchUdp && matchNoPermission && matchWeb && matchRegion
-    })
-})
+        return matchUdp && matchNoPermission && matchWeb && matchRegion;
+    });
+});
 
-const handleNodeCardClick = (title: string) => {
-    console.log('选中了:', title); // 控制台输出选中结果
-    selectNode.value = title
+const handleNodeCardClick = (card: NodeCard) => {
+    // 检查用户是否有权限选择该节点
+    if (card.group === 'vip' && userGroup.value === '免费用户') {
+        message.warning('此节点为会员节点，您的权限不足')
+        return;
+    }
+    console.log('[隧道列表]选中了:', card.title); // 控制台输出选中结果
+    selectNode.value = card.title
     nodeListModal.value = false // 取消显示节点选择模态框
     nodeInfoModal.value = true // 显示节点详情模态框
 }
@@ -417,7 +434,7 @@ watch(filters, (newFilters) => {
     localStorage.setItem('nodeFilters', JSON.stringify(newFilters))
 }, { deep: true })
 
-const cards = ref([
+const tunnelCards = ref([
     {
         title: 'ChmlFrp-Tunnel',
         id: '#15799',
@@ -457,7 +474,7 @@ const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text).then(() => {
         message.success('连接地址复制成功')
     }).catch(err => {
-        console.error('隧道列表 - 复制连接地址失败:', err);
+        console.error('[隧道列表]复制连接地址失败:', err);
         message.error('连接地址复制失败')
     });
 };

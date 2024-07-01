@@ -99,8 +99,8 @@
                         <n-grid cols="4" item-responsive responsive="screen">
                             <n-grid-item span="3">
                                 <n-descriptions :column="4">
-                                    <n-descriptions-item label="上带宽">{{ uploadSpeed }} Mbps</n-descriptions-item>
-                                    <n-descriptions-item label="下带宽">{{ downloadSpeed }} Mbps</n-descriptions-item>
+                                    <n-descriptions-item label="上带宽">{{ uploadSpeed }}m</n-descriptions-item>
+                                    <n-descriptions-item label="下带宽">{{ downloadSpeed }}m</n-descriptions-item>
                                     <n-descriptions-item label="上流量">21.5G</n-descriptions-item>
                                     <n-descriptions-item label="下流量">12.9G</n-descriptions-item>
                                 </n-descriptions>

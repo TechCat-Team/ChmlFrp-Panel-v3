@@ -11,7 +11,7 @@
                 </template>
             </n-switch>
         </template>
-        <n-grid cols="2 m:5 xl:7" responsive="screen">
+        <n-grid cols="2 m:5 xl:7" responsive="screen" v-if="!available">
             <n-grid-item>
                 <n-statistic label="当前总在线隧道" tabular-nums>
                     <template #prefix>
@@ -56,6 +56,10 @@
                 </n-statistic>
             </n-grid-item>
         </n-grid>
+        <div v-else style="font-size: 32px; font-weight:bold; display: flex; align-items: center;">
+            <div class="circle"></div>
+            <span>所有节点均<span style="color: rgb(59, 214, 113)">正常</span>运行</span>
+        </div>
     </n-card>
     <n-grid v-if="!available" cols="1 m:2 l:3 xl:4 2xl:5" style="margin-top: 20px;" :x-gap="12" :y-gap="12"
         responsive="screen">
@@ -123,7 +127,7 @@ const available = ref(false)
 
 const router = useRouter();
 const goToNodeInfo = () => {
-    const url = router.resolve({ path: '/status/node/info' }).href;
+    const url = router.resolve({ path: '/node/info' }).href;
     window.open(url, '_blank');
 }
 
@@ -202,3 +206,43 @@ const progressColor = (bandwidthOccupation: number) => {
 }
 
 </script>
+
+<style scoped>
+.circle {
+    margin-right: 15px;
+    margin-top: 3px;
+    width: 30px;
+    height: 30px;
+    background-color: rgb(59, 214, 113);
+    border-radius: 50%;
+    position: relative;
+}
+
+.circle::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 30px;
+    height: 30px;
+    background-color: rgba(59, 214, 113, 0.8);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    animation: ripple 2s infinite;
+    opacity: 0;
+}
+
+@keyframes ripple {
+    0% {
+        width: 30px;
+        height: 30px;
+        opacity: 1;
+    }
+
+    100% {
+        width: 60px;
+        height: 60px;
+        opacity: 0;
+    }
+}
+</style>
