@@ -284,7 +284,7 @@ const updateCharts = () => {
             left: 'center',
             textStyle: {
             color: themeVars.value.textColorBase
-        }
+            }
         },
         series: [
             {
@@ -294,7 +294,6 @@ const updateCharts = () => {
                 avoidLabelOverlap: false,
                 itemStyle: {
                     borderRadius: 10,
-                    borderColor: themeVars.value.textColorBase,
                     borderWidth: 2
                 },
                 label: {
