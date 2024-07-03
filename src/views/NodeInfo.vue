@@ -281,7 +281,10 @@ const updateCharts = () => {
         },
         legend: {
             top: '5%',
-            left: 'center'
+            left: 'center',
+            textStyle: {
+            color: themeVars.value.textColorBase
+        }
         },
         series: [
             {
@@ -291,7 +294,7 @@ const updateCharts = () => {
                 avoidLabelOverlap: false,
                 itemStyle: {
                     borderRadius: 10,
-                    borderColor: '#fff',
+                    borderColor: themeVars.value.textColorBase,
                     borderWidth: 2
                 },
                 label: {
@@ -302,7 +305,8 @@ const updateCharts = () => {
                     label: {
                         show: true,
                         fontSize: 40,
-                        fontWeight: 'bold'
+                        fontWeight: 'bold',
+                        color: themeVars.value.textColorBase
                     }
                 },
                 labelLine: {
