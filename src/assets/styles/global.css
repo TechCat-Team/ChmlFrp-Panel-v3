@@ -1,0 +1,27 @@
+.n-alert,
+.n-drawer,
+.n-dialog,
+.n-dropdown,
+.n-dropdown-menu,
+.n-dropdown-option {
+    border-radius: 8px !important;
+}
+
+.n-card,
+.n-message {
+    border-radius: 10px !important;
+}
+
+.n-card .n-card__action {
+    border-radius: 0px 0px 10px 10px;
+}
+
+.n-tooltip {
+    max-width: calc(100vw - 100px);
+    border-radius: 8px !important;
+}
+
+/* 模态框遮罩毛玻璃 */
+.n-modal-mask {
+    backdrop-filter: blur(var(--modal-filter));
+}

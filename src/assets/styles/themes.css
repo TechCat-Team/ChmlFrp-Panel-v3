@@ -1,0 +1,18 @@
+:root[data-theme='light'] {
+    --color-primary: #ffffff;
+    --color-secondary: #f0f0f0;
+    --color-text: #000000;
+}
+
+:root[data-theme='dark'] {
+    --color-primary: #000000;
+    --color-secondary: #333333;
+    --color-text: #ffffff;
+}
+
+/* 默认主题 */
+:root {
+    --color-primary: #ffffff;
+    --color-secondary: #f0f0f0;
+    --color-text: #000000;
+}
