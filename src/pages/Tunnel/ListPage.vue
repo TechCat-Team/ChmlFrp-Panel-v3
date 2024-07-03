@@ -45,7 +45,9 @@
                     </n-button-group>
                 </n-flex>
             </n-flex>
-            <n-grid style="margin-top: 12px" cols="1 m:3 xl:4 2xl:5" :x-gap="12" :y-gap="12" responsive="screen">
+            <n-empty v-if="nodeCards.length === 0" description="当前没有节点在线" />
+            <n-empty v-else-if="filteredNodeCards.length === 0" description="您选择的分类没有任何节点" />
+            <n-grid v-else style="margin-top: 12px" cols="1 m:3 xl:4 2xl:5" :x-gap="12" :y-gap="12" responsive="screen">
                 <n-grid-item v-for="(nodeCard, index) in filteredNodeCards" :key="index">
                     <n-card size="small" style="height: 90px" hoverable @click="handleNodeCardClick(nodeCard)">
                         <template #header>
@@ -190,7 +192,7 @@
             </n-button>
         </template>
     </n-card>
-    <n-card v-if="tunnelCards === null">
+    <n-card v-if="tunnelCards.length === null">
         <n-empty description="您似乎还没创建隧道">
             <template #extra>
                 <n-button size="small" :loading="addTheTunnelButtonShow" @click="createNodes"
