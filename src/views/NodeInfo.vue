@@ -27,18 +27,18 @@
                                     style="display: flex; justify-content: center; align-items: center;">
                                     <n-progress style="width: 40px; height: 40px;" type="multiple-circle"
                                         :stroke-width="10" :circle-gap="1" :percentage="[
-                percentage,
-                (percentage + 4) % 100,
-                (percentage + 10) % 100,
-            ]" :color="[
-                'var(--success-color)',
-                'var(--success-color)',
-                'var(--success-color)',
-            ]" :rail-style="[
-                { opacity: 0.6 },
-                { opacity: 0.6 },
-                { opacity: 0.6 },
-            ]">
+                                            percentage,
+                                            (percentage + 4) % 100,
+                                            (percentage + 10) % 100,
+                                        ]" :color="[
+                                            'var(--success-color)',
+                                            'var(--success-color)',
+                                            'var(--success-color)',
+                                        ]" :rail-style="[
+                                            { opacity: 0.6 },
+                                            { opacity: 0.6 },
+                                            { opacity: 0.6 },
+                                        ]">
                                     </n-progress>
                                 </n-grid-item>
                             </n-grid>
@@ -60,8 +60,8 @@
                                     style="display: flex; justify-content: center; align-items: center;">
                                     <n-progress style="width: 50px; height: 50px;" type="circle" :stroke-width="15"
                                         :circle-gap="1" :percentage="memoryAvailablePercentage" :rail-style="[
-                { opacity: 0.6 },
-            ]">
+                                            { opacity: 0.6 },
+                                        ]">
                                         <div style="text-align: center; font-size: 8px">
                                             {{ memoryAvailablePercentage }}%
                                         </div>
@@ -83,8 +83,8 @@
                                     style="display: flex; justify-content: center; align-items: center;">
                                     <n-progress style="width: 50px; height: 50px;" type="circle" :stroke-width="15"
                                         :circle-gap="1" :percentage="12.4" :rail-style="[
-                { opacity: 0.6 },
-            ]">
+                                            { opacity: 0.6 },
+                                        ]">
                                         <div style="text-align: center; font-size: 8px">
                                             12.4 %
                                         </div>
@@ -110,8 +110,8 @@
                                     style="display: flex; justify-content: center; align-items: center;">
                                     <n-progress style="width: 50px; height: 50px;" type="circle" :stroke-width="15"
                                         :circle-gap="1" :percentage="memoryAvailablePercentage" :rail-style="[
-                { opacity: 0.6 },
-            ]">
+                                            { opacity: 0.6 },
+                                        ]">
                                         <div style="text-align: center; font-size: 8px">
                                             {{ memoryAvailablePercentage }}%
                                         </div>
