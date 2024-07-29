@@ -344,7 +344,7 @@ const createNodes = async () => {
     addTheTunnelButtonShow.value = true // 新建隧道按钮加载
     // 加载节点列表
     try {
-        const response = await axios.get('https://panel.chmlfrp.cn/api/unode.php');
+        const response = await axios.get('https://cf-v1.uapis.cn/api/unode.php');
         nodeCards.value = response.data.map((node: any) => ({
             id: node.id, // 节点ID
             title: node.name, // 节点名
@@ -358,7 +358,7 @@ const createNodes = async () => {
         nodeListModal.value = true // 显示节点列表模态框
     } catch (error) {
         console.error('[隧道列表]从api获取节点列表数据失败', error);
-        message.error('从api获取节点列表数据失败' + error);
+        message.error('[隧道列表]从api获取节点列表数据失败' + error);
     }
     addTheTunnelButtonShow.value = false // 新建隧道按钮取消加载
 }

@@ -285,7 +285,7 @@ const apiText = ref('');
 onMounted(async () => {
     try {
         const response = await axios.get('https://uapis.cn/api/say?type=json');
-        apiText.value = response.data.message;
+        apiText.value = response.data;
         loadingTest.value = false;
     } catch (error) {
         console.error('一言API调用失败：', error);
