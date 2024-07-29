@@ -14,7 +14,6 @@ import {
   InformationCircleOutline,
   EllipsisHorizontalCircleOutline,
   LinkOutline,
-  PawOutline,
   PrismOutline,
   PricetagOutline,
   PlanetOutline,
@@ -182,17 +181,6 @@ export const menuOptions: MenuOption[] = [
         ),
         key: '积分商城',
         icon: renderIcon(PricetagOutline)
-      },
-      {
-        label: () => h(
-          RouterLink,
-          {
-            to: { name: '消费记录' }
-          },
-          { default: () => '消费记录' }
-        ),
-        key: '消费记录',
-        icon: renderIcon(PawOutline)
       }
     ]
   },

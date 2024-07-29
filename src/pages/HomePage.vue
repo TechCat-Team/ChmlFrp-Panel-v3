@@ -93,10 +93,12 @@
                         不实名则无法使用ChmlFrp提供的服务，点击此提示可前往个人中心实名
                     </n-alert>
                     <n-alert title="提示" type="info" style="margin-top: 10px">
-                        如果这里没有您想了解的，可以前往<n-button text tag="a" href="https://docs.chcat.cn" target="_blank"
+                        如果这里没有您想了解的，可以前往
+                        <n-button text tag="a" href="https://docs.chcat.cn" target="_blank"
                             type="primary">
                             TechCat Docs
-                        </n-button>或TechCatQQ交流群询问。
+                        </n-button>
+                        或TechCatQQ交流群询问。
                     </n-alert>
                     <n-flex style="margin-top: 20px">
                         <n-button style="border-radius: 5px" tertiary type="primary"
@@ -418,7 +420,7 @@ const updateChart = () => {
         };
         myChart.setOption(option);
     } else {
-        console.error('Element with id "main" not found.');
+        console.error('[首页]找不到id为“main”(流量统计面积折线图)的元素。');
     }
 };
 

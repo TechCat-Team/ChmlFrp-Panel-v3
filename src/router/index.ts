@@ -137,17 +137,7 @@ const routes: Array<RouteRecordRaw> = [
           keywords: 'ChmlFrp, 积分商城, 增值服务, 内网穿透, 端口映射, frp, 免费frp, 映射',
           description: '在ChmlFrp积分商城购买会员、带宽、隧道上限等各种增值服务。'
         }
-      },
-      {
-        path: '/shop/record',
-        name: '消费记录',
-        component: () => import('@/pages/Shop/RecordPage.vue'),
-        meta: {
-          title: '消费记录 - ChmlFrp',
-          keywords: 'ChmlFrp, 消费记录, 积分管理, 内网穿透, 端口映射, frp, 免费frp, 映射',
-          description: '查看您的ChmlFrp消费记录和积分使用情况。'
-        }
-      },
+      }
     ]
   },
   {

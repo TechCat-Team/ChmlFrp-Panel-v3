@@ -37,7 +37,7 @@
         <n-switch size="large" v-model:value="isRGBMode" :checked-value="true" :unchecked-value="false" />
       </n-flex>
       <n-flex justify="space-between">
-        <span>对话框毛玻璃</span>
+        <span>对话框模糊</span>
         <n-switch size="large" v-model:value="isDialogBoxHairGlass" :checked-value="true" :unchecked-value="false" />
       </n-flex>
     </n-flex>
