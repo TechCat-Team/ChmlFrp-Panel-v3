@@ -1,7 +1,8 @@
 <template>
     <n-layout style="height: 100vh">
         <n-layout-content>
-            <n-grid cols="6" item-responsive responsive="screen" :class="{ 'register-mode': isRegister, 'mobile-mode': isMobile }">
+            <n-grid cols="6" item-responsive responsive="screen"
+                :class="{ 'register-mode': isRegister, 'mobile-mode': isMobile }">
                 <n-grid-item span="0 m:4" class="center-content hero-container" :class="{ 'hero-right': isRegister }">
                     <div class="hero" @click="isMobile && toggleRegister">
                         <template v-if="!isRegister">
@@ -33,16 +34,18 @@
                                 </n-form-item>
                                 <n-form-item path="password">
                                     <n-input v-model:value="model.password" size="large" round placeholder="密码"
-                                        type="password" maxlength="64" show-password-on="mousedown"/>
+                                        type="password" maxlength="64" show-password-on="mousedown" />
                                 </n-form-item>
-                                <div style="display: flex; justify-content: flex-end;">
+                                <n-flex justify="space-between">
+                                    <n-checkbox size="small" v-model:checked="keepLoggedIn" label="保持登录" />
                                     <n-button text color="#9398b3">
                                         重置密码
                                     </n-button>
-                                </div>
+                                </n-flex>
                                 <div style="display: flex; justify-content: flex-end; margin-top: 24px">
                                     <n-button :disabled="model.email === null || model.password === null" round
-                                        type="primary" style="width: 100%;" size="large" @click="handleValidateButtonClick">
+                                        type="primary" style="width: 100%;" size="large"
+                                        @click="handleValidateButtonClick">
                                         登录
                                     </n-button>
                                 </div>
@@ -63,8 +66,10 @@
                                         type="password" maxlength="64" />
                                 </n-form-item> -->
                                 <div style="display: flex; justify-content: flex-end; margin-top: 24px">
-                                    <n-button :disabled="registerModel.email === null || registerModel.password === null || registerModel.confirmPassword === null" round
-                                        type="primary" style="width: 100%;" size="large" @click="handleRegisterButtonClick">
+                                    <n-button
+                                        :disabled="registerModel.email === null || registerModel.password === null || registerModel.confirmPassword === null"
+                                        round type="primary" style="width: 100%;" size="large"
+                                        @click="handleRegisterButtonClick">
                                         注册
                                     </n-button>
                                 </div>
@@ -78,7 +83,8 @@
 </template>
 <script lang="ts" setup>
 import { useRouter } from 'vue-router';
-
+import { useUserStore } from '@/stores/user';
+import axios from 'axios';
 import {
     FormInst,
     FormRules
@@ -88,6 +94,8 @@ interface ModelType {
     email: string | null
     password: string | null
 }
+const keepLoggedIn = ref(false);
+const userStore = useUserStore();
 
 interface RegisterModelType {
     email: string | null
@@ -152,18 +160,52 @@ const registerRules: FormRules = {
     ]
 }
 
-const handleValidateButtonClick = (e: MouseEvent) => {
-    e.preventDefault()
-    formRef.value?.validate((errors) => {
-        if (!errors) {
-            message.success('验证成功，正在跳转至首页')
+const handleValidateButtonClick = async () => {
+    try {
+        await formRef.value?.validate();
+
+        const response = await axios.get('https://cf-v2.uapis.cn/login', {
+            params: {
+                username: model.value.email,
+                password: model.value.password,
+            },
+        });
+
+        if (response.data.code === 200 && response.data.state === 'success') {
+            const userInfo = {
+                id: response.data.data.id,
+                username: response.data.data.username,
+                userimg: response.data.data.userimg,
+                qq: response.data.data.qq,
+                email: response.data.data.email,
+                usertoken: response.data.data.usertoken,
+                usergroup: response.data.data.usergroup,
+                bandwidth: response.data.data.bandwidth,
+                tunnel: response.data.data.tunnel,
+                realname: response.data.data.realname,
+                integral: response.data.data.integral,
+                term: response.data.data.term,
+                tunnelCount: response.data.data.tunnelCount,
+                regtime: response.data.data.regtime,
+                total_download: response.data.data.total_download,
+                total_upload: response.data.data.total_upload,
+                totalCurConns: response.data.data.totalCurConns,
+            };
+
+            const storageDuration = keepLoggedIn.value ? 'permanent' : '1d';
+            userStore.setUser(userInfo, storageDuration);
+
+            message.success('登录成功，正在跳转至首页')
             router.push('/home')
         } else {
-            console.log(errors)
-            message.error('验证失败')
+            alert('登录失败，请检查用户名或密码。');
+            message.error('登录成功，正在跳转至首页')
         }
-    })
-}
+    } catch (error) {
+        console.error('表单验证或登录失败', error);
+        message.error('表单验证或登录失败，请重试。')
+    }
+};
 
 const handleRegisterButtonClick = (e: MouseEvent) => {
     e.preventDefault()
@@ -291,16 +333,17 @@ h1 {
 
 /* 手机端样式 */
 @media (max-width: 768px) {
+
     .hero-container,
     .form-container {
         transform: none !important;
         text-align: center;
     }
-    
+
     .register-mode .hero-container {
         order: 2;
     }
-    
+
     .register-mode .form-container {
         order: 1;
     }
@@ -308,11 +351,11 @@ h1 {
     .n-grid.register-mode {
         flex-direction: column-reverse;
     }
-    
+
     .center-content {
         flex: 1;
     }
-    
+
     .hero {
         padding: 20px;
     }

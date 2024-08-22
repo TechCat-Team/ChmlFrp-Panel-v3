@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
 import { useProviderStore } from '../stores/provider'
+import { useUserStore } from '../stores/user';
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -14,7 +15,8 @@ const routes: Array<RouteRecordRaw> = [
         meta: {
           title: 'ChmlFrp - 控制台首页',
           keywords: 'ChmlFrp, 内网穿透, 端口映射, frp, 免费frp, 映射',
-          description: 'ChmlFrp控制台首页，您可以在这里查看您的ChmlFrp账户预览'
+          description: 'ChmlFrp控制台首页，您可以在这里查看您的ChmlFrp账户预览',
+          requiresAuth: true,
         }
       },
       {
@@ -24,7 +26,8 @@ const routes: Array<RouteRecordRaw> = [
         meta: {
           title: '个人资料 - ChmlFrp',
           keywords: 'ChmlFrp, 个人资料, 用户信息, 内网穿透, 端口映射, frp, 免费frp, 映射',
-          description: '管理和查看您的ChmlFrp个人资料和账户信息。'
+          description: '管理和查看您的ChmlFrp个人资料和账户信息。',
+          requiresAuth: true
         }
       },
     ]
@@ -41,7 +44,8 @@ const routes: Array<RouteRecordRaw> = [
         meta: {
           title: '隧道列表 - ChmlFrp',
           keywords: 'ChmlFrp, 隧道管理, 隧道列表, 内网穿透, 端口映射, frp, 免费frp, 映射',
-          description: '查看和管理您的ChmlFrp所有映射隧道列表。'
+          description: '查看和管理您的ChmlFrp所有映射隧道列表。',
+          requiresAuth: true,
         }
       },
       {
@@ -51,7 +55,7 @@ const routes: Array<RouteRecordRaw> = [
         meta: {
           title: '软件下载 - ChmlFrp',
           keywords: 'ChmlFrp, 软件下载, 客户端, 内网穿透, 端口映射, frp, 免费frp, 映射',
-          description: '下载ChmlFrp的各种客户端软件，支持多平台。'
+          description: '下载ChmlFrp的各种客户端软件，支持多平台。',
         }
       },
       {
@@ -61,7 +65,8 @@ const routes: Array<RouteRecordRaw> = [
         meta: {
           title: '配置文件 - ChmlFrp',
           keywords: 'ChmlFrp, 配置文件, 内网穿透, 端口映射, frp, 免费frp, 映射',
-          description: '配置和管理您的ChmlFrp映射配置文件。'
+          description: '配置和管理您的ChmlFrp映射配置文件。',
+          requiresAuth: true,
         }
       },
       {
@@ -71,7 +76,7 @@ const routes: Array<RouteRecordRaw> = [
         meta: {
           title: '节点状态 - ChmlFrp',
           keywords: 'ChmlFrp, 节点状态, 内网穿透, 端口映射, frp, 免费frp, 映射',
-          description: '查看ChmlFrp端口映射节点的实时负载状态。'
+          description: '查看ChmlFrp端口映射节点的实时负载状态。',
         }
       },
     ]
@@ -88,7 +93,8 @@ const routes: Array<RouteRecordRaw> = [
         meta: {
           title: '免费域名 - ChmlFrp',
           keywords: 'ChmlFrp, 免费域名, 域名服务, 内网穿透, 端口映射, frp, 免费frp, 映射',
-          description: '在ChmlFrp获取和管理您的免费域名。'
+          description: '在ChmlFrp获取和管理您的免费域名。',
+          requiresAuth: true,
         }
       },
       {
@@ -98,7 +104,8 @@ const routes: Array<RouteRecordRaw> = [
         meta: {
           title: '域名过白 - ChmlFrp',
           keywords: 'ChmlFrp, 域名过白, 域名放行, 端口映射, frp, 免费frp, 映射',
-          description: '使用中国境内节点需验证域名是备案，未备案的域名无法使用中国境内节点，您可以在这里添加域名白名单。'
+          description: '使用中国境内节点需验证域名是备案，未备案的域名无法使用中国境内节点，您可以在这里添加域名白名单。',
+          requiresAuth: true,
         }
       },
       {
@@ -108,7 +115,8 @@ const routes: Array<RouteRecordRaw> = [
         meta: {
           title: '免费SSL - ChmlFrp',
           keywords: 'ChmlFrp, 免费SSL证书, SSL, 端口映射, frp, 免费frp, 映射',
-          description: '您可以在ChmlFrp免费申请SSL证书'
+          description: '您可以在ChmlFrp免费申请SSL证书',
+          requiresAuth: true,
         }
       }
     ]
@@ -125,7 +133,8 @@ const routes: Array<RouteRecordRaw> = [
         meta: {
           title: '积分充值 - ChmlFrp',
           keywords: 'ChmlFrp, 积分充值, 增值服务, 内网穿透, 端口映射, frp, 免费frp, 映射',
-          description: '充值积分以获取更多增值服务。'
+          description: '充值积分以获取更多增值服务。',
+          requiresAuth: true,
         }
       },
       {
@@ -135,7 +144,8 @@ const routes: Array<RouteRecordRaw> = [
         meta: {
           title: '积分商城 - ChmlFrp',
           keywords: 'ChmlFrp, 积分商城, 增值服务, 内网穿透, 端口映射, frp, 免费frp, 映射',
-          description: '在ChmlFrp积分商城购买会员、带宽、隧道上限等各种增值服务。'
+          description: '在ChmlFrp积分商城购买会员、带宽、隧道上限等各种增值服务。',
+          requiresAuth: true,
         }
       }
     ]
@@ -152,7 +162,7 @@ const routes: Array<RouteRecordRaw> = [
         meta: {
           title: '封禁列表 - ChmlFrp',
           keywords: 'ChmlFrp, 封禁列表, 内网穿透, 端口映射, frp, 免费frp, 映射',
-          description: '公示因为违规被封禁的所有账户，用于警示其余用户'
+          description: '公示因为违规被封禁的所有账户，用于警示其余用户',
         }
       },
       {
@@ -162,7 +172,7 @@ const routes: Array<RouteRecordRaw> = [
         meta: {
           title: '关于面板 - ChmlFrp',
           keywords: 'ChmlFrp, 关于我们, 内网穿透, 端口映射, frp, 免费frp, 映射',
-          description: '了解更多关于ChmlFrp控制面板的信息。'
+          description: '了解更多关于ChmlFrp控制面板的信息。',
         }
       },
     ]
@@ -174,7 +184,7 @@ const routes: Array<RouteRecordRaw> = [
     meta: {
       title: '登录 - ChmlFrp',
       keywords: 'ChmlFrp, 登录, 用户认证, 内网穿透, 端口映射, frp, 免费frp, 映射',
-      description: '登录到ChmlFrp控制台管理面板'
+      description: '登录到ChmlFrp控制台管理面板',
     }
   },
   {
@@ -184,7 +194,7 @@ const routes: Array<RouteRecordRaw> = [
     meta: {
       title: '隧道详情 - ChmlFrp',
       keywords: 'ChmlFrp, 隧道详情, 内网穿透, 端口映射, frp, 免费frp, 映射',
-      description: 'ChmlFrp用户隧道详情，这里会展示隧道连接数，今日流量，节点负载信息，隧道基础信息及关联程序等。'
+      description: 'ChmlFrp用户隧道详情，这里会展示隧道连接数，今日流量，节点负载信息，隧道基础信息及关联程序等。',
     }
   },
   {
@@ -194,7 +204,7 @@ const routes: Array<RouteRecordRaw> = [
     meta: {
       title: '节点详情 - ChmlFrp',
       keywords: 'ChmlFrp, 节点详情, 内网穿透, 端口映射, frp, 免费frp, 映射',
-      description: 'ChmlFrp单个节点详情，这里会展示映射节点关联数据。'
+      description: 'ChmlFrp单个节点详情，这里会展示映射节点关联数据。',
     }
   },
   {
@@ -208,6 +218,7 @@ const routes: Array<RouteRecordRaw> = [
         component: () => import('@/pages/Admin/OverallPage.vue'),
         meta: {
           title: '总览 - 管理员控制台 - ChmlFrp',
+          requiresAuth: true,
         }
       },
       {
@@ -216,6 +227,7 @@ const routes: Array<RouteRecordRaw> = [
         component: () => import('@/pages/Admin/PanelSettings.vue'),
         meta: {
           title: '面板管理 - 管理员控制台 - ChmlFrp',
+          requiresAuth: true,
         }
       },
       {
@@ -224,6 +236,7 @@ const routes: Array<RouteRecordRaw> = [
         component: () => import('@/pages/Admin/NodeManagement.vue'),
         meta: {
           title: '节点管理 - 管理员控制台 - ChmlFrp',
+          requiresAuth: true,
         }
       },
       {
@@ -232,6 +245,7 @@ const routes: Array<RouteRecordRaw> = [
         component: () => import('@/pages/Admin/UserManagement.vue'),
         meta: {
           title: '用户管理 - 管理员控制台 - ChmlFrp',
+          requiresAuth: true,
         }
       },
       {
@@ -240,6 +254,7 @@ const routes: Array<RouteRecordRaw> = [
         component: () => import('@/pages/Admin/TunnelManagement.vue'),
         meta: {
           title: '隧道管理 - 管理员控制台 - ChmlFrp',
+          requiresAuth: true,
         }
       },
       {
@@ -248,6 +263,7 @@ const routes: Array<RouteRecordRaw> = [
         component: () => import('@/pages/Admin/ExchangeCode.vue'),
         meta: {
           title: '兑换码管理 - 管理员控制台 - ChmlFrp',
+          requiresAuth: true,
         }
       },
       {
@@ -256,6 +272,7 @@ const routes: Array<RouteRecordRaw> = [
         component: () => import('@/pages/Admin/DomainNameManagement.vue'),
         meta: {
           title: '免费域名管理 - 管理员控制台 - ChmlFrp',
+          requiresAuth: true,
         }
       },
       {
@@ -264,6 +281,7 @@ const routes: Array<RouteRecordRaw> = [
         component: () => import('@/pages/Admin/WhiteTreatment.vue'),
         meta: {
           title: '兑换码管理 - 管理员控制台 - ChmlFrp',
+          requiresAuth: true,
         }
       },
       {
@@ -272,6 +290,7 @@ const routes: Array<RouteRecordRaw> = [
         component: () => import('@/pages/Admin/SSLManagement.vue'),
         meta: {
           title: '兑换码管理 - 管理员控制台 - ChmlFrp',
+          requiresAuth: true,
         }
       },
     ]
@@ -285,15 +304,25 @@ const routes: Array<RouteRecordRaw> = [
 
 const router = createRouter({
   history: createWebHistory(process.env.BASE_URL),
-  routes
-})
+  routes,
+});
 
-router.beforeEach(() => {
-  useProviderStore().loadingBar?.start()
-})
+router.beforeEach((to, from, next) => {
+  useProviderStore().loadingBar?.start();
+
+  const userStore = useUserStore();
+  const isAuthenticated = !!userStore.userInfo; // 检查是否存在用户信息
+
+  if (to.meta.requiresAuth && !isAuthenticated) {
+    // 如果路由需要认证且用户未登录
+    next({ path: '/sign' });
+  } else {
+    next();
+  }
+});
 
 router.afterEach(() => {
-  useProviderStore().loadingBar?.finish()
-})
+  useProviderStore().loadingBar?.finish();
+});
 
-export default router
+export default router;

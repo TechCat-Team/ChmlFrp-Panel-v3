@@ -17,6 +17,7 @@
 import { useThemeStore } from '@/stores/theme';
 import { RouterView } from 'vue-router';
 import { useProviderStore } from './stores/provider';
+import { useUserStore } from '@/stores/user';
 import hljs from 'highlight.js/lib/core'
 import ini from 'highlight.js/lib/languages/ini'
 import nginx from 'highlight.js/lib/languages/nginx'
@@ -25,6 +26,12 @@ import powershell from 'highlight.js/lib/languages/powershell'
 hljs.registerLanguage('ini', ini)
 hljs.registerLanguage('nginx', nginx)
 hljs.registerLanguage('powershell', powershell)
+
+const userStore = useUserStore();
+
+onMounted(() => {
+  userStore.loadUser();
+});
 
 // 获取当前年份
 const currentDate = new Date();

@@ -5,7 +5,7 @@
             <n-space justify="space-between">
                 <div style="display: flex; align-items: center;">
                     <n-avatar :size="72" round :style="{ display: isHidden ? 'none' : 'flex' }"
-                        src="https://q.qlogo.cn/headimg_dl?dst_uin=242247494&spec=640&img_type=jpg" />
+                        :src="userInfo?.userimg"/>
                     <div :style="textStyle">
                         <h3 style="margin: 0;">{{ greeting }}</h3>
                         <n-skeleton v-if="loadingTest" width="100%" style="margin-top: 8px" :sharp="false" text />
@@ -54,13 +54,13 @@
                     <n-result status="success" title="ChmlFrp - Panel v3.0" description="简约 大气 开源">
                         <n-descriptions label-placement="left" :column="screenWidth >= 600 ? 3 : 1">
                             <n-descriptions-item label="隧道数">
-                                8420
+                                {{ tunnel_amount }}
                             </n-descriptions-item>
                             <n-descriptions-item label="用户数">
-                                8354
+                                {{ user_amount }}
                             </n-descriptions-item>
                             <n-descriptions-item label="节点数">
-                                29
+                                {{ node_amount }}
                             </n-descriptions-item>
                         </n-descriptions>
                     </n-result>
@@ -86,13 +86,16 @@
             </n-gi>
             <n-gi :span="2">
                 <n-card title="常见问题">
-                    <n-alert title="您的账户已被封禁" type="error">
-                        您的账号因为违规被封禁，具体原因请查看消息，如有异议可前往交流群申述。
+                    <n-alert v-if="userInfo?.usergroup === '封禁'" title="您的账户已被封禁" type="error" @click="goToUserPage" style="margin-bottom: 10px;">
+                        您的账号因为违规被封禁，具体原因可以点击此提示前往个人主页查看消息，如有异议可前往交流群申述。
                     </n-alert>
-                    <n-alert title="您尚未实名" style="margin-top: 10px" type="warning" @click="goToUserPage">
+                    <n-alert  v-if="userInfo?.realname === '未实名'" title="您尚未实名" style="margin-bottom: 10px" type="warning" @click="goToUserPage">
                         不实名则无法使用ChmlFrp提供的服务，点击此提示可前往个人中心实名
                     </n-alert>
-                    <n-alert title="提示" type="info" style="margin-top: 10px">
+                    <n-alert title="节点离线通知" type="warning" style="margin-bottom: 10px">
+                        您使用的火星CN2、月球直连节点已离线。请及时处理
+                    </n-alert>
+                    <n-alert title="提示" type="info" style="margin-bottom: 10px">
                         如果这里没有您想了解的，可以前往
                         <n-button text tag="a" href="https://docs.chcat.cn" target="_blank"
                             type="primary">
@@ -222,6 +225,11 @@ import axios from 'axios';
 // 根据主题自适应样式背景颜色
 import { useStyleStore } from '@/stores/style';
 import { useRouter } from 'vue-router';
+// 获取登录信息
+import { useUserStore } from '@/stores/user';
+
+const userStore = useUserStore();
+const userInfo = userStore.userInfo;
 
 const loadingTest = ref(true)
 
@@ -236,10 +244,10 @@ const goToUserPage = () => {
 }
 
 const cards = [
-    { title: '连接数', value: 214, icon: LinkOutline, precision: 0 },
-    { title: '总上传', value: 12.43, icon: ArrowUpCircleOutline, precision: 2, suffix: 'TiB' },
-    { title: '总下载', value: 31.79, icon: ArrowDownCircleOutline, precision: 2, suffix: 'TiB' },
-    { title: '积分数', value: 241248, icon: ServerOutline, precision: 0 },
+    { title: '连接数', value: userInfo?.totalCurConns, icon: LinkOutline, precision: 0 },
+    { title: '总上传', value: userInfo?.total_upload, icon: ArrowUpCircleOutline, precision: 2, suffix: 'TiB' },
+    { title: '总下载', value: userInfo?.total_download, icon: ArrowDownCircleOutline, precision: 2, suffix: 'TiB' },
+    { title: '积分数', value: userInfo?.integral, icon: ServerOutline, precision: 0 },
 ]
 
 const screenStore = useScreenStore();
@@ -260,25 +268,25 @@ setInterval(() => {
 const greeting = computed(() => {
     const hour = currentTime.value.getHours();
     if (hour >= 0 && hour < 6) {
-        return "夜深了，chaoji，夜晚依然静谧，但新的希望已经开始萌芽。";
+        return `夜深了，${userInfo?.username}，夜晚依然静谧，但新的希望已经开始萌芽。`;
     }
     else if (hour >= 6 && hour < 11) {
-        return "早上好，chaoji，今天又是充满活力的一天。";
+        return `早上好，${userInfo?.username}，今天又是充满活力的一天。`;
     }
     else if (hour >= 11 && hour < 14) {
-        return "中午好，chaoji，享受这温暖的阳光和美味的午餐吧。";
+        return `中午好，${userInfo?.username}，享受这温暖的阳光和美味的午餐吧。`;
     }
     else if (hour >= 14 && hour < 15) {
-        return "饮茶先啦，chaoji，做那么多都没用的，老板不会喜欢你的，喂喝一下茶先吧";
+        return `饮茶先啦，${userInfo?.username}，做那么多都没用的，老板不会喜欢你的，喂喝一下茶先吧`;
     }
     else if (hour >= 15 && hour < 17) {
-        return "下午好，chaoji，午后的时光总是最适合专注与思考。";
+        return `下午好，${userInfo?.username}，午后的时光总是最适合专注与思考。`;
     }
     else if (hour >= 17 && hour < 22) {
-        return "晚上好，chaoji，夜幕降临，是时候享受片刻宁静了。";
+        return `晚上好，${userInfo?.username}，夜幕降临，是时候享受片刻宁静了。`;
     }
     else {
-        return "少熬夜，chaoji，愿你有一个宁静而甜美的梦境。";
+        return `少熬夜，${userInfo?.username}，愿你有一个宁静而甜美的梦境。`;
     }
 });
 
@@ -286,11 +294,28 @@ const greeting = computed(() => {
 const apiText = ref('');
 onMounted(async () => {
     try {
-        const response = await axios.get('https://uapis.cn/api/say?type=json');
+        const response = await axios.get('https://uapis.cn/api/say');
         apiText.value = response.data;
         loadingTest.value = false;
     } catch (error) {
         console.error('一言API调用失败：', error);
+    }
+});
+
+
+const tunnel_amount = ref('');
+const node_amount = ref('');
+const user_amount = ref('');
+onMounted(async () => {
+    try {
+        const response = await axios.get('https://cf-v2.uapis.cn/panelinfo');
+        if (response.data.code === 200) {
+            tunnel_amount.value = response.data.data.tunnel_amount;
+            node_amount.value = response.data.data.node_amount;
+            user_amount.value = response.data.data.user_amount;
+        }
+    } catch (error) {
+        console.error('面板信息API调用失败', error);
     }
 });
 

@@ -4,11 +4,11 @@
         <n-grid cols="1 s:5" responsive="screen" :x-gap="15" :y-gap="20">
             <n-gi :span="3">
                 <n-card title="消息">
-                    <n-alert title="您的账户已被封禁" type="error">
+                    <n-alert v-if="userInfo?.usergroup === '封禁'" title="您的账户已被封禁" type="error">
                         理由：于2077年黑入荒板塔，袭击了一名网络安全人员。如有异议可前往QQ交流群申述
                     </n-alert>
                     <n-alert title="您的会员即将到期" type="info" style="margin-top: 10px">
-                        您的ChmlFrp超级会员将于2024年6月1日到期，请及时续费。
+                        您的ChmlFrp超级会员将于{{ userInfo?.term }}到期，请及时续费。
                     </n-alert>
                     <n-alert title="节点离线通知" type="warning" style="margin-top: 10px">
                         您使用的火星CN2、月球直连节点已离线。请及时处理
@@ -114,7 +114,7 @@
                 </n-card>
             </n-gi>
             <n-gi :span="2">
-                <n-card title="实名认证" style="margin-bottom: 15px">
+                <n-card title="实名认证" style="margin-bottom: 15px" v-if="userInfo?.realname === '未实名'">
                     <n-form ref="realNameFormRef" :model="realNameModel" :rules="realNameRules" label-placement="left"
                         label-width="auto">
                         <n-form-item path="name" label="姓名" :show-require-mark="true">
@@ -159,12 +159,12 @@
                         <div
                             style="display: flex; align-items: center; justify-content: center; flex-direction: column;">
                             <n-avatar :size="72" round
-                                src="https://q.qlogo.cn/headimg_dl?dst_uin=242247494&spec=640&img_type=jpg" />
+                                :src='userInfo?.userimg' />
                             <div style="text-align: center;">
-                                <h3 style="margin: 0;">Hi，chaoji
-                                    <span style="color: gray; font-size: 14px;">#1</span>
+                                <h3 style="margin: 0;">Hi，{{ userInfo?.username }}
+                                    <span style="color: gray; font-size: 14px;">#{{ userInfo?.id }}</span>
                                 </h3>
-                                <p style="margin: 0; margin-top: 4px;">chaoji@chcat.cn</p>
+                                <p style="margin: 0; margin-top: 4px;">{{ userInfo?.email }}</p>
                             </div>
                         </div>
                     </n-space>
@@ -172,28 +172,28 @@
                         <n-descriptions label-placement="top" :column="screenWidth >= 600 ? 3 : 2" label-align="center"
                             size="large">
                             <n-descriptions-item label="注册时间">
-                                2077-5-30
+                                {{ userInfo?.regtime }}
                             </n-descriptions-item>
                             <n-descriptions-item label="QQ">
-                                242247494
+                                {{ userInfo?.qq }}
                             </n-descriptions-item>
                             <n-descriptions-item label="权限组">
-                                超级会员
+                                {{ userInfo?.usergroup }}
                             </n-descriptions-item>
                             <n-descriptions-item label="到期时间">
-                                9999-9-9
+                                {{ userInfo?.term }}
                             </n-descriptions-item>
                             <n-descriptions-item label="实名状态">
-                                已实名
+                                {{ userInfo?.realname }}
                             </n-descriptions-item>
                             <n-descriptions-item label="剩余积分">
-                                241248
+                                {{ userInfo?.integral }}
                             </n-descriptions-item>
                             <n-descriptions-item label="隧道限制">
-                                4 / 16
+                                {{ userInfo?.tunnelCount }} / {{ userInfo?.tunnel }}
                             </n-descriptions-item>
                             <n-descriptions-item label="带宽限制">
-                                国内32m | 国外128m
+                                国内{{ userInfo?.bandwidth }}m | 国外{{ userInfo?.bandwidth ? userInfo.bandwidth * 4 : 0 }}m
                             </n-descriptions-item>
                         </n-descriptions>
                     </n-card>
@@ -207,7 +207,7 @@
                         </n-tag>
                         <n-tag round v-if="showNewContent" @click="toggleContent" :bordered="false" type="primary"
                             style="margin-top: 15px;">
-                            ChmlFrpTokenPreview
+                            {{ userInfo?.usertoken }}
                         </n-tag>
                     </div>
                 </n-card>
@@ -350,6 +350,11 @@ import { FormInst, FormRules } from 'naive-ui';
 import { useStyleStore } from '@/stores/style';
 import { useScreenStore } from '@/stores/useScreen';
 import { storeToRefs } from 'pinia';
+// 获取登录信息
+import { useUserStore } from '@/stores/user';
+
+const userStore = useUserStore();
+const userInfo = userStore.userInfo;
 
 const screenStore = useScreenStore();
 const { screenWidth } = storeToRefs(screenStore);

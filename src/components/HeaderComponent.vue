@@ -22,14 +22,17 @@
             </n-popover>
             <n-dropdown trigger="hover" :options="userDropdownOptions">
                 <n-button quaternary size="large" class="avatar-container">
-                    <n-avatar round size="large"
-                        src="https://q.qlogo.cn/headimg_dl?dst_uin=242247494&spec=640&img_type=jpg"
-                        style="cursor: pointer;"></n-avatar>
+                    <n-avatar v-if="userInfo?.userimg" round size="large" :src="userInfo?.userimg"
+                        style="cursor: pointer;">
+                    </n-avatar>
+                    <n-avatar v-else round>
+                        CF
+                    </n-avatar>
                     <div class="text-container">
                         <n-performant-ellipsis style="max-width: 90px">
-                            <div class="text-top">chaoji</div>
+                            <div class="text-top">{{ userInfo?.username || '尚未登陆' }}</div>
                         </n-performant-ellipsis>
-                        <div class="text-bottom">超级会员</div>
+                        <div class="text-bottom">{{ userInfo?.usergroup || '游客' }}</div>
                     </div>
                 </n-button>
             </n-dropdown>
@@ -47,14 +50,19 @@ import { SettingsOutline } from '@vicons/ionicons5'
 import { useThemeStore } from '@/stores/theme';
 import { useScreenStore } from '@/stores/useScreen';
 import { storeToRefs } from 'pinia';
-import { NAvatar, NText, NIcon, type DrawerPlacement } from 'naive-ui'
+import { NAvatar, NText, NIcon, DropdownOption, type DrawerPlacement } from 'naive-ui'
 import { useRouter } from 'vue-router';
 import { menuOptions } from './Options/Menu'
 import {
     PersonCircleOutline as UserIcon,
     LogOutOutline as LogoutIcon,
-    MenuOutline
+    MenuOutline, LogInOutline
 } from '@vicons/ionicons5'
+// 获取登录信息
+import { useUserStore } from '@/stores/user';
+
+const userStore = useUserStore();
+const userInfo = userStore.userInfo;
 
 // UserDropdown图标函数
 const renderIcon = (icon: Component, color?: string) => {
@@ -74,15 +82,15 @@ function renderCustomHeader() {
             h(NAvatar, {
                 round: true,
                 style: 'margin-right: 12px;',
-                src: 'https://q.qlogo.cn/headimg_dl?dst_uin=242247494&spec=640&img_type=jpg'
+                src: userInfo?.userimg || undefined
             }),
             h('div', null, [
-                h('div', null, [h(NText, { depth: 2 }, { default: () => 'chaoji233' })]),
+                h('div', null, [h(NText, { depth: 2 }, { default: () => userInfo?.username || '您尚未登录' })]),
                 h('div', { style: 'font-size: 12px;' }, [
                     h(
                         NText,
                         { depth: 3 },
-                        { default: () => 'chaoji@chcat.cn' }
+                        { default: () => userInfo?.email || 'example@chcat.cn' }
                     )
                 ])
             ])
@@ -105,34 +113,62 @@ const ThemeSwitcherDrawer = (place: DrawerPlacement) => {
     themeSwitcherDrawer.value = true
     placement.value = place
 }
-const userDropdownOptions = [
-    {
-        key: 'header',
-        type: 'render',
-        render: renderCustomHeader
-    },
-    {
-        label: '用户资料',
-        key: 'profile',
-        icon: renderIcon(UserIcon),
-        props: {
-            onClick: () => {
-                router.push('/user');
-            }
-        }
-    },
-    {
-        label: '退出登录',
-        key: 'logout',
-        icon: renderIcon(LogoutIcon, '#f5222d'),
-        props: {
-            onClick: () => {
-                message.success('成功退出登陆，用户信息已清空');
-                router.push('/sign')
+
+const userDropdownOptions = ref<DropdownOption[]>([]);
+
+const updateUserDropdownOptions = () => {
+    if (userInfo) {
+        userDropdownOptions.value = [
+            {
+                key: 'header',
+                type: 'render',
+                render: renderCustomHeader
             },
-        },
-    },
-]
+            {
+                label: '用户资料',
+                key: 'profile',
+                icon: renderIcon(UserIcon),
+                props: {
+                    onClick: () => {
+                        router.push('/user');
+                    }
+                }
+            },
+            {
+                label: '退出登录',
+                key: 'logout',
+                icon: renderIcon(LogoutIcon, '#f5222d'),
+                props: {
+                    onClick: () => {
+                        userStore.clearUser();
+                        message.success('成功退出登陆，用户信息已清空');
+                        router.push('/sign');
+                    },
+                },
+            }
+        ];
+    } else {
+        userDropdownOptions.value = [
+            {
+                key: 'header',
+                type: 'render',
+                render: renderCustomHeader
+            },
+            {
+                label: '登录',
+                key: 'login',
+                icon: renderIcon(LogInOutline, '#529b2e'),
+                props: {
+                    onClick: () => {
+                        router.push('/sign');
+                    },
+                },
+            }
+        ];
+    }
+};
+// 初始化菜单项
+updateUserDropdownOptions();
 </script>
 
 <style>
