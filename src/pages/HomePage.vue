@@ -308,6 +308,7 @@ onMounted(() => {
     yiyan(); //加载一言
     panelinfo(); //加载面板信息
     qiandaoinfo(); //加载签到信息
+    trafficInfo(); //加载流量信息
 });
 
 // 一言
@@ -463,10 +464,35 @@ const knew = (Link: string) => {
 // ECharts
 const themeVars = useThemeVars();
 
-const updateChart = () => {
+const trafficInfo = async () => {
+    try {
+        const response = await axios.get(`https://cf-v1.uapis.cn/api/flow_zong.php?usertoken=${userInfo?.usertoken}`, {
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+
+        const apiData = response.data;
+        if (apiData.status === 'success') {
+            updateChart(apiData);
+        } else {
+            console.error('API 返回状态不成功:', apiData);
+        }
+    } catch (error) {
+        console.error('API 调用错误:', error);
+    }
+};
+
+const updateChart = (apiData: { data: any[]; }) => {
     const chartDom = document.getElementById('main');
     if (chartDom) {
         const myChart = echarts.init(chartDom);
+
+        // 将 API 返回的数据单位从字节转换为 MB
+        const times = apiData.data.map(item => item.time);
+        const trafficInMB = apiData.data.map(item => (Number(item.traffic_in) / (1024 * 1024)).toFixed(2));
+        const trafficOutMB = apiData.data.map(item => (Number(item.traffic_out) / (1024 * 1024)).toFixed(2));
+
         const option: echarts.EChartsOption = {
             title: {
                 text: '流量统计',
@@ -485,7 +511,7 @@ const updateChart = () => {
             xAxis: {
                 type: 'category',
                 boundaryGap: false,
-                data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                data: times,
                 axisLabel: {
                     color: themeVars.value.textColorBase
                 }
@@ -493,7 +519,7 @@ const updateChart = () => {
             yAxis: {
                 type: 'value',
                 axisLabel: {
-                    formatter: '{value} M',
+                    formatter: '{value} MB',
                     color: themeVars.value.textColorBase
                 }
             },
@@ -501,7 +527,7 @@ const updateChart = () => {
                 {
                     name: '上传',
                     type: 'line',
-                    data: [0, 11, 19, 0, 21, 12, 9],
+                    data: trafficInMB,
                     stack: 'Total',
                     smooth: true,
                     lineStyle: {
@@ -528,7 +554,7 @@ const updateChart = () => {
                 {
                     name: '下载',
                     type: 'line',
-                    data: [0, 14, 19, 2, 21, 12, 9],
+                    data: trafficOutMB,
                     stack: 'Total',
                     smooth: true,
                     lineStyle: {
@@ -554,17 +580,10 @@ const updateChart = () => {
                 }
             ]
         };
+
         myChart.setOption(option);
     } else {
         console.error('[首页]找不到id为“main”(流量统计面积折线图)的元素。');
     }
 };
-
-onMounted(() => {
-    updateChart();
-});
-
-watch(themeVars, () => {
-    updateChart();
-}, { deep: true });
 </script>
