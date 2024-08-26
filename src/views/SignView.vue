@@ -43,7 +43,7 @@
                                     </n-button>
                                 </n-flex>
                                 <div style="display: flex; justify-content: flex-end; margin-top: 24px">
-                                    <n-button :disabled="model.email === null || model.password === null" round
+                                    <n-button :loading="loginLoading" :disabled="model.email === null || model.password === null" round
                                         type="primary" style="width: 100%;" size="large"
                                         @click="handleValidateButtonClick">
                                         登录
@@ -64,7 +64,7 @@
                                 <n-form-item path="confirmPassword">
                                     <n-input v-model:value="registerModel.confirmPassword" size="large" round placeholder="确认密码"
                                         type="password" maxlength="64" />
-                                </n-form-item> -->
+                                </n-form-item> -->                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               
                                 <div style="display: flex; justify-content: flex-end; margin-top: 24px">
                                     <n-button
                                         :disabled="registerModel.email === null || registerModel.password === null || registerModel.confirmPassword === null"
@@ -89,6 +89,8 @@ import {
     FormInst,
     FormRules
 } from 'naive-ui'
+
+const loginLoading = ref(false);
 
 interface ModelType {
     email: string | null
@@ -161,6 +163,7 @@ const registerRules: FormRules = {
 }
 
 const handleValidateButtonClick = async () => {
+    loginLoading.value = true //登录按钮状态设置为加载中
     try {
         await formRef.value?.validate();
 
@@ -198,13 +201,13 @@ const handleValidateButtonClick = async () => {
             message.success('登录成功，正在跳转至首页')
             router.push('/home')
         } else {
-            alert('登录失败，请检查用户名或密码。');
-            message.error('登录成功，正在跳转至首页')
+            message.error('登录失败，请检查用户名或密码。')
         }
     } catch (error) {
         console.error('表单验证或登录失败', error);
         message.error('表单验证或登录失败，请重试。')
     }
+    loginLoading.value = false
 };
 
 const handleRegisterButtonClick = (e: MouseEvent) => {

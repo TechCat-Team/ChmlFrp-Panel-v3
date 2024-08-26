@@ -5,7 +5,7 @@
             <n-space justify="space-between">
                 <div style="display: flex; align-items: center;">
                     <n-avatar :size="72" round :style="{ display: isHidden ? 'none' : 'flex' }"
-                        :src="userInfo?.userimg"/>
+                        :src="userInfo?.userimg" />
                     <div :style="textStyle">
                         <h3 style="margin: 0;">{{ greeting }}</h3>
                         <n-skeleton v-if="loadingTest" width="100%" style="margin-top: 8px" :sharp="false" text />
@@ -13,16 +13,31 @@
                     </div>
                 </div>
                 <n-space justify="end" style="margin-top: 15px;">
-                    <n-button type="primary" strong secondary>签到</n-button>
+                    <n-skeleton v-if="loadingQianDao" :width="56" :sharp="false" size="medium" />
+                    <div v-else>
+                        <n-button v-if="is_signed_in_today" :loading="loadingQianDaoButton" type="primary" strong
+                            secondary @click="onSignButtonClick">
+                            {{ QianDaoTest }}
+                        </n-button>
+                        <n-tooltip v-else>
+                            <template #trigger>
+                                <n-button type="primary" strong secondary disabled tag="div">
+                                    签到
+                                </n-button>
+                            </template>
+                            您今天已经签到过啦
+                        </n-tooltip>
+                    </div>
                     <n-popover trigger="hover" style="border-radius: 8px;">
                         <template #trigger>
-                            <n-button strong secondary>签到信息</n-button>
+                            <n-skeleton v-if="loadingQianDao" :width="84" :sharp="false" size="medium" />
+                            <n-button v-else strong secondary>签到信息</n-button>
                         </template>
                         <n-thing title="统计信息" content-style="margin-top: 10px;">
-                            上次签到时间：2024-05-24<br>
-                            累计签到积分：20842<br>
-                            累计签到次数：121<br>
-                            今日签到人数：2
+                            上次签到时间：{{ last_sign_in_time }}<br>
+                            累计签到积分：{{ total_points }}<br>
+                            累计签到次数：{{ total_sign_ins }}<br>
+                            今日签到人数：{{ count_of_matching_records }}
                         </n-thing>
                     </n-popover>
                 </n-space>
@@ -54,42 +69,37 @@
                     <n-result status="success" title="ChmlFrp - Panel v3.0" description="简约 大气 开源">
                         <n-descriptions label-placement="left" :column="screenWidth >= 600 ? 3 : 1">
                             <n-descriptions-item label="隧道数">
-                                {{ tunnel_amount }}
+                                <n-skeleton v-if="loadingPanelInfo" text :width="40" />
+                                <n-p v-else>{{ tunnel_amount }}</n-p>
                             </n-descriptions-item>
                             <n-descriptions-item label="用户数">
-                                {{ user_amount }}
+                                <n-skeleton v-if="loadingPanelInfo" text :width="40" />
+                                <n-p v-else>{{ user_amount }}</n-p>
                             </n-descriptions-item>
                             <n-descriptions-item label="节点数">
-                                {{ node_amount }}
+                                <n-skeleton v-if="loadingPanelInfo" text :width="16" />
+                                <n-p v-else>{{ node_amount }}</n-p>
                             </n-descriptions-item>
                         </n-descriptions>
                     </n-result>
                     <n-divider />
-                    <n-space style="margin-top: 24px">
-                        <n-button text tag="a" href="https://www.ixmu.net" target="_blank">
-                            黑软小栈
-                        </n-button>
-                        <n-button text tag="a" href="https://cloud.fengidc.cn" target="_blank">
-                            FENGIDC
-                        </n-button>
-                        <n-button text tag="a" href="https://www.axtn.net" target="_blank">
-                            AxT
-                        </n-button>
-                        <n-button text tag="a" href="https://www.saivsi.com" target="_blank">
-                            SAIVSI
-                        </n-button>
-                        <n-button text tag="a" href="https://dom.cloudery.cn" target="_blank">
-                            云竹域名
+                    <n-skeleton v-if="loadingPanelInfo" text :repeat="2" />
+                    <n-space v-else style="margin-top: 24px">
+                        <n-button text tag="a" v-for="(links, index) in friendLinks" :key="index" :href="links.url"
+                            target="_blank">
+                            {{ links.name }}
                         </n-button>
                     </n-space>
                 </n-card>
             </n-gi>
             <n-gi :span="2">
                 <n-card title="常见问题">
-                    <n-alert v-if="userInfo?.usergroup === '封禁'" title="您的账户已被封禁" type="error" @click="goToUserPage" style="margin-bottom: 10px;">
+                    <n-alert v-if="userInfo?.usergroup === '封禁'" title="您的账户已被封禁" type="error" @click="goToUserPage"
+                        style="margin-bottom: 10px;">
                         您的账号因为违规被封禁，具体原因可以点击此提示前往个人主页查看消息，如有异议可前往交流群申述。
                     </n-alert>
-                    <n-alert  v-if="userInfo?.realname === '未实名'" title="您尚未实名" style="margin-bottom: 10px" type="warning" @click="goToUserPage">
+                    <n-alert v-if="userInfo?.realname === '未实名'" title="您尚未实名" style="margin-bottom: 10px"
+                        type="warning" @click="goToUserPage">
                         不实名则无法使用ChmlFrp提供的服务，点击此提示可前往个人中心实名
                     </n-alert>
                     <n-alert title="节点离线通知" type="warning" style="margin-bottom: 10px">
@@ -97,8 +107,7 @@
                     </n-alert>
                     <n-alert title="提示" type="info" style="margin-bottom: 10px">
                         如果这里没有您想了解的，可以前往
-                        <n-button text tag="a" href="https://docs.chcat.cn" target="_blank"
-                            type="primary">
+                        <n-button text tag="a" href="https://docs.chcat.cn" target="_blank" type="primary">
                             TechCat Docs
                         </n-button>
                         或TechCatQQ交流群询问。
@@ -232,8 +241,13 @@ const userStore = useUserStore();
 const userInfo = userStore.userInfo;
 
 const loadingTest = ref(true)
+const loadingPanelInfo = ref(true)
+const loadingQianDao = ref(true)
+const loadingQianDaoButton = ref(false)
+const QianDaoTest = ref('签到')
 
 const dialog = useDialog()
+const message = useMessage()
 
 const styleStore = useStyleStore();
 const cardStyle = computed(() => styleStore.getCardStyle());
@@ -290,34 +304,131 @@ const greeting = computed(() => {
     }
 });
 
+onMounted(() => {
+    yiyan(); //加载一言
+    panelinfo(); //加载面板信息
+    qiandaoinfo(); //加载签到信息
+});
+
 // 一言
 const apiText = ref('');
-onMounted(async () => {
+const yiyan = async () => {
     try {
-        const response = await axios.get('https://uapis.cn/api/say');
+        const response = await axios.get('https://v1.hitokoto.cn/?c=i&encode=text');
         apiText.value = response.data;
         loadingTest.value = false;
     } catch (error) {
         console.error('一言API调用失败：', error);
     }
-});
+};
 
 
+interface FriendLinks {
+    name: string;
+    url: string;
+}
+
+const friendLinks = ref<FriendLinks[]>([]);
 const tunnel_amount = ref('');
 const node_amount = ref('');
 const user_amount = ref('');
-onMounted(async () => {
+const panelinfo = async () => {
+    loadingPanelInfo.value = true
     try {
         const response = await axios.get('https://cf-v2.uapis.cn/panelinfo');
         if (response.data.code === 200) {
             tunnel_amount.value = response.data.data.tunnel_amount;
             node_amount.value = response.data.data.node_amount;
             user_amount.value = response.data.data.user_amount;
+            friendLinks.value = response.data.data.friend_links.map((links: any) => ({
+                name: links.name,
+                url: links.url,
+            }));
         }
     } catch (error) {
         console.error('面板信息API调用失败', error);
     }
-});
+    loadingPanelInfo.value = false
+};
+
+const last_sign_in_time = ref('');
+const total_points = ref(0);
+const total_sign_ins = ref(0);
+const count_of_matching_records = ref(0);
+const is_signed_in_today = ref(false);
+const qiandaoinfo = async () => {
+    loadingQianDao.value = true
+    try {
+        const response = await axios.get(`https://cf-v1.uapis.cn/api/qdxx.php?userid=${userInfo?.id}`);
+        if (response.data.code === 200) {
+            last_sign_in_time.value = response.data.last_sign_in_time;
+            total_points.value = response.data.total_points;
+            total_sign_ins.value = response.data.total_sign_ins;
+            count_of_matching_records.value = response.data.count_of_matching_records;
+            is_signed_in_today.value = response.data.is_signed_in_today;
+        }
+    } catch (error) {
+        console.error('签到信息API调用失败', error);
+    }
+    loadingQianDao.value = false
+}
+
+const onSignButtonClick = () => {
+    loadingQianDaoButton.value = true
+    QianDaoTest.value = '初始化验证[1/3]'
+    window.initGeetest4(
+        {
+            product: 'bind',
+            captchaId: '3891b578aa85e4866c5f8205b02b165a',
+            width: '100%',
+        },
+        (captchaObj: any) => {
+            captchaObj.showCaptcha(); //显示验证码
+            captchaObj.onNextReady(function () {
+                QianDaoTest.value = '请验证验证码[2/3]'
+            });
+            captchaObj.onClose(function () {
+                message.warning('签到验证关闭，此次签到未成功')
+                loadingQianDaoButton.value = false
+                QianDaoTest.value = '签到'
+            });
+            captchaObj.onSuccess(() => {
+                const result = captchaObj.getValidate();
+                if (result) {
+                    console.log('Geetest 验证成功:', result);
+                    // 调用签到API
+                    signIn(result);
+                }
+            });
+        }
+    );
+};
+
+const signIn = (geetestResult: any) => {
+    QianDaoTest.value = '调用签到API[3/3]'
+    message.loading('人机验证成功，正在执行签到操作')
+    loadingQianDaoButton.value = false
+    QianDaoTest.value = '签到'
+    // fetch('https://cf-v2.uapis.cn/qiandao', {
+    //     method: 'POST',
+    //     headers: {
+    //         'Content-Type': 'application/json',
+    //     },
+    //     body: JSON.stringify({
+    //         geetest_challenge: geetestResult.geetest_challenge,
+    //         geetest_validate: geetestResult.geetest_validate,
+    //         geetest_seccode: geetestResult.geetest_seccode,
+    //     }),
+    // })
+    //     .then(response => response.json())
+    //     .then(data => {
+    //         if (data.success) {
+    //             console.log('签到成功');
+    //         } else {
+    //             console.log('签到失败');
+    //         }
+    //     });
+};
 
 // 前往QQ群提示群规、提问准则
 const GoToQqGroup = (Link: string) => {

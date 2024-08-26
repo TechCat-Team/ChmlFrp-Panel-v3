@@ -350,6 +350,7 @@ import { FormInst, FormRules } from 'naive-ui';
 import { useStyleStore } from '@/stores/style';
 import { useScreenStore } from '@/stores/useScreen';
 import { storeToRefs } from 'pinia';
+import axios from 'axios';
 // 获取登录信息
 import { useUserStore } from '@/stores/user';
 
@@ -363,6 +364,8 @@ const styleStore = useStyleStore();
 const cardStyle = computed(() => styleStore.getCardStyle());
 const dialog = useDialog()
 const message = useMessage()
+
+const loadingQianDao = ref(true);
 
 // 更改 用户名 模态框状态
 const changeTheUsernameModal = ref(false)
@@ -378,6 +381,32 @@ const changeTheMailboxModal = ref(false)
 
 // 更改 QQ 模态框状态
 const changeQQModal = ref(false)
+
+onMounted(() => {
+    qiandaoinfo(); //加载签到信息
+});
+
+const last_sign_in_time = ref('');
+const total_points = ref(0);
+const total_sign_ins = ref(0);
+const count_of_matching_records = ref(0);
+const is_signed_in_today = ref(false);
+const qiandaoinfo = async () => {
+    loadingQianDao.value = true
+    try {
+        const response = await axios.get(`https://cf-v1.uapis.cn/api/qdxx.php?userid=${userInfo?.id}`);
+        if (response.data.code === 200) {
+            last_sign_in_time.value = response.data.last_sign_in_time;
+            total_points.value = response.data.total_points;
+            total_sign_ins.value = response.data.total_sign_ins;
+            count_of_matching_records.value = response.data.count_of_matching_records;
+            is_signed_in_today.value = response.data.is_signed_in_today;
+        }
+    } catch (error) {
+        console.error('签到信息API调用失败', error);
+    }
+    loadingQianDao.value = false
+}
 
 // 实名认证表单
 interface RealNameModelType {
