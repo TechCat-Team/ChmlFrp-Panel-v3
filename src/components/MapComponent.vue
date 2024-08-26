@@ -31,7 +31,7 @@ export default defineComponent({
 
         onMounted(() => {
             const script = document.createElement('script');
-            script.src = `http://api.tianditu.gov.cn/api?v=4.0&tk=27223d0a4fbccf8f071807d0050f465f`;
+            script.src = `https://api.tianditu.gov.cn/api?v=4.0&tk=27223d0a4fbccf8f071807d0050f465f`;
             script.onload = () => {
                 if (mapContainer.value && window.T) {
                     const map = new window.T.Map(mapContainer.value);
