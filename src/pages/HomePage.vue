@@ -15,7 +15,7 @@
                 <n-space justify="end" style="margin-top: 15px;">
                     <n-skeleton v-if="loadingQianDao" :width="56" :sharp="false" size="medium" />
                     <div v-else>
-                        <n-button v-if="is_signed_in_today" :loading="loadingQianDaoButton" type="primary" strong
+                        <n-button v-if="!is_signed_in_today" :loading="loadingQianDaoButton" type="primary" strong
                             secondary @click="onSignButtonClick">
                             {{ QianDaoTest }}
                         </n-button>
@@ -383,9 +383,9 @@ const onSignButtonClick = () => {
             width: '100%',
         },
         (captchaObj: any) => {
-            captchaObj.showCaptcha(); //显示验证码
+            captchaObj.showCaptcha();
             captchaObj.onNextReady(function () {
-                QianDaoTest.value = '请验证验证码[2/3]'
+                QianDaoTest.value = '验证码验证[2/3]'
             });
             captchaObj.onClose(function () {
                 message.warning('签到验证关闭，此次签到未成功')
@@ -407,8 +407,19 @@ const onSignButtonClick = () => {
 const signIn = (geetestResult: any) => {
     QianDaoTest.value = '调用签到API[3/3]'
     message.loading('人机验证成功，正在执行签到操作')
-    loadingQianDaoButton.value = false
-    QianDaoTest.value = '签到'
+    function cscscs() {
+        loadingQianDaoButton.value = false
+        QianDaoTest.value = '签到'
+        dialog.success({
+          title: '签到成功',
+          content: '您本次签到获取积分100个达不溜',
+          positiveText: '哇',
+          onPositiveClick: () => {
+            message.success('耶！')
+          }
+        })
+    }
+    setTimeout(cscscs, 3000);
     // fetch('https://cf-v2.uapis.cn/qiandao', {
     //     method: 'POST',
     //     headers: {
