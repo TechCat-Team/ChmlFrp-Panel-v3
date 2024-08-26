@@ -16,18 +16,31 @@
                 </n-card>
                 <n-card title="账户设置" style="margin-top: 15px">
                     <template #header-extra>
-                        <n-button quaternary type="primary" round>
-                            签到
-                        </n-button>
+                        <n-skeleton v-if="loadingQianDao" :width="56" round :sharp="false" size="medium" />
+                        <div v-else>
+                            <n-button v-if="!is_signed_in_today" round :loading="loadingQianDaoButton" type="primary"
+                                quaternary @click="onSignButtonClick">
+                                {{ QianDaoTest }}
+                            </n-button>
+                            <n-tooltip v-else>
+                                <template #trigger>
+                                    <n-button type="primary" round quaternary disabled tag="div">
+                                        签到
+                                    </n-button>
+                                </template>
+                                您今天已经签到过啦
+                            </n-tooltip>
+                        </div>
                         <n-popover trigger="hover" style="border-radius: 8px;">
                             <template #trigger>
-                                <n-button quaternary round>签到信息</n-button>
+                                <n-skeleton v-if="loadingQianDao" :width="92" round :sharp="false" size="medium" />
+                                <n-button v-else quaternary round>签到信息</n-button>
                             </template>
                             <n-thing title="统计信息" content-style="margin-top: 10px;">
-                                上次签到时间：2024-05-24<br>
-                                累计签到积分：20842<br>
-                                累计签到次数：121<br>
-                                今日签到人数：2
+                                上次签到时间：{{ last_sign_in_time }}<br>
+                                累计签到积分：{{ total_points }}<br>
+                                累计签到次数：{{ total_sign_ins }}<br>
+                                今日签到人数：{{ count_of_matching_records }}
                             </n-thing>
                         </n-popover>
                     </template>
@@ -158,8 +171,7 @@
                     <n-space justify="center">
                         <div
                             style="display: flex; align-items: center; justify-content: center; flex-direction: column;">
-                            <n-avatar :size="72" round
-                                :src='userInfo?.userimg' />
+                            <n-avatar :size="72" round :src='userInfo?.userimg' />
                             <div style="text-align: center;">
                                 <h3 style="margin: 0;">Hi，{{ userInfo?.username }}
                                     <span style="color: gray; font-size: 14px;">#{{ userInfo?.id }}</span>
@@ -366,6 +378,8 @@ const dialog = useDialog()
 const message = useMessage()
 
 const loadingQianDao = ref(true);
+const loadingQianDaoButton = ref(false)
+const QianDaoTest = ref('签到')
 
 // 更改 用户名 模态框状态
 const changeTheUsernameModal = ref(false)
@@ -407,6 +421,74 @@ const qiandaoinfo = async () => {
     }
     loadingQianDao.value = false
 }
+
+const onSignButtonClick = () => {
+    loadingQianDaoButton.value = true
+    QianDaoTest.value = '初始化验证[1/3]'
+    window.initGeetest4(
+        {
+            product: 'bind',
+            captchaId: '3891b578aa85e4866c5f8205b02b165a',
+            width: '100%',
+        },
+        (captchaObj: any) => {
+            captchaObj.showCaptcha();
+            captchaObj.onNextReady(function () {
+                QianDaoTest.value = '验证码验证[2/3]'
+            });
+            captchaObj.onClose(function () {
+                message.warning('签到验证关闭，此次签到未成功')
+                loadingQianDaoButton.value = false
+                QianDaoTest.value = '签到'
+            });
+            captchaObj.onSuccess(() => {
+                const result = captchaObj.getValidate();
+                if (result) {
+                    console.log('Geetest 验证成功:', result);
+                    // 调用签到API
+                    signIn(result);
+                }
+            });
+        }
+    );
+};
+
+const signIn = (geetestResult: any) => {
+    QianDaoTest.value = '调用签到API[3/3]'
+    message.loading('人机验证成功，正在执行签到操作')
+    function cscscs() {
+        loadingQianDaoButton.value = false
+        QianDaoTest.value = '签到'
+        dialog.success({
+            title: '签到成功',
+            content: '您本次签到获取积分100个达不溜',
+            positiveText: '哇',
+            onPositiveClick: () => {
+                message.success('耶！')
+            }
+        })
+    }
+    setTimeout(cscscs, 3000);
+    // fetch('https://cf-v2.uapis.cn/qiandao', {
+    //     method: 'POST',
+    //     headers: {
+    //         'Content-Type': 'application/json',
+    //     },
+    //     body: JSON.stringify({
+    //         geetest_challenge: geetestResult.geetest_challenge,
+    //         geetest_validate: geetestResult.geetest_validate,
+    //         geetest_seccode: geetestResult.geetest_seccode,
+    //     }),
+    // })
+    //     .then(response => response.json())
+    //     .then(data => {
+    //         if (data.success) {
+    //             console.log('签到成功');
+    //         } else {
+    //             console.log('签到失败');
+    //         }
+    //     });
+};
 
 // 实名认证表单
 interface RealNameModelType {
