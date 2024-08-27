@@ -15,9 +15,17 @@
                 <n-space justify="end" style="margin-top: 15px;">
                     <n-skeleton v-if="loadingQianDao" :width="56" :sharp="false" size="medium" />
                     <div v-else>
-                        <n-button v-if="!is_signed_in_today" :loading="loadingQianDaoButton" type="primary" strong
-                            secondary @click="onSignButtonClick">
-                            {{ QianDaoTest }}
+                        <n-button v-if="!is_signed_in_today" :loading="loadingQianDaoButton && !signedInSuccess"
+                            type="primary" strong secondary @click="onSignButtonClick">
+                            <template v-if="signedInSuccess">
+                                <n-icon>
+                                    <CheckmarkCircle />
+                                </n-icon>
+                                签到成功
+                            </template>
+                            <template v-else>
+                                {{ QianDaoTest }}
+                            </template>
                         </n-button>
                         <n-tooltip v-else>
                             <template #trigger>
@@ -63,7 +71,12 @@
         <n-grid style="margin-top: 15px" cols="1 s:5" responsive="screen" :x-gap="15" :y-gap="20">
             <n-gi :span="3">
                 <n-card>
-                    <div id="main" style="width: 100%; height: 400px;"></div>
+                    <div v-if="loadingTrafficInfo">
+                        <n-skeleton text style="width: 40%" />
+                        <n-skeleton text :repeat="16" />
+                        <n-skeleton text style="width: 60%" />
+                    </div>
+                    <div v-else id="main" style="width: 100%; height: 400px;"></div>
                 </n-card>
                 <n-card style="margin-top: 15px">
                     <n-result status="success" title="ChmlFrp - Panel v3.0" description="简约 大气 开源">
@@ -100,7 +113,7 @@
                     </n-alert>
                     <n-alert v-if="userInfo?.realname === '未实名'" title="您尚未实名" style="margin-bottom: 10px"
                         type="warning" @click="goToUserPage">
-                        不实名则无法使用ChmlFrp提供的服务，点击此提示可前往个人中心实名
+                        不实名则无法使用ChmlFrp提供的服务，点击此提示可前往个人中心实名，我们允许未成年实名。
                     </n-alert>
                     <n-alert title="节点离线通知" type="warning" style="margin-bottom: 10px">
                         您使用的火星CN2、月球直连节点已离线。请及时处理
@@ -229,7 +242,7 @@ import { useScreenStore } from '@/stores/useScreen';
 import { storeToRefs } from 'pinia';
 import { useThemeVars } from 'naive-ui';
 import * as echarts from 'echarts';
-import { LinkOutline, ServerOutline, ArrowUpCircleOutline, ArrowDownCircleOutline } from '@vicons/ionicons5';
+import { LinkOutline, ServerOutline, ArrowUpCircleOutline, ArrowDownCircleOutline, CheckmarkCircle } from '@vicons/ionicons5';
 import axios from 'axios';
 // 根据主题自适应样式背景颜色
 import { useStyleStore } from '@/stores/style';
@@ -244,7 +257,9 @@ const loadingTest = ref(true)
 const loadingPanelInfo = ref(true)
 const loadingQianDao = ref(true)
 const loadingQianDaoButton = ref(false)
+const loadingTrafficInfo = ref(true)
 const QianDaoTest = ref('签到')
+const signedInSuccess = ref(false);
 
 const dialog = useDialog()
 const message = useMessage()
@@ -257,12 +272,35 @@ const goToUserPage = () => {
     router.push('/user')
 }
 
-const cards = [
+// 流量单位换算
+function formatBytes(bytes: number) {
+    const units = ['Bytes', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB'];
+    let index = 0;
+    while (bytes >= 1024 && index < units.length - 1) {
+        bytes /= 1024;
+        index++;
+    }
+    return { value: parseFloat(bytes.toFixed(2)), suffix: units[index] };
+}
+
+const cards = ref([
     { title: '连接数', value: userInfo?.totalCurConns, icon: LinkOutline, precision: 0 },
-    { title: '总上传', value: userInfo?.total_upload, icon: ArrowUpCircleOutline, precision: 2, suffix: 'TiB' },
-    { title: '总下载', value: userInfo?.total_download, icon: ArrowDownCircleOutline, precision: 2, suffix: 'TiB' },
+    {
+        title: '总上传',
+        value: formatBytes(userInfo?.total_upload || 0).value,
+        icon: ArrowUpCircleOutline,
+        precision: 2,
+        suffix: formatBytes(userInfo?.total_upload || 0).suffix
+    },
+    {
+        title: '总下载',
+        value: formatBytes(userInfo?.total_download || 0).value,
+        icon: ArrowDownCircleOutline,
+        precision: 2,
+        suffix: formatBytes(userInfo?.total_download || 0).suffix
+    },
     { title: '积分数', value: userInfo?.integral, icon: ServerOutline, precision: 0 },
-]
+]);
 
 const screenStore = useScreenStore();
 const { isHidden, screenWidth } = storeToRefs(screenStore);
@@ -384,10 +422,10 @@ const onSignButtonClick = () => {
             width: '100%',
         },
         (captchaObj: any) => {
-            captchaObj.showCaptcha();
             captchaObj.onNextReady(function () {
                 QianDaoTest.value = '验证码验证[2/3]'
             });
+            captchaObj.showCaptcha();
             captchaObj.onClose(function () {
                 message.warning('签到验证关闭，此次签到未成功')
                 loadingQianDaoButton.value = false
@@ -407,20 +445,25 @@ const onSignButtonClick = () => {
 
 const signIn = (geetestResult: any) => {
     QianDaoTest.value = '调用签到API[3/3]'
-    message.loading('人机验证成功，正在执行签到操作')
-    function cscscs() {
-        loadingQianDaoButton.value = false
-        QianDaoTest.value = '签到'
+
+    setTimeout(() => {
+        loadingQianDaoButton.value = false;
+        signedInSuccess.value = true;
         dialog.success({
-          title: '签到成功',
-          content: '您本次签到获取积分100个达不溜',
-          positiveText: '哇',
-          onPositiveClick: () => {
-            message.success('耶！')
-          }
-        })
-    }
-    setTimeout(cscscs, 3000);
+            title: '签到成功',
+            content: '您本次签到获取积分100个达不溜',
+            positiveText: '哇',
+            onPositiveClick: () => {
+                message.success('耶！');
+            }
+        });
+
+        // 3 秒后恢复按钮状态
+        setTimeout(() => {
+            signedInSuccess.value = false;
+            QianDaoTest.value = '签到';
+        }, 3000);
+    }, 3000);
     // fetch('https://cf-v2.uapis.cn/qiandao', {
     //     method: 'POST',
     //     headers: {
@@ -476,21 +519,22 @@ const knew = (Link: string) => {
 const themeVars = useThemeVars();
 
 const trafficInfo = async () => {
+    loadingTrafficInfo.value = true;
     try {
-        const response = await axios.get(`https://cf-v1.uapis.cn/api/flow_zong.php?usertoken=${userInfo?.usertoken}`, {
-            headers: {
-                'Content-Type': 'application/json',
-            }
-        });
-
+        const response = await axios.get(`https://cf-v1.uapis.cn/api/flow_zong.php?usertoken=${userInfo?.usertoken}`);
         const apiData = response.data;
+
         if (apiData.status === 'success') {
+            loadingTrafficInfo.value = false;
+            await nextTick();
             updateChart(apiData);
         } else {
-            console.error('API 返回状态不成功:', apiData);
+            console.error('流量统计API返回状态不成功:', apiData);
         }
     } catch (error) {
-        console.error('API 调用错误:', error);
+        console.error('流量统计API调用错误:', error);
+    } finally {
+        loadingTrafficInfo.value = false;
     }
 };
 

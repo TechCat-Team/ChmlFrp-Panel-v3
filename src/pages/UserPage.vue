@@ -4,13 +4,16 @@
         <n-grid cols="1 s:5" responsive="screen" :x-gap="15" :y-gap="20">
             <n-gi :span="3">
                 <n-card title="消息">
-                    <n-alert v-if="userInfo?.usergroup === '封禁'" title="您的账户已被封禁" type="error">
+                    <n-alert v-if="userInfo?.usergroup === '封禁'" title="您的账户已被封禁" type="error" style="margin-bottom: 10px">
                         理由：于2077年黑入荒板塔，袭击了一名网络安全人员。如有异议可前往QQ交流群申述
                     </n-alert>
-                    <n-alert title="您的会员即将到期" type="info" style="margin-top: 10px">
-                        您的ChmlFrp超级会员将于{{ userInfo?.term }}到期，请及时续费。
+                    <n-alert v-if="userInfo?.realname === '未实名'" title="未实名通知" type="warning" style="margin-bottom: 10px">
+                        您尚未实名，请前往右侧实名认证填写处进行实名，每位用户提供3次免费实名，次数耗尽后请联系QQ242247494进行重置。我们允许未成年实名，但请不要使用非本人身份证实名。
                     </n-alert>
-                    <n-alert title="节点离线通知" type="warning" style="margin-top: 10px">
+                    <n-alert v-if="isTermExpiringSoon" title="您的会员即将到期" type="info" style="margin-bottom: 10px">
+                        您的ChmlFrp{{ userInfo?.usergroup }}将于 {{ userInfo?.term }} 到期，剩余 {{ remainingDays }} 天，请及时续费。
+                    </n-alert>
+                    <n-alert title="节点离线通知" type="warning">
                         您使用的火星CN2、月球直连节点已离线。请及时处理
                     </n-alert>
                 </n-card>
@@ -217,8 +220,8 @@
                                 <n-icon :component="KeyOutline" />
                             </template>
                         </n-tag>
-                        <n-tag round v-if="showNewContent" @click="toggleContent" :bordered="false" type="primary"
-                            style="margin-top: 15px;">
+                        <n-tag round v-if="showNewContent" @click="copyAndToggleContent" :bordered="false"
+                            type="primary" style="margin-top: 15px;">
                             {{ userInfo?.usertoken }}
                         </n-tag>
                     </div>
@@ -400,6 +403,20 @@ onMounted(() => {
     qiandaoinfo(); //加载签到信息
 });
 
+const remainingDays = computed(() => {
+    if (!userInfo?.term) return 0;
+
+    const termDate = new Date(userInfo.term);
+    const today = new Date();
+
+    const diffTime = termDate.getTime() - today.getTime();
+    return Math.ceil(diffTime / (1000 * 3600 * 24));
+});
+
+const isTermExpiringSoon = computed(() => {
+    return remainingDays.value < 7 && remainingDays.value >= 0;
+});
+
 const last_sign_in_time = ref('');
 const total_points = ref(0);
 const total_sign_ins = ref(0);
@@ -573,10 +590,23 @@ const exchangeCodeHandleValidateButtonClick = (e: MouseEvent) => {
     });
 };
 
-// 显示Token
+// 显示token
 const showNewContent = ref(false);
 
 const toggleContent = () => {
     showNewContent.value = !showNewContent.value;
+};
+
+const copyAndToggleContent = () => {
+    const token = userInfo?.usertoken;
+    if (token) {
+        navigator.clipboard.writeText(token).then(() => {
+            message.success('Token已复制到剪切板')
+        }).catch(err => {
+            console.error('Token复制失败：', err);
+            message.error('Token复制失败：', err)
+        });
+    }
+    toggleContent();
 };
 </script>

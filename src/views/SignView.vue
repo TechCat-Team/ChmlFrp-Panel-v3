@@ -24,7 +24,7 @@
                 <n-grid-item span="6 m:2" class="center-content form-container" :class="{ 'form-left': isRegister }">
                     <n-card style="height: 100vh;">
                         <template v-if="!isRegister">
-                            <n-form ref="formRef" :model="model" :rules="rules" class="center-form">
+                            <n-form ref="formRef" :model="model" :rules="loginRules" class="center-form">
                                 <n-alert title="隐私策略&服务条款有更新" type="info">
                                     登录即代表您同意更新后的条款。点我查看隐私策略&服务条款。
                                 </n-alert>
@@ -43,38 +43,73 @@
                                     </n-button>
                                 </n-flex>
                                 <div style="display: flex; justify-content: flex-end; margin-top: 24px">
-                                    <n-button :loading="loginLoading" :disabled="model.email === null || model.password === null" round
-                                        type="primary" style="width: 100%;" size="large"
-                                        @click="handleValidateButtonClick">
+                                    <n-button :loading="loginLoading"
+                                        :disabled="model.email === null || model.password === null" round type="primary"
+                                        style="width: 100%;" size="large" @click="handleValidateButtonClick">
                                         登录
                                     </n-button>
                                 </div>
                             </n-form>
                         </template>
                         <template v-else>
-                            <n-form ref="formRef" :model="registerModel" :rules="registerRules" class="center-form">
-                                <n-form-item path="邮箱">
-                                    <n-input v-model:value="registerModel.email" size="large" round placeholder="邮箱"
+                            <n-form ref="formRef" :model="formModel" :rules="registerRules" class="center-form">
+                                <n-form-item v-if="currentStep === 1" label="用户名" path="username">
+                                    <n-input v-model:value="formModel.username" size="large" round placeholder="用户名"
                                         maxlength="30" clearable />
                                 </n-form-item>
-                                <!-- <n-form-item path="password">
-                                    <n-input v-model:value="registerModel.password" size="large" round placeholder="密码"
-                                        type="password" maxlength="64" />
+                                <n-form-item v-if="currentStep === 1" label="密码" path="password">
+                                    <n-input v-model:value="formModel.password" size="large" round placeholder="密码"
+                                        type="password" maxlength="64" show-password-on="mousedown" clearable />
                                 </n-form-item>
-                                <n-form-item path="confirmPassword">
-                                    <n-input v-model:value="registerModel.confirmPassword" size="large" round placeholder="确认密码"
-                                        type="password" maxlength="64" />
-                                </n-form-item> -->                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               
-                                <div style="display: flex; justify-content: flex-end; margin-top: 24px">
-                                    <n-button
-                                        :disabled="registerModel.email === null || registerModel.password === null || registerModel.confirmPassword === null"
-                                        round type="primary" style="width: 100%;" size="large"
-                                        @click="handleRegisterButtonClick">
-                                        注册
+                                <n-form-item v-if="currentStep === 1" label="QQ" path="qq">
+                                    <n-input v-model:value="formModel.qq" size="large" round placeholder="QQ号，没有可随意填写"
+                                        maxlength="30" clearable />
+                                </n-form-item>
+                                <n-form-item v-if="currentStep === 2" label="邮箱" path="email">
+                                    <n-input v-model:value="formModel.email" size="large" round placeholder="邮箱"
+                                        type="email" maxlength="64" clearable />
+                                </n-form-item>
+                                <n-form-item v-if="currentStep === 2" label="确认密码" path="confirmPassword">
+                                    <n-input v-model:value="formModel.confirmPassword" size="large" round
+                                        placeholder="确认密码" type="password" maxlength="64" show-password-on="mousedown"
+                                        clearable />
+                                </n-form-item>
+                                <div v-if="currentStep === 2" id="captcha-box"></div>
+                                <n-form-item v-if="currentStep === 3" label="验证码" path="verificationCode">
+                                    <n-grid x-gap="12" :cols="5">
+                                        <n-gi :span="3">
+                                            <n-input v-model:value="formModel.verificationCode" size="large" round
+                                                placeholder="验证码" maxlength="6" clearable />
+                                        </n-gi>
+                                        <n-gi :span="2">
+                                            <n-button :loading="loadingCaptcha" @click="GeeTest" style="width: 100%;"
+                                                strong secondary type="primary" round size="large"
+                                                :disabled="buttonDisabled">
+                                                {{ buttonText }}
+                                            </n-button>
+                                        </n-gi>
+                                    </n-grid>
+                                </n-form-item>
+                                <n-flex justify="space-between" style="margin-top: 24px">
+                                    <n-button v-if="currentStep > 1" @click="prevStep" round type="primary"
+                                        size="large">
+                                        上一步
                                     </n-button>
-                                </div>
+                                    <n-button @click="nextStep" :disabled="isNextStepDisabled" round type="primary"
+                                        size="large">
+                                        {{ currentStep === 3 ? '注册' : '下一步' }}
+                                    </n-button>
+                                </n-flex>
                             </n-form>
                         </template>
+                        <!-- <div style="display: flex; justify-content: flex-end; margin-top: 24px">
+                            <n-button
+                                :disabled="registerModel.username === null || registerModel.qq === null || registerModel.password === null"
+                                round type="primary" style="width: 100%;" size="large"
+                                @click="handleRegisterButtonClick">
+                                注册
+                            </n-button>
+                        </div> -->
                     </n-card>
                 </n-grid-item>
             </n-grid>
@@ -97,69 +132,208 @@ interface ModelType {
     password: string | null
 }
 const keepLoggedIn = ref(false);
+const loadingCaptcha = ref(false);
+const buttonDisabled = ref(false)
+const buttonText = ref('发送验证码')
+const countdown = ref(60)
 const userStore = useUserStore();
 
-interface RegisterModelType {
-    email: string | null
-    password: string | null
-    confirmPassword: string | null
+
+const GeeTest = () => {
+    loadingCaptcha.value = true
+    window.initGeetest4(
+        {
+            product: 'bind',
+            captchaId: '8253677cc86aae19e1b760f01d78ef27'
+        },
+        (captchaObj: any) => {
+            captchaObj.showCaptcha()
+            captchaObj.onClose(function () {
+                message.warning('人机验证关闭')
+            })
+            captchaObj.onSuccess(() => {
+                const result = captchaObj.getValidate()
+                if (result) {
+                    loadingCaptcha.value = false
+                    message.success('人机验证通过，验证码邮件已发送')
+
+                    // 启动倒计时
+                    buttonDisabled.value = true
+                    startCountdown()
+                }
+            })
+        }
+    )
 }
 
-const router = useRouter();
-const formRef = ref<FormInst | null>(null)
-const message = useMessage()
-const model = ref<ModelType>({
-    email: null,
-    password: null
-})
-const registerModel = ref<RegisterModelType>({
-    email: null,
-    password: null,
-    confirmPassword: null
-})
-const rules: FormRules = {
-    email: [
+const startCountdown = () => {
+    buttonText.value = `重新发送(${countdown.value}s)`
+
+    const interval = setInterval(() => {
+        countdown.value -= 1
+        buttonText.value = `重新发送(${countdown.value}s)`
+
+        if (countdown.value <= 0) {
+            clearInterval(interval)
+            buttonDisabled.value = false
+            buttonText.value = '发送验证码'
+            countdown.value = 60 // 重置倒计时
+        }
+    }, 1000)
+}
+
+// Define form model
+const formModel = ref({
+    username: '',
+    qq: '',
+    password: '',
+    email: '',
+    confirmPassword: '',
+    verificationCode: ''
+});
+
+const registerRules = {
+    username: [
         {
             required: true,
-            message: '请输入用户名/邮箱'
+            message: '用户名不能为空',
+            trigger: 'blur'
+        },
+        {
+            pattern: /^[A-Za-z0-9_@./#&+-]*$/,
+            message: '用户名只能包含字母、数字和常用的特殊字符',
+            trigger: ['blur', 'input']
+        }
+    ],
+    qq: [
+        {
+            required: true,
+            message: 'QQ号不能为空',
+            trigger: 'blur'
+        },
+        {
+            pattern: /^[0-9]+$/,
+            message: 'QQ号只能为数字',
+            trigger: ['blur', 'input']
         }
     ],
     password: [
         {
             required: true,
-            message: '请输入密码'
+            message: '密码不能为空',
+            trigger: 'blur'
+        },
+        {
+            pattern: /^(?![a-zA-Z]+$)(?!\d+$)(?![^\da-zA-Z\s]+$).{6,32}$/,
+            message: '密码6~32位，且至少包含字母、数字、特殊符号中任意两种',
+            trigger: ['blur', 'input']
         }
     ],
-}
-
-const registerRules: FormRules = {
     email: [
         {
             required: true,
-            message: '请输入邮箱'
-        }
-    ],
-    password: [
+            message: '邮箱不能为空',
+            trigger: 'blur'
+        },
         {
-            required: true,
-            message: '请输入密码'
+            type: 'email',
+            message: '请输入有效的邮箱地址',
+            trigger: ['blur', 'input']
         }
     ],
     confirmPassword: [
         {
             required: true,
-            message: '请确认密码'
+            message: '请确认密码',
+            trigger: 'blur'
         },
         {
-            validator(rule, value) {
-                if (value !== registerModel.value.password) {
-                    return new Error('两次输入的密码不一致')
+            validator: (rule: any, value: string) => {
+                if (value !== formModel.value.password) {
+                    return new Error('两次输入的密码不一致');
                 }
-                return true
+                return true;
             },
-            trigger: 'input'
+            trigger: ['blur', 'input']
+        }
+    ],
+    verificationCode: [
+        {
+            required: true,
+            message: '验证码不能为空',
+            trigger: 'blur'
+        },
+        {
+            pattern: /^[0-9]{6}$/,
+            message: '验证码必须为6位数字',
+            trigger: ['blur', 'input']
         }
     ]
+};
+
+const currentStep = ref(1);
+
+const message = useMessage();
+
+const nextStep = async () => {
+    if (currentStep.value === 2 && passwordMismatch.value) {
+        message.error('密码不匹配，请重新确认。');
+    } else if (currentStep.value === 3) {
+        // 111
+        try {
+            // const response = await axios.post('/api/register', formModel.value);
+            message.success('注册成功，请登录');
+        } catch (error) {
+            message.error('注册失败，请重试。');
+        }
+    } else {
+        currentStep.value++;
+    }
+};
+
+const prevStep = () => {
+    if (currentStep.value > 1) {
+        currentStep.value--;
+    }
+};
+
+const passwordMismatch = computed(() => {
+    return currentStep.value === 2 && formModel.value.password !== formModel.value.confirmPassword;
+});
+
+const isNextStepDisabled = computed(() => {
+    if (currentStep.value === 1) {
+        return !formModel.value.username || !formModel.value.qq || !formModel.value.password;
+    }
+    if (currentStep.value === 2) {
+        return !formModel.value.email || !formModel.value.confirmPassword;
+    }
+    if (currentStep.value === 3) {
+        return !formModel.value.verificationCode;
+    }
+    return false;
+});
+
+const router = useRouter();
+const formRef = ref<FormInst | null>(null)
+const model = ref<ModelType>({
+    email: null,
+    password: null
+})
+
+const loginRules = {
+    password: [
+        {
+            required: true,
+            message: '密码不能为空',
+            trigger: 'blur'
+        },
+        {
+            pattern: /^(?![a-zA-Z]+$)(?!\d+$)(?![^\da-zA-Z\s]+$).{6,32}$/,
+            message: '密码6~32位，且至少包含字母、数字、特殊符号中任意两种',
+            trigger: ['blur', 'input']
+        }
+    ],
 }
 
 const handleValidateButtonClick = async () => {
@@ -209,19 +383,6 @@ const handleValidateButtonClick = async () => {
     }
     loginLoading.value = false
 };
-
-const handleRegisterButtonClick = (e: MouseEvent) => {
-    e.preventDefault()
-    formRef.value?.validate((errors) => {
-        if (!errors) {
-            message.success('注册成功，正在跳转至首页')
-            router.push('/home')
-        } else {
-            console.log(errors)
-            message.error('注册失败')
-        }
-    })
-}
 
 const isRegister = ref(false)
 const isMobile = ref(false)

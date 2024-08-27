@@ -6,7 +6,7 @@
       <n-message-provider>
         <!-- 对话框 -->
         <n-dialog-provider>
-          <ViewComponent />
+            <ViewComponent />
         </n-dialog-provider>
       </n-message-provider>
     </n-loading-bar-provider>
