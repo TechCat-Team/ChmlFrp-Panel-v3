@@ -16,7 +16,6 @@
     "vfonts": "^0.0.3",
     "vue": "^3.2.13",
     "vue-class-component": "^8.0.0-0",
-    "vue-recaptcha": "^3.0.0-alpha.6",
     "vue-router": "^4.0.3"
   },
   "devDependencies": {
@@ -46,5 +45,5 @@
     "unplugin-auto-import": "^0.17.6"
   },
   "version": "0.1.0",
-  "buildTime": "2024/08/26 09:07:14"
+  "buildTime": "2024/08/29 13:18:49"
 }

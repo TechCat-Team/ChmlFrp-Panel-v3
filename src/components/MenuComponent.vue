@@ -1,18 +1,13 @@
 <template>
   <n-menu style="text-align: left;" v-model:value="activeKey" :collapsed="collapsed" :collapsed-width="64"
-    :collapsed-icon-size="22" :options="userInfo? menuOptions : menuOptionsGuest" @update:value="handleUpdateValue" />
+    :collapsed-icon-size="22" :options="computedMenuOptions" @update:value="handleUpdateValue" />
 </template>
 
 <script lang="ts" setup>
+import { ref, computed, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useLayoutStore } from '@/stores/useLayout';
-import { menuOptions } from '@/components/Options/Menu';  // 导入菜单选项数组
-import { menuOptions as menuOptionsGuest } from '@/components/Options/MenuGuest' // 导入游客菜单数据
-// 获取登录信息
-import { useUserStore } from '@/stores/user';
-
-const userStore = useUserStore();
-const userInfo = userStore.userInfo;
+import { computedMenuOptions } from '@/components/Options/Menu';
 
 const layoutStore = useLayoutStore();
 const collapsed = computed(() => layoutStore.collapsed);
@@ -23,11 +18,13 @@ const activeKey = ref(route.name as string);
 
 const handleUpdateValue = (key: string) => {
   activeKey.value = key;
-  const targetOption = menuOptions.find(option => option.key === key);
+  const targetOption = computedMenuOptions.value.find(option => option.key === key);
   if (targetOption && typeof targetOption.label === 'function') {
     const labelVNode = targetOption.label();
-    const to = (labelVNode.props).to;
-    router.push(to);
+    const props = labelVNode.props as Partial<Record<string, unknown>> & { to?: string };
+    if (props.to) {
+      router.push(props.to);
+    }
   }
 };
 

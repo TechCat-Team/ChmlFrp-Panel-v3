@@ -55,9 +55,9 @@
                                 #{{ nodeCard.id }}
                             </span>
                             <n-divider vertical />
-                            {{ nodeCard.title }}
+                            {{ nodeCard.name }}
                         </template>
-                        <template #header-extra v-if="nodeCard.group === 'vip'">
+                        <template #header-extra v-if="nodeCard.nodegroup === 'vip'">
                             <n-tag size="small" round type="warning">
                                 VIP
                             </n-tag>
@@ -75,7 +75,7 @@
                                 </template>
                                 UDP
                             </n-tag>
-                            <n-tag :bordered="false" round size="small" type="info" v-if="nodeCard.defense === 'true'">
+                            <n-tag :bordered="false" round size="small" type="info" v-if="nodeCard.fangyu === 'true'">
                                 <template #icon>
                                     <n-icon :component="ShieldCheckmarkOutline" />
                                 </template>
@@ -205,16 +205,19 @@
             </template>
         </n-empty>
     </n-card>
-    <n-grid v-else cols="1 m:2 l:3 xl:4 2xl:5" :x-gap="12" :y-gap="12" responsive="screen">
+    <n-card v-else-if="TunnelAPIStatus">
+        <n-result status="warning" title="API调用失败" description="请联系管理员解决问题" />
+    </n-card>
+    <n-grid v-else-if="!loadingTunnel" cols="1 m:2 l:3 xl:4 2xl:5" :x-gap="12" :y-gap="12" responsive="screen">
         <n-grid-item v-for="(card, index) in tunnelCards" :key="index">
             <n-card size="small">
                 <template #header>
-                    {{ card.title }}
+                    {{ card.name }}
                     <span style="color: gray; font-size: 14px;">{{ card.id }}</span>
                 </template>
                 <template #header-extra>
-                    <n-tag round :bordered="false" :type="card.status.type">
-                        {{ card.status.label }}
+                    <n-tag round :bordered="false" :type="card.status?.type">
+                        {{ card.status?.label }}
                     </n-tag>
                 </template>
                 <n-thing content-style="margin-top: 10px;">
@@ -226,11 +229,11 @@
                             </n-tag>
                         </n-space>
                     </template>
-                    <a @click="copyToClipboard(card.connection)" style="cursor: pointer; color: inherit;">
-                        连接地址：{{ card.connection }}
+                    <a @click="copyToClipboard(card.ip)" style="cursor: pointer; color: inherit;">
+                        连接地址：{{ card.ip }}
                     </a><br>
                     <span style="color: gray; font-size: 10px;">
-                        {{ card.date }}
+                        {{ card.uptime }}
                     </span>
                 </n-thing>
                 <template #footer>
@@ -238,20 +241,22 @@
                         <n-col :span="8">
                             <div>
                                 <n-icon :component="ArrowUpOutline" />
-                                <n-number-animation show-separator :from="0" :to="card.upload" />
-                                TiB
+                                <n-number-animation show-separator :from="0"
+                                    :to="formatBytes(card.today_traffic_in).value" />
+                                {{ formatBytes(card.today_traffic_in).suffix }}
                             </div>
                         </n-col>
                         <n-col :span="8">
                             <div>
                                 <n-icon :component="ArrowDownOutline" />
-                                <n-number-animation show-separator :from="0" :to="card.download" />
-                                TiB
+                                <n-number-animation show-separator :from="0"
+                                    :to="formatBytes(card.today_traffic_out).value" />
+                                {{ formatBytes(card.today_traffic_out).suffix }}
                             </div>
                         </n-col>
                         <n-col :span="8">
                             连接数
-                            <n-number-animation show-separator :from="0" :to="card.connections" />
+                            <n-number-animation show-separator :from="0" :to="card.cur_conns" />
                         </n-col>
                     </n-row>
                 </template>
@@ -269,7 +274,7 @@
                             </template>
                             查看
                         </n-button>
-                        <n-button round quaternary type="error" @click="handleConfirm(card.title)">
+                        <n-button round quaternary type="error" @click="handleConfirm(card.name)">
                             <template #icon>
                                 <n-icon :component="TrashOutline" />
                             </template>
@@ -280,6 +285,13 @@
             </n-card>
         </n-grid-item>
     </n-grid>
+    <n-grid v-else cols="1 m:2 l:3 xl:4 2xl:5" :x-gap="12" :y-gap="12" responsive="screen">
+        <n-grid-item v-for="i in count" :key="i">
+            <n-infinite-scroll :distance="1" @load="handleLoad">
+                <n-skeleton height="240.2px" width="100%" style="border-radius: 10px" />
+            </n-infinite-scroll>
+        </n-grid-item>
+    </n-grid>
 </template>
 
 <script setup lang="ts">
@@ -288,6 +300,11 @@ import { useScreenStore } from '@/stores/useScreen';
 import { storeToRefs } from 'pinia';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
+// 获取登录信息
+import { useUserStore } from '@/stores/user';
+
+const userStore = useUserStore();
+const userInfo = userStore.userInfo;
 
 const router = useRouter();
 const goToTunnelInfo = () => {
@@ -301,6 +318,8 @@ const dialog = useDialog()
 const nodeListModal = ref(false) // 节点列表模态框
 const nodeInfoModal = ref(false) // 节点信息模态框
 const tunnelInfoModal = ref(false) // 隧道信息模态框
+const loadingTunnel = ref(true) // 用户隧道加载
+const TunnelAPIStatus = ref(false)
 
 const addTheTunnelButtonShow = ref(false)
 
@@ -314,8 +333,11 @@ const widthStyle = computed(() => ({
     width: screenWidth.value >= 600 ? '70%' : '100%',
 }));
 
-// 模拟用户权限为免费用户
-const userGroup = ref('免费用户')
+// 无限滚动
+const count = ref(16)
+const handleLoad = () => {
+    count.value += 1
+}
 
 const handleConfirm = (title: string) => {
     dialog.warning({
@@ -329,13 +351,35 @@ const handleConfirm = (title: string) => {
     })
 }
 
+onMounted(() => {
+    fetchTunnelCards();
+});
+
+// 流量单位换算
+function formatBytes(bytes: string | number): { value: number; suffix: string } {
+    let num: number;
+    if (typeof bytes === 'string') {
+        num = parseFloat(bytes);
+    } else {
+        num = bytes;
+    }
+    const units = ['Bytes', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB'];
+    if (num === 0) return { value: 0, suffix: 'Bytes' };
+    let index = 0;
+    while (num >= 1024 && index < units.length - 1) {
+        num /= 1024;
+        index++;
+    }
+    return { value: parseFloat(num.toFixed(2)), suffix: units[index] };
+}
+
 interface NodeCard {
     id: number;
-    title: string;
-    group: string;
+    name: string;
+    nodegroup: string;
     web: string;
     china: string;
-    defense: string;
+    fangyu: string;
     udp: string;
     area: string;
 }
@@ -347,13 +391,13 @@ const createNodes = async () => {
     // 加载节点列表
     try {
         const response = await axios.get('https://cf-v1.uapis.cn/api/unode.php');
-        nodeCards.value = response.data.map((node: any) => ({
+        nodeCards.value = response.data.map((node: NodeCard) => ({
             id: node.id, // 节点ID
-            title: node.name, // 节点名
-            group: node.nodegroup, // 权限组
+            name: node.name, // 节点名
+            nodegroup: node.nodegroup, // 权限组
             web: node.web, // 是否允许建站
             china: node.china, // 是否为境内带宽
-            defense: node.fangyu, // 防御
+            fangyu: node.fangyu, // 防御
             udp: node.udp, // 是否允许UDP
             area: node.area // 地区
         }));
@@ -389,8 +433,8 @@ const filteredNodeCards = computed(() => {
         const matchUdp = filters.value.udp ? node.udp === 'true' : true;
 
         let matchNoPermission = true;
-        if (userGroup.value) {
-            matchNoPermission = filters.value.noPermission ? true : node.group === 'user';
+        if (userInfo?.usergroup) {
+            matchNoPermission = filters.value.noPermission ? true : node.nodegroup === 'user';
         } else {
             matchNoPermission = filters.value.noPermission ? true : true;
         }
@@ -406,12 +450,12 @@ const filteredNodeCards = computed(() => {
 
 const handleNodeCardClick = (card: NodeCard) => {
     // 检查用户是否有权限选择该节点
-    if (card.group === 'vip' && userGroup.value === '免费用户') {
+    if (card.nodegroup === 'vip' && userInfo?.usergroup === '免费用户') {
         message.warning('此节点为会员节点，您的权限不足')
         return;
     }
-    console.log('[隧道列表]选中了:', card.title); // 控制台输出选中结果
-    selectNode.value = card.title
+    console.log('[隧道列表]选中了:', card.name); // 控制台输出选中结果
+    selectNode.value = card.name
     nodeListModal.value = false // 取消显示节点选择模态框
     nodeInfoModal.value = true // 显示节点详情模态框
 }
@@ -436,41 +480,65 @@ watch(filters, (newFilters) => {
     localStorage.setItem('nodeFilters', JSON.stringify(newFilters))
 }, { deep: true })
 
-const tunnelCards = ref([
-    {
-        title: 'ChmlFrp-Tunnel',
-        id: '#15799',
-        status: { type: 'success', label: '在线' },
-        tags: ['火星CN2-1', '127.0.0.1:25565 - TCP'],
-        connection: 'hx.frp.one:25125',
-        date: '2024-5-30 01:59:02',
-        upload: 10,
-        download: 10,
-        connections: 203
-    },
-    {
-        title: 'ChmlFrp-Tunnel-2',
-        id: '#1421',
-        status: { type: 'warning', label: '离线' },
-        tags: ['金星CN2-1', '127.0.0.1:25565 - TCP'],
-        connection: 'hx.frp.one:25125',
-        date: '2024-5-30 01:59:02',
-        upload: 10.4,
-        download: 10.9,
-        connections: 203
-    },
-    {
-        title: 'ChmlFrp-Tunnel-3',
-        id: '#91242',
-        status: { type: 'error', label: '维护' },
-        tags: ['月球直连-1', '127.0.0.1:80 - HTTP'],
-        connection: 'yq.frp.one:19242',
-        date: '2024-5-31 01:24:02',
-        upload: 312.52,
-        download: 124.92,
-        connections: 72
+// 定义接口
+interface Status {
+    type: string;
+    label: string;
+}
+
+interface TunnelCard {
+    id: string;
+    name: string;
+    localip: string;
+    type: string;
+    nport: string;
+    node: string;
+    state: string;
+    uptime: string;
+    today_traffic_in: string;
+    today_traffic_out: string;
+    cur_conns: string;
+    ip: string;
+    nodestate: string;
+    status?: Status;
+    tags?: string[];
+}
+
+// 创建响应式变量
+const tunnelCards = ref<TunnelCard[]>([]);
+
+// 异步函数获取数据
+const fetchTunnelCards = async () => {
+    loadingTunnel.value = true
+    TunnelAPIStatus.value = false
+    try {
+        const response = await axios.get<TunnelCard[]>(`https://cf-v1.uapis.cn/api/usertunnel.php?token=${userInfo?.usertoken}`);
+        const data = response.data;
+        // 映射数据并设置状态和标签
+        tunnelCards.value = data.map(card => {
+            let status: Status = { type: 'error', label: '离线' };
+
+            if (card.nodestate === 'online') {
+                status = card.state === 'true'
+                    ? { type: 'success', label: '在线' }
+                    : { type: 'warning', label: '离线' };
+            } else if (card.nodestate === 'offline') {
+                status = { type: 'error', label: '离线' };
+            }
+            // 设置 tags
+            const tags = [
+                card.node,
+                `${card.localip}:${card.nport} - ${card.type}`
+            ];
+            return { ...card, status, tags };
+        });
+    } catch (error) {
+        console.error('[隧道列表]用户隧道api调用失败：', error);
+        message.error('隧道加载失败，请稍后')
+        TunnelAPIStatus.value = true
     }
-]);
+    loadingTunnel.value = false
+};
 
 const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text).then(() => {

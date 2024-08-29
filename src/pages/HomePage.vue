@@ -21,7 +21,6 @@
                                 <n-icon>
                                     <CheckmarkCircle />
                                 </n-icon>
-                                签到成功
                             </template>
                             <template v-else>
                                 {{ QianDaoTest }}
@@ -284,22 +283,22 @@ function formatBytes(bytes: number) {
 }
 
 const cards = ref([
-    { title: '连接数', value: userInfo?.totalCurConns, icon: LinkOutline, precision: 0 },
+    { title: '连接数', value: userInfo?.totalCurConns, icon: markRaw(LinkOutline), precision: 0 },
     {
         title: '总上传',
         value: formatBytes(userInfo?.total_upload || 0).value,
-        icon: ArrowUpCircleOutline,
+        icon: markRaw(ArrowUpCircleOutline),
         precision: 2,
         suffix: formatBytes(userInfo?.total_upload || 0).suffix
     },
     {
         title: '总下载',
         value: formatBytes(userInfo?.total_download || 0).value,
-        icon: ArrowDownCircleOutline,
+        icon: markRaw(ArrowDownCircleOutline),
         precision: 2,
         suffix: formatBytes(userInfo?.total_download || 0).suffix
     },
-    { title: '积分数', value: userInfo?.integral, icon: ServerOutline, precision: 0 },
+    { title: '积分数', value: userInfo?.integral, icon: markRaw(ServerOutline), precision: 0 },
 ]);
 
 const screenStore = useScreenStore();
@@ -379,7 +378,7 @@ const panelinfo = async () => {
             tunnel_amount.value = response.data.data.tunnel_amount;
             node_amount.value = response.data.data.node_amount;
             user_amount.value = response.data.data.user_amount;
-            friendLinks.value = response.data.data.friend_links.map((links: any) => ({
+            friendLinks.value = response.data.data.friend_links.map((links: FriendLinks) => ({
                 name: links.name,
                 url: links.url,
             }));
@@ -413,23 +412,23 @@ const qiandaoinfo = async () => {
 }
 
 const onSignButtonClick = () => {
-    loadingQianDaoButton.value = true
-    QianDaoTest.value = '初始化验证[1/3]'
+    loadingQianDaoButton.value = true;
+    QianDaoTest.value = '初始化验证[1/3]';
     window.initGeetest4(
         {
             product: 'bind',
             captchaId: '3891b578aa85e4866c5f8205b02b165a',
             width: '100%',
         },
-        (captchaObj: any) => {
+        (captchaObj: CaptchaObj) => {
             captchaObj.onNextReady(function () {
-                QianDaoTest.value = '验证码验证[2/3]'
+                QianDaoTest.value = '验证码验证[2/3]';
             });
             captchaObj.showCaptcha();
             captchaObj.onClose(function () {
-                message.warning('签到验证关闭，此次签到未成功')
-                loadingQianDaoButton.value = false
-                QianDaoTest.value = '签到'
+                message.warning('签到验证关闭，此次签到未成功');
+                loadingQianDaoButton.value = false;
+                QianDaoTest.value = '签到';
             });
             captchaObj.onSuccess(() => {
                 const result = captchaObj.getValidate();
@@ -443,46 +442,45 @@ const onSignButtonClick = () => {
     );
 };
 
-const signIn = (geetestResult: any) => {
+const signIn = (geetestResult: GeetestResult) => {
     QianDaoTest.value = '调用签到API[3/3]'
-
-    setTimeout(() => {
-        loadingQianDaoButton.value = false;
-        signedInSuccess.value = true;
-        dialog.success({
-            title: '签到成功',
-            content: '您本次签到获取积分100个达不溜',
-            positiveText: '哇',
-            onPositiveClick: () => {
-                message.success('耶！');
+    fetch('https://cf-v2.uapis.cn/qiandao', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            token: userInfo?.usertoken,
+            captcha_output: geetestResult.captcha_output,
+            lot_number: geetestResult.lot_number,
+            pass_token: geetestResult.pass_token,
+            gen_time: geetestResult.gen_time,
+        }),
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (data.state === 'success') {
+                loadingQianDaoButton.value = false;
+                signedInSuccess.value = true;
+                dialog.success({
+                    title: '签到成功',
+                    content: data.msg,
+                    positiveText: '哇'
+                });
+            } else {
+                signedInSuccess.value = false;
+                loadingQianDaoButton.value = false;
+                QianDaoTest.value = '签到';
+                message.error(data.msg)
             }
         });
-
-        // 3 秒后恢复按钮状态
-        setTimeout(() => {
-            signedInSuccess.value = false;
-            QianDaoTest.value = '签到';
-        }, 3000);
+    // 3 秒后恢复按钮状态
+    setTimeout(() => {
+        signedInSuccess.value = false;
+        loadingQianDaoButton.value = false;
+        QianDaoTest.value = '签到';
+        qiandaoinfo();
     }, 3000);
-    // fetch('https://cf-v2.uapis.cn/qiandao', {
-    //     method: 'POST',
-    //     headers: {
-    //         'Content-Type': 'application/json',
-    //     },
-    //     body: JSON.stringify({
-    //         geetest_challenge: geetestResult.geetest_challenge,
-    //         geetest_validate: geetestResult.geetest_validate,
-    //         geetest_seccode: geetestResult.geetest_seccode,
-    //     }),
-    // })
-    //     .then(response => response.json())
-    //     .then(data => {
-    //         if (data.success) {
-    //             console.log('签到成功');
-    //         } else {
-    //             console.log('签到失败');
-    //         }
-    //     });
 };
 
 // 前往QQ群提示群规、提问准则
@@ -538,7 +536,17 @@ const trafficInfo = async () => {
     }
 };
 
-const updateChart = (apiData: { data: any[]; }) => {
+interface ApiDataItem {
+    time: string;
+    traffic_in: number;
+    traffic_out: number;
+}
+
+interface ApiData {
+    data: ApiDataItem[];
+}
+
+const updateChart = (apiData: ApiData) => {
     const chartDom = document.getElementById('main');
     if (chartDom) {
         const myChart = echarts.init(chartDom);
@@ -641,4 +649,5 @@ const updateChart = (apiData: { data: any[]; }) => {
         console.error('[首页]找不到id为“main”(流量统计面积折线图)的元素。');
     }
 };
+
 </script>

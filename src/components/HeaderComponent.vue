@@ -5,7 +5,7 @@
             ChmlFrp
         </span>
         <div :style="{ display: isHidden ? 'flex' : 'none' }">
-            <n-dropdown size="large" :options="menuOptions">
+            <n-dropdown size="large" :options="computedMenuOptions">
                 <n-button quaternary style="font-size: 18px">
                     <n-icon :component="MenuOutline" style="cursor: pointer;"></n-icon>
                 </n-button>
@@ -52,7 +52,7 @@ import { useScreenStore } from '@/stores/useScreen';
 import { storeToRefs } from 'pinia';
 import { NAvatar, NText, NIcon, DropdownOption, type DrawerPlacement } from 'naive-ui'
 import { useRouter } from 'vue-router';
-import { menuOptions } from './Options/Menu'
+import { computedMenuOptions } from './Options/Menu'
 import {
     PersonCircleOutline as UserIcon,
     LogOutOutline as LogoutIcon,

@@ -121,8 +121,7 @@ import { useRouter } from 'vue-router';
 import { useUserStore } from '@/stores/user';
 import axios from 'axios';
 import {
-    FormInst,
-    FormRules
+    FormInst
 } from 'naive-ui'
 
 const loginLoading = ref(false);
@@ -144,9 +143,10 @@ const GeeTest = () => {
     window.initGeetest4(
         {
             product: 'bind',
-            captchaId: '8253677cc86aae19e1b760f01d78ef27'
+            captchaId: '8253677cc86aae19e1b760f01d78ef27',
+            width: '100%'
         },
-        (captchaObj: any) => {
+        (captchaObj: CaptchaObj) => {
             captchaObj.showCaptcha()
             captchaObj.onClose(function () {
                 message.warning('人机验证关闭')
@@ -248,7 +248,7 @@ const registerRules = {
             trigger: 'blur'
         },
         {
-            validator: (rule: any, value: string) => {
+            validator: (value: string) => {
                 if (value !== formModel.value.password) {
                     return new Error('两次输入的密码不一致');
                 }

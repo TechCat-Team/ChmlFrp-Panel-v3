@@ -19,7 +19,6 @@ interface UserInfo {
     total_download: number;
     total_upload: number;
     totalCurConns: number;
-    [key: string]: any;
 }
 
 export const useUserStore = defineStore('user', () => {

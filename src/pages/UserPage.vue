@@ -4,10 +4,12 @@
         <n-grid cols="1 s:5" responsive="screen" :x-gap="15" :y-gap="20">
             <n-gi :span="3">
                 <n-card title="消息">
-                    <n-alert v-if="userInfo?.usergroup === '封禁'" title="您的账户已被封禁" type="error" style="margin-bottom: 10px">
+                    <n-alert v-if="userInfo?.usergroup === '封禁'" title="您的账户已被封禁" type="error"
+                        style="margin-bottom: 10px">
                         理由：于2077年黑入荒板塔，袭击了一名网络安全人员。如有异议可前往QQ交流群申述
                     </n-alert>
-                    <n-alert v-if="userInfo?.realname === '未实名'" title="未实名通知" type="warning" style="margin-bottom: 10px">
+                    <n-alert v-if="userInfo?.realname === '未实名'" title="未实名通知" type="warning"
+                        style="margin-bottom: 10px">
                         您尚未实名，请前往右侧实名认证填写处进行实名，每位用户提供3次免费实名，次数耗尽后请联系QQ242247494进行重置。我们允许未成年实名，但请不要使用非本人身份证实名。
                     </n-alert>
                     <n-alert v-if="isTermExpiringSoon" title="您的会员即将到期" type="info" style="margin-bottom: 10px">
@@ -48,79 +50,14 @@
                         </n-popover>
                     </template>
                     <n-grid cols="1 l:2" responsive="screen" :x-gap="5" :y-gap="5">
-                        <n-gi>
-                            <n-card hoverable size="small" :bordered="false" @click="resetToken">
+                        <n-gi v-for="(setting, index) in settingCard" :key="index">
+                            <n-card hoverable size="small" :bordered="false" @click="setting.click">
                                 <n-space justify="space-between" align="center">
                                     <div style="display: flex; align-items: center;">
-                                        <n-icon size="28" :component="KeyOutline" />
+                                        <n-icon size="28" :component="setting.icon" />
                                         <div style="margin-left: 15px;">
-                                            <p style="margin: 0; font-size: 15px">重置Token</p>
-                                            <p style="margin: 0; font-size: 12px">此操作不可逆，重置后所有客户端均需重新登录</p>
-                                        </div>
-                                    </div>
-                                </n-space>
-                            </n-card>
-                        </n-gi>
-                        <n-gi>
-                            <n-card hoverable size="small" :bordered="false" @click="changeTheUsernameModal = true">
-                                <n-space justify="space-between" align="center">
-                                    <div style="display: flex; align-items: center;">
-                                        <n-icon size="28" :component="PersonOutline" />
-                                        <div style="margin-left: 15px">
-                                            <p style="margin: 0; font-size: 15px">修改用户名</p>
-                                            <p style="margin: 0; font-size: 12px">点击这里可以修改您的用户名</p>
-                                        </div>
-                                    </div>
-                                </n-space>
-                            </n-card>
-                        </n-gi>
-                        <n-gi>
-                            <n-card hoverable size="small" :bordered="false" @click="modifyAvatarModal = true">
-                                <n-space justify="space-between" align="center">
-                                    <div style="display: flex; align-items: center;">
-                                        <n-icon size="28" :component="ImageOutline" />
-                                        <div style="margin-left: 15px">
-                                            <p style="margin: 0; font-size: 15px">更改头像</p>
-                                            <p style="margin: 0; font-size: 12px">不支持上传图片文件，请将图片上传到图床后再填写链接</p>
-                                        </div>
-                                    </div>
-                                </n-space>
-                            </n-card>
-                        </n-gi>
-                        <n-gi>
-                            <n-card hoverable size="small" :bordered="false" @click="changePasswordModal = true">
-                                <n-space justify="space-between" align="center">
-                                    <div style="display: flex; align-items: center;">
-                                        <n-icon size="28" :component="LockClosedOutline" />
-                                        <div style="margin-left: 15px">
-                                            <p style="margin: 0; font-size: 15px">修改密码</p>
-                                            <p style="margin: 0; font-size: 12px">点击这里可以修改您的登录密码</p>
-                                        </div>
-                                    </div>
-                                </n-space>
-                            </n-card>
-                        </n-gi>
-                        <n-gi>
-                            <n-card hoverable size="small" :bordered="false" @click="changeTheMailboxModal = true">
-                                <n-space justify="space-between" align="center">
-                                    <div style="display: flex; align-items: center;">
-                                        <n-icon size="28" :component="MailOutline" />
-                                        <div style="margin-left: 15px">
-                                            <p style="margin: 0; font-size: 15px">更改邮箱</p>
-                                            <p style="margin: 0; font-size: 12px">此操作风险较大，请谨慎操作</p>
-                                        </div>
-                                    </div>
-                                </n-space>
-                            </n-card>
-                        </n-gi>
-                        <n-gi>
-                            <n-card hoverable size="small" :bordered="false" @click="changeQQModal = true">
-                                <n-space justify="space-between" align="center">
-                                    <div style="display: flex; align-items: center;">
-                                        <n-icon size="28" :component="ChatboxEllipsesOutline" />
-                                        <div style="margin-left: 15px">
-                                            <p style="margin: 0; font-size: 15px">更改QQ号</p>
-                                            <p style="margin: 0; font-size: 12px">不正确的QQ号可能会影响到后续功能</p>
+                                            <p style="margin: 0; font-size: 15px">{{ setting.title }}</p>
+                                            <p style="margin: 0; font-size: 12px">{{ setting.subtitle }}</p>
                                         </div>
                                     </div>
                                 </n-space>
@@ -448,7 +385,7 @@ const onSignButtonClick = () => {
             captchaId: '3891b578aa85e4866c5f8205b02b165a',
             width: '100%',
         },
-        (captchaObj: any) => {
+        (captchaObj: CaptchaObj) => {
             captchaObj.showCaptcha();
             captchaObj.onNextReady(function () {
                 QianDaoTest.value = '验证码验证[2/3]'
@@ -470,41 +407,42 @@ const onSignButtonClick = () => {
     );
 };
 
-const signIn = (geetestResult: any) => {
+const signIn = (geetestResult: GeetestResult) => {
     QianDaoTest.value = '调用签到API[3/3]'
-    message.loading('人机验证成功，正在执行签到操作')
-    function cscscs() {
-        loadingQianDaoButton.value = false
-        QianDaoTest.value = '签到'
-        dialog.success({
-            title: '签到成功',
-            content: '您本次签到获取积分100个达不溜',
-            positiveText: '哇',
-            onPositiveClick: () => {
-                message.success('耶！')
+    fetch('https://cf-v2.uapis.cn/qiandao', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            token: userInfo?.usertoken,
+            captcha_output: geetestResult.captcha_output,
+            lot_number: geetestResult.lot_number,
+            pass_token: geetestResult.pass_token,
+            gen_time: geetestResult.gen_time,
+        }),
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (data.state === 'success') {
+                loadingQianDaoButton.value = false;
+                dialog.success({
+                    title: '签到成功',
+                    content: data.msg,
+                    positiveText: '哇'
+                });
+            } else {
+                loadingQianDaoButton.value = false;
+                QianDaoTest.value = '签到';
+                message.error(data.msg)
             }
-        })
-    }
-    setTimeout(cscscs, 3000);
-    // fetch('https://cf-v2.uapis.cn/qiandao', {
-    //     method: 'POST',
-    //     headers: {
-    //         'Content-Type': 'application/json',
-    //     },
-    //     body: JSON.stringify({
-    //         geetest_challenge: geetestResult.geetest_challenge,
-    //         geetest_validate: geetestResult.geetest_validate,
-    //         geetest_seccode: geetestResult.geetest_seccode,
-    //     }),
-    // })
-    //     .then(response => response.json())
-    //     .then(data => {
-    //         if (data.success) {
-    //             console.log('签到成功');
-    //         } else {
-    //             console.log('签到失败');
-    //         }
-    //     });
+        });
+    // 3 秒后恢复按钮状态
+    setTimeout(() => {
+        loadingQianDaoButton.value = false;
+        QianDaoTest.value = '签到';
+        qiandaoinfo();
+    }, 3000);
 };
 
 // 实名认证表单
@@ -609,4 +547,63 @@ const copyAndToggleContent = () => {
     }
     toggleContent();
 };
+
+const openChangeTheUsernameModal = () => {
+    changeTheUsernameModal.value = true
+}
+
+const openModifyAvatarModal = () => {
+    modifyAvatarModal.value = true
+}
+
+const openChangePasswordModal = () => {
+    changePasswordModal.value = true
+}
+
+const openChangeTheMailboxModal = () => {
+    changeTheMailboxModal.value = true
+}
+
+const openChangeQQModal = () => {
+    changeQQModal.value = true
+}
+
+const settingCard = ref([
+    {
+        title: '重置token',
+        subtitle: '此操作不可逆，重置后所有客户端均需重新登录',
+        icon: KeyOutline,
+        click: resetToken,
+    },
+    {
+        title: '修改用户名',
+        subtitle: '点击这里可以修改您的用户名',
+        icon: PersonOutline,
+        click: openChangeTheUsernameModal
+    },
+    {
+        title: '更改头像',
+        subtitle: '不支持上传图片文件，请将图片上传到图床后再填写链接',
+        icon: ImageOutline,
+        click: openModifyAvatarModal
+    },
+    {
+        title: '修改密码',
+        subtitle: '点击这里可以修改您的登录密码',
+        icon: LockClosedOutline,
+        click: openChangePasswordModal
+    },
+    {
+        title: '更改邮箱',
+        subtitle: '此操作风险较大，请谨慎操作',
+        icon: MailOutline,
+        click: openChangeTheMailboxModal,
+    },
+    {
+        title: '更改QQ号',
+        subtitle: '不正确的QQ号可能会影响到后续功能',
+        icon: ChatboxEllipsesOutline,
+        click: openChangeQQModal,
+    }
+])
 </script>
