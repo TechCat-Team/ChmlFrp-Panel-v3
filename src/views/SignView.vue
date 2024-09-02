@@ -55,26 +55,25 @@
                             <n-form ref="formRef" :model="formModel" :rules="registerRules" class="center-form">
                                 <n-form-item v-if="currentStep === 1" label="用户名" path="username">
                                     <n-input v-model:value="formModel.username" size="large" round placeholder="用户名"
-                                        maxlength="30" clearable />
+                                        maxlength="20" clearable />
                                 </n-form-item>
                                 <n-form-item v-if="currentStep === 1" label="密码" path="password">
                                     <n-input v-model:value="formModel.password" size="large" round placeholder="密码"
-                                        type="password" maxlength="64" show-password-on="mousedown" clearable />
+                                        type="password" maxlength="48" show-password-on="mousedown" clearable />
                                 </n-form-item>
                                 <n-form-item v-if="currentStep === 1" label="QQ" path="qq">
                                     <n-input v-model:value="formModel.qq" size="large" round placeholder="QQ号，没有可随意填写"
-                                        maxlength="30" clearable />
+                                        maxlength="20" clearable />
                                 </n-form-item>
                                 <n-form-item v-if="currentStep === 2" label="邮箱" path="email">
                                     <n-input v-model:value="formModel.email" size="large" round placeholder="邮箱"
-                                        type="email" maxlength="64" clearable />
+                                        type="email" maxlength="255" clearable />
                                 </n-form-item>
                                 <n-form-item v-if="currentStep === 2" label="确认密码" path="confirmPassword">
                                     <n-input v-model:value="formModel.confirmPassword" size="large" round
-                                        placeholder="确认密码" type="password" maxlength="64" show-password-on="mousedown"
+                                        placeholder="确认密码" type="password" maxlength="48" show-password-on="mousedown"
                                         clearable />
                                 </n-form-item>
-                                <div v-if="currentStep === 2" id="captcha-box"></div>
                                 <n-form-item v-if="currentStep === 3" label="验证码" path="verificationCode">
                                     <n-grid x-gap="12" :cols="5">
                                         <n-gi :span="3">
@@ -90,26 +89,30 @@
                                         </n-gi>
                                     </n-grid>
                                 </n-form-item>
+                                <n-form-item v-if="currentStep === 3" label="条款" path="clause">
+                                    <n-checkbox size="large" v-model:checked="clause">
+                                        我同意CHMLFRP的<n-button text tag="a"
+                                            href="https://docs.chcat.cn/docs/Term_of_service" target="_blank"
+                                            type="primary">
+                                            服务条款
+                                        </n-button>和<n-button text tag="a" href="https://docs.chcat.cn/docs/The_Privacy"
+                                            target="_blank" type="primary">
+                                            隐私策略
+                                        </n-button>
+                                    </n-checkbox>
+                                </n-form-item>
                                 <n-flex justify="space-between" style="margin-top: 24px">
-                                    <n-button v-if="currentStep > 1" @click="prevStep" round type="primary"
-                                        size="large">
+                                    <n-button v-if="currentStep > 1" @click="prevStep" :loading="RegLoading" round
+                                        type="primary" size="large">
                                         上一步
                                     </n-button>
-                                    <n-button @click="nextStep" :disabled="isNextStepDisabled" round type="primary"
-                                        size="large">
+                                    <n-button @click="nextStep" :disabled="isNextStepDisabled" :loading="RegLoading"
+                                        round type="primary" size="large">
                                         {{ currentStep === 3 ? '注册' : '下一步' }}
                                     </n-button>
                                 </n-flex>
                             </n-form>
                         </template>
-                        <!-- <div style="display: flex; justify-content: flex-end; margin-top: 24px">
-                            <n-button
-                                :disabled="registerModel.username === null || registerModel.qq === null || registerModel.password === null"
-                                round type="primary" style="width: 100%;" size="large"
-                                @click="handleRegisterButtonClick">
-                                注册
-                            </n-button>
-                        </div> -->
                     </n-card>
                 </n-grid-item>
             </n-grid>
@@ -130,13 +133,14 @@ interface ModelType {
     email: string | null
     password: string | null
 }
-const keepLoggedIn = ref(false);
-const loadingCaptcha = ref(false);
+const keepLoggedIn = ref(false)
+const loadingCaptcha = ref(false)
 const buttonDisabled = ref(false)
+const RegLoading = ref(false)
 const buttonText = ref('发送验证码')
 const countdown = ref(60)
 const userStore = useUserStore();
-
+const clause = ref(false);
 
 const GeeTest = () => {
     loadingCaptcha.value = true
@@ -150,29 +154,52 @@ const GeeTest = () => {
             captchaObj.showCaptcha()
             captchaObj.onClose(function () {
                 message.warning('人机验证关闭')
+                loadingCaptcha.value = false
             })
             captchaObj.onSuccess(() => {
                 const result = captchaObj.getValidate()
                 if (result) {
-                    loadingCaptcha.value = false
-                    message.success('人机验证通过，验证码邮件已发送')
-
-                    // 启动倒计时
-                    buttonDisabled.value = true
-                    startCountdown()
+                    sendMailboxVerificationCode(result)
                 }
             })
         }
     )
 }
 
+const sendMailboxVerificationCode = async (geetestResult: GeetestResult) => {
+    try {
+        const response = await axios.post('https://cf-v2.uapis.cn/sendmailcode', {
+            type: 'register',
+            mail: formModel.value.email,
+            captcha_output: geetestResult.captcha_output,
+            lot_number: geetestResult.lot_number,
+            pass_token: geetestResult.pass_token,
+            gen_time: geetestResult.gen_time,
+        }, {
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+        const data = response.data;
+        if (data.state === 'success') {
+            message.success("邮箱验证码发送成功")
+            buttonDisabled.value = true
+            startCountdown()
+        } else {
+            message.error(data.msg);
+            console.error('邮件发送失败:', data.msg);
+        }
+    } catch (error) {
+        console.error('邮件发送API调用失败:', error);
+    }
+    loadingCaptcha.value = false
+}
+
 const startCountdown = () => {
     buttonText.value = `重新发送(${countdown.value}s)`
-
     const interval = setInterval(() => {
         countdown.value -= 1
         buttonText.value = `重新发送(${countdown.value}s)`
-
         if (countdown.value <= 0) {
             clearInterval(interval)
             buttonDisabled.value = false
@@ -182,7 +209,6 @@ const startCountdown = () => {
     }, 1000)
 }
 
-// Define form model
 const formModel = ref({
     username: '',
     qq: '',
@@ -200,7 +226,7 @@ const registerRules = {
             trigger: 'blur'
         },
         {
-            pattern: /^[A-Za-z0-9_@./#&+-]*$/,
+            pattern: /^[A-Za-z0-9_@./#&+-]{0,20}$/,
             message: '用户名只能包含字母、数字和常用的特殊字符',
             trigger: ['blur', 'input']
         }
@@ -212,8 +238,8 @@ const registerRules = {
             trigger: 'blur'
         },
         {
-            pattern: /^[0-9]+$/,
-            message: 'QQ号只能为数字',
+            pattern: /^[0-9]{1,20}$/,
+            message: 'QQ号只能为数字，且最大20位',
             trigger: ['blur', 'input']
         }
     ],
@@ -224,8 +250,8 @@ const registerRules = {
             trigger: 'blur'
         },
         {
-            pattern: /^(?![a-zA-Z]+$)(?!\d+$)(?![^\da-zA-Z\s]+$).{6,32}$/,
-            message: '密码6~32位，且至少包含字母、数字、特殊符号中任意两种',
+            pattern: /^(?![a-zA-Z]+$)(?!\d+$)(?![^\da-zA-Z\s]+$).{6,48}$/,
+            message: '密码6~48位，且至少包含字母、数字、特殊符号中任意两种',
             trigger: ['blur', 'input']
         }
     ],
@@ -246,15 +272,6 @@ const registerRules = {
             required: true,
             message: '请确认密码',
             trigger: 'blur'
-        },
-        {
-            validator: (value: string) => {
-                if (value !== formModel.value.password) {
-                    return new Error('两次输入的密码不一致');
-                }
-                return true;
-            },
-            trigger: ['blur', 'input']
         }
     ],
     verificationCode: [
@@ -268,6 +285,13 @@ const registerRules = {
             message: '验证码必须为6位数字',
             trigger: ['blur', 'input']
         }
+    ],
+    clause: [
+        {
+            required: true,
+            message: '条款不能不选',
+            trigger: 'blur'
+        },
     ]
 };
 
@@ -279,13 +303,21 @@ const nextStep = async () => {
     if (currentStep.value === 2 && passwordMismatch.value) {
         message.error('密码不匹配，请重新确认。');
     } else if (currentStep.value === 3) {
-        // 111
+        RegLoading.value = true;
         try {
-            // const response = await axios.post('/api/register', formModel.value);
-            message.success('注册成功，请登录');
+            const response = await axios.get(`https://cf-v2.uapis.cn/register?username=${formModel.value.username}&password=${formModel.value.password}&mail=${formModel.value.email}&qq=${formModel.value.qq}&code=${formModel.value.verificationCode}`);
+            const data = response.data;
+            if (data.state === 'success') {
+                message.success("注册成功，请登录")
+                toggleRegister()
+            } else {
+                message.error(data.msg);
+                console.error('注册失败:', data.msg);
+            }
         } catch (error) {
-            message.error('注册失败，请重试。');
+            console.error('注册API调用失败:', error);
         }
+        RegLoading.value = false;
     } else {
         currentStep.value++;
     }
@@ -309,7 +341,7 @@ const isNextStepDisabled = computed(() => {
         return !formModel.value.email || !formModel.value.confirmPassword;
     }
     if (currentStep.value === 3) {
-        return !formModel.value.verificationCode;
+        return !formModel.value.verificationCode || !clause.value
     }
     return false;
 });
@@ -434,6 +466,12 @@ h1 {
 
 .form-container.form-left {
     transform: translateX(-200%);
+}
+
+@media (max-width: 1023.5px) {
+    .form-container.form-left {
+        transform: none;
+    }
 }
 
 .center-content {

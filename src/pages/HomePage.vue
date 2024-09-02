@@ -41,10 +41,10 @@
                             <n-button v-else strong secondary>签到信息</n-button>
                         </template>
                         <n-thing title="统计信息" content-style="margin-top: 10px;">
-                            上次签到时间：{{ last_sign_in_time }}<br>
-                            累计签到积分：{{ total_points }}<br>
-                            累计签到次数：{{ total_sign_ins }}<br>
-                            今日签到人数：{{ count_of_matching_records }}
+                            上次签到时间：{{ last_sign_in_time || "暂无数据" }}<br>
+                            累计签到积分：{{ total_points || "暂无数据" }}<br>
+                            累计签到次数：{{ total_sign_ins || "暂无数据" }}<br>
+                            今日签到人数：{{ count_of_matching_records || 0 }}
                         </n-thing>
                     </n-popover>
                 </n-space>
@@ -97,10 +97,14 @@
                     <n-divider />
                     <n-skeleton v-if="loadingPanelInfo" text :repeat="2" />
                     <n-space v-else style="margin-top: 24px">
-                        <n-button text tag="a" v-for="(links, index) in friendLinks" :key="index" :href="links.url"
-                            target="_blank">
-                            {{ links.name }}
-                        </n-button>
+                        <n-tooltip trigger="hover" v-for="(links, index) in friendLinks" :key="index">
+                            <template #trigger>
+                                <n-button text tag="a" :href="links.url" target="_blank">
+                                    {{ links.name }}
+                                </n-button>
+                            </template>
+                            {{ links.description || "暂无介绍" }}
+                        </n-tooltip>
                     </n-space>
                 </n-card>
             </n-gi>
@@ -364,6 +368,7 @@ const yiyan = async () => {
 interface FriendLinks {
     name: string;
     url: string;
+    description: string;
 }
 
 const friendLinks = ref<FriendLinks[]>([]);
@@ -381,6 +386,7 @@ const panelinfo = async () => {
             friendLinks.value = response.data.data.friend_links.map((links: FriendLinks) => ({
                 name: links.name,
                 url: links.url,
+                description: links.description,
             }));
         }
     } catch (error) {
@@ -442,39 +448,42 @@ const onSignButtonClick = () => {
     );
 };
 
-const signIn = (geetestResult: GeetestResult) => {
-    QianDaoTest.value = '调用签到API[3/3]'
-    fetch('https://cf-v2.uapis.cn/qiandao', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
+const signIn = async (geetestResult: GeetestResult) => {
+    QianDaoTest.value = '调用签到API[3/3]';
+
+    try {
+        const response = await axios.post('https://cf-v2.uapis.cn/qiandao', {
             token: userInfo?.usertoken,
             captcha_output: geetestResult.captcha_output,
             lot_number: geetestResult.lot_number,
             pass_token: geetestResult.pass_token,
             gen_time: geetestResult.gen_time,
-        }),
-    })
-        .then(response => response.json())
-        .then(data => {
-            if (data.state === 'success') {
-                loadingQianDaoButton.value = false;
-                signedInSuccess.value = true;
-                dialog.success({
-                    title: '签到成功',
-                    content: data.msg,
-                    positiveText: '哇'
-                });
-            } else {
-                signedInSuccess.value = false;
-                loadingQianDaoButton.value = false;
-                QianDaoTest.value = '签到';
-                message.error(data.msg)
+        }, {
+            headers: {
+                'Content-Type': 'application/json',
             }
         });
-    // 3 秒后恢复按钮状态
+        const data = response.data;
+        if (data.state === 'success') {
+            loadingQianDaoButton.value = false;
+            signedInSuccess.value = true;
+            dialog.success({
+                title: '签到成功',
+                content: data.msg,
+                positiveText: '哇'
+            });
+        } else {
+            signedInSuccess.value = false;
+            loadingQianDaoButton.value = false;
+            QianDaoTest.value = '签到';
+            message.error(data.msg);
+        }
+    } catch (error) {
+        signedInSuccess.value = false;
+        loadingQianDaoButton.value = false;
+        QianDaoTest.value = '签到';
+        console.error('签到API请求失败:', error);
+    }
     setTimeout(() => {
         signedInSuccess.value = false;
         loadingQianDaoButton.value = false;

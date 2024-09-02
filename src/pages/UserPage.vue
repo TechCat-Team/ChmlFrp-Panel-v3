@@ -170,10 +170,10 @@
         <n-card style="width: 400px">
             <n-form>
                 <n-form-item-row label="更改后的用户名">
-                    <n-input round />
+                    <n-input round v-model:value="newUserName" />
                 </n-form-item-row>
             </n-form>
-            <n-button round type="primary" block secondary strong>
+            <n-button round type="primary" @click="resetUserName" :loading="loadingUpdateUserName" block secondary strong>
                 确定
             </n-button>
         </n-card>
@@ -186,8 +186,8 @@
                     <n-alert title="提示" type="info" style="margin-bottom: 16px">
                         图片链接仅支持直链，且无反盗链的链接
                     </n-alert>
-                    <n-input round />
-                    <n-button round type="primary" block secondary strong style="margin-top: 16px">
+                    <n-input round v-model:value="newUserImg" />
+                    <n-button round type="primary" block :loading="loadingUpdateImg" @click="resetUserImg(newUserImg)" secondary strong style="margin-top: 16px">
                         提交
                     </n-button>
                 </n-tab-pane>
@@ -197,10 +197,10 @@
                     </n-alert>
                     <n-flex justify="space-between">
                         <n-avatar round :size="48"
-                            src="https://q.qlogo.cn/headimg_dl?dst_uin=242247494&spec=640&img_type=jpg" />
-                        <n-p>242247494</n-p>
+                            :src="QQImg" />
+                        <n-p>{{ userInfo?.qq }}</n-p>
                     </n-flex>
-                    <n-button round type="primary" block secondary strong style="margin-top: 16px">
+                    <n-button round type="primary" block :loading="loadingUpdateImg" @click="resetUserImg(QQImg)" secondary strong style="margin-top: 16px">
                         提交
                     </n-button>
                 </n-tab-pane>
@@ -209,10 +209,10 @@
                         根据您的邮箱绑定的Cravatar获取头像
                     </n-alert>
                     <n-flex justify="space-between">
-                        <n-avatar round :size="48" src="https://cravatar.cn/avatar/2c36ed2f12241a2a22a2d55af893ffb2" />
-                        <n-p>chaoji@chcat.cn</n-p>
+                        <n-avatar round :size="48" :src="CravatarImg" />
+                        <n-p>{{ userInfo?.email }}</n-p>
                     </n-flex>
-                    <n-button round type="primary" block secondary strong style="margin-top: 16px">
+                    <n-button round type="primary" block :loading="loadingUpdateImg" @click="resetUserImg(CravatarImg)" secondary strong style="margin-top: 16px">
                         提交
                     </n-button>
                 </n-tab-pane>
@@ -285,10 +285,10 @@
         <n-card style="width: 400px">
             <n-form>
                 <n-form-item-row label="新QQ号">
-                    <n-input round maxlength="24" show-count clearable />
+                    <n-input round maxlength="20" v-model:value="newQQ" show-count clearable />
                 </n-form-item-row>
             </n-form>
-            <n-button round type="primary" block secondary strong>
+            <n-button round type="primary" :loading="loadingUpdateQQ" @click="resetQQ" block secondary strong>
                 确定
             </n-button>
         </n-card>
@@ -301,8 +301,10 @@ import { ref, computed } from 'vue';
 import { FormInst, FormRules } from 'naive-ui';
 import { useStyleStore } from '@/stores/style';
 import { useScreenStore } from '@/stores/useScreen';
+import { useRouter } from 'vue-router';
 import { storeToRefs } from 'pinia';
 import axios from 'axios';
+import CryptoJS from 'crypto-js';
 // 获取登录信息
 import { useUserStore } from '@/stores/user';
 
@@ -316,25 +318,29 @@ const styleStore = useStyleStore();
 const cardStyle = computed(() => styleStore.getCardStyle());
 const dialog = useDialog()
 const message = useMessage()
+const router = useRouter();
 
-const loadingQianDao = ref(true);
-const loadingQianDaoButton = ref(false)
-const QianDaoTest = ref('签到')
+const loadingQianDao = ref(true); // 签到骨架屏加载状态
 
-// 更改 用户名 模态框状态
-const changeTheUsernameModal = ref(false)
+const loadingQianDaoButton = ref(false) // 签到按钮加载状态
+const loadingUpdateImg = ref(false) // 用户名确定按钮加载状态
+const loadingUpdateUserName = ref(false) // 用户名确定按钮加载状态
+const loadingUpdateQQ = ref(false) // QQ确定按钮加载状态
 
-// 更改 头像 模态框状态
-const modifyAvatarModal = ref(false)
+const QianDaoTest = ref('签到') // 签到按钮默认文字
+const newUserImg = ref('') // 新头像链接
+const newUserName = ref(`${userInfo?.username}`) // 新用户名
+const newQQ = ref(`${userInfo?.qq}`) // 新QQ号
 
-// 更改 密码 模态框状态
-const changePasswordModal = ref(false)
+const QQImg = `https://q.qlogo.cn/headimg_dl?dst_uin=${userInfo?.qq}&spec=640&img_type=jpg` // 根据QQ获取头像
+const emailHash = CryptoJS.MD5(userInfo?.email).toString(); // md5加密邮箱
+const CravatarImg = ` https://cravatar.cn/avatar/${emailHash}` // 根据Creavata获取头像
 
-// 更改 邮箱 模态框状态
-const changeTheMailboxModal = ref(false)
-
-// 更改 QQ 模态框状态
-const changeQQModal = ref(false)
+const changeTheUsernameModal = ref(false) // 更改 用户名 模态框状态
+const modifyAvatarModal = ref(false) // 更改 头像 模态框状态
+const changePasswordModal = ref(false) // 更改 密码 模态框状态
+const changeTheMailboxModal = ref(false) // 更改 邮箱 模态框状态
+const changeQQModal = ref(false) // 更改 QQ 模态框状态
 
 onMounted(() => {
     qiandaoinfo(); //加载签到信息
@@ -445,6 +451,73 @@ const signIn = (geetestResult: GeetestResult) => {
     }, 3000);
 };
 
+const resetUserImg = async (userimg: string) => {
+    loadingUpdateImg.value = true
+    try {
+        const response = await axios.get(`https://cf-v2.uapis.cn/update_userimg?token=${userInfo?.usertoken}&new_userimg=${userimg}`);
+        if (response.data.code === 200) {
+            message.success(response.data.msg)
+            modifyAvatarModal.value = false
+        } else {
+            message.error(response.data.msg)
+        }
+    } catch (error) {
+        console.error('修改头像API调用失败', error);
+        message.error('修改头像API调用失败' + error)
+    }
+    loadingUpdateImg.value = false
+};
+
+const resetTokenAPI = async () => {
+    try {
+        const response = await axios.get(`https://cf-v2.uapis.cn/retoken?token=${userInfo?.usertoken}`);
+        if (response.data.code === 200) {
+            message.success('TOKEN已重置，请重新登录')
+            userStore.clearUser();
+            router.push('/sign');
+        } else {
+            message.error(response.data.msg)
+        }
+    } catch (error) {
+        console.error('重置TokenAPI调用失败', error);
+        message.error('重置TokenAPI调用失败' + error)
+    }
+};
+
+const resetQQ = async () => {
+    loadingUpdateQQ.value = true
+    try {
+        const response = await axios.get(`https://cf-v2.uapis.cn/update_qq?token=${userInfo?.usertoken}&new_userimg=${newQQ.value}`);
+        if (response.data.code === 200) {
+            message.success(response.data.msg)
+            changeQQModal.value = false
+        } else {
+            message.error(response.data.msg)
+        }
+    } catch (error) {
+        console.error('修改头像API调用失败', error);
+        message.error('修改头像API调用失败' + error)
+    }
+    loadingUpdateQQ.value = false
+};
+
+const resetUserName = async () => {
+    loadingUpdateUserName.value = true
+    try {
+        const response = await axios.get(`https://cf-v2.uapis.cn/update_username?token=${userInfo?.usertoken}&new_username=${newUserName.value}`);
+        if (response.data.code === 200) {
+            message.success(response.data.msg)
+            changeTheUsernameModal.value = false
+        } else {
+            message.error(response.data.msg)
+        }
+    } catch (error) {
+        console.error('修改头像API调用失败', error);
+        message.error('修改头像API调用失败' + error)
+    }
+    loadingUpdateUserName.value = false
+};
+
 // 实名认证表单
 interface RealNameModelType {
     name: string | null;
@@ -459,7 +532,7 @@ const resetToken = () => {
         positiveText: '确定',
         negativeText: '取消',
         onPositiveClick: () => {
-            message.success('TOKEN已重置，请重新登录')
+            resetTokenAPI();
         },
     })
 }
