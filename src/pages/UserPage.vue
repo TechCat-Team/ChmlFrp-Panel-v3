@@ -173,7 +173,8 @@
                     <n-input round v-model:value="newUserName" />
                 </n-form-item-row>
             </n-form>
-            <n-button round type="primary" @click="resetUserName" :loading="loadingUpdateUserName" block secondary strong>
+            <n-button round type="primary" @click="resetUserName" :disabled="newUserName === null"
+                :loading="loadingUpdateUserName" block secondary strong>
                 确定
             </n-button>
         </n-card>
@@ -187,7 +188,8 @@
                         图片链接仅支持直链，且无反盗链的链接
                     </n-alert>
                     <n-input round v-model:value="newUserImg" />
-                    <n-button round type="primary" block :loading="loadingUpdateImg" @click="resetUserImg(newUserImg)" secondary strong style="margin-top: 16px">
+                    <n-button round type="primary" block :loading="loadingUpdateImg" @click="resetUserImg(newUserImg)"
+                        secondary strong style="margin-top: 16px">
                         提交
                     </n-button>
                 </n-tab-pane>
@@ -196,11 +198,11 @@
                         这里可以根据您绑定的QQ号自动获取头像
                     </n-alert>
                     <n-flex justify="space-between">
-                        <n-avatar round :size="48"
-                            :src="QQImg" />
+                        <n-avatar round :size="48" :src="QQImg" />
                         <n-p>{{ userInfo?.qq }}</n-p>
                     </n-flex>
-                    <n-button round type="primary" block :loading="loadingUpdateImg" @click="resetUserImg(QQImg)" secondary strong style="margin-top: 16px">
+                    <n-button round type="primary" block :loading="loadingUpdateImg" @click="resetUserImg(QQImg)"
+                        secondary strong style="margin-top: 16px">
                         提交
                     </n-button>
                 </n-tab-pane>
@@ -212,7 +214,8 @@
                         <n-avatar round :size="48" :src="CravatarImg" />
                         <n-p>{{ userInfo?.email }}</n-p>
                     </n-flex>
-                    <n-button round type="primary" block :loading="loadingUpdateImg" @click="resetUserImg(CravatarImg)" secondary strong style="margin-top: 16px">
+                    <n-button round type="primary" block :loading="loadingUpdateImg" @click="resetUserImg(CravatarImg)"
+                        secondary strong style="margin-top: 16px">
                         提交
                     </n-button>
                 </n-tab-pane>
@@ -221,18 +224,22 @@
     </n-modal>
     <n-modal v-model:show="changePasswordModal">
         <n-card style="width: 400px">
-            <n-form>
-                <n-form-item-row label="原密码">
-                    <n-input round type="password" show-password-on="mousedown" />
+            <n-form :model="resetPasswordValue" :rules="resetPasswordRules">
+                <n-form-item-row label="原密码" path="original_password">
+                    <n-input round type="password" v-model:value="resetPasswordValue.original_password"
+                        show-password-on="mousedown" />
                 </n-form-item-row>
-                <n-form-item-row label="新密码">
-                    <n-input round type="password" maxlength="64" show-password-on="mousedown" />
+                <n-form-item-row label="新密码" path="new_password">
+                    <n-input round type="password" v-model:value="resetPasswordValue.new_password" maxlength="48"
+                        show-password-on="mousedown" />
                 </n-form-item-row>
-                <n-form-item-row label="重复新密码">
-                    <n-input round type="password" maxlength="64" show-count clearable />
+                <n-form-item-row label="重复新密码" path="reentered_new_password">
+                    <n-input round type="password" v-model:value="resetPasswordValue.reentered_new_password"
+                        maxlength="48" show-count clearable />
                 </n-form-item-row>
             </n-form>
-            <n-button round type="primary" block secondary strong>
+            <n-button round type="primary" @click="resetPassword" block secondary strong :loading="loadingUpdatePassword"
+                :disabled="!resetPasswordValue.original_password || !resetPasswordValue.new_password || !resetPasswordValue.reentered_new_password || loadingUpdatePassword">
                 确定
             </n-button>
         </n-card>
@@ -288,7 +295,8 @@
                     <n-input round maxlength="20" v-model:value="newQQ" show-count clearable />
                 </n-form-item-row>
             </n-form>
-            <n-button round type="primary" :loading="loadingUpdateQQ" @click="resetQQ" block secondary strong>
+            <n-button round type="primary" :disabled="newQQ === null" :loading="loadingUpdateQQ" @click="resetQQ" block
+                secondary strong>
                 确定
             </n-button>
         </n-card>
@@ -326,14 +334,20 @@ const loadingQianDaoButton = ref(false) // 签到按钮加载状态
 const loadingUpdateImg = ref(false) // 用户名确定按钮加载状态
 const loadingUpdateUserName = ref(false) // 用户名确定按钮加载状态
 const loadingUpdateQQ = ref(false) // QQ确定按钮加载状态
+const loadingUpdatePassword =ref(false)
 
 const QianDaoTest = ref('签到') // 签到按钮默认文字
 const newUserImg = ref('') // 新头像链接
 const newUserName = ref(`${userInfo?.username}`) // 新用户名
 const newQQ = ref(`${userInfo?.qq}`) // 新QQ号
+const resetPasswordValue = ref({
+    original_password: null,
+    new_password: null,
+    reentered_new_password: null
+})
 
 const QQImg = `https://q.qlogo.cn/headimg_dl?dst_uin=${userInfo?.qq}&spec=640&img_type=jpg` // 根据QQ获取头像
-const emailHash = CryptoJS.MD5(userInfo?.email).toString(); // md5加密邮箱
+const emailHash = CryptoJS.MD5(userInfo?.email || "chaoji@chcat.cn").toString(); // md5加密邮箱
 const CravatarImg = ` https://cravatar.cn/avatar/${emailHash}` // 根据Creavata获取头像
 
 const changeTheUsernameModal = ref(false) // 更改 用户名 模态框状态
@@ -487,7 +501,7 @@ const resetTokenAPI = async () => {
 const resetQQ = async () => {
     loadingUpdateQQ.value = true
     try {
-        const response = await axios.get(`https://cf-v2.uapis.cn/update_qq?token=${userInfo?.usertoken}&new_userimg=${newQQ.value}`);
+        const response = await axios.get(`https://cf-v2.uapis.cn/update_qq?token=${userInfo?.usertoken}&new_qq=${newQQ.value}`);
         if (response.data.code === 200) {
             message.success(response.data.msg)
             changeQQModal.value = false
@@ -495,8 +509,8 @@ const resetQQ = async () => {
             message.error(response.data.msg)
         }
     } catch (error) {
-        console.error('修改头像API调用失败', error);
-        message.error('修改头像API调用失败' + error)
+        console.error('修改QQAPI调用失败', error);
+        message.error('修改QQAPI调用失败' + error)
     }
     loadingUpdateQQ.value = false
 };
@@ -516,6 +530,66 @@ const resetUserName = async () => {
         message.error('修改头像API调用失败' + error)
     }
     loadingUpdateUserName.value = false
+};
+
+const resetPasswordRules = {
+  original_password: [
+    {
+      required: true,
+      message: '原密码不能为空',
+      trigger: 'blur'
+    },
+    {
+      pattern: /^(?![a-zA-Z]+$)(?!\d+$)(?![^\da-zA-Z\s]+$).{6,48}$/,
+      message: '密码且至少包含字母、数字、特殊符号中任意两种',
+      trigger: ['blur', 'input']
+    }
+  ],
+  new_password: [
+    {
+      required: true,
+      message: '新密码不能为空',
+      trigger: 'blur'
+    },
+    {
+      pattern: /^(?![a-zA-Z]+$)(?!\d+$)(?![^\da-zA-Z\s]+$).{6,48}$/,
+      message: '密码且至少包含字母、数字、特殊符号中任意两种',
+      trigger: ['blur', 'input']
+    }
+  ],
+  reentered_new_password: [
+    {
+      required: true,
+      message: '请再次输入新密码',
+      trigger: 'blur'
+    },
+    {
+      validator: (rule: string, value: string) => {
+        if (value !== resetPasswordValue.value.new_password) {
+          return new Error('两次输入的新密码不一致');
+        }
+        return true;
+      },
+      trigger: ['blur', 'input']
+    }
+  ]
+};
+
+const resetPassword = async () => {
+    loadingUpdatePassword.value = true
+    try {
+        const response = await axios.get(`https://cf-v2.uapis.cn/reset_password?token=${userInfo?.usertoken}&original_password=${resetPasswordValue.value.original_password}&new_password=${resetPasswordValue.value.new_password}`);
+        if (response.data.code === 200) {
+            message.success(response.data.msg)
+            changePasswordModal.value = false
+        } else {
+            message.error(response.data.msg)
+        }
+    } catch (error) {
+        console.error('修改密码API调用失败', error);
+        message.error('修改密码API调用失败' + error)
+    }
+    loadingUpdatePassword.value = false
 };
 
 // 实名认证表单

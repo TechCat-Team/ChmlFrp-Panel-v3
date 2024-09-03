@@ -44,7 +44,7 @@
                                 </n-flex>
                                 <div style="display: flex; justify-content: flex-end; margin-top: 24px">
                                     <n-button :loading="loginLoading"
-                                        :disabled="model.email === null || model.password === null" round type="primary"
+                                        :disabled="model.email === null || model.password === null || loginLoading" round type="primary"
                                         style="width: 100%;" size="large" @click="handleValidateButtonClick">
                                         登录
                                     </n-button>
@@ -341,7 +341,7 @@ const isNextStepDisabled = computed(() => {
         return !formModel.value.email || !formModel.value.confirmPassword;
     }
     if (currentStep.value === 3) {
-        return !formModel.value.verificationCode || !clause.value
+        return !formModel.value.verificationCode || !clause.value || RegLoading.value === true
     }
     return false;
 });
@@ -361,8 +361,8 @@ const loginRules = {
             trigger: 'blur'
         },
         {
-            pattern: /^(?![a-zA-Z]+$)(?!\d+$)(?![^\da-zA-Z\s]+$).{6,32}$/,
-            message: '密码6~32位，且至少包含字母、数字、特殊符号中任意两种',
+            pattern: /^(?![a-zA-Z]+$)(?!\d+$)(?![^\da-zA-Z\s]+$).{6,48}$/,
+            message: '密码6~48位，且至少包含字母、数字、特殊符号中任意两种',
             trigger: ['blur', 'input']
         }
     ],
