@@ -118,9 +118,6 @@
                         type="warning" @click="goToUserPage">
                         不实名则无法使用ChmlFrp提供的服务，点击此提示可前往个人中心实名，我们允许未成年实名。
                     </n-alert>
-                    <n-alert title="节点离线通知" type="warning" style="margin-bottom: 10px">
-                        您使用的火星CN2、月球直连节点已离线。请及时处理
-                    </n-alert>
                     <n-alert title="提示" type="info" style="margin-bottom: 10px">
                         如果这里没有您想了解的，可以前往
                         <n-button text tag="a" href="https://docs.chcat.cn" target="_blank" type="primary">

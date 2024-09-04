@@ -15,9 +15,6 @@
                     <n-alert v-if="isTermExpiringSoon" title="您的会员即将到期" type="info" style="margin-bottom: 10px">
                         您的ChmlFrp{{ userInfo?.usergroup }}将于 {{ userInfo?.term }} 到期，剩余 {{ remainingDays }} 天，请及时续费。
                     </n-alert>
-                    <n-alert title="节点离线通知" type="warning">
-                        您使用的火星CN2、月球直连节点已离线。请及时处理
-                    </n-alert>
                 </n-card>
                 <n-card title="账户设置" style="margin-top: 15px">
                     <template #header-extra>
@@ -42,10 +39,10 @@
                                 <n-button v-else quaternary round>签到信息</n-button>
                             </template>
                             <n-thing title="统计信息" content-style="margin-top: 10px;">
-                                上次签到时间：{{ last_sign_in_time }}<br>
-                                累计签到积分：{{ total_points }}<br>
-                                累计签到次数：{{ total_sign_ins }}<br>
-                                今日签到人数：{{ count_of_matching_records }}
+                                上次签到时间：{{ last_sign_in_time || "暂无数据" }}<br>
+                                累计签到积分：{{ total_points || "暂无数据" }}<br>
+                                累计签到次数：{{ total_sign_ins || "暂无数据" }}<br>
+                                今日签到人数：{{ count_of_matching_records || 0 }}
                             </n-thing>
                         </n-popover>
                     </template>
@@ -79,7 +76,8 @@
                         <n-row :gutter="[0, 24]">
                             <n-col :span="24">
                                 <div style="display: flex; justify-content: flex-end">
-                                    <n-button :disabled="realNameModel.name === null || realNameModel.idCard === null"
+                                    <n-button :loading="loadingRealName"
+                                        :disabled="realNameModel.name === null || realNameModel.idCard === null || loadingRealName"
                                         round type="primary" @click="realNameHandleValidateButtonClick">
                                         验证
                                     </n-button>
@@ -98,8 +96,9 @@
                         <n-row :gutter="[0, 24]">
                             <n-col :span="24">
                                 <div style="display: flex; justify-content: flex-end">
-                                    <n-button :disabled="exchangeCodeModel.exchangeCode === null" round type="primary"
-                                        @click="exchangeCodeHandleValidateButtonClick">
+                                    <n-button :loading="loadingGiftCode"
+                                        :disabled="exchangeCodeModel.exchangeCode === null || loadingGiftCode" round
+                                        type="primary" @click="giftcode">
                                         验证
                                     </n-button>
                                 </div>
@@ -238,7 +237,8 @@
                         maxlength="48" show-count clearable />
                 </n-form-item-row>
             </n-form>
-            <n-button round type="primary" @click="resetPassword" block secondary strong :loading="loadingUpdatePassword"
+            <n-button round type="primary" @click="resetPassword" block secondary strong
+                :loading="loadingUpdatePassword"
                 :disabled="!resetPasswordValue.original_password || !resetPasswordValue.new_password || !resetPasswordValue.reentered_new_password || loadingUpdatePassword">
                 确定
             </n-button>
@@ -248,42 +248,45 @@
         <n-card style="width: 400px">
             <n-form>
                 <n-form-item-row label="旧邮箱验证码">
-                    <n-grid cols="6" :x-gap="12" item-responsive responsive="screen">
-                        <n-grid-item span="4">
-                            <n-input round maxlength="8" />
+                    <n-grid cols="5" :x-gap="12" item-responsive responsive="screen">
+                        <n-grid-item span="3">
+                            <n-input round maxlength="6" v-model:value="old_code" />
                         </n-grid-item>
                         <n-grid-item span="2">
                             <n-popover trigger="hover" raw :show-arrow="false">
                                 <template #trigger>
-                                    <n-button round style="width: 100%;">发送验证码</n-button>
+                                    <n-button round :loading="oldLoadingCaptcha" @click="handleGeeTest('old')"
+                                        :disabled="oldButtonDisabled" style="width: 100%;">{{ oldButtonText
+                                        }}</n-button>
                                 </template>
-                                <n-card size="small">
-                                </n-card>
+                                <n-card size="small"></n-card>
                             </n-popover>
                         </n-grid-item>
                     </n-grid>
                 </n-form-item-row>
                 <n-form-item-row label="新邮箱">
-                    <n-input round maxlength="32" show-count clearable />
+                    <n-input round maxlength="32" v-model:value="newEmail" show-count clearable />
                 </n-form-item-row>
                 <n-form-item-row label="新邮箱验证码">
-                    <n-grid cols="6" :x-gap="12" item-responsive responsive="screen">
-                        <n-grid-item span="4">
-                            <n-input round maxlength="8" />
+                    <n-grid cols="5" :x-gap="12" item-responsive responsive="screen">
+                        <n-grid-item span="3">
+                            <n-input round maxlength="6" v-model:value="new_code" />
                         </n-grid-item>
                         <n-grid-item span="2">
                             <n-popover trigger="hover" raw :show-arrow="false">
                                 <template #trigger>
-                                    <n-button round style="width: 100%;">发送验证码</n-button>
+                                    <n-button round :loading="newLoadingCaptcha" @click="handleGeeTest('new')"
+                                        :disabled="newButtonDisabled || !newEmail" style="width: 100%;">{{ newButtonText
+                                        }}</n-button>
                                 </template>
-                                <n-card size="small">
-                                </n-card>
+                                <n-card size="small"></n-card>
                             </n-popover>
                         </n-grid-item>
                     </n-grid>
                 </n-form-item-row>
             </n-form>
-            <n-button round type="primary" block secondary strong>
+            <n-button round type="primary" @click="resetEmail" :loading="LoadingResetEmail" block secondary strong
+                :disabled="!newEmail || !old_code || !new_code">
                 确定
             </n-button>
         </n-card>
@@ -334,7 +337,22 @@ const loadingQianDaoButton = ref(false) // 签到按钮加载状态
 const loadingUpdateImg = ref(false) // 用户名确定按钮加载状态
 const loadingUpdateUserName = ref(false) // 用户名确定按钮加载状态
 const loadingUpdateQQ = ref(false) // QQ确定按钮加载状态
-const loadingUpdatePassword =ref(false)
+const loadingUpdatePassword = ref(false)
+const loadingRealName = ref(false)
+const loadingGiftCode = ref(false)
+
+const newEmail = ref('')
+const oldButtonText = ref('发送验证码')
+const newButtonText = ref('发送验证码')
+const oldButtonDisabled = ref(false)
+const newButtonDisabled = ref(false)
+const oldLoadingCaptcha = ref(false)
+const newLoadingCaptcha = ref(false)
+const LoadingResetEmail = ref(false)
+const countdownTime = 60
+
+const old_code = ref()
+const new_code = ref()
 
 const QianDaoTest = ref('签到') // 签到按钮默认文字
 const newUserImg = ref('') // 新头像链接
@@ -533,46 +551,46 @@ const resetUserName = async () => {
 };
 
 const resetPasswordRules = {
-  original_password: [
-    {
-      required: true,
-      message: '原密码不能为空',
-      trigger: 'blur'
-    },
-    {
-      pattern: /^(?![a-zA-Z]+$)(?!\d+$)(?![^\da-zA-Z\s]+$).{6,48}$/,
-      message: '密码且至少包含字母、数字、特殊符号中任意两种',
-      trigger: ['blur', 'input']
-    }
-  ],
-  new_password: [
-    {
-      required: true,
-      message: '新密码不能为空',
-      trigger: 'blur'
-    },
-    {
-      pattern: /^(?![a-zA-Z]+$)(?!\d+$)(?![^\da-zA-Z\s]+$).{6,48}$/,
-      message: '密码且至少包含字母、数字、特殊符号中任意两种',
-      trigger: ['blur', 'input']
-    }
-  ],
-  reentered_new_password: [
-    {
-      required: true,
-      message: '请再次输入新密码',
-      trigger: 'blur'
-    },
-    {
-      validator: (rule: string, value: string) => {
-        if (value !== resetPasswordValue.value.new_password) {
-          return new Error('两次输入的新密码不一致');
+    original_password: [
+        {
+            required: true,
+            message: '原密码不能为空',
+            trigger: 'blur'
+        },
+        {
+            pattern: /^(?![a-zA-Z]+$)(?!\d+$)(?![^\da-zA-Z\s]+$).{6,48}$/,
+            message: '密码且至少包含字母、数字、特殊符号中任意两种',
+            trigger: ['blur', 'input']
         }
-        return true;
-      },
-      trigger: ['blur', 'input']
-    }
-  ]
+    ],
+    new_password: [
+        {
+            required: true,
+            message: '新密码不能为空',
+            trigger: 'blur'
+        },
+        {
+            pattern: /^(?![a-zA-Z]+$)(?!\d+$)(?![^\da-zA-Z\s]+$).{6,48}$/,
+            message: '密码且至少包含字母、数字、特殊符号中任意两种',
+            trigger: ['blur', 'input']
+        }
+    ],
+    reentered_new_password: [
+        {
+            required: true,
+            message: '请再次输入新密码',
+            trigger: 'blur'
+        },
+        {
+            validator: (rule: string, value: string) => {
+                if (value !== resetPasswordValue.value.new_password) {
+                    return new Error('两次输入的新密码不一致');
+                }
+                return true;
+            },
+            trigger: ['blur', 'input']
+        }
+    ]
 };
 
 const resetPassword = async () => {
@@ -592,11 +610,105 @@ const resetPassword = async () => {
     loadingUpdatePassword.value = false
 };
 
-// 实名认证表单
-interface RealNameModelType {
-    name: string | null;
-    idCard: string | null;
+const handleGeeTest = (type: 'old' | 'new') => {
+    const loadingCaptcha = type === 'old' ? oldLoadingCaptcha : newLoadingCaptcha
+    const buttonText = type === 'old' ? oldButtonText : newButtonText
+    const buttonDisabled = type === 'old' ? oldButtonDisabled : newButtonDisabled
+    const email = type === 'old' ? userInfo?.email : newEmail.value
+
+    loadingCaptcha.value = true
+    window.initGeetest4(
+        {
+            product: 'bind',
+            captchaId: '8253677cc86aae19e1b760f01d78ef27',
+            width: '100%'
+        },
+        (captchaObj: CaptchaObj) => {
+            captchaObj.showCaptcha()
+            captchaObj.onClose(() => {
+                message.warning('人机验证关闭')
+                loadingCaptcha.value = false
+            })
+            captchaObj.onSuccess(() => {
+                const result = captchaObj.getValidate()
+                if (result) {
+                    sendVerificationCode(email || "", result, buttonText, buttonDisabled, loadingCaptcha)
+                }
+            })
+        }
+    )
 }
+
+const sendVerificationCode = async (
+    email: string,
+    geetestResult: GeetestResult,
+    buttonText: Ref<string>,
+    buttonDisabled: Ref<boolean>,
+    loadingCaptcha: Ref<boolean>
+) => {
+    try {
+        const response = await axios.post('https://cf-v2.uapis.cn/sendmailcode', {
+            type: 'register',
+            mail: email,
+            captcha_output: geetestResult.captcha_output,
+            lot_number: geetestResult.lot_number,
+            pass_token: geetestResult.pass_token,
+            gen_time: geetestResult.gen_time,
+        }, {
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        const data = response.data
+        if (data.state === 'success') {
+            message.success('邮箱验证码发送成功')
+            buttonDisabled.value = true
+            startCountdown(buttonText, buttonDisabled)
+        } else {
+            message.error(data.msg)
+        }
+    } catch (error) {
+        message.error('邮件发送API调用失败')
+        console.error('API调用失败:', error)
+    } finally {
+        loadingCaptcha.value = false
+    }
+}
+
+const startCountdown = (buttonText: Ref<string>, buttonDisabled: Ref<boolean>) => {
+    let countdown = countdownTime
+    buttonText.value = `重新发送(${countdown}s)`
+    const interval = setInterval(() => {
+        countdown -= 1
+        buttonText.value = `重新发送(${countdown}s)`
+        if (countdown <= 0) {
+            clearInterval(interval)
+            buttonDisabled.value = false
+            buttonText.value = '发送验证码'
+        }
+    }, 1000)
+}
+
+watch(newEmail, (newVal) => {
+    newButtonDisabled.value = !newVal
+})
+
+const resetEmail = async () => {
+    LoadingResetEmail.value = true
+    try {
+        const response = await axios.get(`https://cf-v2.uapis.cn/reset_email?token=${userInfo?.usertoken}&new_email=${newEmail.value}&email_code=${old_code.value}&new_email_code=${new_code.value}`);
+        if (response.data.code === 200) {
+            message.success(response.data.msg)
+            changeTheMailboxModal.value = false
+        } else {
+            message.error(response.data.msg)
+        }
+    } catch (error) {
+        console.error('修改邮箱API调用失败', error);
+        message.error('修改邮箱API调用失败' + error)
+    }
+    LoadingResetEmail.value = false
+};
 
 // 重置TOKEN提示框
 const resetToken = () => {
@@ -609,6 +721,32 @@ const resetToken = () => {
             resetTokenAPI();
         },
     })
+}
+
+const giftcode = async () => {
+    loadingGiftCode.value = true
+    try {
+        const response = await axios.get(`https://cf-v1.uapis.cn/api/giftcode.php?usertoken=${userInfo?.usertoken}&userid=${userInfo?.id}&giftcode=${exchangeCodeModel.value.exchangeCode}`);
+        if (response.data.success === 200) {
+            dialog.success({
+                title: '兑换成功',
+                content: '礼品码使用成功，内容:' + response.data.gift_value,
+                positiveText: '好的',
+            })
+        } else {
+            message.error(response.data.msg)
+        }
+    } catch (error) {
+        console.error('礼品码兑换API调用失败', error);
+        message.error('礼品码兑换API调用失败' + error)
+    }
+    loadingGiftCode.value = false
+};
+
+// 实名认证表单
+interface RealNameModelType {
+    name: string | null;
+    idCard: string | null;
 }
 
 const realNameFormRef = ref<FormInst | null>(null);
@@ -632,16 +770,30 @@ const realNameRules: FormRules = {
     ],
 };
 
-const realNameHandleValidateButtonClick = (e: MouseEvent) => {
-    e.preventDefault();
-    realNameFormRef.value?.validate((errors) => {
-        if (!errors) {
-            message.success('实名认证成功');
+const realNameHandleValidateButtonClick = async () => {
+    loadingRealName.value = true;
+    try {
+        const formData = new FormData();
+        formData.append('name', realNameModel.value.name || '');
+        formData.append('idcard', realNameModel.value.idCard || '');
+        formData.append('userid', userInfo?.id ? String(userInfo.id) : '');
+        formData.append('usertoken', userInfo?.usertoken || '');
+        const response = await axios.post('https://cf-v1.uapis.cn/api/realname.php', formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        });
+        const data = response.data;
+        if (data.status === 'success') {
+            message.success("实名认证成功");
         } else {
-            console.error(errors);
-            message.error('实名认证失败');
+            message.error(data.message);
+            console.error('实名认证失败:', data.message);
         }
-    });
+    } catch (error) {
+        console.error('实名认证API调用失败:', error);
+    }
+    loadingRealName.value = false;
 };
 
 // 兑换码表单
@@ -661,18 +813,6 @@ const exchangeCodeRules: FormRules = {
             message: '请输入兑换码',
         },
     ],
-};
-
-const exchangeCodeHandleValidateButtonClick = (e: MouseEvent) => {
-    e.preventDefault();
-    exchangeCodeFormRef.value?.validate((errors) => {
-        if (!errors) {
-            message.success('兑换成功，内容：超级会员1月');
-        } else {
-            console.error(errors);
-            message.error('兑换失败');
-        }
-    });
 };
 
 // 显示token
