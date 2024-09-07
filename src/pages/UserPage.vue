@@ -648,7 +648,7 @@ const sendVerificationCode = async (
 ) => {
     try {
         const response = await axios.post('https://cf-v2.uapis.cn/sendmailcode', {
-            type: 'register',
+            type: 'reset_email',
             mail: email,
             captcha_output: geetestResult.captcha_output,
             lot_number: geetestResult.lot_number,

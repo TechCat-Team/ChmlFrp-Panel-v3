@@ -177,7 +177,7 @@
     </n-modal>
     <n-card style="margin-bottom: 20px;" title="隧道列表">
         <template #header-extra>
-            <n-button round quaternary>
+            <n-button round quaternary :loading="loadingTunnel" @click="fetchTunnelCards">
                 <template #icon>
                     <n-icon :component="RefreshOutline" />
                 </template>
@@ -192,7 +192,7 @@
             </n-button>
         </template>
     </n-card>
-    <n-card v-if="tunnelCards.length === null">
+    <n-card v-if="tunnelCards === null">
         <n-empty description="您似乎还没创建隧道">
             <template #extra>
                 <n-button size="small" :loading="addTheTunnelButtonShow" @click="createNodes"
@@ -204,9 +204,6 @@
                 </n-button>
             </template>
         </n-empty>
-    </n-card>
-    <n-card v-else-if="TunnelAPIStatus">
-        <n-result status="warning" title="API调用失败" description="请联系管理员解决问题" />
     </n-card>
     <n-grid v-else-if="!loadingTunnel" cols="1 m:2 l:3 xl:4 2xl:5" :x-gap="12" :y-gap="12" responsive="screen">
         <n-grid-item v-for="(card, index) in tunnelCards" :key="index">
@@ -274,7 +271,7 @@
                             </template>
                             查看
                         </n-button>
-                        <n-button round quaternary type="error" @click="handleConfirm(card.name)">
+                        <n-button round quaternary type="error" @click="handleConfirm(card.name,card.id)">
                             <template #icon>
                                 <n-icon :component="TrashOutline" />
                             </template>
@@ -319,7 +316,7 @@ const nodeListModal = ref(false) // 节点列表模态框
 const nodeInfoModal = ref(false) // 节点信息模态框
 const tunnelInfoModal = ref(false) // 隧道信息模态框
 const loadingTunnel = ref(true) // 用户隧道加载
-const TunnelAPIStatus = ref(false)
+const deletetButtonLoading = ref(false)
 
 const addTheTunnelButtonShow = ref(false)
 
@@ -339,17 +336,35 @@ const handleLoad = () => {
     count.value += 1
 }
 
-const handleConfirm = (title: string) => {
+const handleConfirm = (title: string, id: number) => {
     dialog.warning({
         title: '警告',
-        content: '您正在删除隧道：' + title + '，请确认是否删除。',
+        content: '您正在删除隧道：' + title + '(' + id + ')，请确认是否删除。',
         positiveText: '确定',
         negativeText: '取消',
-        onPositiveClick: () => {
-            message.success('成功删除隧道：' + title)
+        loading: deletetButtonLoading.value,
+        onPositiveClick: async () => {
+            deletetButtonLoading.value = true;
+            await deletetTunnel(title, id);
+            deletetButtonLoading.value = false;
+            fetchTunnelCards();
         },
-    })
-}
+    });
+};
+
+const deletetTunnel = async (title: string, id: number) => {
+    try {
+        const response = await axios.get(`https://cf-v1.uapis.cn/api/deletetl.php?token=${userInfo?.usertoken}&nodeid=${id}&userid=${userInfo?.id}`);
+        if (response.data.code === 200) {
+            message.success('成功删除隧道：' + title);
+        } else {
+            message.error(response.data.error);
+        }
+    } catch (error) {
+        console.error('删除隧道API调用失败', error);
+        message.error('删除隧道API调用失败' + error);
+    }
+};
 
 onMounted(() => {
     fetchTunnelCards();
@@ -390,8 +405,8 @@ const createNodes = async () => {
     addTheTunnelButtonShow.value = true // 新建隧道按钮加载
     // 加载节点列表
     try {
-        const response = await axios.get('https://cf-v1.uapis.cn/api/unode.php');
-        nodeCards.value = response.data.map((node: NodeCard) => ({
+        const response = await axios.get('https://cf-v2.uapis.cn/node');
+        nodeCards.value = response.data.data.map((node: NodeCard) => ({
             id: node.id, // 节点ID
             name: node.name, // 节点名
             nodegroup: node.nodegroup, // 权限组
@@ -487,7 +502,7 @@ interface Status {
 }
 
 interface TunnelCard {
-    id: string;
+    id: number;
     name: string;
     localip: string;
     type: string;
@@ -505,39 +520,43 @@ interface TunnelCard {
 }
 
 // 创建响应式变量
-const tunnelCards = ref<TunnelCard[]>([]);
+const tunnelCards = ref<TunnelCard[] | null>(null); // 将类型修改为 TunnelCard[] | null
 
 // 异步函数获取数据
 const fetchTunnelCards = async () => {
-    loadingTunnel.value = true
-    TunnelAPIStatus.value = false
+    loadingTunnel.value = true;
     try {
-        const response = await axios.get<TunnelCard[]>(`https://cf-v1.uapis.cn/api/usertunnel.php?token=${userInfo?.usertoken}`);
+        const response = await axios.get<TunnelCard[]>(`https://cf-v2.uapis.cn/tunnel?token=${userInfo?.usertoken}`);
         const data = response.data;
-        // 映射数据并设置状态和标签
-        tunnelCards.value = data.map(card => {
-            let status: Status = { type: 'error', label: '离线' };
+        
+        // 判断 data 是否为空
+        if (!data || data.length === 0) {
+            loadingTunnel.value = false;
+            tunnelCards.value = null; // 如果数据为空，则设置为 null
+        } else {
+            // 映射数据并设置状态和标签
+            tunnelCards.value = data.map(card => {
+                let status: Status = { type: 'error', label: '离线' };
 
-            if (card.nodestate === 'online') {
-                status = card.state === 'true'
-                    ? { type: 'success', label: '在线' }
-                    : { type: 'warning', label: '离线' };
-            } else if (card.nodestate === 'offline') {
-                status = { type: 'error', label: '离线' };
-            }
-            // 设置 tags
-            const tags = [
-                card.node,
-                `${card.localip}:${card.nport} - ${card.type}`
-            ];
-            return { ...card, status, tags };
-        });
+                if (card.nodestate === 'online') {
+                    status = card.state === 'true'
+                        ? { type: 'success', label: '在线' }
+                        : { type: 'warning', label: '离线' };
+                } else if (card.nodestate === 'offline') {
+                    status = { type: 'error', label: '离线' };
+                }
+                // 设置 tags
+                const tags = [
+                    card.node,
+                    `${card.localip}:${card.nport} - ${card.type}`
+                ];
+                return { ...card, status, tags };
+            });
+        }
     } catch (error) {
-        console.error('[隧道列表]用户隧道api调用失败：', error);
-        message.error('隧道加载失败，请稍后')
-        TunnelAPIStatus.value = true
+        //111
     }
-    loadingTunnel.value = false
+    loadingTunnel.value = false;
 };
 
 const copyToClipboard = (text: string) => {
