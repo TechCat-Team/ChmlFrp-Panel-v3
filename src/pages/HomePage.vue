@@ -473,7 +473,7 @@ const signIn = async (geetestResult: GeetestResult) => {
             signedInSuccess.value = false;
             loadingQianDaoButton.value = false;
             QianDaoTest.value = '签到';
-            message.error(data.msg);
+            message.error("签到失败：" + data.msg);
         }
     } catch (error) {
         signedInSuccess.value = false;
@@ -596,33 +596,6 @@ const updateChart = (apiData: ApiData) => {
                 {
                     name: '上传',
                     type: 'line',
-                    data: trafficInMB,
-                    stack: 'Total',
-                    smooth: true,
-                    lineStyle: {
-                        width: 0
-                    },
-                    showSymbol: false,
-                    areaStyle: {
-                        opacity: 0.8,
-                        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-                            {
-                                offset: 0,
-                                color: 'rgb(128, 255, 165)'
-                            },
-                            {
-                                offset: 1,
-                                color: 'rgb(1, 191, 236)'
-                            }
-                        ])
-                    },
-                    emphasis: {
-                        focus: 'series'
-                    },
-                },
-                {
-                    name: '下载',
-                    type: 'line',
                     data: trafficOutMB,
                     stack: 'Total',
                     smooth: true,
@@ -640,6 +613,33 @@ const updateChart = (apiData: ApiData) => {
                             {
                                 offset: 1,
                                 color: 'rgb(77, 119, 255)'
+                            }
+                        ])
+                    },
+                    emphasis: {
+                        focus: 'series'
+                    },
+                },
+                {
+                    name: '下载',
+                    type: 'line',
+                    data: trafficInMB,
+                    stack: 'Total',
+                    smooth: true,
+                    lineStyle: {
+                        width: 0
+                    },
+                    showSymbol: false,
+                    areaStyle: {
+                        opacity: 0.8,
+                        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                            {
+                                offset: 0,
+                                color: 'rgb(128, 255, 165)'
+                            },
+                            {
+                                offset: 1,
+                                color: 'rgb(1, 191, 236)'
                             }
                         ])
                     },

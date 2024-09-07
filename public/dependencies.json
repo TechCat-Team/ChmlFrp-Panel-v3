@@ -6,6 +6,7 @@
     "@vueuse/core": "^10.9.0",
     "axios": "^1.7.4",
     "core-js": "^3.8.3",
+    "crypto-js": "^4.2.0",
     "echarts": "^5.5.0",
     "highlight.js": "^11.9.0",
     "naive-ui": "^2.38.2",
@@ -19,6 +20,7 @@
     "vue-router": "^4.0.3"
   },
   "devDependencies": {
+    "@types/crypto-js": "^4.2.2",
     "@types/echarts": "^4.9.22",
     "@types/jest": "^27.0.1",
     "@typescript-eslint/eslint-plugin": "^5.4.0",
@@ -45,5 +47,5 @@
     "unplugin-auto-import": "^0.17.6"
   },
   "version": "0.1.0",
-  "buildTime": "2024/08/29 20:07:39"
+  "buildTime": "2024/09/05 00:43:20"
 }

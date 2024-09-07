@@ -1,0 +1,90 @@
+{
+    "proxies": [
+        {
+            "name": "KI4b9JMwtBrxM2om6dTiiTvm.changzhou",
+            "conf": {
+                "name": "KI4b9JMwtBrxM2om6dTiiTvm.changzhou",
+                "type": "tcp",
+                "use_encryption": false,
+                "use_compression": false,
+                "group": "",
+                "group_key": "",
+                "proxy_protocol_version": "",
+                "bandwidth_limit": "",
+                "bandwidth_limit_mode": "client",
+                "metas": null,
+                "local_ip": "127.0.0.1",
+                "local_port": 0,
+                "plugin": "",
+                "PluginParams": null,
+                "health_check_type": "",
+                "health_check_timeout_s": 0,
+                "health_check_max_failed": 0,
+                "health_check_interval_s": 0,
+                "health_check_url": "",
+                "HealthCheckAddr": "",
+                "remote_port": 16249
+            },
+            "client_version": "ChmlFrp-0.51.2_240715",
+            "today_traffic_in": 24838,
+            "today_traffic_out": 1733065,
+            "cur_conns": 0,
+            "last_start_time": "09-05 07:26:18",
+            "last_close_time": "08-29 14:30:13",
+            "status": "online"
+        },
+        {
+            "name": "pWTNToHjnjFrw3bDLdo2UhGD.InfStar2",
+            "conf": {
+                "name": "pWTNToHjnjFrw3bDLdo2UhGD.InfStar2",
+                "type": "tcp",
+                "use_encryption": false,
+                "use_compression": false,
+                "group": "",
+                "group_key": "",
+                "proxy_protocol_version": "",
+                "bandwidth_limit": "",
+                "bandwidth_limit_mode": "client",
+                "metas": null,
+                "local_ip": "127.0.0.1",
+                "local_port": 0,
+                "plugin": "",
+                "PluginParams": null,
+                "health_check_type": "",
+                "health_check_timeout_s": 0,
+                "health_check_max_failed": 0,
+                "health_check_interval_s": 0,
+                "health_check_url": "",
+                "HealthCheckAddr": "",
+                "remote_port": 58888
+            },
+            "client_version": "ChmlFrp-0.51.2",
+            "today_traffic_in": 231,
+            "today_traffic_out": 124511,
+            "cur_conns": 0,
+            "last_start_time": "09-02 15:39:34",
+            "last_close_time": "09-02 15:39:18",
+            "status": "online"
+        },
+        {
+            "name": "zp9DWQcphMPCPTbhS8isjhko.C-OFFICE-NAS-WEBDAV",
+            "conf": null,
+            "today_traffic_in": 0,
+            "today_traffic_out": 0,
+            "cur_conns": 0,
+            "last_start_time": "09-03 03:40:12",
+            "last_close_time": "09-03 06:34:18",
+            "status": "offline"
+        },
+        {
+            "name": "Rc2ZI8eNqeQLpSF0v2th2rAg.Ph78azMo",
+            "conf": null,
+            "today_traffic_in": 19753,
+            "today_traffic_out": 21686413,
+            "cur_conns": 0,
+            "last_start_time": "09-05 07:26:43",
+            "last_close_time": "09-05 07:28:31",
+            "status": "offline"
+        }
+    ]
+}

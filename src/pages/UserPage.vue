@@ -6,7 +6,7 @@
                 <n-card title="消息">
                     <n-alert v-if="userInfo?.usergroup === '封禁'" title="您的账户已被封禁" type="error"
                         style="margin-bottom: 10px">
-                        理由：于2077年黑入荒板塔，袭击了一名网络安全人员。如有异议可前往QQ交流群申述
+                        理由：理由信息正在开发中，如果想知道具体原因请联系QQ：242247494
                     </n-alert>
                     <n-alert v-if="userInfo?.realname === '未实名'" title="未实名通知" type="warning"
                         style="margin-bottom: 10px">
@@ -727,14 +727,14 @@ const giftcode = async () => {
     loadingGiftCode.value = true
     try {
         const response = await axios.get(`https://cf-v1.uapis.cn/api/giftcode.php?usertoken=${userInfo?.usertoken}&userid=${userInfo?.id}&giftcode=${exchangeCodeModel.value.exchangeCode}`);
-        if (response.data.success === 200) {
+        if (response.data.success) {
             dialog.success({
                 title: '兑换成功',
                 content: '礼品码使用成功，内容:' + response.data.gift_value,
                 positiveText: '好的',
             })
         } else {
-            message.error(response.data.msg)
+            message.error(response.data.message)
         }
     } catch (error) {
         console.error('礼品码兑换API调用失败', error);
@@ -823,15 +823,12 @@ const toggleContent = () => {
 };
 
 const copyAndToggleContent = () => {
-    const token = userInfo?.usertoken;
-    if (token) {
-        navigator.clipboard.writeText(token).then(() => {
-            message.success('Token已复制到剪切板')
-        }).catch(err => {
-            console.error('Token复制失败：', err);
-            message.error('Token复制失败：', err)
-        });
-    }
+    navigator.clipboard.writeText(userInfo?.usertoken || "ChmlFrp账户Token复制失败").then(() => {
+        message.success('Token已复制到剪切板')
+    }).catch(err => {
+        console.error('Token复制失败：', err);
+        message.error('Token复制失败：', err)
+    });
     toggleContent();
 };
 
