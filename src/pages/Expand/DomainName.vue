@@ -25,34 +25,37 @@
     </n-grid>
     <n-grid v-else cols="1 m:2 l:3 xl:4 2xl:5" :x-gap="12" :y-gap="12" responsive="screen">
         <n-grid-item v-for="domain in domainData" :key="domain.id">
-            <n-card size="small" :title="domain.record + '.' + domain.domain">
-                <template #header-extra>
-                    <n-tooltip v-if="domain.type === 'SRV' && (domain.record.includes('_minecraft._tcp'))"
-                        trigger="hover">
-                        <template #trigger>
-                            <n-tag round :bordered="false" type="primary">
-                                {{ domain.type }}
-                            </n-tag>
-                        </template>
-                        此域名通过SRV解析隐藏了MCJava版服务器端口，可直接通过{{ domain.record + '.' + domain.domain }}连接
-                    </n-tooltip>
-                    <n-tag v-else round :bordered="false" type="primary">
-                        {{ domain.type }}
+            <n-dropdown trigger="click" :overlap="true" placement="bottom-end" style="border-radius: 8px;"
+                :show-arrow="false" :options="options">
+                <n-card size="small" :title="domain.record + '.' + domain.domain">
+                    <template #header-extra>
+                        <n-tooltip v-if="domain.type === 'SRV' && (domain.record.includes('_minecraft._tcp'))"
+                            trigger="hover">
+                            <template #trigger>
+                                <n-tag round :bordered="false" type="primary">
+                                    {{ domain.type }}
+                                </n-tag>
+                            </template>
+                            此域名通过SRV解析隐藏了MCJava版服务器端口，可直接通过{{ domain.record + '.' + domain.domain }}连接
+                        </n-tooltip>
+                        <n-tag v-else round :bordered="false" type="primary">
+                            {{ domain.type }}
+                        </n-tag>
+                    </template>
+                    <n-tag round :bordered="false" type="primary" size="small">
+                        {{ domain.remarks || '自定义地址' }}
                     </n-tag>
-                </template>
-                <n-tag round :bordered="false" type="primary" size="small">
-                    {{ domain.remarks || '自定义地址' }}
-                </n-tag>
-                <template #footer>
-                    名称：{{ domain.record }}
-                    <br />
-                    域名：{{ domain.domain }}
-                    <br />
-                    内容：{{ domain.target }}
-                    <br />
-                    TTL：{{ domain.ttl }}
-                </template>
-            </n-card>
+                    <template #footer>
+                        名称：{{ domain.record }}
+                        <br />
+                        域名：{{ domain.domain }}
+                        <br />
+                        内容：{{ domain.target }}
+                        <br />
+                        TTL：{{ domain.ttl }}
+                    </template>
+                </n-card>
+            </n-dropdown>
         </n-grid-item>
     </n-grid>
     <n-card v-if="!loading && domainData.length === 0">
@@ -74,7 +77,7 @@
                 <n-tab-pane name="自定义解析">
                     <n-form style="margin-top: 10px;" :model="model" ref="formRef" label-placement="left"
                         label-width="auto" require-mark-placement="right-hanging" :size="size">
-                        <n-grid :key="model.selectedRecordType" cols="1 s:2" x-gap="12" responsive="screen">
+                        <n-grid cols="1 s:2" x-gap="12" responsive="screen">
                             <n-grid-item>
                                 <n-form-item label="域名" path="selectValue">
                                     <n-select placeholder="请选择域名" :options="domainNameOptions"
@@ -87,27 +90,10 @@
                                         v-model:value="model.selectedRecordType" />
                                 </n-form-item>
                             </n-grid-item>
-                            <template v-if="model.selectedRecordType === 'SRV'">
-                                <n-grid-item>
-                                    <n-form-item label="权重">
-                                        <n-input v-model:value="model.weight" placeholder="请输入权重" />
-                                    </n-form-item>
-                                </n-grid-item>
-                                <n-grid-item>
-                                    <n-form-item label="优先级">
-                                        <n-input v-model:value="model.priority" placeholder="请输入优先级" />
-                                    </n-form-item>
-                                </n-grid-item>
-                                <n-grid-item>
-                                    <n-form-item label="端口">
-                                        <n-input v-model:value="model.port" placeholder="请输入端口" />
-                                    </n-form-item>
-                                </n-grid-item>
-                            </template>
                             <n-grid-item>
                                 <n-form-item label="记录">
                                     <n-input v-model:value="model.recordValue">
-                                        <template #suffix>
+                                        <template #suffix v-if="model.selectedRecordType !== 'SRV'">
                                             .{{ model.selectedDomain }}
                                         </template>
                                     </n-input>
@@ -121,7 +107,7 @@
                             </n-grid-item>
                             <n-grid-item :span="2">
                                 <n-form-item label="目标">
-                                    <n-input :placeholder="targetPlaceholder" />
+                                    <n-input v-model:value="model.target" :placeholder="targetPlaceholder" />
                                 </n-form-item>
                             </n-grid-item>
                         </n-grid>
@@ -177,8 +163,9 @@
 </template>
 
 <script lang="ts" setup>
-import { RefreshOutline, AddOutline } from '@vicons/ionicons5'
+import { RefreshOutline, AddOutline, TrashOutline, CreateOutline, EyeOutline } from '@vicons/ionicons5'
 import axios from 'axios';
+import { NIcon } from 'naive-ui'
 // 获取登录信息
 import { useUserStore } from '@/stores/user';
 
@@ -249,7 +236,8 @@ const model = ref({
     weight: null,
     priority: null,
     port: null,
-    TTLValue: '1小时',
+    TTLValue: '10分钟',
+    target: null,
 })
 
 const fastModel = ref({
@@ -334,19 +322,78 @@ const targetPlaceholder = computed(() => {
     }
 })
 
-const determineClick = () => {
+const determineClick = async () => {
     determineLoading.value = true
-    setTimeout(() => {
-        determineLoading.value = false
-        createDomainNameModal.value = false
-        dialog.success({
-            title: '成功',
-            content: '域名解析创建成功，但是域名解析通常不会立即生效，一般在48小时内彻底生效，部分DNS会在几分钟内生效',
-            positiveText: '我知道了',
-            onPositiveClick: () => {
-                message.success('免费域名创建成功')
+    try {
+        const response = await axios.post('https://cf-v2.uapis.cn/create_free_subdomain', {
+            token: userInfo?.usertoken,
+            domain: model.value.selectedDomain,
+            record: model.value.recordValue,
+            type: model.value.selectedRecordType,
+            ttl: model.value.TTLValue,
+            target: model.value.target,
+            remarks: '自定义地址'
+        }, {
+            headers: {
+                'Content-Type': 'application/json',
             }
-        })
-    }, 2000)
+        });
+        const data = response.data;
+        if (data.state === 'success') {
+            createDomainNameModal.value = false
+            dialog.success({
+                title: '成功',
+                content: '域名解析创建成功，但是域名解析通常不会立即生效，一般在48小时内彻底生效，部分DNS会在几分钟内生效',
+                positiveText: '我知道了',
+                onPositiveClick: () => {
+                    message.success('免费域名创建成功')
+                }
+            })
+        } else {
+            message.error("免费域名创建失败：" + data.msg);
+        }
+    } catch (error) {
+        console.error('创建免费域名API请求失败:', error);
+    }
+    determineLoading.value = false
 }
+
+const renderIcon = (icon: Component, color?: string) => {
+    return () => {
+        return h(NIcon, { color }, { default: () => h(icon) });
+    };
+};
+
+const options = [
+{
+        label: '访问',
+        key: '1',
+        icon: renderIcon(EyeOutline),
+        props: {
+            onClick: () => {
+                message.success('没做');
+            }
+        }
+    },
+    {
+        label: '修改解析',
+        key: '2',
+        icon: renderIcon(CreateOutline),
+        props: {
+            onClick: () => {
+                message.success('没做');
+            }
+        }
+    },
+    {
+        label: '删除域名',
+        key: '3',
+        icon: renderIcon(TrashOutline, '#f5222d'),
+        props: {
+            onClick: () => {
+                message.success('没做');
+            },
+        },
+    }
+]
 </script>
