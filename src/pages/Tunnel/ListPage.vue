@@ -271,7 +271,7 @@
                             </template>
                             查看
                         </n-button>
-                        <n-button round quaternary type="error" @click="handleConfirm(card.name,card.id)">
+                        <n-button round quaternary type="error" @click="handleConfirm(card.name, card.id)">
                             <template #icon>
                                 <n-icon :component="TrashOutline" />
                             </template>
@@ -345,9 +345,16 @@ const handleConfirm = (title: string, id: number) => {
         loading: deletetButtonLoading.value,
         onPositiveClick: async () => {
             deletetButtonLoading.value = true;
-            await deletetTunnel(title, id);
+            deletetTunnel(title, id);
             deletetButtonLoading.value = false;
-            fetchTunnelCards();
+            if (tunnelCards.value !== null) {
+                const index = tunnelCards.value.findIndex(tunnel => tunnel.name === title);
+                if (index !== -1) {
+                    tunnelCards.value.splice(index, 1);
+                } else {
+                    console.warn("未找到 title 为 " + title + " 的数据");
+                }
+            }
         },
     });
 };
@@ -526,9 +533,9 @@ const tunnelCards = ref<TunnelCard[] | null>(null); // 将类型修改为 Tunnel
 const fetchTunnelCards = async () => {
     loadingTunnel.value = true;
     try {
-        const response = await axios.get<TunnelCard[]>(`https://cf-v2.uapis.cn/tunnel?token=${userInfo?.usertoken}`);
+        const response = await axios.get<TunnelCard[]>(`https://cf-v1.uapis.cn/api/usertunnel.php?token=${userInfo?.usertoken}`);
         const data = response.data;
-        
+
         // 判断 data 是否为空
         if (!data || data.length === 0) {
             loadingTunnel.value = false;
