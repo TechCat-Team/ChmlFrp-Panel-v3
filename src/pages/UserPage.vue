@@ -106,7 +106,21 @@
                         </n-row>
                     </n-form>
                 </n-card>
-                <n-card style="display: flex; justify-content: center; margin-top: 15px ">
+                <n-card style="display: flex; justify-content: center; margin-top: 15px" title="账户详情">
+                    <template #header-extra>
+                        <n-tooltip trigger="hover">
+                            <template #trigger>
+                                <n-button quaternary circle @click="deleteAccountTips">
+                                    <template #icon>
+                                        <n-icon>
+                                            <CloseOutline />
+                                        </n-icon>
+                                    </template>
+                                </n-button>
+                            </template>
+                            注销账户
+                        </n-tooltip>
+                    </template>
                     <n-space justify="center">
                         <div
                             style="display: flex; align-items: center; justify-content: center; flex-direction: column;">
@@ -304,10 +318,44 @@
             </n-button>
         </n-card>
     </n-modal>
+    <n-modal v-model:show="deleteAccountVerificationModal">
+        <n-card style="width: 500px" title="注销账户验证" :bordered="false" role="dialog" aria-modal="true">
+            <n-alert type="warning">
+                为了确保安全，我们需要对您的邮箱发送验证码，以确认本人操作。
+            </n-alert>
+            <n-form style="margin-top: 16px;">
+                <n-form-item-row label="旧邮箱验证码">
+                    <n-grid cols="5" :x-gap="12" item-responsive responsive="screen">
+                        <n-grid-item span="3">
+                            <n-input round maxlength="6" v-model:value="deleteAccountCode" />
+                        </n-grid-item>
+                        <n-grid-item span="2">
+                            <n-popover trigger="hover" raw :show-arrow="false">
+                                <template #trigger>
+                                    <n-button round :loading="deleteAccountLoadingCaptcha" @click="deleteAccountGeeTest"
+                                        :disabled="deleteAccountButtonDisabled" style="width: 100%;">{{
+                                            deleteAccountButtonText
+                                        }}</n-button>
+                                </template>
+                                <n-card size="small"></n-card>
+                            </n-popover>
+                        </n-grid-item>
+                    </n-grid>
+                </n-form-item-row>
+            </n-form>
+            <template #footer>
+                <n-flex justify="end">
+                    <n-button round @click="deleteAccountTips">上一步</n-button>
+                    <n-button round type="primary" strong secondary @click="deleteAccountAtLastTips"
+                        :loading="deleteAccountLoading">执行注销</n-button>
+                </n-flex>
+            </template>
+        </n-card>
+    </n-modal>
 </template>
 
 <script setup lang="ts">
-import { KeyOutline, PersonOutline, ImageOutline, MailOutline, LockClosedOutline, ChatboxEllipsesOutline } from '@vicons/ionicons5'
+import { KeyOutline, PersonOutline, ImageOutline, MailOutline, LockClosedOutline, ChatboxEllipsesOutline, CloseOutline } from '@vicons/ionicons5'
 import { ref, computed } from 'vue';
 import { FormInst, FormRules } from 'naive-ui';
 import { useStyleStore } from '@/stores/style';
@@ -344,15 +392,21 @@ const loadingGiftCode = ref(false)
 const newEmail = ref('')
 const oldButtonText = ref('发送验证码')
 const newButtonText = ref('发送验证码')
+const deleteAccountButtonText = ref('发送验证码')
 const oldButtonDisabled = ref(false)
 const newButtonDisabled = ref(false)
+const deleteAccountButtonDisabled = ref(false)
 const oldLoadingCaptcha = ref(false)
 const newLoadingCaptcha = ref(false)
+const deleteAccountLoadingCaptcha = ref(false)
 const LoadingResetEmail = ref(false)
 const countdownTime = 60
+const countdownAccountButton = ref(60)
+const deleteAccountLoading = ref(false)
 
 const old_code = ref()
 const new_code = ref()
+const deleteAccountCode = ref()
 
 const QianDaoTest = ref('签到') // 签到按钮默认文字
 const newUserImg = ref('') // 新头像链接
@@ -373,6 +427,7 @@ const modifyAvatarModal = ref(false) // 更改 头像 模态框状态
 const changePasswordModal = ref(false) // 更改 密码 模态框状态
 const changeTheMailboxModal = ref(false) // 更改 邮箱 模态框状态
 const changeQQModal = ref(false) // 更改 QQ 模态框状态
+const deleteAccountVerificationModal = ref(false)
 
 onMounted(() => {
     qiandaoinfo(); //加载签到信息
@@ -391,6 +446,123 @@ const remainingDays = computed(() => {
 const isTermExpiringSoon = computed(() => {
     return remainingDays.value < 7 && remainingDays.value >= 0;
 });
+
+const deleteAccountTips = () => {
+    deleteAccountVerificationModal.value = false;
+    dialog.warning({
+        title: '警告',
+        content: '注销账户后，您在本站的所有信息将被永久删除，无法恢复。如果您在本站购买了会员服务，注销账户后该服务将终止。请注意，账户注销后，您将不再受当前的服务条款和隐私策略约束，但与账户注销前产生的事务相关的法律义务仍将继续适用。',
+        positiveText: '我接受',
+        negativeText: '取消',
+        onPositiveClick: () => {
+            deleteAccountVerificationModal.value = true;
+        }
+    })
+}
+
+const deleteAccountAtLastTips = () => {
+    dialog.warning({
+        title: '警告',
+        content: '注销账户立即执行，请确认注销，这是最后一道提示。',
+        positiveText: '我确定',
+        negativeText: '取消',
+        onPositiveClick: () => {
+            deleteAccount();
+        }
+    })
+}
+
+const deleteAccount = async () => {
+    deleteAccountLoading.value = true
+    try {
+        const response = await axios.get(`https://cf-v2.uapis.cn/delete_account?token=${userInfo?.usertoken}&email_code=${deleteAccountCode.value}`);
+        if (response.data.code === 200) {
+            message.success(response.data.msg + '，账户注销成功')
+            dialog.success({
+                title: '账户注销成功',
+                content: '您的账户已经成功注销，所有数据均已删除，期待下次与您相见！',
+                positiveText: '好的',
+                onPositiveClick: () => {
+                    userStore.clearUser();
+                    router.push('/sign');
+                }
+            })
+        } else {
+            message.error(response.data.msg)
+        }
+    } catch (error) {
+        console.error('注销账户API调用失败', error);
+        message.error('注销账户API调用失败' + error)
+    }
+    deleteAccountLoading.value = false
+};
+
+const deleteAccountGeeTest = () => {
+    deleteAccountLoadingCaptcha.value = true
+    window.initGeetest4(
+        {
+            product: 'bind',
+            captchaId: '8253677cc86aae19e1b760f01d78ef27',
+            width: '100%'
+        },
+        (captchaObj: CaptchaObj) => {
+            captchaObj.showCaptcha()
+            captchaObj.onClose(function () {
+                message.warning('人机验证关闭')
+                deleteAccountLoadingCaptcha.value = false
+            })
+            captchaObj.onSuccess(() => {
+                const result = captchaObj.getValidate()
+                if (result) {
+                    sendDeleteAccountVerificationCode(result)
+                }
+            })
+        }
+    )
+}
+
+const sendDeleteAccountVerificationCode = async (geetestResult: GeetestResult) => {
+    try {
+        const response = await axios.post('https://cf-v2.uapis.cn/sendmailcode', {
+            type: 'delete_account',
+            mail: userInfo?.email,
+            captcha_output: geetestResult.captcha_output,
+            lot_number: geetestResult.lot_number,
+            pass_token: geetestResult.pass_token,
+            gen_time: geetestResult.gen_time,
+        }, {
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+        const data = response.data;
+        if (data.state === 'success') {
+            message.success("邮箱验证码发送成功")
+            deleteAccountButtonDisabled.value = true
+            startDeleteAccountCountdown()
+        } else {
+            message.error(data.msg);
+            console.error('邮件发送失败:', data.msg);
+        }
+    } catch (error) {
+        console.error('邮件发送API调用失败:', error);
+    }
+    deleteAccountLoadingCaptcha.value = false
+}
+
+const startDeleteAccountCountdown = () => {
+    deleteAccountButtonText.value = `重新发送(${countdownAccountButton.value}s)`
+    const interval = setInterval(() => {
+        countdownAccountButton.value -= 1
+        deleteAccountButtonText.value = `重新发送(${countdownAccountButton.value}s)`
+        if (countdownAccountButton.value <= 0) {
+            clearInterval(interval)
+            deleteAccountButtonDisabled.value = false
+            deleteAccountButtonText.value = '发送验证码'
+            countdownAccountButton.value = 60 // 重置倒计时
+        }
+    }, 1000)
+}
 
 const last_sign_in_time = ref('');
 const total_points = ref(0);

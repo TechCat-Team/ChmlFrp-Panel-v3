@@ -11,7 +11,7 @@
                         UDP
                     </n-checkbox>
                     <n-checkbox v-model:checked="filters.noPermission">
-                        无权限
+                        VIP
                     </n-checkbox>
                 </n-flex>
                 <n-flex>
@@ -90,7 +90,7 @@
     <n-modal v-model:show="nodeInfoModal">
         <n-card :style="widthStyle" size="small" :bordered="false" transform-origin="center" role="dialog"
             aria-modal="true">
-            <n-tabs type="line" size="large" :tabs-padding="20">
+            <n-tabs type="line" size="large" :tabs-padding="20" @update:value="handleTabChange">
                 <n-tab-pane name="节点详情">
                     <n-p>节点负载</n-p>
                     <n-progress type="line" :percentage="24" :indicator-placement="'inside'" />
@@ -100,70 +100,117 @@
                             {{ selectNode }}
                         </n-descriptions-item>
                         <n-descriptions-item label="地区">
-                            美国俄亥俄州辛辛那提
+                            <n-skeleton v-if="loadingTunnelInfo" text style="width: 100%" />
+                            <n-p v-else>{{ NodeInfo.area }}</n-p>
                         </n-descriptions-item>
                         <n-descriptions-item label="权限组">
-                            <n-tag type="info">
-                                user
-                            </n-tag>
-                        </n-descriptions-item>
-                        <n-descriptions-item label="禁PING">
-                            <n-tag type="warning">
-                                是
+                            <n-skeleton v-if="loadingTunnelInfo" width="37.09px" height="28px" round />
+                            <n-tag v-else :type="NodeInfo.nodegroup === 'vip' ? 'warning' : 'info'" round>
+                                {{ NodeInfo.nodegroup }}
                             </n-tag>
                         </n-descriptions-item>
                         <n-descriptions-item label="防御">
-                            200G
+                            <n-skeleton v-if="loadingTunnelInfo" width="60.65px" height="28px" round />
+                            <n-tooltip v-else-if="NodeInfo.fangyu" trigger="hover">
+                                <template #trigger>
+                                    <n-tag round type="success">
+                                        有防御
+                                    </n-tag>
+                                </template>
+                                此节点有≥5Gbps的DDOS防御
+                            </n-tooltip>
+                            <n-tooltip v-else trigger="hover">
+                                <template #trigger>
+                                    <n-tag round type="error">
+                                        没防御
+                                    </n-tag>
+                                </template>
+                                此节点没有防御或DDOS防御带宽小于5Gbps
+                            </n-tooltip>
                         </n-descriptions-item>
                         <n-descriptions-item label="建站">
-                            <n-tag type="success">
+                            <n-skeleton v-if="loadingTunnelInfo" width="46.65px" height="28px" round />
+                            <n-tag v-else-if="NodeInfo.web === 'yes'" type="success" round>
                                 允许
+                            </n-tag>
+                            <n-tag v-else type="error" round>
+                                不允许
                             </n-tag>
                         </n-descriptions-item>
                         <n-descriptions-item label="UDP">
-                            <n-tag type="success">
+                            <n-skeleton v-if="loadingTunnelInfo" width="46.65px" height="28px" round />
+                            <n-tag v-else-if="NodeInfo.udp" type="success" round>
                                 允许
+                            </n-tag>
+                            <n-tag v-else type="error" round>
+                                不允许
                             </n-tag>
                         </n-descriptions-item>
                         <n-descriptions-item label="域名过白">
-                            <n-tooltip trigger="hover">
+                            <n-skeleton v-if="loadingTunnelInfo" text style="width: 100%" />
+                            <n-tooltip v-else-if="!NodeInfo.toowhite" trigger="hover">
                                 <template #trigger>
                                     域名无需备案过白
                                 </template>
-                                此节点为国外或中国特别行政区，域名无需备案
+                                此节点为国外或中国特别行政区，也可能自动过白，域名无需手动申请过白
+                            </n-tooltip>
+                            <n-tooltip v-else trigger="hover">
+                                <template #trigger>
+                                    域名需过白
+                                </template>
+                                此节点为中国境内节点，并且无法自动过白，需要前往"扩展功能"-"域名过白"进行手动过白
                             </n-tooltip>
                         </n-descriptions-item>
                         <n-descriptions-item label="端口限制">
-                            10000~65535
+                            <n-skeleton v-if="loadingTunnelInfo" text style="width: 100%" />
+                            <n-p v-else>{{ NodeInfo.rport }}</n-p>
                         </n-descriptions-item>
                         <n-descriptions-item label="域名">
-                            bj.frp.one
+                            <n-skeleton v-if="loadingTunnelInfo" text style="width: 100%" />
+                            <n-p v-else>{{ NodeInfo.ip }}</n-p>
                         </n-descriptions-item>
                         <n-descriptions-item label="IP">
-                            111.67.195.88
+                            <n-skeleton v-if="loadingTunnelInfo" text style="width: 100%" />
+                            <n-p v-else>{{ NodeInfo.realIp }}</n-p>
+                        </n-descriptions-item>
+                        <n-descriptions-item label="IPV6">
+                            <n-skeleton v-if="loadingTunnelInfo" text style="width: 100%" />
+                            <n-p v-else-if="NodeInfo.ipv6 !== null">{{ NodeInfo.ipv6 }}</n-p>
+                            <n-p v-else>此节点没有公网IPv6</n-p>
                         </n-descriptions-item>
                         <n-descriptions-item label="带宽">
-                            <n-tooltip trigger="hover">
+                            <n-skeleton v-if="loadingTunnelInfo" text style="width: 100%" />
+                            <n-tooltip v-else-if="NodeInfo.china === 'no'" trigger="hover">
                                 <template #trigger>
                                     国外带宽
                                 </template>
-                                此节点走ChmlFrp国外带宽，您的国外带宽上限为128m
+                                此节点走ChmlFrp国外带宽，您的国外带宽上限为{{ userInfo?.bandwidth ? userInfo.bandwidth * 4 : 32 }}m
+                            </n-tooltip>
+                            <n-tooltip v-else trigger="hover">
+                                <template #trigger>
+                                    国内带宽
+                                </template>
+                                此节点走ChmlFrp国内带宽，您的国内带宽上限为{{ userInfo?.bandwidth }}m
                             </n-tooltip>
                         </n-descriptions-item>
                         <n-descriptions-item label="介绍">
-                            超高带宽，三网直连
+                            <n-skeleton v-if="loadingTunnelInfo" text style="width: 100%" />
+                            <n-p v-else>{{ NodeInfo.notes }}</n-p>
                         </n-descriptions-item>
                     </n-descriptions>
                 </n-tab-pane>
                 <n-tab-pane name="节点地图">
                     <n-alert type="info">
-                        地图来自中国地理信息公共服务平台，"我的位置"经纬度通过ip获取(目前是固定位置)，可能会有误差。
+                        地图来自中国地理信息公共服务平台，经纬度通过浏览器获取，需要您的浏览器较新且同意浏览器获取位置信息才能正常访问。另外请不要使用代理软件，否则您可能会被定位到月球。
                     </n-alert>
-                    <MapComponent style="margin-top: 16px" :width="'100%'" :height="'500px'" :markers="markers" />
+                    <n-skeleton v-if="loadingNodeMap" text style="width: 100%; margin-top: 16px" height="500px" />
+                    <MapComponent v-else style="margin-top: 16px" :width="'100%'" :height="'500px'"
+                        :markers="markers" />
                 </n-tab-pane>
             </n-tabs>
             <template #footer>
                 <n-flex justify="end">
+                    <n-button @click="nodeInfoModal = false">取消</n-button>
                     <n-button @click="nodeDetails">上一步</n-button>
                     <n-button @click="goToTheTunnelDetails" type="primary">继续</n-button>
                 </n-flex>
@@ -171,8 +218,98 @@
         </n-card>
     </n-modal>
     <n-modal v-model:show="tunnelInfoModal">
-        <n-card style="width: 600px" title="创建隧道" :bordered="false" size="huge" role="dialog" aria-modal="true">
-            还没做( •̀ ω •́ )✧
+        <n-card style="width: 800px" title="创建隧道" :bordered="false" size="huge" role="dialog" aria-modal="true">
+            <n-row :gutter="15" style="margin-top: 15px;">
+                <n-form ref="tunnelForm" :model="formData" size="medium" label-width="100px">
+                    <n-col :span="12">
+                        <n-form-item label="隧道名称" path="name">
+                            <n-input v-model:value="formData.name" placeholder="请输入隧道名称" clearable />
+                        </n-form-item>
+                    </n-col>
+                    <n-col :span="12">
+                        <n-form-item label="本地IP" path="localip">
+                            <n-input v-model:value="formData.localip" placeholder="请输入本地IP" clearable />
+                        </n-form-item>
+                    </n-col>
+                    <n-col :span="12">
+                        <n-form-item label="节点选择" path="node" @click="nodeDetails">
+                            <n-select v-model:value="formData.node" placeholder="请选择节点" />
+                        </n-form-item>
+                    </n-col>
+                    <n-col :span="12">
+                        <n-form-item label="端口类型" path="type">
+                            <n-select v-model:value="formData.type" :options="typeOptions" placeholder="请选择端口类型"
+                                clearable />
+                        </n-form-item>
+                    </n-col>
+                    <n-col :span="12">
+                        <n-form-item label="内网端口" path="nport">
+                                <n-input v-model:value="formData.nport" clearable placeholder="请输入内网端口" />
+                        </n-form-item>
+                    </n-col>
+                    <n-col :span="12">
+                        <n-form-item v-if="formData.type === 'HTTP' || formData.type === 'HTTPS'" label="域名类型"
+                            path="domainNameLabel">
+                            <n-select v-model:value="formData.domainNameLabel" :options="domainTypeOptions"
+                                placeholder="请选择域名类型" />
+                        </n-form-item>
+                        <n-form-item v-else label="外网端口" path="dorp">
+                            <n-input v-model:value="formData.dorp" clearable />
+                        </n-form-item>
+                    </n-col>
+                    <n-col :span="24"
+                        v-if="formData.domainNameLabel === '自定义' && ( formData.type === 'HTTP' || formData.type === 'HTTPS' )">
+                        <n-form-item label="域名" path="dorp">
+                            <n-input v-model:value="formData.dorp" placeholder="请输入您的域名" clearable />
+                        </n-form-item>
+                    </n-col>
+                    <n-col
+                        v-if="formData.domainNameLabel === '免费域名' && ( formData.type === 'HTTP' || formData.type === 'HTTPS' )"
+                        :span="12">
+                        <n-form-item label="请选择免费域名" path="choose">
+                            <n-select v-model:value="formData.choose" :options="domainNameOptions"/>
+                        </n-form-item>
+                    </n-col>
+                    <n-col
+                        v-if="formData.domainNameLabel === '免费域名' && ( formData.type === 'HTTP' || formData.type === 'HTTPS' )"
+                        :span="12">
+                        <n-form-item label="新建域名" path="dorp">
+                            <n-input v-model:value="formData.dorp" placeholder="请输入域名前缀" />
+                        </n-form-item>
+                    </n-col>
+                    <n-collapse style="margin-top: 10px;">
+                        <n-collapse-item title="高级设置">
+                            <n-alert type="info" style="margin-bottom: 16px;">
+                                不懂请不要设置，否则可能会导致无法启动隧道
+                            </n-alert>
+                            <n-col :span="12">
+                                <n-flex>
+                                    <n-p>数据加密</n-p>
+                                    <n-switch v-model:value="formData.encryption" />
+                                </n-flex>
+                            </n-col>
+                            <n-col :span="12">
+                                <n-flex>
+                                    <n-p>数据压缩</n-p>
+                                    <n-switch v-model:value="formData.compression" />
+                                </n-flex>
+                            </n-col>
+                            <n-form-item label="额外参数" path="ap" style="margin-top: 8px;">
+                                <n-input v-model:value="formData.ap" type="textarea" />
+                            </n-form-item>
+                        </n-collapse-item>
+                    </n-collapse>
+                </n-form>
+            </n-row>
+            <template #footer>
+                <n-flex justify="end">
+                    <n-button @click="generateRandomPort">随机外网端口</n-button>
+                    <n-button @click="generateRandomTunnelName">随机隧道名</n-button>
+                    <n-button @click="tunnelInfoModal = false">取消</n-button>
+                    <n-button @click="createATunnelUp">上一步</n-button>
+                    <n-button type="primary" @click="handleConfirm">确定</n-button>
+                </n-flex>
+            </template>
         </n-card>
     </n-modal>
     <n-card style="margin-bottom: 20px;" title="隧道列表">
@@ -192,20 +329,7 @@
             </n-button>
         </template>
     </n-card>
-    <n-card v-if="tunnelCards === null">
-        <n-empty description="您似乎还没创建隧道">
-            <template #extra>
-                <n-button size="small" :loading="addTheTunnelButtonShow" @click="createNodes"
-                    :disabled="addTheTunnelButtonShow">
-                    <template #icon>
-                        <n-icon v-if="!addTheTunnelButtonShow" :component="AddOutline" />
-                    </template>
-                    创建隧道
-                </n-button>
-            </template>
-        </n-empty>
-    </n-card>
-    <n-grid v-else-if="!loadingTunnel" cols="1 m:2 l:3 xl:4 2xl:5" :x-gap="12" :y-gap="12" responsive="screen">
+    <n-grid v-if="!loadingTunnel" cols="1 m:2 l:3 xl:4 2xl:5" :x-gap="12" :y-gap="12" responsive="screen">
         <n-grid-item v-for="(card, index) in tunnelCards" :key="index">
             <n-card size="small">
                 <template #header>
@@ -289,6 +413,19 @@
             </n-infinite-scroll>
         </n-grid-item>
     </n-grid>
+    <n-card v-if="tunnelCards === null">
+        <n-empty description="您似乎还没创建隧道">
+            <template #extra>
+                <n-button size="small" :loading="addTheTunnelButtonShow" @click="createNodes"
+                    :disabled="addTheTunnelButtonShow">
+                    <template #icon>
+                        <n-icon v-if="!addTheTunnelButtonShow" :component="AddOutline" />
+                    </template>
+                    创建隧道
+                </n-button>
+            </template>
+        </n-empty>
+    </n-card>
 </template>
 
 <script setup lang="ts">
@@ -317,6 +454,8 @@ const nodeInfoModal = ref(false) // 节点信息模态框
 const tunnelInfoModal = ref(false) // 隧道信息模态框
 const loadingTunnel = ref(true) // 用户隧道加载
 const deletetButtonLoading = ref(false)
+const loadingTunnelInfo = ref(false)
+const loadingNodeMap = ref(false)
 
 const addTheTunnelButtonShow = ref(false)
 
@@ -334,6 +473,71 @@ const widthStyle = computed(() => ({
 const count = ref(16)
 const handleLoad = () => {
     count.value += 1
+}
+
+interface Domain {
+    id: number
+    domain: string
+    remarks: string | null
+    icpFiling: boolean
+}
+
+// 用于存储域名选项的数据
+const domainNameOptions = ref([])
+
+// 从 API 获取域名数据并将其格式化为 n-select 的选项格式
+const subDomainData = async () => {
+    try {
+        const response = await axios.get('https://cf-v2.uapis.cn/list_available_domains')
+        const domains = response.data.data
+
+        domainNameOptions.value = domains.map((domain: Domain) => ({
+            label: domain.domain, // 显示的域名名称
+            value: domain.domain  // 选项的值
+        }))
+    } catch (error) {
+        console.error('获取域名数据失败:', error)
+    }
+}
+
+const formData = reactive({
+    name: '',
+    localip: '127.0.0.1',
+    node: '',
+    type: 'TCP',
+    nport: '',
+    domainNameLabel: '',
+    dorp: 25565,
+    choose: '',
+    encryption: false,
+    compression: false,
+    ap: ''
+});
+
+const typeOptions = ['TCP', 'UDP', 'HTTP', 'HTTPS'].map((v) => ({
+    label: v,
+    value: v
+}))
+
+const domainTypeOptions = ['自定义', '免费域名'].map((v) => ({
+    label: v,
+    value: v
+}))
+
+// 随机生成一个10000~65535之间的外网端口
+const generateRandomPort = () => {
+    formData.dorp = Math.floor(Math.random() * 55535) + 10000;
+}
+
+// 随机生成一个8位的随机隧道名
+const generateRandomTunnelName = () => {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let randomName = '';
+    for (let i = 0; i < 8; i++) {
+        const randomIndex = Math.floor(Math.random() * chars.length);
+        randomName += chars[randomIndex];
+    }
+    formData.name = randomName;
 }
 
 const handleConfirm = (title: string, id: number) => {
@@ -451,7 +655,7 @@ const filterRegion = (region: string) => {
 
 // 节点分类
 const filteredNodeCards = computed(() => {
-    return nodeCards.value.filter(node => {
+    const filteredNodes = nodeCards.value.filter(node => {
         const matchUdp = filters.value.udp ? node.udp === 'true' : true;
 
         let matchNoPermission = true;
@@ -468,34 +672,108 @@ const filteredNodeCards = computed(() => {
 
         return matchUdp && matchNoPermission && matchWeb && matchRegion;
     });
+
+    // 对节点进行排序，VIP 节点在前，免费节点在后
+    return filteredNodes.sort((a, b) => {
+        if (a.nodegroup === 'vip' && b.nodegroup !== 'vip') return -1;
+        if (a.nodegroup !== 'vip' && b.nodegroup === 'vip') return 1;
+        return 0;
+    });
 });
 
-const handleNodeCardClick = (card: NodeCard) => {
-    // 检查用户是否有权限选择该节点
+const NodeInfo = ref({
+    id: 1, //节点ID
+    area: '', //节点地区
+    realIp: '', //节点IP
+    udp: true, //是否允许UDP
+    notes: '', //节点介绍
+    ip: '', //节点域名
+    coordinates: '', //节点经纬度
+    fangyu: true, //节点是否有防御
+    rport: '10000~65535', //节点端口范围
+    nodegroup: 'user', //节点权限组
+    china: 'yes', //节点是否走国内带宽
+    web: 'no', //节点是否允许web
+    ipv6: null, //节点IPV6
+    toowhite: false, //节点建站是否需要过白
+    name: '', //节点名
+    state: '', //节点状态
+})
+
+const handleNodeCardClick = async (card: NodeCard) => {
     if (card.nodegroup === 'vip' && userInfo?.usergroup === '免费用户') {
-        message.warning('此节点为会员节点，您的权限不足')
+        message.warning('此节点为会员节点，您的权限不足');
         return;
     }
-    console.log('[隧道列表]选中了:', card.name); // 控制台输出选中结果
-    selectNode.value = card.name
-    nodeListModal.value = false // 取消显示节点选择模态框
-    nodeInfoModal.value = true // 显示节点详情模态框
-}
+    selectNode.value = card.name;
+    nodeListModal.value = false;
+    nodeInfoModal.value = true;
+    loadingTunnelInfo.value = true;
+    try {
+        const { data } = await axios.get(`https://cf-v2.uapis.cn/nodeinfo?token=${userInfo?.usertoken}&node=${card.name}`);
+        if (data.code === 200) {
+            Object.assign(NodeInfo.value, data.data);
+        } else {
+            message.error(data.error);
+        }
+    } catch (error) {
+        message.error('节点详情API调用失败: ' + error);
+    } finally {
+        loadingTunnelInfo.value = false;
+    }
+};
+
+
+const markers = [
+    { position: [102.22092, 31.90059], title: '我的位置' },
+    { position: [116.407428, 39.91923], title: '节点位置' }
+];
+
+const handleTabChange = async (activeName: string) => {
+    loadingNodeMap.value = true;
+    if (activeName === '节点地图') {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(position => {
+                const latitude = position.coords.latitude;
+                const longitude = position.coords.longitude;
+                markers[0] = { position: [longitude, latitude], title: '我的位置' };
+                const nodeCoordinates = NodeInfo.value.coordinates.split(',').map(Number);
+                if (nodeCoordinates.length === 2 && !isNaN(nodeCoordinates[0]) && !isNaN(nodeCoordinates[1])) {
+                    markers[1] = { position: nodeCoordinates, title: '节点位置' };
+                } else {
+                    console.error('节点位置无效');
+                }
+                loadingNodeMap.value = false;
+            }, error => {
+                console.error('获取本机经纬度信息失败:', error);
+                loadingNodeMap.value = false;
+            });
+        } else {
+            console.error('浏览器不支持 Geolocation API');
+            loadingNodeMap.value = false;
+        }
+    }
+};
 
 const nodeDetails = () => {
     nodeListModal.value = true // 显示节点选择模态框
+    tunnelInfoModal.value = false // 取消显示创建隧道详情拟态框
     nodeInfoModal.value = false // 取消显示节点详情模态框
+}
+
+const createATunnelUp = () => {
+    tunnelInfoModal.value = false // 取消显示创建隧道详情拟态框
+    nodeInfoModal.value = true // 显示节点详情模态框
 }
 
 const goToTheTunnelDetails = () => {
     nodeInfoModal.value = false // 取消显示节点详情模态框
     tunnelInfoModal.value = true // 显示创建隧道详情拟态框
+    formData.node = NodeInfo.value.name
+    generateRandomPort();
+    generateRandomTunnelName();
+    subDomainData();
 }
-
-const markers = [
-    { position: [104.87095, 28.65406], title: '我的位置' },
-    { position: [116.407428, 39.91923], title: '节点位置' }
-]
 
 // 监听 filters 变化，并保存到本地存储
 watch(filters, (newFilters) => {
@@ -527,7 +805,7 @@ interface TunnelCard {
 }
 
 // 创建响应式变量
-const tunnelCards = ref<TunnelCard[] | null>(null); // 将类型修改为 TunnelCard[] | null
+const tunnelCards = ref<TunnelCard[] | null>(null);
 
 // 异步函数获取数据
 const fetchTunnelCards = async () => {
@@ -539,7 +817,7 @@ const fetchTunnelCards = async () => {
         // 判断 data 是否为空
         if (!data || data.length === 0) {
             loadingTunnel.value = false;
-            tunnelCards.value = null; // 如果数据为空，则设置为 null
+            tunnelCards.value = null;
         } else {
             // 映射数据并设置状态和标签
             tunnelCards.value = data.map(card => {
