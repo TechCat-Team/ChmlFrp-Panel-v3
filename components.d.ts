@@ -12,7 +12,6 @@ declare module 'vue' {
     MenuComponent: typeof import('./src/components/MenuComponent.vue')['default']
     MinecraftSkinViewer: typeof import('./src/components/MinecraftSkinViewer.vue')['default']
     NAlert: typeof import('naive-ui')['NAlert']
-    NAutoComplete: typeof import('naive-ui')['NAutoComplete']
     NAvatar: typeof import('naive-ui')['NAvatar']
     NBackTop: typeof import('naive-ui')['NBackTop']
     NButton: typeof import('naive-ui')['NButton']

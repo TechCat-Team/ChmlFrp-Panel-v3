@@ -5,7 +5,7 @@
         </n-layout-header>
         <n-layout-content content-style="padding: 24px;">
             <n-card>
-                <ServiceUptime />
+                <ServiceUptime :uptimeHistory="[100, 95, 80, null, 70, 1]" :daysToShow="90" />
             </n-card>
             <n-grid :x-gap="12" :y-gap="12" cols="1 m:3" responsive="screen" style="margin-top: 24px">
                 <n-grid-item>

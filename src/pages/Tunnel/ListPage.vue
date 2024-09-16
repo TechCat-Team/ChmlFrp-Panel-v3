@@ -93,7 +93,7 @@
             <n-tabs type="line" size="large" :tabs-padding="20" @update:value="handleTabChange">
                 <n-tab-pane name="节点详情">
                     <n-p>节点负载</n-p>
-                    <n-progress type="line" :percentage="24" :indicator-placement="'inside'" />
+                    <n-progress type="line" :percentage="NodeInfo.bandwidth_usage_percent" :indicator-placement="'inside'" />
                     <n-p style="margin-top: 12px">节点详情</n-p>
                     <n-descriptions label-placement="left" size="medium" :column="screenWidth >= 600 ? 3 : 1" bordered>
                         <n-descriptions-item label="节点名">
@@ -201,7 +201,7 @@
                 </n-tab-pane>
                 <n-tab-pane name="节点地图">
                     <n-alert type="info">
-                        地图来自中国地理信息公共服务平台，经纬度通过浏览器获取，需要您的浏览器较新且同意浏览器获取位置信息才能正常访问。另外请不要使用代理软件，否则您可能会被定位到月球。
+                        地图来自中国地理信息公共服务平台，"我的位置"信息通过IP获取，有较大误差。另外请不要使用代理软件，否则您可能会被定位到月球。
                     </n-alert>
                     <n-skeleton v-if="loadingNodeMap" text style="width: 100%; margin-top: 16px" height="500px" />
                     <MapComponent v-else style="margin-top: 16px" :width="'100%'" :height="'500px'"
@@ -244,7 +244,7 @@
                     </n-col>
                     <n-col :span="12">
                         <n-form-item label="内网端口" path="nport">
-                                <n-input v-model:value="formData.nport" clearable placeholder="请输入内网端口" />
+                            <n-input v-model:value="formData.nport" clearable placeholder="请输入内网端口" />
                         </n-form-item>
                     </n-col>
                     <n-col :span="12">
@@ -258,20 +258,20 @@
                         </n-form-item>
                     </n-col>
                     <n-col :span="24"
-                        v-if="formData.domainNameLabel === '自定义' && ( formData.type === 'HTTP' || formData.type === 'HTTPS' )">
+                        v-if="formData.domainNameLabel === '自定义' && (formData.type === 'HTTP' || formData.type === 'HTTPS')">
                         <n-form-item label="域名" path="dorp">
                             <n-input v-model:value="formData.dorp" placeholder="请输入您的域名" clearable />
                         </n-form-item>
                     </n-col>
                     <n-col
-                        v-if="formData.domainNameLabel === '免费域名' && ( formData.type === 'HTTP' || formData.type === 'HTTPS' )"
+                        v-if="formData.domainNameLabel === '免费域名' && (formData.type === 'HTTP' || formData.type === 'HTTPS')"
                         :span="12">
                         <n-form-item label="请选择免费域名" path="choose">
-                            <n-select v-model:value="formData.choose" :options="domainNameOptions"/>
+                            <n-select v-model:value="formData.choose" :options="domainNameOptions" />
                         </n-form-item>
                     </n-col>
                     <n-col
-                        v-if="formData.domainNameLabel === '免费域名' && ( formData.type === 'HTTP' || formData.type === 'HTTPS' )"
+                        v-if="formData.domainNameLabel === '免费域名' && (formData.type === 'HTTP' || formData.type === 'HTTPS')"
                         :span="12">
                         <n-form-item label="新建域名" path="dorp">
                             <n-input v-model:value="formData.dorp" placeholder="请输入域名前缀" />
@@ -698,6 +698,7 @@ const NodeInfo = ref({
     toowhite: false, //节点建站是否需要过白
     name: '', //节点名
     state: '', //节点状态
+    bandwidth_usage_percent: 0,
 })
 
 const handleNodeCardClick = async (card: NodeCard) => {
@@ -732,24 +733,19 @@ const markers = [
 const handleTabChange = async (activeName: string) => {
     loadingNodeMap.value = true;
     if (activeName === '节点地图') {
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(position => {
-                const latitude = position.coords.latitude;
-                const longitude = position.coords.longitude;
-                markers[0] = { position: [longitude, latitude], title: '我的位置' };
-                const nodeCoordinates = NodeInfo.value.coordinates.split(',').map(Number);
+        try {
+            const response = await axios.get('https://api.uapis.cn/localaddr');
+            const { latitude, longitude } = response.data;
+            markers[0] = { position: [longitude, latitude], title: '我的位置' };
+            const nodeCoordinates = NodeInfo.value.coordinates.split(',').map(Number);
                 if (nodeCoordinates.length === 2 && !isNaN(nodeCoordinates[0]) && !isNaN(nodeCoordinates[1])) {
                     markers[1] = { position: nodeCoordinates, title: '节点位置' };
                 } else {
                     console.error('节点位置无效');
                 }
-                loadingNodeMap.value = false;
-            }, error => {
-                console.error('获取本机经纬度信息失败:', error);
-                loadingNodeMap.value = false;
-            });
-        } else {
-            console.error('浏览器不支持 Geolocation API');
+        } catch (error) {
+            console.error('获取位置失败:', error);
+        } finally {
             loadingNodeMap.value = false;
         }
     }
