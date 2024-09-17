@@ -143,8 +143,8 @@ import axios from 'axios';
 import { useRouter } from 'vue-router';
 
 const available = ref(false)
-const loadingStatus = ref(false)
-const loadingUptime = ref(false)
+const loadingStatus = ref(true)
+const loadingUptime = ref(true)
 
 const router = useRouter();
 const goToNodeInfo = () => {

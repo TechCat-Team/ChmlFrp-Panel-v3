@@ -451,7 +451,7 @@ const handleSubmit = async () => {
             createDomainNameModal.value = false
             dialog.success({
                 title: '成功',
-                content: '域名解析创建成功，但是域名解析通常不会立即生效，一般在48小时内彻底生效，部分DNS会在几分钟内生效',
+                content: '域名解析创建成功，但是域名解析通常不会立即生效，一般在48小时内彻底生效，部分DNS会在几分钟内生效。简而言之，您创建的免费域名需要等待一段时间后才能正常使用。',
                 positiveText: '我知道了',
                 onPositiveClick: () => {
                     message.success('免费域名创建成功')

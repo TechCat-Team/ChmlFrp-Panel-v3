@@ -93,7 +93,8 @@
             <n-tabs type="line" size="large" :tabs-padding="20" @update:value="handleTabChange">
                 <n-tab-pane name="节点详情">
                     <n-p>节点负载</n-p>
-                    <n-progress type="line" :percentage="NodeInfo.bandwidth_usage_percent" :indicator-placement="'inside'" />
+                    <n-progress type="line" :percentage="NodeInfo.bandwidth_usage_percent"
+                        :indicator-placement="'inside'" />
                     <n-p style="margin-top: 12px">节点详情</n-p>
                     <n-descriptions label-placement="left" size="medium" :column="screenWidth >= 600 ? 3 : 1" bordered>
                         <n-descriptions-item label="节点名">
@@ -219,6 +220,12 @@
     </n-modal>
     <n-modal v-model:show="tunnelInfoModal">
         <n-card style="width: 800px" title="创建隧道" :bordered="false" size="huge" role="dialog" aria-modal="true">
+            <n-alert title="注意" type="info" style="margin-bottom: 32px;" v-if="formData.domainNameLabel === '免费域名' && (formData.type === 'HTTP' || formData.type === 'HTTPS')">
+                免费域名禁止用于中国境内节点(中国特别行政区除外)建站，如果您给国内节点解析免费域名并建站，会被备案拦截导致无法访问
+            </n-alert>
+            <n-alert title="注意" type="info" style="margin-bottom: 32px;" v-if="formData.domainNameLabel === '自定义' && (formData.type === 'HTTP' || formData.type === 'HTTPS')">
+                自定义域名解析到中国境内节点(中国特别行政区除外)建站，您的域名必须在工信部备案，不备案将被拦截导致无法访问。
+            </n-alert>
             <n-row :gutter="15" style="margin-top: 15px;">
                 <n-form ref="tunnelForm" :model="formData" size="medium" label-width="100px">
                     <n-col :span="12">
@@ -260,7 +267,7 @@
                     <n-col :span="24"
                         v-if="formData.domainNameLabel === '自定义' && (formData.type === 'HTTP' || formData.type === 'HTTPS')">
                         <n-form-item label="域名" path="dorp">
-                            <n-input v-model:value="formData.dorp" placeholder="请输入您的域名" clearable />
+                            <n-input v-model:value="formData.domain" placeholder="请输入您的域名" clearable />
                         </n-form-item>
                     </n-col>
                     <n-col
@@ -274,7 +281,11 @@
                         v-if="formData.domainNameLabel === '免费域名' && (formData.type === 'HTTP' || formData.type === 'HTTPS')"
                         :span="12">
                         <n-form-item label="新建域名" path="dorp">
-                            <n-input v-model:value="formData.dorp" placeholder="请输入域名前缀" />
+                            <n-input v-model:value="formData.recordValue" placeholder="请输入域名前缀">
+                                <template #suffix>
+                                    .{{ formData.choose }}
+                                </template>
+                            </n-input>
                         </n-form-item>
                     </n-col>
                     <n-collapse style="margin-top: 10px;">
@@ -307,7 +318,7 @@
                     <n-button @click="generateRandomTunnelName">随机隧道名</n-button>
                     <n-button @click="tunnelInfoModal = false">取消</n-button>
                     <n-button @click="createATunnelUp">上一步</n-button>
-                    <n-button type="primary" @click="handleConfirm">确定</n-button>
+                    <n-button type="primary" @click="createATunnel" :loading="loadingCreateTunnel">确定</n-button>
                 </n-flex>
             </template>
         </n-card>
@@ -456,6 +467,7 @@ const loadingTunnel = ref(true) // 用户隧道加载
 const deletetButtonLoading = ref(false)
 const loadingTunnelInfo = ref(false)
 const loadingNodeMap = ref(false)
+const loadingCreateTunnel = ref(false);
 
 const addTheTunnelButtonShow = ref(false)
 
@@ -511,7 +523,9 @@ const formData = reactive({
     choose: '',
     encryption: false,
     compression: false,
-    ap: ''
+    ap: '',
+    domain: '',
+    recordValue: '',
 });
 
 const typeOptions = ['TCP', 'UDP', 'HTTP', 'HTTPS'].map((v) => ({
@@ -538,6 +552,131 @@ const generateRandomTunnelName = () => {
         randomName += chars[randomIndex];
     }
     formData.name = randomName;
+}
+
+const createATunnel = async () => {
+    loadingCreateTunnel.value = true;
+    if (formData.domainNameLabel === "免费域名" && (formData.type === 'HTTP' || formData.type === 'HTTPS')) {
+        try {
+            const response = await axios.post('https://cf-v2.uapis.cn/create_free_subdomain', {
+                token: userInfo?.usertoken,
+                domain: formData.choose,
+                record: formData.recordValue,
+                type: "CNAME",
+                ttl: "10分钟",
+                target: NodeInfo.value.ip,
+                remarks: '解析 网站 到 ' + formData.name + ' - ' + formData.node
+            }, {
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            });
+            const data = response.data;
+            if (data.state === 'success') {
+                try {
+                    const response = await axios.post('https://cf-v2.uapis.cn/create_tunnel', {
+                        token: userInfo?.usertoken,
+                        tunnelname: formData.name,
+                        node: formData.node,
+                        localip: formData.localip,
+                        porttype: formData.type,
+                        localport: formData.nport,
+                        banddomain: formData.recordValue + '.' + formData.choose,
+                        encryption: formData.encryption,
+                        compression: formData.compression,
+                        extraparams: formData.ap
+                    }, {
+                        headers: {
+                            'Content-Type': 'application/json',
+                        }
+                    });
+                    const data = response.data;
+                    if (data.state === 'success') {
+                        tunnelInfoModal.value = false
+                        dialog.success({
+                            title: '成功',
+                            content: '隧道创建成功！但是您使用了ChmlFrp提供的免费域名，域名解析通常不会立即生效，一般在48小时内彻底生效，部分DNS会在几分钟内生效。简而言之，您创建的免费域名需要等待一段时间后才能正常使用。',
+                            positiveText: '我知道了',
+                            onPositiveClick: () => {
+                                message.success('隧道创建成功！')
+                                fetchTunnelCards();
+                            }
+                        })
+                    } else {
+                        message.error(data.msg);
+                        console.error('隧道创建失败:', data.msg);
+                    }
+                } catch (error) {
+                    console.error('隧道创建API调用失败:', error);
+                }
+            } else {
+                message.error("免费域名创建失败：" + data.msg);
+            }
+        } catch (error) {
+            console.error('创建免费域名API请求失败:', error);
+        }
+    } else if (formData.domainNameLabel === "自定义" && (formData.type === 'HTTP' || formData.type === 'HTTPS')) {
+        try {
+            const response = await axios.post('https://cf-v2.uapis.cn/create_tunnel', {
+                token: userInfo?.usertoken,
+                tunnelname: formData.name,
+                node: formData.node,
+                localip: formData.localip,
+                porttype: formData.type,
+                localport: formData.nport,
+                banddomain: formData.domain,
+                encryption: formData.encryption,
+                compression: formData.compression,
+                extraparams: formData.ap
+            }, {
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            });
+            const data = response.data;
+            if (data.state === 'success') {
+                tunnelInfoModal.value = false
+                message.success("隧道创建成功！")
+                fetchTunnelCards();
+            } else {
+                message.error(data.msg);
+                console.error('隧道创建失败:', data.msg);
+            }
+        } catch (error) {
+            console.error('隧道创建API调用失败:', error);
+        }
+    } else {
+        try {
+            const response = await axios.post('https://cf-v2.uapis.cn/create_tunnel', {
+                token: userInfo?.usertoken,
+                tunnelname: formData.name,
+                node: formData.node,
+                localip: formData.localip,
+                porttype: formData.type,
+                localport: formData.nport,
+                remoteport: formData.dorp,
+                encryption: formData.encryption,
+                compression: formData.compression,
+                extraparams: formData.ap
+            }, {
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            });
+            const data = response.data;
+            if (data.state === 'success') {
+                tunnelInfoModal.value = false
+                message.success("隧道创建成功！")
+                fetchTunnelCards();
+            } else {
+                message.error(data.msg);
+                console.error('隧道创建失败:', data.msg);
+            }
+        } catch (error) {
+            console.error('隧道创建API调用失败:', error);
+        }
+    }
+    loadingCreateTunnel.value = false;
 }
 
 const handleConfirm = (title: string, id: number) => {
@@ -738,11 +877,11 @@ const handleTabChange = async (activeName: string) => {
             const { latitude, longitude } = response.data;
             markers[0] = { position: [longitude, latitude], title: '我的位置' };
             const nodeCoordinates = NodeInfo.value.coordinates.split(',').map(Number);
-                if (nodeCoordinates.length === 2 && !isNaN(nodeCoordinates[0]) && !isNaN(nodeCoordinates[1])) {
-                    markers[1] = { position: nodeCoordinates, title: '节点位置' };
-                } else {
-                    console.error('节点位置无效');
-                }
+            if (nodeCoordinates.length === 2 && !isNaN(nodeCoordinates[0]) && !isNaN(nodeCoordinates[1])) {
+                markers[1] = { position: nodeCoordinates, title: '节点位置' };
+            } else {
+                console.error('节点位置无效');
+            }
         } catch (error) {
             console.error('获取位置失败:', error);
         } finally {
