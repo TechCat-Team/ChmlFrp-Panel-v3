@@ -2,7 +2,7 @@
     <n-back-top :right="100" />
     <n-card title="统计信息">
         <template #header-extra>
-            <n-switch v-model:value="available">
+            <n-switch v-model:value="available" @change="onSwitchChange">
                 <template #checked>
                     可用性
                 </template>
@@ -56,9 +56,9 @@
                 </n-statistic>
             </n-grid-item>
         </n-grid>
-        <div v-else style="font-size: 32px; font-weight:bold; display: flex; align-items: center;">
-            <div class="circle"></div>
-            <span>所有节点均<span style="color: rgb(59, 214, 113)">正常</span>运行</span>
+        <div v-else style="font-size: 32px; font-weight: bold; display: flex; align-items: center;">
+            <div :class="circleClass"></div>
+            <span v-html="overallStatusMessage"></span>
         </div>
     </n-card>
     <n-grid v-if="loadingStatus" cols="1 m:2 l:3 xl:4 2xl:5" style="margin-top: 20px;" :x-gap="12" :y-gap="12"
@@ -72,7 +72,7 @@
     <n-grid v-else-if="!available" cols="1 m:2 l:3 xl:4 2xl:5" style="margin-top: 20px;" :x-gap="12" :y-gap="12"
         responsive="screen">
         <n-grid-item v-for="(nodeStatusCard, index) in nodeStatusCards" :key="index">
-            <n-card size="small" hoverable @click="goToNodeInfo">
+            <n-card size="small" hoverable @click="goToNodeInfo(nodeStatusCard.node_name)">
                 <template #header>
                     {{ nodeStatusCard.node_name }}
                     <span style="color: gray; font-size: 14px;">#{{ nodeStatusCard.id }}</span>
@@ -110,8 +110,7 @@
             </n-card>
         </n-grid-item>
     </n-grid>
-    <n-grid v-else-if="loadingUptime" :cols="1" style="margin-top: 20px;" :x-gap="12" :y-gap="12"
-        responsive="screen">
+    <n-grid v-else-if="loadingUptime" :cols="1" style="margin-top: 20px;" :x-gap="12" :y-gap="12" responsive="screen">
         <n-grid-item v-for="i in count" :key="i">
             <n-infinite-scroll :distance="1" @load="handleLoad">
                 <n-skeleton height="65.6px" width="100%" style="border-radius: 10px" />
@@ -119,19 +118,10 @@
         </n-grid-item>
     </n-grid>
     <n-grid v-else :cols="1" style="margin-top: 20px;" :x-gap="12" :y-gap="12" responsive="screen">
-        <n-grid-item>
-            <n-card hoverable @click="goToNodeInfo">
-                <ServiceUptime />
-            </n-card>
-        </n-grid-item>
-        <n-grid-item>
-            <n-card hoverable @click="goToNodeInfo">
-                <ServiceUptime />
-            </n-card>
-        </n-grid-item>
-        <n-grid-item>
-            <n-card hoverable @click="goToNodeInfo">
-                <ServiceUptime />
+        <n-grid-item v-for="(node, index) in processedUptimeData" :key="index">
+            <n-card hoverable @click="goToNodeInfo(node.node_name)">
+                <ServiceUptime :serverName="node.node_name" :state="node.state" :uptimeHistory="node.uptimeHistory"
+                    :group="node.group" :daysToShow="daysToShow" />
             </n-card>
         </n-grid-item>
     </n-grid>
@@ -147,10 +137,10 @@ const loadingStatus = ref(true)
 const loadingUptime = ref(true)
 
 const router = useRouter();
-const goToNodeInfo = () => {
-    const url = router.resolve({ path: '/node/info' }).href;
+const goToNodeInfo = (node_name: string) => {
+    const url = router.resolve({ path: `/node/info`, query: { node: node_name } }).href;
     window.open(url, '_blank');
-}
+};
 
 // 无限滚动
 const count = ref(16)
@@ -158,11 +148,112 @@ const handleLoad = () => {
     count.value += 1
 }
 
+const daysToShow = ref(90); // 默认值
+
+const updateDaysToShow = () => {
+    const width = window.innerWidth;
+    if (width < 700) {
+        daysToShow.value = 40;
+    } else if (width < 1700) {
+        daysToShow.value = 60;
+    } else {
+        daysToShow.value = 90;
+    }
+};
+
+
 onMounted(() => {
     nodeStatus()
-    setInterval(nodeStatus, 25000);
+    updateDaysToShow()
+    window.addEventListener('resize', updateDaysToShow);
 })
 
+onBeforeUnmount(() => {
+    window.removeEventListener('resize', updateDaysToShow);
+});
+
+const onSwitchChange = async (value: boolean) => {
+    available.value = value;
+    if (value) {
+        fetchUptimeData();
+    }
+};
+
+const generateLast90Days = (): string[] => {
+    const days: string[] = [];
+    const today = new Date();
+    for (let i = 0; i < 90; i++) {
+        const date = new Date(today);
+        date.setDate(today.getDate() - i);
+        days.push(date.toISOString().split('T')[0]);
+    }
+    return days;
+};
+
+interface ProcessedNodeData {
+    node_name: string;
+    state: string;
+    group: string;
+    uptimeHistory: (number | null)[];
+}
+
+const processedUptimeData = ref<ProcessedNodeData[]>([]);
+
+interface NodeData {
+    node_name: string;
+    state: string;
+    group: string;
+    history_uptime: Array<{ recorded_at: string; uptime: number }>;
+}
+
+const uptimeData = ref<NodeData[]>([]);
+const circleClass = ref('circle');
+const overallStatusMessage = ref('');
+
+const fetchUptimeData = async () => {
+    try {
+        const response = await axios.get(`https://cf-v2.uapis.cn/node_uptime?time=${daysToShow.value}`);
+        if (response.data.code === 200) {
+            uptimeData.value = response.data.data;
+
+            const dateArray = generateLast90Days();
+
+            processedUptimeData.value = uptimeData.value.map(node => {
+                const uptimeMap = new Map(node.history_uptime.map(item => [item.recorded_at, item.uptime]));
+                return {
+                    node_name: node.node_name,
+                    state: node.state,
+                    group: node.group,
+                    uptimeHistory: dateArray.map(date => {
+                        const uptime = uptimeMap.get(date);
+                        return uptime === undefined ? null : uptime;
+                    })
+                };
+            });
+
+            updateOverallStatus();
+        }
+    } catch (error) {
+        console.error('获取节点uptime数据失败:', error);
+    } finally {
+        loadingUptime.value = false;
+    }
+};
+
+const updateOverallStatus = () => {
+    const offlineNodes = uptimeData.value.filter(node => node.state === 'offline');
+
+    if (offlineNodes.length === 0) {
+        overallStatusMessage.value = '所有节点均<span style="color: rgb(59, 214, 113)">正常</span>运行';
+        circleClass.value = 'circle green';
+    } else if (offlineNodes.length < uptimeData.value.length) {
+        overallStatusMessage.value = '部分节点<span style="color: rgb(255, 215, 0)">正常</span>运行';
+        circleClass.value = 'circle yellow';
+    } else {
+        overallStatusMessage.value = '所有节点均<span style="color: rgb(255, 0, 0)">离线</span>';
+        circleClass.value = 'circle red';
+    }
+};
 
 interface nodeStatusCard {
     id: number;
@@ -253,9 +344,21 @@ const progressColor = (bandwidthOccupation: number) => {
     margin-top: 3px;
     width: 30px;
     height: 30px;
-    background-color: rgb(59, 214, 113);
     border-radius: 50%;
     position: relative;
+    background-color: gray;
+}
+
+.circle.green {
+    background-color: rgb(59, 214, 113);
+}
+
+.circle.yellow {
+    background-color: rgb(255, 215, 0);
+}
+
+.circle.red {
+    background-color: rgb(255, 0, 0);
 }
 
 .circle::before {
@@ -265,11 +368,23 @@ const progressColor = (bandwidthOccupation: number) => {
     left: 50%;
     width: 30px;
     height: 30px;
-    background-color: rgba(59, 214, 113, 0.8);
     border-radius: 50%;
     transform: translate(-50%, -50%);
     animation: ripple 2s infinite;
     opacity: 0;
+}
+
+/* 添加颜色变化逻辑 */
+.circle.green::before {
+    background-color: rgba(59, 214, 113, 0.8);
+}
+
+.circle.yellow::before {
+    background-color: rgba(255, 215, 0, 0.8);
+}
+
+.circle.red::before {
+    background-color: rgba(255, 0, 0, 0.8);
 }
 
 @keyframes ripple {
