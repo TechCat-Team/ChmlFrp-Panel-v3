@@ -126,6 +126,11 @@ const copyToClipboard = () => {
     });
 };
 
+interface Tunnel {
+  name: string;
+  node: string;
+}
+
 // 选择框相关的变量
 const nodeValue = ref<string | null>(null);
 const multipleSelectValue = ref<string[]>([]);
@@ -139,17 +144,17 @@ const loadingGenerate = ref(false);
 const getTunnelList = async () => {
     try {
         const response = await axios.get(`https://cf-v2.uapis.cn/tunnel?token=${userInfo?.usertoken}`);
-        const tunnels = response.data.data;
+        const tunnels: Tunnel[] = response.data.data; // 使用明确的类型
 
         // 保存所有隧道数据
-        allTunnels.value = tunnels.map((t: any) => ({
+        allTunnels.value = tunnels.map((t: Tunnel) => ({
             name: t.name,
             node: t.node,
         }));
 
         // 生成节点选项
-        const nodes = Array.from(new Set(tunnels.map((t: any) => t.node)));
-        nodeOptions.value = nodes.map((node: any) => ({
+        const nodes = Array.from(new Set(tunnels.map((t: Tunnel) => t.node)));
+        nodeOptions.value = nodes.map((node: string) => ({
             label: node,
             value: node,
         }));
@@ -160,7 +165,7 @@ const getTunnelList = async () => {
 };
 
 // 动态更新隧道选项
-watch(nodeValue, (newNode) => {
+watch(nodeValue, (newNode: string | null) => {
     if (newNode) {
         // 当节点变化时清空已选择的隧道
         multipleSelectValue.value = [];
@@ -182,7 +187,11 @@ const getConfigFile = async () => {
     tunnelConfig.value = '';
     loadingGenerate.value = true;
     try {
-        const params: any = {
+        const params: {
+            token: string | undefined;
+            node: string | null;
+            tunnel_names?: string;
+        } = {
             token: userInfo?.usertoken,
             node: nodeValue.value,
         };

@@ -1028,37 +1028,37 @@ const settingCard = ref([
     {
         title: '重置token',
         subtitle: '此操作不可逆，重置后所有客户端均需重新登录',
-        icon: KeyOutline,
+        icon: markRaw(KeyOutline),
         click: resetToken,
     },
     {
         title: '修改用户名',
         subtitle: '点击这里可以修改您的用户名',
-        icon: PersonOutline,
+        icon: markRaw(PersonOutline),
         click: openChangeTheUsernameModal
     },
     {
         title: '更改头像',
         subtitle: '不支持上传图片文件，请将图片上传到图床后再填写链接',
-        icon: ImageOutline,
+        icon: markRaw(ImageOutline),
         click: openModifyAvatarModal
     },
     {
         title: '修改密码',
         subtitle: '点击这里可以修改您的登录密码',
-        icon: LockClosedOutline,
+        icon: markRaw(LockClosedOutline),
         click: openChangePasswordModal
     },
     {
         title: '更改邮箱',
         subtitle: '此操作风险较大，请谨慎操作',
-        icon: MailOutline,
+        icon: markRaw(MailOutline),
         click: openChangeTheMailboxModal,
     },
     {
         title: '更改QQ号',
         subtitle: '不正确的QQ号可能会影响到后续功能',
-        icon: ChatboxEllipsesOutline,
+        icon: markRaw(ChatboxEllipsesOutline),
         click: openChangeQQModal,
     }
 ])

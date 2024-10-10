@@ -44,8 +44,9 @@
                                 </n-flex>
                                 <div style="display: flex; justify-content: flex-end; margin-top: 24px">
                                     <n-button :loading="loginLoading"
-                                        :disabled="model.email === null || model.password === null || loginLoading" round type="primary"
-                                        style="width: 100%;" size="large" @click="handleValidateButtonClick">
+                                        :disabled="model.email === null || model.password === null || loginLoading"
+                                        round type="primary" style="width: 100%;" size="large"
+                                        @click="handleValidateButtonClick">
                                         登录
                                     </n-button>
                                 </div>
@@ -403,8 +404,11 @@ const handleValidateButtonClick = async () => {
 
             const storageDuration = keepLoggedIn.value ? 'permanent' : '1d';
             userStore.setUser(userInfo, storageDuration);
-
-            message.success('登录成功，正在跳转至首页')
+            if (userInfo?.usergroup === '免费用户') {
+                message.success(`登录成功，欢迎您，${userInfo?.username}！`)
+            } else {
+                message.success(`登录成功，欢迎您，尊贵的会员用户${userInfo?.username}！`)
+            }
             router.push('/home')
         } else {
             message.error('登录失败，请检查用户名或密码。')
