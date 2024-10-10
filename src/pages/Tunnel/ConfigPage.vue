@@ -11,18 +11,40 @@
             </n-grid-item>
             <n-grid-item span="10 m:2">
                 <n-flex justify="end">
-                    <n-button type="primary">
-                        生成
-                    </n-button>
-                    <n-button type="primary" @click="copyToClipboard">
-                        复制
-                    </n-button>
+                    <n-button type="primary" @click="getConfigFile" :disabled="nodeValue === null"
+                        :loading="loadingGenerate">生成</n-button>
+                    <n-button type="primary" @click="copyToClipboard" :disabled="tunnelConfig === ''">复制</n-button>
                 </n-flex>
             </n-grid-item>
         </n-grid>
         <template #footer>
             <n-card>
-                <n-code :code="tunnelConfig" language="ini" word-wrap />
+                <n-code :code="tunnelConfig" language="ini" word-wrap v-if="tunnelConfig !== ''" />
+                <div v-else-if="loadingGenerate">
+                    <n-skeleton text width="68.93px" />
+                    <br/>
+                    <n-skeleton text width="235px" />
+                    <br/>
+                    <n-skeleton text width="150px" />
+                    <br/>
+                    <n-skeleton text width="150px" />
+                    <br/>
+                    <n-skeleton text width="270px" />
+                    <br/>
+                    <n-skeleton text width="165px" />
+                    <br/>
+                    <br/>
+                    <n-skeleton text width="80px" />
+                    <br/>
+                    <n-skeleton text width="85px" />
+                    <br/>
+                    <n-skeleton text width="180px" />
+                    <br/>
+                    <n-skeleton text width="150px" />
+                    <br/>
+                    <n-skeleton text width="160px" />
+                </div>
+                <n-empty v-else description="请生成配置文件" />
             </n-card>
         </template>
     </n-card>
@@ -62,7 +84,9 @@
         <n-grid-item :span="2">
             <n-card title="映射启动">
                 <template #header-extra>
-                    <n-button text tag="a" href="https://docs.chcat.cn/docs/chmlfrp/%E4%BD%BF%E7%94%A8%E6%96%87%E6%A1%A3/tutorial" target="_blank" type="primary">
+                    <n-button text tag="a"
+                        href="https://docs.chcat.cn/docs/chmlfrp/%E4%BD%BF%E7%94%A8%E6%96%87%E6%A1%A3/tutorial"
+                        target="_blank" type="primary">
                         详细教程
                     </n-button>
                 </template>
@@ -79,12 +103,22 @@
 </template>
 
 <script lang="ts" setup>
+import axios from 'axios';
 import { ref } from 'vue';
+// 获取登录信息
+import { useUserStore } from '@/stores/user';
+
+const userStore = useUserStore();
+const userInfo = userStore.userInfo;
 
 const message = useMessage()
 
+onMounted(() => {
+    getTunnelList();
+});
+
 const copyToClipboard = () => {
-    navigator.clipboard.writeText(tunnelConfig).then(() => {
+    navigator.clipboard.writeText(tunnelConfig.value).then(() => {
         message.success('配置文件复制成功')
     }).catch(err => {
         console.error('复制配置文件失败:', err);
@@ -92,50 +126,80 @@ const copyToClipboard = () => {
     });
 };
 
-const nodeValue = ref(null)
-const multipleSelectValue = ref(null)
-const nodeOptions = [
-    {
-        label: '月球CN2-1',
-        value: 'song2'
-    },
-    {
-        label: '火星直连',
-        value: 'song3'
+// 选择框相关的变量
+const nodeValue = ref<string | null>(null);
+const multipleSelectValue = ref<string[]>([]);
+const nodeOptions = ref<{ label: string; value: string }[]>([]);
+const tunnelOptions = ref<{ label: string; value: string }[]>([]);
+const allTunnels = ref<{ name: string; node: string }[]>([]); // 用于存储所有隧道
+const tunnelConfig = ref<string>('');
+const loadingGenerate = ref(false);
+
+// 获取隧道列表 API
+const getTunnelList = async () => {
+    try {
+        const response = await axios.get(`https://cf-v2.uapis.cn/tunnel?token=${userInfo?.usertoken}`);
+        const tunnels = response.data.data;
+
+        // 保存所有隧道数据
+        allTunnels.value = tunnels.map((t: any) => ({
+            name: t.name,
+            node: t.node,
+        }));
+
+        // 生成节点选项
+        const nodes = Array.from(new Set(tunnels.map((t: any) => t.node)));
+        nodeOptions.value = nodes.map((node: any) => ({
+            label: node,
+            value: node,
+        }));
+    } catch (error) {
+        console.error('获取隧道列表失败:', error);
+        message.error('获取隧道列表失败:' + error);
     }
-]
+};
 
-const tunnelOptions = [
-    {
-        label: 'Minecraft',
-        value: 'song2'
-    },
-    {
-        label: 'Terraria',
-        value: 'song3'
+// 动态更新隧道选项
+watch(nodeValue, (newNode) => {
+    if (newNode) {
+        // 当节点变化时清空已选择的隧道
+        multipleSelectValue.value = [];
+
+        // 筛选出该节点的隧道
+        tunnelOptions.value = allTunnels.value
+            .filter(tunnel => tunnel.node === newNode)
+            .map(tunnel => ({
+                label: tunnel.name,
+                value: tunnel.name,
+            }));
+    } else {
+        tunnelOptions.value = []; // 没有选择节点时，清空隧道选项
     }
-]
+});
 
-const tunnelConfig = `
-[common]
-server_addr = yq.frp.one
-server_port = 7000
-tls_enable = false
-user = ChmlFrpTokenPreview
-token = ChmlFrpToken
+// 获取配置文件 API
+const getConfigFile = async () => {
+    tunnelConfig.value = '';
+    loadingGenerate.value = true;
+    try {
+        const params: any = {
+            token: userInfo?.usertoken,
+            node: nodeValue.value,
+        };
 
-[Minecraft]
-type = tcp
-local_ip = 127.0.0.1
-local_port = 54198
-remote_port = 48125
+        // 如果选择了隧道才传递 tunnel_names 参数
+        if (multipleSelectValue.value.length > 0) {
+            params.tunnel_names = multipleSelectValue.value.join(',');
+        }
 
-[Terraria]
-type = tcp
-local_ip = 127.0.0.1
-local_port = 54198
-remote_port = 55117
-`
+        const response = await axios.get('https://cf-v2.uapis.cn/tunnel_config', { params });
+        tunnelConfig.value = response.data.data;
+    } catch (error) {
+        console.error('获取配置文件失败:', error);
+        message.error('获取配置文件失败:' + error);
+    }
+    loadingGenerate.value = false;
+};
 
 const nginxConfig1 = `
 listen 80;
