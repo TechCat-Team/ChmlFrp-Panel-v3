@@ -27,7 +27,8 @@ import {
   ConstructOutline,
   ListCircleOutline,
   ServerOutline,
-  BanOutline
+  BanOutline,
+  BagHandleOutline
 } from '@vicons/ionicons5';
 
 const userStore = useUserStore();
@@ -155,6 +156,17 @@ export const computedMenuOptionsUser = computed(() => [{
       ),
       key: '免费SSL',
       icon: renderIcon(KeyOutline)
+    },
+    {
+      label: () => h(
+        RouterLink,
+        {
+          to: { name: '第三方市场' }
+        },
+        { default: () => '第三方市场' }
+      ),
+      key: '第三方市场',
+      icon: renderIcon(BagHandleOutline)
     }
   ]
 },
@@ -396,6 +408,24 @@ export const computedMenuOptionsGuest = computed(() => [
         ),
         key: '软件下载',
         icon: renderIcon(CloudDownloadOutline)
+      }
+    ]
+  },
+  {
+    label: '扩展功能',
+    key: '扩展功能',
+    icon: renderIcon(ExtensionPuzzleOutline),
+    children: [
+      {
+        label: () => h(
+          RouterLink,
+          {
+            to: { name: '第三方市场' }
+          },
+          { default: () => '第三方市场' }
+        ),
+        key: '第三方市场',
+        icon: renderIcon(BagHandleOutline)
       }
     ]
   },

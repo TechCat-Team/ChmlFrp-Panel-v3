@@ -118,6 +118,17 @@ const routes: Array<RouteRecordRaw> = [
           description: '您可以在ChmlFrp免费申请SSL证书',
           requiresAuth: true,
         }
+      },
+      {
+        path: '/expand/third-party-marketplace',
+        name: '第三方市场',
+        component: () => import('@/pages/Expand/ThirdPartyMarketplace.vue'),
+        meta: {
+          title: '第三方应用市场 - ChmlFrp',
+          keywords: 'ChmlFrp, 应用市场, 第三方应用市场, ChmlFrp应用市场, frp, 免费frp, 映射',
+          description: '这里包含了所有ChmlFrp的第三方应用，包含接入了ChmlFrp的MC开服器、ChmlFrp便携启动器等。',
+          requiresAuth: true,
+        }
       }
     ]
   },

@@ -17,7 +17,7 @@
                     <template #prefix>
                         <n-icon :component="BarcodeOutline" />
                     </template>
-                    <n-number-animation :from="0" show-separator :to="clientCounts" />
+                    <n-number-animation :from="0" show-separator :to="tunnelCounts" />
                 </n-statistic>
             </n-grid-item>
             <n-grid-item>
@@ -100,7 +100,7 @@
                                 formatBytes(nodeStatusCard.total_traffic_in).suffix }}
                         </n-descriptions-item>
                         <n-descriptions-item label="客户端数">
-                            {{ nodeStatusCard.client_counts }}
+                            {{ nodeStatusCard.tunnel_counts }}
                         </n-descriptions-item>
                         <n-descriptions-item label="CPU占用">
                             {{ nodeStatusCard.cpu_usage.toFixed(2) }}%
@@ -266,6 +266,7 @@ interface nodeStatusCard {
     nodegroup: string;
     client_counts: number;
     cur_counts: number;
+    tunnel_counts: number;
 }
 
 const nodeStatusCards = ref<nodeStatusCard[]>([])
@@ -275,6 +276,7 @@ const totalTrafficOut = ref(0); // 总上传流量
 const clientCounts = ref(0); // 总连接数
 const curCounts = ref(0); // 总在线隧道数
 const onlineNodes = ref(0); // 当前总在线节点
+const tunnelCounts = ref(0); //当前总在线隧道
 
 const nodeStatus = async () => {
     try {
@@ -290,6 +292,7 @@ const nodeStatus = async () => {
             // 计算总流量、连接数和在线隧道数
             totalTrafficIn.value = nodeStatusCards.value.reduce((sum, card) => sum + card.total_traffic_in, 0);
             totalTrafficOut.value = nodeStatusCards.value.reduce((sum, card) => sum + card.total_traffic_out, 0);
+            tunnelCounts.value = nodeStatusCards.value.reduce((sum, card) => sum + card.tunnel_counts, 0);
             clientCounts.value = nodeStatusCards.value.reduce((sum, card) => sum + card.client_counts, 0);
             curCounts.value = nodeStatusCards.value.reduce((sum, card) => sum + card.cur_counts, 0);
             onlineNodes.value = nodeStatusCards.value.filter(card => card.state === 'online').length;
