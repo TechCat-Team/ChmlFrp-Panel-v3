@@ -120,13 +120,13 @@ const routes: Array<RouteRecordRaw> = [
         }
       },
       {
-        path: '/expand/third-party-marketplace',
-        name: '第三方市场',
-        component: () => import('@/pages/Expand/ThirdPartyMarketplace.vue'),
+        path: '/expand/app-marketplace',
+        name: '应用市场',
+        component: () => import('@/pages/Expand/AppMarketplace.vue'),
         meta: {
-          title: '第三方应用市场 - ChmlFrp',
-          keywords: 'ChmlFrp, 应用市场, 第三方应用市场, ChmlFrp应用市场, frp, 免费frp, 映射',
-          description: '这里包含了所有ChmlFrp的第三方应用，包含接入了ChmlFrp的MC开服器、ChmlFrp便携启动器等。',
+          title: 'ChmlFrp应用市场 - ChmlFrp',
+          keywords: 'ChmlFrp, 应用市场, 第三方应用市场, ChmlFrp应用市场, ChmlFrp软件, frp, 免费frp, 映射',
+          description: '这里包含了所有ChmlFrp的官方、第三方应用，包含接入了ChmlFrp的MC开服器、ChmlFrp便携启动器等。',
           requiresAuth: true,
         }
       }
@@ -166,16 +166,6 @@ const routes: Array<RouteRecordRaw> = [
     name: '其他信息',
     component: () => import('@/views/HomeView.vue'),
     children: [
-      {
-        path: '/other/blocked-list',
-        name: '封禁列表',
-        component: () => import('@/pages/Other/BlockedList.vue'),
-        meta: {
-          title: '封禁列表 - ChmlFrp',
-          keywords: 'ChmlFrp, 封禁列表, 内网穿透, 端口映射, frp, 免费frp, 映射',
-          description: '公示因为违规被封禁的所有账户，用于警示其余用户',
-        }
-      },
       {
         path: '/other/about',
         name: '关于面板',

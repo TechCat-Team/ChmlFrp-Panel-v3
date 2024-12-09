@@ -235,6 +235,16 @@
             </n-gi>
         </n-grid>
     </n-flex>
+    <n-modal
+    v-model:show="showDialog"
+    preset="dialog"
+    title="第一次使用？"
+    content="那不妨来看看ChmlFrp使用教程！"
+    positive-text="确认"
+    negative-text="算了"
+    @positive-click="WatchTutorial"
+    @negative-click="closeDialog"
+  />
 </template>
 
 <script lang="ts" setup>
@@ -260,6 +270,9 @@ const loadingQianDaoButton = ref(false)
 const loadingTrafficInfo = ref(true)
 const QianDaoTest = ref('签到')
 const signedInSuccess = ref(false);
+const showDialog = ref(false);
+
+const countdown = ref(10);
 
 const dialog = useDialog()
 const message = useMessage()
@@ -347,7 +360,41 @@ onMounted(() => {
     panelinfo(); //加载面板信息
     qiandaoinfo(); //加载签到信息
     trafficInfo(); //加载流量信息
+
+    // 检查是不是第一次访问网页
+    const hasVisited = localStorage.getItem('hasVisitedPage');
+
+    if (!hasVisited) {
+        // 如果没有记录，则弹出使用教程
+        showDialog.value = true;
+        // 设置访问状态
+        localStorage.setItem('hasVisitedPage', 'true');
+    }
 });
+
+const timer = setInterval(() => {
+  if (countdown.value > 0) {
+    countdown.value--;
+  }
+}, 1000);
+
+// 关闭教程弹窗
+const closeDialog = () => {
+  showDialog.value = false;
+  message.info(
+  () => `您后续可以从 菜单的"其他信息->帮助文档" 查看所有有关ChmlFrp的教程！（${countdown.value}秒后关闭）`, 
+  { 
+    duration: 10000, 
+    onClose: () => {
+      clearInterval(timer);
+    }
+  }
+);
+};
+
+const WatchTutorial = () => {
+    window.open('https://docs.chcat.cn/docs/chmlfrp/%E4%BD%BF%E7%94%A8%E6%96%87%E6%A1%A3/tutorial', '_blank');
+}
 
 // 一言
 const apiText = ref('');

@@ -27,7 +27,6 @@ import {
   ConstructOutline,
   ListCircleOutline,
   ServerOutline,
-  BanOutline,
   BagHandleOutline
 } from '@vicons/ionicons5';
 
@@ -161,11 +160,11 @@ export const computedMenuOptionsUser = computed(() => [{
       label: () => h(
         RouterLink,
         {
-          to: { name: '第三方市场' }
+          to: { name: '应用市场' }
         },
-        { default: () => '第三方市场' }
+        { default: () => '应用市场' }
       ),
-      key: '第三方市场',
+      key: '应用市场',
       icon: renderIcon(BagHandleOutline)
     }
   ]
@@ -204,17 +203,6 @@ export const computedMenuOptionsUser = computed(() => [{
   key: '其他信息',
   icon: renderIcon(EllipsisHorizontalCircleOutline),
   children: [
-    {
-      label: () => h(
-        RouterLink,
-        {
-          to: { name: '封禁列表' }
-        },
-        { default: () => '封禁列表' }
-      ),
-      key: '封禁列表',
-      icon: renderIcon(BanOutline)
-    },
     {
       label: () => h(
         RouterLink,
@@ -420,11 +408,11 @@ export const computedMenuOptionsGuest = computed(() => [
         label: () => h(
           RouterLink,
           {
-            to: { name: '第三方市场' }
+            to: { name: '应用市场' }
           },
-          { default: () => '第三方市场' }
+          { default: () => '应用市场' }
         ),
-        key: '第三方市场',
+        key: '应用市场',
         icon: renderIcon(BagHandleOutline)
       }
     ]
@@ -434,17 +422,6 @@ export const computedMenuOptionsGuest = computed(() => [
     key: '其他信息',
     icon: renderIcon(EllipsisHorizontalCircleOutline),
     children: [
-      {
-        label: () => h(
-          RouterLink,
-          {
-            to: { name: '封禁列表' }
-          },
-          { default: () => '封禁列表' }
-        ),
-        key: '封禁列表',
-        icon: renderIcon(BanOutline)
-      },
       {
         label: () => h(
           RouterLink,

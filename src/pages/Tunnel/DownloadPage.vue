@@ -5,7 +5,13 @@
       <div style="margin-left: 10px;">
         <n-h1 prefix="bar">ChmlFrp-下载中心</n-h1>
         <div>
-          <n-p>Windows图形客户端目前有BUG，请尽量使用原生客户端二次开发的客户端。架构一般为amd64。</n-p>
+          <n-p>
+            除了这些，您还可以前往菜单的
+            <n-button @click="navigateToMarketplace" text>
+              扩展功能->应用市场
+            </n-button>
+            下载其他客户端！
+          </n-p>
         </div>
         <n-button v-if="!isHidden" text tag="a" target="_blank" type="primary"
           href="https://docs.chcat.cn/docs/chmlfrp/%E4%BD%BF%E7%94%A8%E6%96%87%E6%A1%A3/tutorial">
@@ -39,10 +45,12 @@
         <span>{{ item.architecture }}</span>
         <n-divider vertical v-if="!isHidden" />
         <span style="color: #909399;" v-if="!isHidden">{{ time }}</span>
-        <n-button v-if="!isHidden" text tag="a" target="_blank" type="primary" :href="link + item.route" style="float: right; padding: 3px 0">
+        <n-button v-if="!isHidden" text tag="a" target="_blank" type="primary" :href="link + item.route"
+          style="float: right; padding: 3px 0">
           {{ link }}{{ item.route }}
         </n-button>
-        <n-button v-else text tag="a" target="_blank" type="primary" :href="link + item.route" style="float: right; padding: 3px 0">下载</n-button>
+        <n-button v-else text tag="a" target="_blank" type="primary" :href="link + item.route"
+          style="float: right; padding: 3px 0">下载</n-button>
       </n-card>
     </div>
   </n-card>
@@ -55,6 +63,10 @@ import { Freebsd } from '@vicons/fa';
 import { ref, onMounted, computed } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useScreenStore } from '@/stores/useScreen';
+import { useRouter } from 'vue-router';
+
+// 获取路由实例
+const router = useRouter();
 
 // 基础的手机端适配
 const screenStore = useScreenStore();
@@ -135,6 +147,11 @@ onMounted(async () => {
 
 const showCard = (os: string) => {
   selectedOS.value = os;
+};
+
+// 跳转到应用市场
+const navigateToMarketplace = () => {
+  router.push('/expand/app-marketplace');
 };
 </script>
 

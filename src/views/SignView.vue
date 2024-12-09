@@ -25,9 +25,13 @@
                     <n-card style="height: 100vh;">
                         <template v-if="!isRegister">
                             <n-form ref="formRef" :model="model" :rules="loginRules" class="center-form">
-                                <n-alert title="隐私策略&服务条款有更新" type="info">
+                                <n-flex justify="center">
+                                    <n-image width="48" style="margin-bottom: 24px;" v-if="isMobile"
+                                        src="https://www.chmlfrp.cn/favicon.ico" preview-disabled />
+                                </n-flex>
+                                <!-- <n-alert title="隐私策略&服务条款有更新" type="info">
                                     登录即代表您同意更新后的条款。点我查看隐私策略&服务条款。
-                                </n-alert>
+                                </n-alert> -->
                                 <n-form-item path="email">
                                     <n-input v-model:value="model.email" size="large" round placeholder="用户名或邮箱"
                                         maxlength="30" clearable />
@@ -50,6 +54,14 @@
                                         登录
                                     </n-button>
                                 </div>
+                                <n-flex justify="space-between" style="margin-top: 32px;">
+                                    <n-button text color="#9398b3" @click="touristPanel">
+                                        游客面板
+                                    </n-button>
+                                    <n-button v-if="isMobile" text color="#9398b3" @click="toggleRegister">
+                                        注册账号
+                                    </n-button>
+                                </n-flex>
                             </n-form>
                         </template>
                         <template v-else>
@@ -112,6 +124,14 @@
                                         {{ currentStep === 3 ? '注册' : '下一步' }}
                                     </n-button>
                                 </n-flex>
+                                <n-flex justify="space-between" style="margin-top: 32px;">
+                                    <n-button text color="#9398b3" @click="touristPanel">
+                                        游客面板
+                                    </n-button>
+                                    <n-button v-if="isMobile" text color="#9398b3" @click="toggleRegister">
+                                        登录账号
+                                    </n-button>
+                                </n-flex>
                             </n-form>
                         </template>
                     </n-card>
@@ -142,6 +162,9 @@ const buttonText = ref('发送验证码')
 const countdown = ref(60)
 const userStore = useUserStore();
 const clause = ref(false);
+const dialog = useDialog()
+
+const userInfo = userStore.userInfo;
 
 const GeeTest = () => {
     loadingCaptcha.value = true
@@ -370,7 +393,13 @@ const loginRules = {
 }
 
 const handleValidateButtonClick = async () => {
-    loginLoading.value = true //登录按钮状态设置为加载中
+    loginLoading.value = true; // 登录按钮状态设置为加载中
+
+    const loadingMessage = message.create('正在进行登录验证...', {
+        type: 'loading',
+        duration: 0,
+    });
+
     try {
         await formRef.value?.validate();
 
@@ -404,21 +433,51 @@ const handleValidateButtonClick = async () => {
 
             const storageDuration = keepLoggedIn.value ? 'permanent' : '1d';
             userStore.setUser(userInfo, storageDuration);
-            if (userInfo?.usergroup === '免费用户') {
-                message.success(`登录成功，欢迎您，${userInfo?.username}！`)
-            } else {
-                message.success(`登录成功，欢迎您，尊贵的会员用户${userInfo?.username}！`)
-            }
-            router.push('/home')
+
+            loadingMessage.type = 'success';
+            loadingMessage.content = userInfo?.usergroup === '免费用户'
+                ? `登录成功，欢迎您，${userInfo?.username}！`
+                : `登录成功，欢迎您，尊贵的会员用户${userInfo?.username}！`;
+
+            router.push('/home');
         } else {
-            message.error('登录失败，请检查用户名或密码。')
+            loadingMessage.type = 'error';
+            loadingMessage.content = `登录失败，${response.data.msg}`;
         }
     } catch (error) {
         console.error('表单验证或登录失败', error);
-        message.error('表单验证或登录失败，请重试。')
+        loadingMessage.type = 'error';
+        loadingMessage.content = '表单验证或登录失败，请重试。';
+    } finally {
+        // 在完成操作后，4秒后自动关闭
+        setTimeout(() => {
+            loadingMessage.destroy();
+        }, 4000);
+        loginLoading.value = false;
     }
-    loginLoading.value = false
 };
+
+const touristPanel = () => {
+    if (!userInfo?.usertoken) {
+        router.push('/tunnel/download')
+        message.warning('游客页面功能不完全，如需完整功能请登录！')
+    } else {
+        dialog.warning({
+            title: '提示',
+            content: '检测到您已登录账户，是否直接跳转到首页？选择是则不退出登录到首页，选择否则退出登录到游客页面。',
+            positiveText: '是',
+            negativeText: '否',
+            onPositiveClick: () => {
+                router.push('/home')
+            },
+            onNegativeClick: () => {
+                userStore.clearUser();
+                router.push('/tunnel/download')
+                message.warning('游客页面功能不完全，如需完整功能请登录！')
+            }
+        })
+    }
+}
 
 const isRegister = ref(false)
 const isMobile = ref(false)
