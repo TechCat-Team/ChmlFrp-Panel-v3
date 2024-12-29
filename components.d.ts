@@ -63,6 +63,8 @@ declare module 'vue' {
     NPerformantEllipsis: typeof import('naive-ui')['NPerformantEllipsis']
     NPopover: typeof import('naive-ui')['NPopover']
     NProgress: typeof import('naive-ui')['NProgress']
+    NRadio: typeof import('naive-ui')['NRadio']
+    NRadioGroup: typeof import('naive-ui')['NRadioGroup']
     NResult: typeof import('naive-ui')['NResult']
     NRow: typeof import('naive-ui')['NRow']
     NSelect: typeof import('naive-ui')['NSelect']

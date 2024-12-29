@@ -3,6 +3,7 @@
     <n-card size="small">
         <n-alert title="购买须知" type="warning">
             确认购买后，本站不支持退款。多次购买同一套餐则增加对应会员时长。
+            此页面尚未完善，如需购买请前往v2面板，链接：https://panel.chmlfrp.cn
         </n-alert>
     </n-card>
     <n-grid style="margin-top: 12px" :x-gap="12" :y-gap="12" cols="1 s:2 m:3 l:4" responsive="screen">
@@ -95,14 +96,24 @@
             </n-card>
         </n-grid-item>
     </n-grid>
-    <n-drawer v-model:show="show" :width="502">
+    <n-drawer v-model:show="show" :width="502" style="max-width: 100%">
         <n-drawer-content title="购买" closable>
             <n-tabs type="segment" animated>
                 <n-tab-pane name="1" tab="会员购买">
+                    <!-- <n-radio-group v-model:value="value" name="radiogroup">
+                        <n-space>
+                            <n-radio v-for="song in songs" :key="song.value" :value="song.value">
+                                {{ song.label }}
+                            </n-radio>
+                        </n-space>
+                    </n-radio-group> -->
+                    此页面尚未完善，如需购买请前往v2面板，链接：https://panel.chmlfrp.cn
                 </n-tab-pane>
                 <n-tab-pane name="2" tab="会员升级">
+                    此页面尚未完善，如需购买请前往v2面板，链接：https://panel.chmlfrp.cn
                 </n-tab-pane>
                 <n-tab-pane name="3" tab="兑换码购买">
+                    此页面尚未完善，如需购买请前往v2面板，链接：https://panel.chmlfrp.cn
                 </n-tab-pane>
             </n-tabs>
         </n-drawer-content>
@@ -111,4 +122,22 @@
 
 <script lang="ts" setup>
 const show = ref(false)
+const value = ref(null)
+const songs = ref([
+    {
+        value: '普通会员',
+        label: '普通会员'
+    },
+    {
+        value: '高级会员',
+        label: '高级会员'
+    },
+    {
+        value: '超级会员',
+        label: '超级会员'
+    }
+].map((s) => {
+    s.value = s.value.toLowerCase()
+    return s
+}))
 </script>

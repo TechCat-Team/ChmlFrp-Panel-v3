@@ -1,5 +1,10 @@
 <template>
     <n-back-top :right="100" />
+    <n-card size="small">
+        <n-alert title="提示" type="warning">
+            此页面尚未完善，如需购买请前往v2面板，链接：https://panel.chmlfrp.cn
+        </n-alert>
+    </n-card>
     <n-card>
         <n-h3 prefix="bar">
             <n-text type="primary">
