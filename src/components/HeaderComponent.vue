@@ -1,5 +1,5 @@
 <template>
-    <n-space justify="space-between" class="center-aligned">
+    <n-space justify="space-between">
         <span
             :style="{ display: isHidden ? 'none' : 'flex', color: themeStore.primaryColor, marginLeft: '24px', fontSize: '26px', transition: 'color 0.2s' }">
             ChmlFrp
@@ -11,7 +11,7 @@
                 </n-button>
             </n-dropdown>
         </div>
-        <n-space class="center-aligned" justify="space-between">
+        <n-space justify="space-between">
             <n-popover trigger="hover" style="border-radius: 8px;">
                 <template #trigger>
                     <n-button quaternary style="font-size: 18px;" @click="ThemeSwitcherDrawer('right')">
@@ -21,7 +21,7 @@
                 <span>面板设置</span>
             </n-popover>
             <n-dropdown trigger="hover" :options="userDropdownOptions">
-                <n-button quaternary size="large" class="avatar-container">
+                <n-button quaternary size="large">
                     <n-avatar v-if="userInfo?.userimg" round size="large" :src="userInfo?.userimg"
                         style="cursor: pointer;">
                     </n-avatar>

@@ -381,6 +381,7 @@ const timer = setInterval(() => {
 // 关闭教程弹窗
 const closeDialog = () => {
   showDialog.value = false;
+  countdown.value = 10;
   message.info(
   () => `您后续可以从 菜单的"其他信息->帮助文档" 查看所有有关ChmlFrp的教程！（${countdown.value}秒后关闭）`, 
   { 
