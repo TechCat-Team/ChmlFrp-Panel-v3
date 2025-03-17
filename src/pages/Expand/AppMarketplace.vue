@@ -54,7 +54,7 @@
                 <n-gi v-for="app in apps" :key="app.id">
                     <n-card size="small" hoverable>
                         <!-- 使用 cover 插槽来传递封面图 -->
-                        <template #cover>
+                        <template #cover> 
                             <img :src="app.coverImage" alt="cover"
                                 style="width: 100%; height: 120px; border-radius: 8px;" />
                         </template>
@@ -62,25 +62,6 @@
                 </n-gi>
             </n-grid>
         </n-grid-item>
-
-        <!-- 热度排行
-        <n-grid-item>
-            <n-h3 style="margin-top: 32px;">
-                热度排行
-            </n-h3>
-            <n-list :items="rankedApps">
-                <n-list-item v-for="(app, index) in rankedApps" :key="app.id">
-                    <n-card>
-                        <div style="display: flex; justify-content: space-between; align-items: center;">
-                            <div>
-                                <div style="font-weight: bold;">{{ index + 1 }}. {{ app.name }}</div>
-                                <p>{{ app.description }}</p>
-                            </div>
-                        </div>
-                    </n-card>
-                </n-list-item>
-            </n-list>
-        </n-grid-item> -->
     </n-grid>
     <n-card style="margin-top: 32px; width: 100%; height: 320px;">
         
@@ -151,25 +132,6 @@ const apps = ref([
         description: '提供MC游戏内的隧道操控',
         coverImage: 'https://via.placeholder.com/320x120',
     }
-])
-
-// 热度排行数据
-const rankedApps = ref([
-    {
-        id: 1,
-        name: 'App A',
-        description: '高热度应用A，广受欢迎。',
-    },
-    {
-        id: 2,
-        name: 'App B',
-        description: '热度应用B，很多用户使用。',
-    },
-    {
-        id: 3,
-        name: 'App C',
-        description: '热度应用C，有很好的评分。',
-    },
 ])
 </script>
 

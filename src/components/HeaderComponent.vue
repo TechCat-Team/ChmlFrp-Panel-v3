@@ -11,7 +11,34 @@
                 </n-button>
             </n-dropdown>
         </div>
-        <n-space justify="space-between">
+        <n-space class="center-aligned" justify="space-between">
+            <n-popover trigger="click" style="border-radius: 8px; max-height: 60vh; width: 350px">
+                <template #trigger>
+                    <n-button quaternary style="position: relative">
+                        <n-icon :component="NotificationsOutline" style="font-size: 18px; cursor: pointer">
+                            <n-badge v-if="unreadCount" :value="unreadCount" type="error" :max="99" />
+                        </n-icon>
+                    </n-button>
+                </template>
+
+                <n-spin :show="loading">
+                    <n-list v-if="notifications.length">
+                        <n-list-item v-for="notice in notifications" :key="notice.id">
+                            <n-thing content-indented>
+                                <template #header>
+                                    <n-time :time="new Date(notice.time)" type="relative" />
+                                </template>
+                                <template #description>
+                                    <n-text depth="3">{{ formatMessageTime(notice.time) }}</n-text>
+                                </template>
+                                <n-text>{{ notice.content }}</n-text>
+                            </n-thing>
+                        </n-list-item>
+                    </n-list>
+
+                    <n-empty v-else size="large" description="暂时没有新消息" style="margin: 20px 0" />
+                </n-spin>
+            </n-popover>
             <n-popover trigger="hover" style="border-radius: 8px;">
                 <template #trigger>
                     <n-button quaternary style="font-size: 18px;" @click="ThemeSwitcherDrawer('right')">
@@ -56,13 +83,52 @@ import { computedMenuOptions } from './Options/Menu'
 import {
     PersonCircleOutline as UserIcon,
     LogOutOutline as LogoutIcon,
-    MenuOutline, LogInOutline
+    MenuOutline, LogInOutline, NotificationsOutline
 } from '@vicons/ionicons5'
 // 获取登录信息
 import { useUserStore } from '@/stores/user';
+import dayjs from 'dayjs'
 
 const userStore = useUserStore();
 const userInfo = userStore.userInfo;
+
+// 通知数据结构
+interface Notification {
+    id: number
+    userid: number
+    content: string
+    quanti: string
+    time: string
+}
+
+// 响应式数据
+const notifications = ref<Notification[]>([])
+const loading = ref(true)
+const unreadCount = ref(0)
+
+// 格式化时间显示
+const formatMessageTime = (isoTime: string) => {
+    return dayjs(isoTime).format('YYYY-MM-DD HH:mm')
+}
+
+// 获取通知数据
+const fetchNotifications = async () => {
+    try {
+        const response = await fetch('https://cf-v2.uapis.cn/messages?token=7ulOTvzeKHDaeKsjDVsjfT3F')
+        const { state, data, code } = await response.json()
+        
+        if (code === 200 && state === 'success') {
+            notifications.value = data
+            // 根据quanti字段计算未读数（根据实际业务需求调整）
+            unreadCount.value = data.filter((n: { quanti: string; }) => n.quanti === 'yes').length
+        }
+    } catch (e) {
+        console.error('获取通知失败:', e)
+        message.error('获取通知失败，请检查网络')
+    } finally {
+        loading.value = false
+    }
+}
 
 // UserDropdown图标函数
 const renderIcon = (icon: Component, color?: string) => {
@@ -169,6 +235,8 @@ const updateUserDropdownOptions = () => {
 };
 // 初始化菜单项
 updateUserDropdownOptions();
+
+onMounted(fetchNotifications);
 </script>
 
 <style>
@@ -203,5 +271,13 @@ updateUserDropdownOptions();
 
 .text-bottom {
     color: #999;
+}
+
+.logo-text {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    transition: color var(--transition-duration);
 }
 </style>
