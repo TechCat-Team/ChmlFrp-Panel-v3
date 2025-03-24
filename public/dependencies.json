@@ -7,6 +7,7 @@
     "axios": "^1.7.4",
     "core-js": "^3.8.3",
     "crypto-js": "^4.2.0",
+    "dayjs": "^1.11.13",
     "echarts": "^5.5.0",
     "highlight.js": "^11.9.0",
     "naive-ui": "^2.38.2",
@@ -47,5 +48,5 @@
     "unplugin-auto-import": "^0.17.6"
   },
   "version": "0.1.0",
-  "buildTime": "2024/12/30 05:46:38"
+  "buildTime": "2025/03/24 20:03:05"
 }
