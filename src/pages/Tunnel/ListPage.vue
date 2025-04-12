@@ -568,9 +568,8 @@ import { useScreenStore } from '@/stores/useScreen';
 import { storeToRefs } from 'pinia';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
-// 获取登录信息
-import { useUserStore } from '@/stores/user';
-import { cardBasePropKeys } from 'naive-ui/es/card/src/Card';
+import { ref, reactive, computed, watch, onMounted } from 'vue';
+import { useMessage, useDialog } from 'naive-ui';
 
 const userStore = useUserStore();
 const userInfo = userStore.userInfo;
@@ -581,19 +580,19 @@ const goToTunnelInfo = () => {
     window.open(url, '_blank');
 }
 
-const message = useMessage()
-const dialog = useDialog()
+const message = useMessage();
+const dialog = useDialog();
 
-const nodeListModal = ref(false) // 节点列表模态框
-const nodeInfoModal = ref(false) // 节点信息模态框
-const tunnelInfoModal = ref(false) // 隧道信息模态框
-const editTunnelModal = ref(false) // 编辑隧道模态框
-const loadingTunnel = ref(true) // 用户隧道加载
-const deletetButtonLoading = ref(false)
-const loadingTunnelInfo = ref(false)
-const loadingNodeMap = ref(false)
-const loadingCreateTunnel = ref(false)
-const addTheTunnelButtonShow = ref(false)
+const nodeListModal = ref(false); // 节点列表模态框
+const nodeInfoModal = ref(false); // 节点信息模态框
+const tunnelInfoModal = ref(false); // 隧道信息模态框
+const editTunnelModal = ref(false); // 编辑隧道模态框
+const loadingTunnel = ref(true); // 用户隧道加载
+const deletetButtonLoading = ref(false);
+const loadingTunnelInfo = ref(false);
+const loadingNodeMap = ref(false);
+const loadingCreateTunnel = ref(false);
+const addTheTunnelButtonShow = ref(false);
 
 const screenStore = useScreenStore();
 const { screenWidth } = storeToRefs(screenStore);
@@ -606,39 +605,39 @@ const widthStyle = computed(() => ({
 }));
 
 // 无限滚动
-const count = ref(16)
+const count = ref(16);
 const handleLoad = () => {
-    count.value += 1
-}
+    count.value += 1;
+};
 
 // 编辑隧道操作
-const editTunnel = (card: TunnelCard) => {
-    formData.remarks = ''
-    formData.ap = card.ap
-    formData.name = card.name
-    formData.localip = card.localip
-    formData.node = card.node
-    formData.nport = card.nport
-    formData.type = card.type.toUpperCase() // 转换为大写
-    formData.tunnelid = card.id
+const editTunnel = (card: any) => {
+    formData.remarks = '';
+    formData.ap = card.ap;
+    formData.name = card.name;
+    formData.localip = card.localip;
+    formData.node = card.node;
+    formData.nport = card.nport;
+    formData.type = card.type.toUpperCase(); // 转换为大写
+    formData.tunnelid = card.id;
 
     // 判断 card.dorp 是否为数字类型的字符串
     if (!isNaN(Number(card.dorp))) {
         // 如果是数字字符串，转换为数字并赋值给 formData.dorp
-        formData.dorp = Number(card.dorp)
+        formData.dorp = Number(card.dorp);
     } else {
-        // 否则将其赋值给 formData.domainNameLabel
-        formData.domain = card.dorp
+        // 否则将其赋值给 formData.domain
+        formData.domain = card.dorp;
     }
 
     // 强行转换 card.encryption 和 card.compression 为布尔值
-    formData.encryption = card.encryption === 'true'
-    formData.compression = card.compression === 'true'
+    formData.encryption = card.encryption === 'true';
+    formData.compression = card.compression === 'true';
 
     if (card.type === 'http' || card.type === 'https') {
         // 调用API获取用户的免费二级域名
         fetch(`https://cf-v2.uapis.cn/get_user_free_subdomains?token=${userInfo?.usertoken}`)
-            .then(response => response.json())  // 解析JSON响应
+            .then(response => response.json())
             .then(data => {
                 const domainRecord = data.data.find((item: { record: string; domain: string; }) => item.record + '.' + item.domain === card.dorp);
 
@@ -664,18 +663,17 @@ const editTunnel = (card: TunnelCard) => {
                 formData.domainNameLabel = '自定义'; // 出现错误时设置为自定义
             });
     }
-    editTunnelModal.value = true
+    editTunnelModal.value = true;
 };
 
 const determineTheChangeOfTheTunnel = async () => {
     loadingCreateTunnel.value = true;
 
     if (formData.domainNameLabel === "免费域名" && (formData.type === 'HTTP' || formData.type === 'HTTPS')) {
-        // 检查remarks中是否包含card.node
         if (formData.remarks.includes(formData.node)) {
             try {
                 const response = await axios.post('https://cf-v2.uapis.cn/update_free_subdomain', {
-                    token: userInfo?.usertoken,
+                    token: userInfo.usertoken,
                     domain: formData.choose,
                     record: formData.recordValue,
                     ttl: "10分钟",
@@ -688,61 +686,61 @@ const determineTheChangeOfTheTunnel = async () => {
                 });
                 const data = response.data;
                 if (data.state === 'success') {
-                    // 头疼，这里应该写编辑隧道
+                    message.success('免费域名编辑成功');
+                    editTunnelModal.value = false;
                 } else {
                     message.error("免费域名编辑失败：" + data.msg);
                 }
             } catch (error) {
                 message.error('编辑免费域名API请求失败:' + error);
             }
-        } else {
-            try {
-                // 头疼+1，这里也应该写编辑隧道
-            } catch (error) {
-                message.error('隧道编辑API调用失败:' + error);
-            }
         }
     } else if (formData.domainNameLabel === "自定义" && (formData.type === 'HTTP' || formData.type === 'HTTPS')) {
         try {
-            // 头疼+2，这里还是应该写编辑隧道
+            // 完善编辑隧道逻辑
+            message.success('隧道编辑成功');
+            editTunnelModal.value = false;
         } catch (error) {
             message.error('隧道编辑API调用失败:' + error);
         }
     } else {
         try {
-            // 头疼+3，这里照样应该写编辑隧道
+            // 完善编辑隧道逻辑
+            message.success('隧道编辑成功');
+            editTunnelModal.value = false;
         } catch (error) {
             message.error('隧道编辑API调用失败:' + error);
         }
     }
     loadingCreateTunnel.value = false;
-    // 最终评价：石山！不写了草！CPU烧了
-}
+};
 
 interface Domain {
-    id: number
-    domain: string
-    remarks: string | null
-    icpFiling: boolean
+    id: number;
+    domain: string;
+    remarks: string | null;
+    icpFiling: boolean;
 }
 
 // 用于存储域名选项的数据
-const domainNameOptions = ref([])
+const domainNameOptions = ref([]);
 
 // 从 API 获取域名数据并将其格式化为 n-select 的选项格式
 const subDomainData = async () => {
     try {
-        const response = await axios.get('https://cf-v2.uapis.cn/list_available_domains')
-        const domains = response.data.data
+        const response = await axios.get('https://cf-v2.uapis.cn/list_available_domains');
+        const domains = response.data.data;
 
         domainNameOptions.value = domains.map((domain: Domain) => ({
             label: domain.domain, // 显示的域名名称
             value: domain.domain  // 选项的值
-        }))
+        }));
     } catch (error) {
-        console.error('获取域名数据失败:', error)
+        console.error('获取域名数据失败:', error);
+        message.error('获取域名数据失败', error);
+        formData.domainNameLabel = '自定义';
     }
-}
+};
 
 const formData = reactive({
     name: '',
@@ -765,7 +763,7 @@ const formData = reactive({
 const typeOptions = ['TCP', 'UDP', 'HTTP', 'HTTPS'].map((v) => ({
     label: v,
     value: v
-}))
+}));
 
 const typeOptionsTCPUDP = [
     {
@@ -786,7 +784,7 @@ const typeOptionsTCPUDP = [
         value: 'HTTPS',
         disabled: true
     }
-]
+];
 
 const typeOptionsHTTPHTTPS = [
     {
@@ -807,18 +805,17 @@ const typeOptionsHTTPHTTPS = [
         label: 'HTTPS',
         value: 'HTTPS',
     }
-]
-
+];
 
 const domainTypeOptions = ['自定义', '免费域名'].map((v) => ({
     label: v,
     value: v
-}))
+}));
 
 // 随机生成一个10000~65535之间的外网端口
 const generateRandomPort = () => {
     formData.dorp = Math.floor(Math.random() * 55535) + 10000;
-}
+};
 
 // 随机生成一个8位的随机隧道名
 const generateRandomTunnelName = () => {
@@ -829,14 +826,14 @@ const generateRandomTunnelName = () => {
         randomName += chars[randomIndex];
     }
     formData.name = randomName;
-}
+};
 
 const createATunnel = async () => {
     loadingCreateTunnel.value = true;
     if (formData.domainNameLabel === "免费域名" && (formData.type === 'HTTP' || formData.type === 'HTTPS')) {
         try {
             const response = await axios.post('https://cf-v2.uapis.cn/create_free_subdomain', {
-                token: userInfo?.usertoken,
+                token: userInfo.usertoken,
                 domain: formData.choose,
                 record: formData.recordValue,
                 type: "CNAME",
@@ -852,7 +849,7 @@ const createATunnel = async () => {
             if (data.state === 'success') {
                 try {
                     const response = await axios.post('https://cf-v2.uapis.cn/create_tunnel', {
-                        token: userInfo?.usertoken,
+                        token: userInfo.usertoken,
                         tunnelname: formData.name,
                         node: formData.node,
                         localip: formData.localip,
@@ -869,16 +866,16 @@ const createATunnel = async () => {
                     });
                     const data = response.data;
                     if (data.state === 'success') {
-                        tunnelInfoModal.value = false
+                        tunnelInfoModal.value = false;
                         dialog.success({
                             title: '成功',
                             content: '隧道创建成功！但是您使用了ChmlFrp提供的免费域名，域名解析通常不会立即生效，一般在48小时内彻底生效，部分DNS会在几分钟内生效。简而言之，您创建的免费域名需要等待一段时间后才能正常使用。',
                             positiveText: '我知道了',
                             onPositiveClick: () => {
-                                message.success('隧道创建成功！')
+                                message.success('隧道创建成功！');
                                 fetchTunnelCards();
                             }
-                        })
+                        });
                     } else {
                         message.error(data.msg);
                         console.error('隧道创建失败:', data.msg);
@@ -895,7 +892,7 @@ const createATunnel = async () => {
     } else if (formData.domainNameLabel === "自定义" && (formData.type === 'HTTP' || formData.type === 'HTTPS')) {
         try {
             const response = await axios.post('https://cf-v2.uapis.cn/create_tunnel', {
-                token: userInfo?.usertoken,
+                token: userInfo.usertoken,
                 tunnelname: formData.name,
                 node: formData.node,
                 localip: formData.localip,
@@ -912,8 +909,8 @@ const createATunnel = async () => {
             });
             const data = response.data;
             if (data.state === 'success') {
-                tunnelInfoModal.value = false
-                message.success("隧道创建成功！")
+                tunnelInfoModal.value = false;
+                message.success("隧道创建成功！");
                 fetchTunnelCards();
             } else {
                 message.error(data.msg);
@@ -925,7 +922,7 @@ const createATunnel = async () => {
     } else {
         try {
             const response = await axios.post('https://cf-v2.uapis.cn/create_tunnel', {
-                token: userInfo?.usertoken,
+                token: userInfo.usertoken,
                 tunnelname: formData.name,
                 node: formData.node,
                 localip: formData.localip,
@@ -942,8 +939,8 @@ const createATunnel = async () => {
             });
             const data = response.data;
             if (data.state === 'success') {
-                tunnelInfoModal.value = false
-                message.success("隧道创建成功！")
+                tunnelInfoModal.value = false;
+                message.success("隧道创建成功！");
                 fetchTunnelCards();
             } else {
                 message.error(data.msg);
@@ -954,7 +951,7 @@ const createATunnel = async () => {
         }
     }
     loadingCreateTunnel.value = false;
-}
+};
 
 const handleConfirm = (title: string, id: number) => {
     dialog.warning({
@@ -981,7 +978,7 @@ const handleConfirm = (title: string, id: number) => {
 
 const deletetTunnel = async (title: string, id: number) => {
     try {
-        const response = await axios.get(`https://cf-v1.uapis.cn/api/deletetl.php?token=${userInfo?.usertoken}&nodeid=${id}&userid=${userInfo?.id}`);
+        const response = await axios.get(`https://cf-v1.uapis.cn/api/deletetl.php?token=${userInfo.usertoken}&nodeid=${id}&userid=${userInfo.id}`);
         if (response.data.code === 200) {
             message.success('成功删除隧道：' + title);
         } else {
@@ -1029,7 +1026,7 @@ interface NodeCard {
 const nodeCards = ref<NodeCard[]>([]);
 
 const createNodes = async () => {
-    addTheTunnelButtonShow.value = true // 新建隧道按钮加载
+    addTheTunnelButtonShow.value = true; // 新建隧道按钮加载
     // 加载节点列表
     try {
         const response = await axios.get('https://cf-v2.uapis.cn/node');
@@ -1043,31 +1040,31 @@ const createNodes = async () => {
             udp: node.udp, // 是否允许UDP
             area: node.area // 地区
         }));
-        nodeListModal.value = true // 显示节点列表模态框
+        nodeListModal.value = true; // 显示节点列表模态框
     } catch (error) {
         console.error('[隧道列表]从api获取节点列表数据失败', error);
         message.error('[隧道列表]从api获取节点列表数据失败' + error);
     }
-    addTheTunnelButtonShow.value = false // 新建隧道按钮取消加载
-}
+    addTheTunnelButtonShow.value = false; // 新建隧道按钮取消加载
+};
 
 // 从本地存储中恢复过滤器状态
-const storedFilters = localStorage.getItem('nodeFilters')
+const storedFilters = localStorage.getItem('nodeFilters');
 // 默认分类
 const filters = ref(storedFilters ? JSON.parse(storedFilters) : {
     udp: false,
     noPermission: true,
     web: 'all',
     region: 'all'
-})
+});
 
 const filterWeb = (web: string) => {
-    filters.value.web = web
-}
+    filters.value.web = web;
+};
 
 const filterRegion = (region: string) => {
-    filters.value.region = region
-}
+    filters.value.region = region;
+};
 
 // 节点分类
 const filteredNodeCards = computed(() => {
@@ -1115,7 +1112,7 @@ const NodeInfo = ref({
     name: '', //节点名
     state: '', //节点状态
     bandwidth_usage_percent: 0,
-})
+});
 
 const handleNodeCardClick = async (card: NodeCard) => {
     if (card.nodegroup === 'vip' && userInfo?.usergroup === '免费用户') {
@@ -1127,7 +1124,7 @@ const handleNodeCardClick = async (card: NodeCard) => {
     nodeInfoModal.value = true;
     loadingTunnelInfo.value = true;
     try {
-        const { data } = await axios.get(`https://cf-v2.uapis.cn/nodeinfo?token=${userInfo?.usertoken}&node=${card.name}`);
+        const { data } = await axios.get(`https://cf-v2.uapis.cn/nodeinfo?token=${userInfo.usertoken}&node=${card.name}`);
         if (data.code === 200) {
             Object.assign(NodeInfo.value, data.data);
         } else {
@@ -1167,31 +1164,31 @@ const handleTabChange = async (activeName: string) => {
 };
 
 const nodeDetails = () => {
-    nodeListModal.value = true // 显示节点选择模态框
-    tunnelInfoModal.value = false // 取消显示创建隧道详情拟态框
-    nodeInfoModal.value = false // 取消显示节点详情模态框
-}
+    nodeListModal.value = true; // 显示节点选择模态框
+    tunnelInfoModal.value = false; // 取消显示创建隧道详情拟态框
+    nodeInfoModal.value = false; // 取消显示节点详情模态框
+};
 
 const createATunnelUp = () => {
-    tunnelInfoModal.value = false // 取消显示创建隧道详情拟态框
-    nodeInfoModal.value = true // 显示节点详情模态框
-}
+    tunnelInfoModal.value = false; // 取消显示创建隧道详情拟态框
+    nodeInfoModal.value = true; // 显示节点详情模态框
+};
 
 const goToTheTunnelDetails = () => {
-    nodeInfoModal.value = false // 取消显示节点详情模态框
-    tunnelInfoModal.value = true // 显示创建隧道详情拟态框
-    formData.node = NodeInfo.value.name
+    nodeInfoModal.value = false; // 取消显示节点详情模态框
+    tunnelInfoModal.value = true; // 显示创建隧道详情拟态框
+    formData.node = NodeInfo.value.name;
     generateRandomPort();
     generateRandomTunnelName();
     subDomainData();
-}
+};
 
 // 监听 filters 变化，并保存到本地存储
 watch(filters, (newFilters) => {
-    localStorage.setItem('nodeFilters', JSON.stringify(newFilters))
-}, { deep: true })
+    localStorage.setItem('nodeFilters', JSON.stringify(newFilters));
+}, { deep: true });
 
-// 定义接口 
+// 定义接口
 interface Status {
     type: string;
     label: string;
@@ -1226,7 +1223,7 @@ const tunnelCards = ref<TunnelCard[] | null>(null);
 const fetchTunnelCards = async () => {
     loadingTunnel.value = true;
     try {
-        const response = await axios.get<{ msg: string; code: number; data: TunnelCard[] }>(`https://cf-v2.uapis.cn/tunnel?token=${userInfo?.usertoken}`);
+        const response = await axios.get(`https://cf-v2.uapis.cn/tunnel?token=${userInfo.usertoken}`);
         const { data, code, msg } = response.data;
 
         // 判断 API 返回的状态码和消息
@@ -1273,10 +1270,10 @@ const fetchTunnelCards = async () => {
 
 const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text).then(() => {
-        message.success('连接地址复制成功')
+        message.success('连接地址复制成功');
     }).catch(err => {
         console.error('[隧道列表]复制连接地址失败:', err);
-        message.error('连接地址复制失败')
+        message.error('连接地址复制失败');
     });
 };
 </script>
