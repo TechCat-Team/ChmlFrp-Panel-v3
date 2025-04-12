@@ -6,7 +6,7 @@
       <n-message-provider>
         <!-- 对话框 -->
         <n-dialog-provider>
-            <ViewComponent />
+          <ViewComponent />
         </n-dialog-provider>
       </n-message-provider>
     </n-loading-bar-provider>
@@ -14,21 +14,27 @@
 </template>
 
 <script setup lang="ts">
+import { computed, onMounted, onUnmounted, watch } from 'vue';
 import { useThemeStore } from '@/stores/theme';
 import { RouterView } from 'vue-router';
 import { useProviderStore } from './stores/provider';
 import { useUserStore } from '@/stores/user';
-import hljs from 'highlight.js/lib/core'
-import ini from 'highlight.js/lib/languages/ini'
-import nginx from 'highlight.js/lib/languages/nginx'
-import powershell from 'highlight.js/lib/languages/powershell'
+import hljs from 'highlight.js/lib/core';
+import ini from 'highlight.js/lib/languages/ini';
+import nginx from 'highlight.js/lib/languages/nginx';
+import powershell from 'highlight.js/lib/languages/powershell';
+import { h, defineComponent } from 'vue';
+import { useLoadingBar } from 'naive-ui';
 
-hljs.registerLanguage('ini', ini)
-hljs.registerLanguage('nginx', nginx)
-hljs.registerLanguage('powershell', powershell)
+// 注册代码高亮语言
+hljs.registerLanguage('ini', ini);
+hljs.registerLanguage('nginx', nginx);
+hljs.registerLanguage('powershell', powershell);
 
+// 获取用户存储实例
 const userStore = useUserStore();
 
+// 页面挂载时加载用户信息
 onMounted(() => {
   userStore.loadUser();
 });
@@ -47,12 +53,18 @@ const chmlFrpPanel = ` _____         _      ____      _
 console.info(chmlFrpPanel);
 console.info(`Copyright 2021 - ${currentYear} TechCat All rights reserved.`);
 
+// 获取主题存储实例
 const themeStore = useThemeStore();
 
+// 假设 darkTheme 和 lightTheme 是从 naive-ui 导入的主题
+import { darkTheme, lightTheme } from 'naive-ui';
+
+// 计算当前主题
 const computedTheme = computed(() => {
   return themeStore.theme === 'dark' ? darkTheme : lightTheme;
 });
 
+// 计算主题覆盖样式
 const themeOverrides = computed(() => {
   const commonColors = {
     primaryColor: themeStore.primaryColor,
@@ -86,8 +98,10 @@ const themeOverrides = computed(() => {
   };
 });
 
+// 获取提供者存储实例
 const provider = useProviderStore();
 
+// 定义视图组件
 const ViewComponent = defineComponent({
   render: () => h(RouterView),
   setup() {
@@ -95,9 +109,35 @@ const ViewComponent = defineComponent({
   },
 });
 
+// 动画帧 ID
 let animationFrameId: number | null = null;
+// RGB 模式运行状态
 let isRGBRunning = false;
 
+// 更新 RGB 颜色
+const updateRGBColor = (r: number, g: number, b: number, dr: number, dg: number, db: number) => {
+  if (r <= 0 && g >= 255) {
+    dr = 0;
+    dg = -5;
+    db = 5;
+  }
+  if (g <= 0 && b >= 255) {
+    dr = 5;
+    dg = 0;
+    db = -5;
+  }
+  if (b <= 0 && r >= 255) {
+    dr = -5;
+    dg = 5;
+    db = 0;
+  }
+  r += dr;
+  g += dg;
+  b += db;
+  return { r, g, b, dr, dg, db };
+};
+
+// 启动 RGB 颜色动画
 const animatePrimaryColor = () => {
   if (isRGBRunning) return;
   isRGBRunning = true;
@@ -110,10 +150,13 @@ const animatePrimaryColor = () => {
       isRGBRunning = false;
       return;
     }
-    if (r <= 0 && g >= 255) { dr = 0; dg = -5; db = 5; }
-    if (g <= 0 && b >= 255) { dr = 5; dg = 0; db = -5; }
-    if (b <= 0 && r >= 255) { dr = -5; dg = 5; db = 0; }
-    r += dr; g += dg; b += db;
+    const { r: newR, g: newG, b: newB, dr: newDr, dg: newDg, db: newDb } = updateRGBColor(r, g, b, dr, dg, db);
+    r = newR;
+    g = newG;
+    b = newB;
+    dr = newDr;
+    dg = newDg;
+    db = newDb;
 
     themeStore.primaryColor = `rgb(${r}, ${g}, ${b})`;
     animationFrameId = requestAnimationFrame(step);
@@ -122,6 +165,7 @@ const animatePrimaryColor = () => {
   step();
 };
 
+// 监听 RGB 模式变化
 watch(() => themeStore.isRGBMode, (newVal) => {
   if (newVal) {
     animatePrimaryColor();
@@ -131,12 +175,14 @@ watch(() => themeStore.isRGBMode, (newVal) => {
   }
 });
 
+// 页面挂载时检查 RGB 模式并启动动画
 onMounted(() => {
   if (themeStore.isRGBMode) {
     animatePrimaryColor();
   }
 });
 
+// 页面卸载时取消动画
 onUnmounted(() => {
   if (animationFrameId) {
     cancelAnimationFrame(animationFrameId);
