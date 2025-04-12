@@ -571,8 +571,25 @@ import axios from 'axios';
 import { ref, reactive, computed, watch, onMounted } from 'vue';
 import { useMessage, useDialog } from 'naive-ui';
 
+interface Domain {
+    id: number;
+    domain: string;
+    remarks: string | null;
+    icpFiling: boolean;
+}
+
+interface UserInfo {
+    usertoken?: string | null;
+    bandwidth?: number | null;
+    usergroup?: string | null;
+}
+
+interface UserStore {
+    userInfo: UserInfo;
+}
+
 const userStore = useUserStore();
-const userInfo = userStore.userInfo;
+const { userInfo } = storeToRefs(userStore) as { userInfo: UserInfo };
 
 const router = useRouter();
 const goToTunnelInfo = () => {
@@ -636,7 +653,7 @@ const editTunnel = (card: any) => {
 
     if (card.type === 'http' || card.type === 'https') {
         // 调用API获取用户的免费二级域名
-        fetch(`https://cf-v2.uapis.cn/get_user_free_subdomains?token=${userInfo?.usertoken}`)
+        fetch(`https://cf-v2.uapis.cn/get_user_free_subdomains?token=${userInfo.value?.usertoken}`)
             .then(response => response.json())
             .then(data => {
                 const domainRecord = data.data.find((item: { record: string; domain: string; }) => item.record + '.' + item.domain === card.dorp);
@@ -673,7 +690,7 @@ const determineTheChangeOfTheTunnel = async () => {
         if (formData.remarks.includes(formData.node)) {
             try {
                 const response = await axios.post('https://cf-v2.uapis.cn/update_free_subdomain', {
-                    token: userInfo.usertoken,
+                    token: userInfo.value?.usertoken,
                     domain: formData.choose,
                     record: formData.recordValue,
                     ttl: "10分钟",
@@ -715,13 +732,6 @@ const determineTheChangeOfTheTunnel = async () => {
     loadingCreateTunnel.value = false;
 };
 
-interface Domain {
-    id: number;
-    domain: string;
-    remarks: string | null;
-    icpFiling: boolean;
-}
-
 // 用于存储域名选项的数据
 const domainNameOptions = ref([]);
 
@@ -736,7 +746,7 @@ const subDomainData = async () => {
             value: domain.domain  // 选项的值
         }));
     } catch (error) {
-        console.error('获取域名数据失败:', error);
+        console.error('获取域名数据失败', error);
         message.error('获取域名数据失败', error);
         formData.domainNameLabel = '自定义';
     }
@@ -833,7 +843,7 @@ const createATunnel = async () => {
     if (formData.domainNameLabel === "免费域名" && (formData.type === 'HTTP' || formData.type === 'HTTPS')) {
         try {
             const response = await axios.post('https://cf-v2.uapis.cn/create_free_subdomain', {
-                token: userInfo.usertoken,
+                token: userInfo.value?.usertoken,
                 domain: formData.choose,
                 record: formData.recordValue,
                 type: "CNAME",
@@ -849,7 +859,7 @@ const createATunnel = async () => {
             if (data.state === 'success') {
                 try {
                     const response = await axios.post('https://cf-v2.uapis.cn/create_tunnel', {
-                        token: userInfo.usertoken,
+                        token: userInfo.value?.usertoken,
                         tunnelname: formData.name,
                         node: formData.node,
                         localip: formData.localip,
@@ -892,7 +902,7 @@ const createATunnel = async () => {
     } else if (formData.domainNameLabel === "自定义" && (formData.type === 'HTTP' || formData.type === 'HTTPS')) {
         try {
             const response = await axios.post('https://cf-v2.uapis.cn/create_tunnel', {
-                token: userInfo.usertoken,
+                token: userInfo.value?.usertoken,
                 tunnelname: formData.name,
                 node: formData.node,
                 localip: formData.localip,
@@ -922,7 +932,7 @@ const createATunnel = async () => {
     } else {
         try {
             const response = await axios.post('https://cf-v2.uapis.cn/create_tunnel', {
-                token: userInfo.usertoken,
+                token: userInfo.value?.usertoken,
                 tunnelname: formData.name,
                 node: formData.node,
                 localip: formData.localip,
@@ -978,7 +988,7 @@ const handleConfirm = (title: string, id: number) => {
 
 const deletetTunnel = async (title: string, id: number) => {
     try {
-        const response = await axios.get(`https://cf-v1.uapis.cn/api/deletetl.php?token=${userInfo.usertoken}&nodeid=${id}&userid=${userInfo.id}`);
+        const response = await axios.get(`https://cf-v1.uapis.cn/api/deletetl.php?token=${userInfo.value?.usertoken}&nodeid=${id}&userid=${userInfo.value?.id}`);
         if (response.data.code === 200) {
             message.success('成功删除隧道：' + title);
         } else {
@@ -1072,7 +1082,7 @@ const filteredNodeCards = computed(() => {
         const matchUdp = filters.value.udp ? node.udp === 'true' : true;
 
         let matchNoPermission = true;
-        if (userInfo?.usergroup) {
+        if (userInfo.value?.usergroup) {
             matchNoPermission = filters.value.noPermission ? true : node.nodegroup === 'user';
         } else {
             matchNoPermission = filters.value.noPermission ? true : true;
@@ -1115,7 +1125,7 @@ const NodeInfo = ref({
 });
 
 const handleNodeCardClick = async (card: NodeCard) => {
-    if (card.nodegroup === 'vip' && userInfo?.usergroup === '免费用户') {
+    if (card.nodegroup === 'vip' && userInfo.value?.usergroup === '免费用户') {
         message.warning('此节点为会员节点，您的权限不足');
         return;
     }
@@ -1124,7 +1134,7 @@ const handleNodeCardClick = async (card: NodeCard) => {
     nodeInfoModal.value = true;
     loadingTunnelInfo.value = true;
     try {
-        const { data } = await axios.get(`https://cf-v2.uapis.cn/nodeinfo?token=${userInfo.usertoken}&node=${card.name}`);
+        const { data } = await axios.get(`https://cf-v2.uapis.cn/nodeinfo?token=${userInfo.value?.usertoken}&node=${card.name}`);
         if (data.code === 200) {
             Object.assign(NodeInfo.value, data.data);
         } else {
@@ -1223,7 +1233,7 @@ const tunnelCards = ref<TunnelCard[] | null>(null);
 const fetchTunnelCards = async () => {
     loadingTunnel.value = true;
     try {
-        const response = await axios.get(`https://cf-v2.uapis.cn/tunnel?token=${userInfo.usertoken}`);
+        const response = await axios.get(`https://cf-v2.uapis.cn/tunnel?token=${userInfo.value?.usertoken}`);
         const { data, code, msg } = response.data;
 
         // 判断 API 返回的状态码和消息
