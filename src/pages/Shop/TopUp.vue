@@ -2,62 +2,22 @@
     <n-back-top :right="100" />
     <n-card size="small">
         <n-alert title="提示" type="warning">
-            此页面尚未完善，如需购买请前往v2面板，链接：https://panel.chmlfrp.cn
+            充值后不支持退款，如果积分充值未到账，并且在扫码付款页面忘记点击补单。请联系客服QQ：242247494进行补发。
         </n-alert>
     </n-card>
-    <n-card>
+    <n-card style="margin-top: 16px;">
         <n-h3 prefix="bar">
             <n-text type="primary">
                 预设金额
             </n-text>
         </n-h3>
         <n-grid cols="2 s:3 m:4 l:5 xl:6 2xl:7" :x-gap="12" :y-gap="12" responsive="screen">
-            <n-grid-item>
-                <n-card size="small" hoverable>
+            <n-grid-item v-for="(item, index) in presetAmounts" :key="index">
+                <n-card size="small" hoverable @click="selectPresetAmount(item)">
                     <n-flex justify="space-between">
-                        8000积分
+                        {{ item.points }}积分
                         <n-flex justify="end">
-                            8￥
-                        </n-flex>
-                    </n-flex>
-                </n-card>
-            </n-grid-item>
-            <n-grid-item>
-                <n-card size="small" hoverable>
-                    <n-flex justify="space-between">
-                        12000积分
-                        <n-flex justify="end">
-                            12￥
-                        </n-flex>
-                    </n-flex>
-                </n-card>
-            </n-grid-item>
-            <n-grid-item>
-                <n-card size="small" hoverable>
-                    <n-flex justify="space-between">
-                        18000积分
-                        <n-flex justify="end">
-                            18￥
-                        </n-flex>
-                    </n-flex>
-                </n-card>
-            </n-grid-item>
-            <n-grid-item>
-                <n-card size="small" hoverable>
-                    <n-flex justify="space-between">
-                        96000积分
-                        <n-flex justify="end">
-                            80￥
-                        </n-flex>
-                    </n-flex>
-                </n-card>
-            </n-grid-item>
-            <n-grid-item>
-                <n-card size="small" hoverable>
-                    <n-flex justify="space-between">
-                        144000积分
-                        <n-flex justify="end">
-                            120￥
+                            {{ item.amount }}￥
                         </n-flex>
                     </n-flex>
                 </n-card>
@@ -68,11 +28,21 @@
                 自定义金额
             </n-text>
         </n-h3>
-        <n-input v-model:value="value" round clearable type="text" :allow-input="onlyAllowNumber" placeholder="只能输入整数">
-            <template #prefix>
-                ￥
-            </template>
-        </n-input>
+        <n-grid cols="5" item-responsive responsive="screen">
+            <n-grid-item span="5 m:2">
+                <n-input v-model:value="customAmount" round clearable type="text" :allow-input="onlyAllowNumber"
+                    placeholder="请输入整数金额(最少为3，最多为9999)" @keydown.enter="validateAmount" @blur="validateMaxAmount">
+                    <template #prefix>
+                        ￥
+                    </template>
+                </n-input>
+            </n-grid-item>
+            <n-grid-item span="5 m:3" style="display: flex; justify-content: flex-end; align-items: center;">
+                <n-text type="primary" style="margin-left: auto;">
+                    = {{ calculatedPoints }}积分
+                </n-text>
+            </n-grid-item>
+        </n-grid>
         <n-h3 prefix="bar">
             <n-text type="primary">
                 支付方式
@@ -80,8 +50,8 @@
         </n-h3>
         <n-grid cols="2 s:3 l:4 xl:5 2xl:6" :x-gap="12" :y-gap="12" responsive="screen">
             <n-grid-item>
-                <n-card size="small" hoverable>
-                    <n-space>
+                <n-card size="small" hoverable @click="pay('wxpay')" :disabled="!isAmountValid">
+                    <n-space align="center">
                         <n-icon size="40" color="#07C160">
                             <LogoWechat />
                         </n-icon>
@@ -90,32 +60,12 @@
                 </n-card>
             </n-grid-item>
             <n-grid-item>
-                <n-card size="small" hoverable>
-                    <n-space>
+                <n-card size="small" hoverable @click="pay('alipay')" :disabled="!isAmountValid">
+                    <n-space align="center">
                         <n-icon size="40" color="#1677FF">
                             <LogoAlipay />
                         </n-icon>
                         <span style="font-size: 24px;">支付宝</span>
-                    </n-space>
-                </n-card>
-            </n-grid-item>
-            <n-grid-item>
-                <n-card size="small" hoverable>
-                    <n-space>
-                        <n-icon size="40" color="#003087">
-                            <LogoPaypal />
-                        </n-icon>
-                        <span style="font-size: 24px;">PayPal</span>
-                    </n-space>
-                </n-card>
-            </n-grid-item>
-            <n-grid-item>
-                <n-card size="small" hoverable>
-                    <n-space>
-                        <n-icon size="40" color="#000000">
-                            <LogoApple />
-                        </n-icon>
-                        <span style="font-size: 24px;">Apple Pay</span>
                     </n-space>
                 </n-card>
             </n-grid-item>
@@ -124,10 +74,93 @@
 </template>
 
 <script lang="ts" setup>
-import { LogoAlipay, LogoWechat, LogoPaypal, LogoApple } from '@vicons/ionicons5'
-const value = ref(1)
-const onlyAllowNumber = (value: string) => !value || /^\d+$/.test(value)
+import { LogoAlipay, LogoWechat } from '@vicons/ionicons5'
+import { ref, computed } from 'vue'
+import { useMessage } from 'naive-ui'
 
+// 获取登录信息
+import { useUserStore } from '@/stores/user';
+
+const userStore = useUserStore();
+const userInfo = userStore.userInfo;
+
+const message = useMessage()
+
+// 预设金额配置
+const presetAmounts = [
+    { amount: 3, points: 3000 },
+    { amount: 6, points: 6000 },
+    { amount: 8, points: 8000 },
+    { amount: 12, points: 12000 },
+    { amount: 16, points: 16000 },
+    { amount: 30, points: 30000 },
+    { amount: 60, points: 60000 },
+    { amount: 80, points: 80000 },
+    { amount: 120, points: 120000 },
+    { amount: 160, points: 160000 },
+]
+
+const customAmount = ref('3')
+const selectedPayment = ref('')
+
+// 计算积分
+const calculatedPoints = computed(() => {
+    const amount = parseInt(customAmount.value) || 0
+    return amount * 1000
+})
+
+// 金额验证
+const isAmountValid = computed(() => {
+    const amount = parseInt(customAmount.value) || 0
+    return amount >= 3 && amount <= 9999
+})
+
+// 验证最大金额
+const validateMaxAmount = () => {
+    const amount = parseInt(customAmount.value) || 0
+    if (amount > 9999) {
+        message.error('金额最大为9999元')
+        customAmount.value = '9999'
+    }
+}
+// 只允许数字输入并限制最大长度
+const onlyAllowNumber = (value: string) => {
+    // 限制只能输入数字
+    if (!/^\d*$/.test(value)) return false
+    // 限制最大长度为4位(9999)
+    if (value.length > 4) return false
+    return true
+}
+
+// 选择预设金额
+const selectPresetAmount = (item: { amount: number }) => {
+    customAmount.value = item.amount.toString()
+}
+
+// 验证金额
+const validateAmount = () => {
+    if (!isAmountValid.value) {
+        message.error('金额最少为3元')
+    }
+}
+
+// 支付函数
+const pay = (type: 'wxpay' | 'alipay') => {
+    const amount = parseInt(customAmount.value) || 3
+    if (amount < 3) {
+        message.error('金额最少为3元')
+        return
+    }
+    if (amount > 9999) {
+        message.error('金额最大为9999元')
+        return
+    }
+
+    const paymentUrl = `https://cf-v1.uapis.cn/api/cz.php?name=积分充值&type=${type}&usertoken=${userInfo?.usertoken}&money=${amount}`
+
+    // 跳转到支付API
+    window.location.href = paymentUrl
+}
 </script>
 
 <style lang="scss">
