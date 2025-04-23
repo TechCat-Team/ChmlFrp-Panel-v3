@@ -1,6 +1,6 @@
 <template>
     <n-back-top :right="100" />
-    <n-carousel show-arrow autoplay style="width: 100%; height: 240px; border-radius: 8px">
+    <n-carousel show-arrow autoplay style="width: 100%; height: 320px; border-radius: 8px">
         <div class="carousel-slide" :class="{ 'dark-mode-overlay': isDarkTheme }">
             <img class="carousel-img" src="https://www.chmlfrp.cn/image/1.png" />
             <div class="carousel-caption">
@@ -52,22 +52,40 @@
             <n-grid x-gap="12" y-gap="12" cols="1 s:3 m:4 l:5 xl:5" responsive="screen" :collapsed-rows="1"
                 :collapsed="true">
                 <n-gi v-for="app in apps" :key="app.id">
-                    <n-card size="small" hoverable>
-                        <!-- 使用 cover 插槽来传递封面图 -->
-                        <template #cover> 
+                    <n-card size="small" hoverable @click="$router.push(app.router)">
+                        <template #cover>
                             <img :src="app.coverImage" alt="cover"
-                                style="width: 100%; height: 120px; border-radius: 8px;" />
+                                style="width: 100%; height: 120px; filter: brightness(0.9);" />
                         </template>
+                        <div style="margin-top: 16px;">
+                            <img :src="app.favicon" alt="favicon"
+                                style="width: 24px; height: 24px; margin-right: 8px;" />
+                            <span>{{ app.name }}</span>
+                            <p style="font-size: 12px; color: #666;">{{ app.description }}</p>
+                        </div>
                     </n-card>
                 </n-gi>
             </n-grid>
         </n-grid-item>
     </n-grid>
-    <n-card style="margin-top: 32px; width: 100%; height: 320px;">
-        
-    </n-card>
+    <n-h3 style="margin-top: 32px;">
+        第三方软件
+    </n-h3>
+    <n-grid x-gap="12" y-gap="12" cols="1 s:3 m:4 l:5 xl:5" responsive="screen">
+        <n-gi>
+            <n-card size="small" hoverable>
+                <template #cover>
+                    <img src="https://via.placeholder.com/320x120" />
+                </template>
+                <div style="padding: 8px;">
+                    <span>示例第三方软件</span>
+                    <p style="font-size: 12px; color: #666;">功能强大，欢迎体验</p>
+                </div>
+            </n-card>
+        </n-gi>
+    </n-grid>
     <n-card style="margin-top: 32px;">
-        如果您也想想让您的软件出现在这里，请邮件联系chaoji@chcat.cn
+        如果您也想让您的软件出现在这里，请邮件联系 <a href="mailto:chaoji@chcat.cn">chaoji@chcat.cn</a>
     </n-card>
 </template>
 
@@ -94,43 +112,33 @@ const apps = ref([
         id: 1,
         name: 'WinUi启动器',
         description: 'win10以上的图形客户端',
-        coverImage: 'https://via.placeholder.com/320x120',
+        coverImage: 'https://www.chmlfrp.cn/image/2.png',
+        favicon: 'https://chmlfrp.cn/favicon.ico',
+        router: '/app_details/1'
     },
     {
         id: 2,
         name: 'EXUI启动器',
         description: 'win7以上的图形客户端',
-        coverImage: 'https://via.placeholder.com/320x120',
+        coverImage: 'https://www.chmlfrp.cn/image/3.png',
+        favicon: 'https://chmlfrp.cn/favicon.ico',
+        router: '/app_details/2'
     },
     {
         id: 3,
         name: 'MC插件端',
         description: '适用于MC插件服务器',
         coverImage: 'https://via.placeholder.com/320x120',
+        favicon: 'https://static.spigotmc.org/img/spigot.png',
+        router: '/app_details/3'
     },
     {
         id: 4,
         name: 'MCFabric模组端',
         description: '提供MC游戏内的隧道操控',
         coverImage: 'https://via.placeholder.com/320x120',
-    },
-    {
-        id: 5,
-        name: 'MCFabric模组端',
-        description: '提供MC游戏内的隧道操控',
-        coverImage: 'https://via.placeholder.com/320x120',
-    },
-    {
-        id: 6,
-        name: 'MCFabric模组端',
-        description: '提供MC游戏内的隧道操控',
-        coverImage: 'https://via.placeholder.com/320x120',
-    },
-    {
-        id: 7,
-        name: 'MCFabric模组端',
-        description: '提供MC游戏内的隧道操控',
-        coverImage: 'https://via.placeholder.com/320x120',
+        favicon: 'https://wiki.fabricmc.net/_media/wiki:logo.png',
+        router: '/app_details/4'
     }
 ])
 </script>
@@ -153,9 +161,9 @@ const apps = ref([
 
 .carousel-img {
     width: 100%;
-    height: 240px;
+    height: 320px;
     object-fit: cover;
-    filter: blur(6px);
+    filter: brightness(0.9);
 }
 
 /* 暗色模式图片的深色遮罩 */

@@ -15,6 +15,7 @@
                     <n-li>节点权限：普通节点</n-li>
                     <n-li>国内节点速率限制：8m</n-li>
                     <n-li>国外节点速率限制：32m</n-li>
+                    <n-li>流量限制：无限制</n-li>
                     <n-li>隧道数量：4条</n-li>
                     <n-li>二级域名数量：2条</n-li>
                     <n-li>免费SSL数量：1条</n-li>
@@ -62,6 +63,7 @@
                     <n-li>国内节点速率限制：16m</n-li>
                     <n-li>国外节点速率限制：64m</n-li>
                     <n-li>隧道数量：8条</n-li>
+                    <n-li>流量限制：无限制</n-li>
                     <n-li>二级域名数量：4条</n-li>
                     <n-li>免费SSL数量：2条</n-li>
                     <n-li>官方技术支持：不支持</n-li>
@@ -100,9 +102,10 @@
                     <n-li>国内节点速率限制：24m</n-li>
                     <n-li>国外节点速率限制：96m</n-li>
                     <n-li>隧道数量：12条</n-li>
+                    <n-li>流量限制：无限制</n-li>
                     <n-li>二级域名数量：8条</n-li>
                     <n-li>免费SSL数量：4条</n-li>
-                    <n-li>官方技术支持：每月一次</n-li>
+                    <n-li>官方技术支持：每月1次</n-li>
                 </n-ul>
                 <template #action>
                     <n-flex justify="space-between">
@@ -138,9 +141,10 @@
                     <n-li>国内节点速率限制：32m</n-li>
                     <n-li>国外节点速率限制：128m</n-li>
                     <n-li>隧道数量：16条</n-li>
+                    <n-li>流量限制：无限制</n-li>
                     <n-li>二级域名数量：16条</n-li>
                     <n-li>免费SSL数量：12条</n-li>
-                    <n-li>官方技术支持：每月两次</n-li>
+                    <n-li>官方技术支持：每月2次</n-li>
                 </n-ul>
                 <template #action>
                     <n-flex justify="space-between">

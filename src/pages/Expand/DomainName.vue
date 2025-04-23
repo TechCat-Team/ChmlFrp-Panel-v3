@@ -23,41 +23,56 @@
             </n-infinite-scroll>
         </n-grid-item>
     </n-grid>
-    <n-grid v-else cols="1 m:2 l:3 xl:4 2xl:5" :x-gap="12" :y-gap="12" responsive="screen">
-        <n-grid-item v-for="(domain, index) in domainData" :key="domain.id">
-            <n-dropdown trigger="click" :overlap="true" placement="bottom-end" style="border-radius: 8px;"
-                :show-arrow="false" :options="generateOptions(domain, index)">
-                <n-spin :show="domainLoading[index]">
-                    <n-card size="small" :title="cleanRecord(domain.record) + '.' + domain.domain">
+    <n-grid v-else cols="1 m:2 l:3 xl:4 2xl:5" :x-gap="24" :y-gap="24" responsive="screen" class="domain-grid">
+        <n-grid-item v-for="(domain, index) in domainData" :key="domain.id" class="grid-item">
+            <n-dropdown trigger="click" :overlap="true" placement="bottom-end" :show-arrow="false"
+                :options="generateOptions(domain, index)" class="custom-dropdown">
+                <n-spin :show="domainLoading[index]" :description="domainLoading[index] ? '加载中...' : null"
+                    class="full-height-spin">
+                    <n-card size="small" :title="cleanRecord(domain.record) + '.' + domain.domain"
+                        :segmented="{ content: true, footer: 'soft' }" header-style="padding: 16px;"
+                        footer-style="padding: 12px 16px;" class="custom-card">
                         <template #header-extra>
-                            <n-tooltip v-if="domain.type === 'SRV' && isSpecialRecord(domain.record)" trigger="hover">
+                            <n-tooltip v-if="domain.type === 'SRV' && isSpecialRecord(domain.record)" trigger="hover"
+                                placement="top">
                                 <template #trigger>
-                                    <n-tag round :bordered="false" type="primary">
+                                    <n-tag round :bordered="false" type="primary" size="small" class="type-tag">
                                         {{ domain.type }}
+                                        <n-icon :component="InformationCircleOutline" size="14" class="ml-1" />
                                     </n-tag>
                                 </template>
                                 {{ getTooltipMessage(domain.record, domain.domain) }}
                             </n-tooltip>
-                            <n-tag v-else round :bordered="false" type="primary">
+                            <n-tag v-else round :bordered="false" type="primary" size="small" class="type-tag">
                                 {{ domain.type }}
                             </n-tag>
                         </template>
-                        <n-tag round :bordered="false" type="primary" size="small">
-                            {{ domain.remarks || '自定义地址' }}
+
+                        <n-tag round :bordered="false" type="default" size="small" class="remark-tag">
+                            {{ domain.remarks || '未命名服务' }}
                         </n-tag>
+
                         <template #footer>
-                            名称：{{ domain.record }}
-                            <br />
-                            域名：{{ domain.domain }}
-                            <br />
-                            内容：{{ domain.target }}
-                            <br />
-                            TTL：{{ domain.ttl }}
+                            <div class="footer-content">
+                                <div class="footer-item">
+                                    <span class="item-label">记录名</span>
+                                    <n-text depth="3">{{ domain.record }}</n-text>
+                                </div>
+                                <div class="footer-item">
+                                    <span class="item-label">域名</span>
+                                    <n-text depth="3">{{ domain.domain }}</n-text>
+                                </div>
+                                <div class="footer-item">
+                                    <span class="item-label">目标地址</span>
+                                    <n-text code>{{ domain.target }}</n-text>
+                                </div>
+                                <div class="footer-item">
+                                    <span class="item-label">TTL</span>
+                                    <n-text strong>{{ domain.ttl }}</n-text>
+                                </div>
+                            </div>
                         </template>
                     </n-card>
-                    <template #description>
-                        加载中
-                    </template>
                 </n-spin>
             </n-dropdown>
         </n-grid-item>
@@ -216,7 +231,7 @@
 </template>
 
 <script lang="ts" setup>
-import { RefreshOutline, AddOutline, TrashOutline, CreateOutline, EyeOutline } from '@vicons/ionicons5'
+import { RefreshOutline, AddOutline, TrashOutline, CreateOutline, EyeOutline, InformationCircleOutline } from '@vicons/ionicons5'
 import axios from 'axios';
 import { NIcon } from 'naive-ui'
 // 获取登录信息
@@ -683,3 +698,61 @@ const handleTabChange = (activeName: string) => {
 };
 
 </script>
+
+<style scoped>
+.custom-card {
+  border-radius: 12px;
+  /* box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); */
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.custom-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
+}
+
+.type-tag {
+  margin-left: 8px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.remark-tag {
+  background-color: rgba(241, 241, 241, 0.8);
+  color: #666;
+}
+
+.footer-content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.footer-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.item-label {
+  font-size: 0.9em;
+  color: #666;
+  margin-right: 12px;
+}
+
+.full-height-spin {
+  height: 100%;
+}
+
+.custom-dropdown {
+  border-radius: 12px;
+}
+
+.grid-item {
+  transition: opacity 0.2s ease;
+}
+
+.grid-item:hover {
+  opacity: 0.95;
+}
+</style>

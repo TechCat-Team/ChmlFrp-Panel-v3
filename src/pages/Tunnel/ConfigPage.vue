@@ -18,34 +18,57 @@
             </n-grid-item>
         </n-grid>
         <template #footer>
-            <n-card>
-                <n-code :code="tunnelConfig" language="ini" word-wrap v-if="tunnelConfig !== ''" />
-                <div v-else-if="loadingGenerate">
-                    <n-skeleton text width="68.93px" />
-                    <br/>
-                    <n-skeleton text width="235px" />
-                    <br/>
-                    <n-skeleton text width="150px" />
-                    <br/>
-                    <n-skeleton text width="150px" />
-                    <br/>
-                    <n-skeleton text width="270px" />
-                    <br/>
-                    <n-skeleton text width="165px" />
-                    <br/>
-                    <br/>
-                    <n-skeleton text width="80px" />
-                    <br/>
-                    <n-skeleton text width="85px" />
-                    <br/>
-                    <n-skeleton text width="180px" />
-                    <br/>
-                    <n-skeleton text width="150px" />
-                    <br/>
-                    <n-skeleton text width="160px" />
-                </div>
-                <n-empty v-else description="请生成配置文件" />
-            </n-card>
+            <n-grid cols="1 m:3" item-responsive responsive="screen" :x-gap="12" :y-gap="12">
+                <n-grid-item span="1 m:2">
+                    <n-card title="Frpc.ini">
+                        <template #header-extra>
+                            <n-button text @click="handleCopy('tunnelConfig')">
+                                <n-icon :component="CopyOutline" />
+                            </n-button>
+                        </template>
+                        <n-code :code="tunnelConfig" language="ini" word-wrap v-if="tunnelConfig !== ''" />
+                        <div v-else-if="loadingGenerate">
+                            <n-skeleton text width="68.93px" />
+                            <br />
+                            <n-skeleton text width="235px" />
+                            <br />
+                            <n-skeleton text width="150px" />
+                            <br />
+                            <n-skeleton text width="150px" />
+                            <br />
+                            <n-skeleton text width="270px" />
+                            <br />
+                            <n-skeleton text width="165px" />
+                            <br />
+                            <br />
+                            <n-skeleton text width="80px" />
+                            <br />
+                            <n-skeleton text width="85px" />
+                            <br />
+                            <n-skeleton text width="180px" />
+                            <br />
+                            <n-skeleton text width="150px" />
+                            <br />
+                            <n-skeleton text width="160px" />
+                        </div>
+                        <n-empty v-else description="请生成配置文件" />
+                    </n-card>
+                </n-grid-item>
+                <n-grid-item>
+                    <n-card title="Linux脚本">
+                        <template #header-extra>
+                            <n-button text @click="handleCopy('LinuxScript')">
+                                <n-icon :component="CopyOutline" />
+                            </n-button>
+                        </template>
+                        <n-code :code="LinuxScript" language="powershell" word-wrap v-if="LinuxScript !== ''" />
+                        <div v-else-if="loadingGenerate">
+                            <n-skeleton text :repeat="3" /> <n-skeleton text style="width: 60%" />
+                        </div>
+                        <n-empty v-else description="请生成配置文件" />
+                    </n-card>
+                </n-grid-item>
+            </n-grid>
         </template>
     </n-card>
     <n-grid style="margin-top: 20px;" cols="1 s:5" responsive="screen" :x-gap="20" :y-gap="20">
@@ -105,6 +128,7 @@
 <script lang="ts" setup>
 import axios from 'axios';
 import { ref } from 'vue';
+import { CopyOutline } from '@vicons/ionicons5'
 // 获取登录信息
 import { useUserStore } from '@/stores/user';
 
@@ -127,8 +151,8 @@ const copyToClipboard = () => {
 };
 
 interface Tunnel {
-  name: string;
-  node: string;
+    name: string;
+    node: string;
 }
 
 // 选择框相关的变量
@@ -138,6 +162,7 @@ const nodeOptions = ref<{ label: string; value: string }[]>([]);
 const tunnelOptions = ref<{ label: string; value: string }[]>([]);
 const allTunnels = ref<{ name: string; node: string }[]>([]); // 用于存储所有隧道
 const tunnelConfig = ref<string>('');
+const LinuxScript = ref<string>('');
 const loadingGenerate = ref(false);
 
 // 获取隧道列表 API
@@ -185,6 +210,7 @@ watch(nodeValue, (newNode: string | null) => {
 // 获取配置文件 API
 const getConfigFile = async () => {
     tunnelConfig.value = '';
+    LinuxScript.value = '';
     loadingGenerate.value = true;
     try {
         const params: {
@@ -199,8 +225,11 @@ const getConfigFile = async () => {
         // 如果选择了隧道才传递 tunnel_names 参数
         if (multipleSelectValue.value.length > 0) {
             params.tunnel_names = multipleSelectValue.value.join(',');
+            LinuxScript.value = `curl -O https://www.chmlfrp.cn/script/linux/frpc_install.sh && chmod +x frpc_install.sh && sudo ./frpc_install.sh "${userInfo?.usertoken}" "${nodeValue.value}" "${params.tunnel_names = multipleSelectValue.value.join(',')}"`
+        } else {
+            LinuxScript.value = `curl -O https://www.chmlfrp.cn/script/linux/frpc_install.sh && chmod +x frpc_install.sh && sudo ./frpc_install.sh "${userInfo?.usertoken}" "${nodeValue.value}"`
         }
-
+        
         const response = await axios.get('https://cf-v2.uapis.cn/tunnel_config', { params });
         tunnelConfig.value = response.data.data;
     } catch (error) {
@@ -209,6 +238,17 @@ const getConfigFile = async () => {
     }
     loadingGenerate.value = false;
 };
+
+const handleCopy = (type: string) => {
+    const content = type === 'tunnelConfig' ? tunnelConfig.value : LinuxScript.value
+    if (!content) {
+        message.warning('请先生成配置文件')
+        return
+    }
+    navigator.clipboard.writeText(content)
+        .then(() => message.success('复制成功'))
+        .catch(() => message.error('复制失败'))
+}
 
 const nginxConfig1 = `
 listen 80;
