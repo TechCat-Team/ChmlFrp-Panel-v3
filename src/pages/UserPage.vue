@@ -366,6 +366,7 @@ import axios from 'axios';
 import CryptoJS from 'crypto-js';
 // 获取登录信息
 import { useUserStore } from '@/stores/user';
+import { useLoadUserInfo } from '@/components/useLoadUser';
 
 const userStore = useUserStore();
 const userInfo = userStore.userInfo;
@@ -420,7 +421,7 @@ const resetPasswordValue = ref({
 
 const QQImg = `https://q.qlogo.cn/headimg_dl?dst_uin=${userInfo?.qq}&spec=640&img_type=jpg` // 根据QQ获取头像
 const emailHash = CryptoJS.MD5(userInfo?.email || "chaoji@chcat.cn").toString(); // md5加密邮箱
-const CravatarImg = ` https://cravatar.cn/avatar/${emailHash}` // 根据Creavata获取头像
+const CravatarImg = `https://cravatar.cn/avatar/${emailHash}` // 根据Creavata获取头像
 
 const changeTheUsernameModal = ref(false) // 更改 用户名 模态框状态
 const modifyAvatarModal = ref(false) // 更改 头像 模态框状态
@@ -431,6 +432,7 @@ const deleteAccountVerificationModal = ref(false)
 
 onMounted(() => {
     qiandaoinfo(); //加载签到信息
+    useLoadUserInfo(); //更新用户信息
 });
 
 const remainingDays = computed(() => {
@@ -655,21 +657,27 @@ const signIn = (geetestResult: GeetestResult) => {
     }, 3000);
 };
 
-const resetUserImg = async (userimg: string) => {
-    loadingUpdateImg.value = true
+const resetUserImg = async (userImg: string) => {
+    loadingUpdateImg.value = true;
     try {
-        const response = await axios.get(`https://cf-v2.uapis.cn/update_userimg?token=${userInfo?.usertoken}&new_userimg=${userimg}`);
+        const encodedUserImg = encodeURIComponent(userImg); //编码特殊字符
+        const response = await axios.get(
+            `https://cf-v2.uapis.cn/update_userimg?token=${userInfo?.usertoken}&new_userimg=${encodedUserImg}`
+        );
+
         if (response.data.code === 200) {
-            message.success(response.data.msg)
-            modifyAvatarModal.value = false
+            message.success(response.data.msg);
+            modifyAvatarModal.value = false;
+            userStore.setUser({ userimg: userImg });
         } else {
-            message.error(response.data.msg)
+            message.error(response.data.msg);
         }
     } catch (error) {
         console.error('修改头像API调用失败', error);
-        message.error('修改头像API调用失败' + error)
+        message.error('修改头像API调用失败: ' + error);
+    } finally {
+        loadingUpdateImg.value = false;
     }
-    loadingUpdateImg.value = false
 };
 
 const resetTokenAPI = async () => {
@@ -695,6 +703,7 @@ const resetQQ = async () => {
         if (response.data.code === 200) {
             message.success(response.data.msg)
             changeQQModal.value = false
+            userStore.setUser({ qq: newQQ.value });
         } else {
             message.error(response.data.msg)
         }
@@ -712,12 +721,13 @@ const resetUserName = async () => {
         if (response.data.code === 200) {
             message.success(response.data.msg)
             changeTheUsernameModal.value = false
+            userStore.setUser({ username: newUserName.value });
         } else {
             message.error(response.data.msg)
         }
     } catch (error) {
-        console.error('修改头像API调用失败', error);
-        message.error('修改头像API调用失败' + error)
+        console.error('修改用户名API调用失败', error);
+        message.error('修改用户名API调用失败' + error)
     }
     loadingUpdateUserName.value = false
 };
@@ -772,6 +782,8 @@ const resetPassword = async () => {
         if (response.data.code === 200) {
             message.success(response.data.msg)
             changePasswordModal.value = false
+            userStore.clearUser();
+            router.push('/sign');
         } else {
             message.error(response.data.msg)
         }
@@ -872,6 +884,8 @@ const resetEmail = async () => {
         if (response.data.code === 200) {
             message.success(response.data.msg)
             changeTheMailboxModal.value = false
+            userStore.clearUser();
+            router.push('/sign');
         } else {
             message.error(response.data.msg)
         }
@@ -958,6 +972,7 @@ const realNameHandleValidateButtonClick = async () => {
         const data = response.data;
         if (data.status === 'success') {
             message.success("实名认证成功");
+            userStore.setUser({ realname: '已实名' });
         } else {
             message.error(data.message);
             console.error('实名认证失败:', data.message);

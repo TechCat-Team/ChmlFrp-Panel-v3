@@ -24,17 +24,28 @@ interface UserInfo {
 export const useUserStore = defineStore('user', () => {
     const userInfo = ref<UserInfo | null>(null);
 
-    const setUser = (info: UserInfo, duration = 'permanent') => {
+    const setUser = (info: Partial<UserInfo> | UserInfo, duration = 'permanent') => {
+        if (!userInfo.value && !('id' in info)) {
+            throw new Error('初次设置用户信息必须提供完整数据！');
+        }
+
+        const newUserInfo = userInfo.value
+            ? { ...userInfo.value, ...info }
+            : (info as UserInfo);
+
         const expiry = duration === '1d' ? new Date().getTime() + 86400000 : null;
-        const dataToStore = JSON.stringify({ ...info, expiry });
+        const dataToStore = JSON.stringify({ ...newUserInfo, expiry });
 
         localStorage.setItem('userInfo', dataToStore);
-
         if (duration === '1d') {
             sessionStorage.setItem('userInfo', dataToStore);
         }
 
-        userInfo.value = info;
+        if (userInfo.value) {
+            Object.assign(userInfo.value, newUserInfo);
+        } else {
+            userInfo.value = newUserInfo;
+        }
     };
 
     const loadUser = () => {
@@ -44,7 +55,11 @@ export const useUserStore = defineStore('user', () => {
             if (parsedInfo.expiry && new Date().getTime() > parsedInfo.expiry) {
                 clearUser();
             } else {
-                userInfo.value = parsedInfo;
+                if (userInfo.value) {
+                    Object.assign(userInfo.value, parsedInfo);
+                } else {
+                    userInfo.value = parsedInfo;
+                }
             }
         }
     };

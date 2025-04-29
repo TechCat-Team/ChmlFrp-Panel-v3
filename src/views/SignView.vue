@@ -411,33 +411,16 @@ const handleValidateButtonClick = async () => {
         });
 
         if (response.data.code === 200 && response.data.state === 'success') {
-            const userInfo = {
-                id: response.data.data.id,
-                username: response.data.data.username,
-                userimg: response.data.data.userimg,
-                qq: response.data.data.qq,
-                email: response.data.data.email,
-                usertoken: response.data.data.usertoken,
-                usergroup: response.data.data.usergroup,
-                bandwidth: response.data.data.bandwidth,
-                tunnel: response.data.data.tunnel,
-                realname: response.data.data.realname,
-                integral: response.data.data.integral,
-                term: response.data.data.term,
-                tunnelCount: response.data.data.tunnelCount,
-                regtime: response.data.data.regtime,
-                total_download: response.data.data.total_download,
-                total_upload: response.data.data.total_upload,
-                totalCurConns: response.data.data.totalCurConns,
-            };
+            const { data } = response.data;
+            const userInfo = { ...data };
 
             const storageDuration = keepLoggedIn.value ? 'permanent' : '1d';
             userStore.setUser(userInfo, storageDuration);
 
             loadingMessage.type = 'success';
-            loadingMessage.content = userInfo?.usergroup === '免费用户'
-                ? `登录成功，欢迎您，${userInfo?.username}！`
-                : `登录成功，欢迎您，尊贵的会员用户${userInfo?.username}！`;
+            loadingMessage.content = data.usergroup === '免费用户'
+                ? `登录成功，欢迎您，${data.username}！`
+                : `登录成功，欢迎您，尊贵的会员用户${data.username}！`;
 
             router.push('/home');
         } else {

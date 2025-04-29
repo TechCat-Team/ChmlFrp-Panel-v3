@@ -103,6 +103,7 @@ import { LogoAlipay, LogoWechat } from '@vicons/ionicons5'
 import { Qq } from '@vicons/fa'
 import { ref, computed } from 'vue'
 import { useMessage } from 'naive-ui'
+import { useLoadUserInfo } from '@/components/useLoadUser';
 
 // 获取登录信息
 import { useUserStore } from '@/stores/user';
@@ -126,6 +127,7 @@ const showDialog = (money: number) => {
         onPositiveClick: () => {
             router.replace({ path: route.path, query: {} })
             message.success('ChmlFrp感谢您的支持！')
+            useLoadUserInfo()
         },
     })
 }

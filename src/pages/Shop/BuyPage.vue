@@ -183,8 +183,8 @@
     </n-grid>
     <n-modal v-model:show="showModal">
         <n-card style="max-width: 420px" title="永久会员购买" :bordered="false" role="dialog" aria-modal="true">
-            您正在请求购买 永久{{ targetGroup }}，您当前为 {{ userInfo?.usergroup }}，升级到 永久{{ targetGroup }} 需要支付 {{ payAmount }} 元。
-            <br />请选择支付方式。
+            <n-text>您正在请求购买 永久{{ targetGroup }}，您当前为 <n-text v-if="userInfo?.term === '9999-09-09' && userInfo?.usergroup !== '免费用户'">永久</n-text>{{ userInfo?.usergroup }}，升级到 永久{{ targetGroup }} 需要支付 {{ payAmount }} 元。
+            <br />请选择支付方式。</n-text>
             <template #footer>
                 <n-flex justify="end">
                     <n-button strong secondary size="small" @click="showModal = false">取消</n-button>
@@ -345,6 +345,7 @@
 import { ref, computed } from 'vue';
 import { useUserStore } from '@/stores/user';
 import { useRoute, useRouter } from 'vue-router';
+import { useLoadUserInfo } from '@/components/useLoadUser';
 
 const userStore = useUserStore();
 const userInfo = userStore.userInfo;
@@ -369,6 +370,7 @@ const checkTradeStatus = () => {
             positiveText: '确定',
             onPositiveClick: () => {
                 router.replace({ path: route.path, query: {} })
+                useLoadUserInfo()
             },
         })
     }
@@ -447,13 +449,15 @@ function openUpgradeModal(group: string) {
         return
     }
 
+    const currentFullUrl = window.location.href
     // 默认生成支付宝支付链接
-    payLink.value = `https://cf-v1.uapis.cn/api/cz.php?name=永久会员购买&type=alipay&usertoken=${userInfo?.usertoken}&money=${payAmount.value}`
+    payLink.value = `https://cf-v1.uapis.cn/api/cz.php?name=永久会员购买&type=alipay&usertoken=${userInfo?.usertoken}&money=${payAmount.value}&return=${currentFullUrl}`
     showModal.value = true
 }
 
 function handlePay(type: string) {
-    const url = `https://cf-v1.uapis.cn/api/cz.php?name=永久会员购买&type=${type}&usertoken=${userInfo?.usertoken}&money=${payAmount.value}`
+    const currentFullUrl = window.location.href
+    const url = `https://cf-v1.uapis.cn/api/cz.php?name=永久会员购买&type=${type}&usertoken=${userInfo?.usertoken}&money=${payAmount.value}&return=${currentFullUrl}`
     window.location.href = url
 }
 
