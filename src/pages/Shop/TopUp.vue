@@ -50,24 +50,49 @@
         </n-h3>
         <n-grid cols="2 s:3 l:4 xl:5 2xl:6" :x-gap="12" :y-gap="12" responsive="screen">
             <n-grid-item>
-                <n-card size="small" hoverable @click="pay('wxpay')" :disabled="!isAmountValid">
-                    <n-space align="center">
-                        <n-icon size="40" color="#07C160">
-                            <LogoWechat />
-                        </n-icon>
-                        <span style="font-size: 24px;">微信支付</span>
-                    </n-space>
-                </n-card>
+                <n-tooltip trigger="hover">
+                    <template #trigger>
+                        <n-card size="small" hoverable @click="pay('wxpay')" :disabled="!isAmountValid">
+                            <n-space align="center">
+                                <n-icon size="40" color="#07C160">
+                                    <LogoWechat />
+                                </n-icon>
+                                <span style="font-size: 24px;">微信支付</span>
+                            </n-space>
+                        </n-card>
+                    </template>
+                    点击后会直接跳转至付款页面
+                </n-tooltip>
             </n-grid-item>
             <n-grid-item>
-                <n-card size="small" hoverable @click="pay('alipay')" :disabled="!isAmountValid">
-                    <n-space align="center">
-                        <n-icon size="40" color="#1677FF">
-                            <LogoAlipay />
-                        </n-icon>
-                        <span style="font-size: 24px;">支付宝</span>
-                    </n-space>
-                </n-card>
+                <n-tooltip trigger="hover">
+                    <template #trigger>
+                        <n-card size="small" hoverable @click="pay('alipay')" :disabled="!isAmountValid">
+                            <n-space align="center">
+                                <n-icon size="40" color="#1677FF">
+                                    <LogoAlipay />
+                                </n-icon>
+                                <span style="font-size: 24px;">支付宝</span>
+                            </n-space>
+                        </n-card>
+                    </template>
+                    点击后会直接跳转至付款页面
+                </n-tooltip>
+            </n-grid-item>
+            <n-grid-item>
+                <n-tooltip trigger="hover">
+                    <template #trigger>
+                        <n-card size="small" hoverable @click="pay('qqpay')" :disabled="!isAmountValid">
+                            <n-space align="center">
+                                <n-icon size="40" color="#12B7F5">
+                                    <Qq />
+                                </n-icon>
+                                <span style="font-size: 24px;">QQ支付</span>
+                            </n-space>
+                        </n-card>
+                    </template>
+                    点击后会直接跳转至付款页面
+                </n-tooltip>
             </n-grid-item>
         </n-grid>
     </n-card>
@@ -75,16 +100,42 @@
 
 <script lang="ts" setup>
 import { LogoAlipay, LogoWechat } from '@vicons/ionicons5'
+import { Qq } from '@vicons/fa'
 import { ref, computed } from 'vue'
 import { useMessage } from 'naive-ui'
 
 // 获取登录信息
 import { useUserStore } from '@/stores/user';
+import { useRoute, useRouter } from 'vue-router';
+
+const route = useRoute()
+const router = useRouter()
+const dialog = useDialog()
+const message = useMessage()
+// 检查 URL 是否包含 trade_status 参数
+const checkTradeStatus = () => {
+    if (route.query.trade_status === 'TRADE_SUCCESS') {
+        showDialog(route.query.money as unknown as number)
+    }
+}
+const showDialog = (money: number) => {
+    dialog.success({
+        title: '积分充值提示',
+        content: `积分充值成功！您充值了 ${money} 元，共获得 ${money * 1000} 积分。`,
+        positiveText: '确定',
+        onPositiveClick: () => {
+            router.replace({ path: route.path, query: {} })
+            message.success('ChmlFrp感谢您的支持！')
+        },
+    })
+}
+
+onMounted(() => {
+    checkTradeStatus()
+})
 
 const userStore = useUserStore();
 const userInfo = userStore.userInfo;
-
-const message = useMessage()
 
 // 预设金额配置
 const presetAmounts = [
@@ -101,7 +152,6 @@ const presetAmounts = [
 ]
 
 const customAmount = ref('3')
-const selectedPayment = ref('')
 
 // 计算积分
 const calculatedPoints = computed(() => {
@@ -145,7 +195,7 @@ const validateAmount = () => {
 }
 
 // 支付函数
-const pay = (type: 'wxpay' | 'alipay') => {
+const pay = (type: 'wxpay' | 'alipay' | 'qqpay') => {
     const amount = parseInt(customAmount.value) || 3
     if (amount < 3) {
         message.error('金额最少为3元')
@@ -156,7 +206,8 @@ const pay = (type: 'wxpay' | 'alipay') => {
         return
     }
 
-    const paymentUrl = `https://cf-v1.uapis.cn/api/cz.php?name=积分充值&type=${type}&usertoken=${userInfo?.usertoken}&money=${amount}`
+    const currentFullUrl = window.location.href
+    const paymentUrl = `https://cf-v1.uapis.cn/api/cz.php?name=积分充值&type=${type}&usertoken=${userInfo?.usertoken}&money=${amount}&return=${currentFullUrl}`
 
     // 跳转到支付API
     window.location.href = paymentUrl

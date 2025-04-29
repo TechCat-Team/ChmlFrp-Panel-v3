@@ -570,7 +570,6 @@ import { useRouter } from 'vue-router';
 import axios from 'axios';
 // 获取登录信息
 import { useUserStore } from '@/stores/user';
-import { cardBasePropKeys } from 'naive-ui/es/card/src/Card';
 
 const userStore = useUserStore();
 const userInfo = userStore.userInfo;

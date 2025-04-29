@@ -38,7 +38,7 @@
       <n-skeleton v-for="i in count" :key="i" style="margin-top: 20px; height: 64px; border-radius: 10px" :sharp="false"
         size="medium" />
     </n-infinite-scroll>
-    <div v-elseif="selectedOSData.length" :loading="loading">
+    <div v-else-if="selectedOSData.length" :loading="loading">
       <n-card style="margin-top: 20px;" v-for="item in selectedOSData" :key="item.route">
         <n-icon :size="18" style="top: 4px" :component="osIcon[selectedOS]" :color="osColors[selectedOS]" />
         <n-divider vertical />

@@ -109,7 +109,7 @@
                 </n-card>
             </n-gi>
             <n-gi :span="2">
-                <n-card title="常见问题">
+                <n-card>
                     <n-alert v-if="userInfo?.usergroup === '封禁'" title="您的账户已被封禁" type="error" @click="goToUserPage"
                         style="margin-bottom: 10px;">
                         您的账号因为违规被封禁，具体原因可以点击此提示前往个人主页查看消息，如有异议可前往交流群申述。
@@ -135,6 +135,8 @@
                             QQ交流群二群
                         </n-button>
                     </n-flex>
+                </n-card>
+                <n-card style="margin-top: 16px;" title="常见问题">
                     <n-collapse style="margin-top: 20px;">
                         <n-collapse-item title="数据安全" name="1">
                             <div>
@@ -235,16 +237,8 @@
             </n-gi>
         </n-grid>
     </n-flex>
-    <n-modal
-    v-model:show="showDialog"
-    preset="dialog"
-    title="第一次使用？"
-    content="那不妨来看看ChmlFrp使用教程！"
-    positive-text="确认"
-    negative-text="算了"
-    @positive-click="WatchTutorial"
-    @negative-click="closeDialog"
-  />
+    <n-modal v-model:show="showDialog" preset="dialog" title="第一次使用？" content="那不妨来看看ChmlFrp使用教程！" positive-text="确认"
+        negative-text="算了" @positive-click="WatchTutorial" @negative-click="closeDialog" />
 </template>
 
 <script lang="ts" setup>
@@ -373,24 +367,24 @@ onMounted(() => {
 });
 
 const timer = setInterval(() => {
-  if (countdown.value > 0) {
-    countdown.value--;
-  }
+    if (countdown.value > 0) {
+        countdown.value--;
+    }
 }, 1000);
 
 // 关闭教程弹窗
 const closeDialog = () => {
-  showDialog.value = false;
-  countdown.value = 10;
-  message.info(
-  () => `您后续可以从 菜单的"其他信息->帮助文档" 查看所有有关ChmlFrp的教程！（${countdown.value}秒后关闭）`, 
-  { 
-    duration: 10000, 
-    onClose: () => {
-      clearInterval(timer);
-    }
-  }
-);
+    showDialog.value = false;
+    countdown.value = 10;
+    message.info(
+        () => `您后续可以从 菜单的"其他信息->帮助文档" 查看所有有关ChmlFrp的教程！（${countdown.value}秒后关闭）`,
+        {
+            duration: 10000,
+            onClose: () => {
+                clearInterval(timer);
+            }
+        }
+    );
 };
 
 const WatchTutorial = () => {

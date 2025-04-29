@@ -75,11 +75,12 @@
                     </n-flex>
                 </template>
             </n-card>
+            <!-- 普通会员 perk 卡片 -->
             <n-card hoverable class="perk-card">
                 <n-flex vertical>
                     <n-flex align="center">
                         <n-icon size="20" color="#F56C6C">
-                            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <svg viewBox="0 0 24 24" fill="none">
                                 <path
                                     d="M11 7h2v2h-2zm0 4h2v6h-2zm1-9C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"
                                     fill="currentColor" />
@@ -87,8 +88,11 @@
                         </n-icon>
                         <n-text strong>四周年福利</n-text>
                     </n-flex>
-                    <n-text depth="2" class="perk-desc">永久会员仅需80元。一次性付费终生使用。</n-text>
-                    <n-button tertiary type="error" size="small" class="perk-btn">购买永久会员</n-button>
+                    <n-text depth="2" class="perk-desc">{{ getPerkMessage('普通会员') }}</n-text>
+                    <n-button v-if="canPurchase('普通会员')" tertiary type="error" size="small" class="perk-btn"
+                        @click="openUpgradeModal('普通会员')">
+                        购买永久会员
+                    </n-button>
                 </n-flex>
             </n-card>
         </n-grid-item>
@@ -118,7 +122,7 @@
                 <n-flex vertical>
                     <n-flex align="center">
                         <n-icon size="20" color="#F56C6C">
-                            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <svg viewBox="0 0 24 24" fill="none">
                                 <path
                                     d="M11 7h2v2h-2zm0 4h2v6h-2zm1-9C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"
                                     fill="currentColor" />
@@ -126,8 +130,11 @@
                         </n-icon>
                         <n-text strong>四周年福利</n-text>
                     </n-flex>
-                    <n-text depth="2" class="perk-desc">永久会员仅需120元。一次性付费终生使用。</n-text>
-                    <n-button tertiary type="error" size="small" class="perk-btn">购买永久会员</n-button>
+                    <n-text depth="2" class="perk-desc">{{ getPerkMessage('高级会员') }}</n-text>
+                    <n-button v-if="canPurchase('高级会员')" tertiary type="error" size="small" class="perk-btn"
+                        @click="openUpgradeModal('高级会员')">
+                        购买永久会员
+                    </n-button>
                 </n-flex>
             </n-card>
         </n-grid-item>
@@ -157,7 +164,7 @@
                 <n-flex vertical>
                     <n-flex align="center">
                         <n-icon size="20" color="#F56C6C">
-                            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <svg viewBox="0 0 24 24" fill="none">
                                 <path
                                     d="M11 7h2v2h-2zm0 4h2v6h-2zm1-9C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"
                                     fill="currentColor" />
@@ -165,12 +172,29 @@
                         </n-icon>
                         <n-text strong>四周年福利</n-text>
                     </n-flex>
-                    <n-text depth="2" class="perk-desc">永久会员仅需160元。一次性付费终生使用。</n-text>
-                    <n-button tertiary type="error" size="small" class="perk-btn">购买永久会员</n-button>
+                    <n-text depth="2" class="perk-desc">{{ getPerkMessage('超级会员') }}</n-text>
+                    <n-button v-if="canPurchase('超级会员')" tertiary type="error" size="small" class="perk-btn"
+                        @click="openUpgradeModal('超级会员')">
+                        购买永久会员
+                    </n-button>
                 </n-flex>
             </n-card>
         </n-grid-item>
     </n-grid>
+    <n-modal v-model:show="showModal">
+        <n-card style="max-width: 420px" title="永久会员购买" :bordered="false" role="dialog" aria-modal="true">
+            您正在请求购买 永久{{ targetGroup }}，您当前为 {{ userInfo?.usergroup }}，升级到 永久{{ targetGroup }} 需要支付 {{ payAmount }} 元。
+            <br />请选择支付方式。
+            <template #footer>
+                <n-flex justify="end">
+                    <n-button strong secondary size="small" @click="showModal = false">取消</n-button>
+                    <n-button type="warning" size="small" @click="handlePay('qq')">QQ</n-button>
+                    <n-button type="success" size="small" @click="handlePay('wechat')">微信</n-button>
+                    <n-button type="info" size="small" @click="handlePay('alipay')">支付宝</n-button>
+                </n-flex>
+            </template>
+        </n-card>
+    </n-modal>
     <n-drawer v-model:show="show" :width="502" style="max-width: 100%">
         <n-drawer-content title="会员购买" closable>
             <n-tabs type="segment" animated>
@@ -231,7 +255,8 @@
                         </n-card>
 
                         <!-- 购买按钮 -->
-                        <n-button type="primary" block :disabled="!selectedMembership || !selectedDuration || costPoints > currentPoints"
+                        <n-button type="primary" block
+                            :disabled="!selectedMembership || !selectedDuration || costPoints > currentPoints"
                             @click="handlePurchase">
                             确认购买
                         </n-button>
@@ -241,19 +266,20 @@
                 <!-- 会员升级标签页 -->
                 <n-tab-pane name="2" tab="会员升级">
                     <n-space vertical size="large">
-                        <n-alert type="info" title="会员升级说明" v-if="userInfo?.term !== '9999-09-09' && currentMembership !== '免费用户' && currentMembership !== '超级会员'">
-                            您当前是{{ currentMembership }}，剩余 {{ remainingDays }} 天，升级可享受更多权益
+                        <n-alert type="info" title="会员升级说明"
+                            v-if="userInfo?.term !== '9999-09-09' && userInfo?.usergroup !== '免费用户' && userInfo?.usergroup !== '超级会员'">
+                            您当前是{{ userInfo?.usergroup }}，剩余 {{ remainingDays }} 天，升级可享受更多权益
                         </n-alert>
 
                         <n-card title="可升级选项">
                             <n-space vertical size="large">
-                                <template v-if="currentMembership === '免费用户'">
+                                <template v-if="userInfo?.usergroup === '免费用户'">
                                     <n-text>您当前为免费用户，无法升级，如需会员请先购买</n-text>
                                 </template>
                                 <template v-else-if="userInfo?.term === '9999-09-09'">
                                     <n-text>您当前为永久会员，无法进行常规升级</n-text>
                                 </template>
-                                <template v-else-if="currentMembership === '普通会员'">
+                                <template v-else-if="userInfo?.usergroup === '普通会员'">
                                     <n-radio-group v-model:value="upgradeOption">
                                         <n-space justify="space-between">
                                             <n-radio value="高级会员" label="升级到高级会员">
@@ -269,7 +295,7 @@
                                         </n-space>
                                     </n-radio-group>
                                 </template>
-                                <template v-else-if="currentMembership === '高级会员'">
+                                <template v-else-if="userInfo?.usergroup === '高级会员'">
                                     <n-radio-group v-model:value="upgradeOption">
                                         <n-space justify="space-between">
                                             <n-radio value="超级会员" label="升级到超级会员">
@@ -318,6 +344,7 @@
 <script lang="ts" setup>
 import { ref, computed } from 'vue';
 import { useUserStore } from '@/stores/user';
+import { useRoute, useRouter } from 'vue-router';
 
 const userStore = useUserStore();
 const userInfo = userStore.userInfo;
@@ -325,10 +352,110 @@ const userInfo = userStore.userInfo;
 const show = ref(false);
 const selectedMembership = ref(''); // 购买会员类型
 const selectedDuration = ref(null); // 购买时长
-const currentMembership = userInfo?.usergroup;
 const upgradeOption = ref('');
-const redeemCode = ref('');
 const currentPoints = userInfo?.integral || 0;
+const showModal = ref(false);
+
+const route = useRoute()
+const router = useRouter()
+const dialog = useDialog()
+const message = useMessage()
+// 检查 URL 是否包含 trade_status 参数
+const checkTradeStatus = () => {
+    if (route.query.trade_status === 'TRADE_SUCCESS') {
+        dialog.success({
+            title: '会员购买成功！',
+            content: `您已成功购买会员，ChmlFrp感谢您的支持！。`,
+            positiveText: '确定',
+            onPositiveClick: () => {
+                router.replace({ path: route.path, query: {} })
+            },
+        })
+    }
+}
+
+onMounted(() => {
+    checkTradeStatus()
+})
+
+function getPrice(group: string): number {
+    if (group === '普通会员') return 80
+    if (group === '高级会员') return 120
+    return 160
+}
+
+function getPerkMessage(target: string): string {
+    const current = userInfo?.usergroup || '免费用户'
+    const currentTerm = userInfo?.term || ''
+    const groups = ['免费用户', '普通会员', '高级会员', '超级会员', '封禁', '定制会员', '管理员']
+    const currentIdx = groups.indexOf(current)
+    const targetIdx = groups.indexOf(target)
+
+    if (current === target && currentTerm === '9999-09-09') {
+        return '您已购买此永久会员，感谢您的支持。'
+    }
+    if (currentIdx > targetIdx && currentTerm === '9999-09-09') {
+        return '您已购买更高等级永久会员，感谢您的支持。'
+    }
+    if (userInfo?.usergroup === '封禁') {
+        return '您的账户已被封禁，无法购买或升级会员。'
+    }
+    return isFreeUser.value
+        ? `永久会员仅需${getPrice(target)}元。一次性付费终生使用。`
+        : `升级到此永久会员仅需${getPrice(target) - getPrice(userInfo?.usergroup ?? '普通会员')}元。一次性付费终生使用。`
+}
+
+function canPurchase(target: string): boolean {
+    const current = userInfo?.usergroup || '免费用户'
+    const currentTerm = userInfo?.term || ''
+    const groups = ['免费用户', '普通会员', '高级会员', '超级会员', '封禁', '管理员', '定制会员']
+    const currentIdx = groups.indexOf(current)
+    const targetIdx = groups.indexOf(target)
+    return !(currentTerm === '9999-09-09' && currentIdx >= targetIdx)
+}
+
+const targetGroup = ref('')
+const payAmount = ref(0)
+const payLink = ref('')
+
+// 判断是否为临时会员（非免费用户但 term 不是永久）
+const isTemporaryUser = computed(() => {
+    return userInfo?.usergroup !== '免费用户' && userInfo?.term !== '9999-09-09'
+})
+
+// 当前用户视为“免费用户”进行价格计算
+const isFreeUser = computed(() => {
+    return userInfo?.usergroup === '免费用户' || isTemporaryUser.value
+})
+
+function openUpgradeModal(group: string) {
+    targetGroup.value = group
+
+    // 计算金额
+    if (isFreeUser.value) {
+        payAmount.value = group === '普通会员' ? 80 : group === '高级会员' ? 120 : 160
+    } else if (userInfo?.usergroup === '普通会员') {
+        payAmount.value = group === '高级会员' ? 40 : group === '超级会员' ? 80 : 0
+    } else if (userInfo?.usergroup === '高级会员') {
+        payAmount.value = group === '超级会员' ? 40 : 0
+    } else {
+        payAmount.value = 0 // 其他情况不支持
+    }
+
+    if (payAmount.value === 0) {
+        message.error('您当前会员无法升级为该会员或已是该会员')
+        return
+    }
+
+    // 默认生成支付宝支付链接
+    payLink.value = `https://cf-v1.uapis.cn/api/cz.php?name=永久会员购买&type=alipay&usertoken=${userInfo?.usertoken}&money=${payAmount.value}`
+    showModal.value = true
+}
+
+function handlePay(type: string) {
+    const url = `https://cf-v1.uapis.cn/api/cz.php?name=永久会员购买&type=${type}&usertoken=${userInfo?.usertoken}&money=${payAmount.value}`
+    window.location.href = url
+}
 
 // 定义基础月费类型
 interface MembershipCost {
@@ -376,12 +503,12 @@ const remainingDays = computed(() => {
 // 升级费用计算
 const upgradeCost = computed(() => {
     // 不可升级的情况
-    if (currentMembership === '免费用户' || userInfo?.term === '9999-09-09' || currentMembership === '超级会员') {
+    if (userInfo?.usergroup === '免费用户' || userInfo?.term === '9999-09-09' || userInfo?.usergroup === '超级会员') {
         return 0;
     }
 
     const remaining = remainingDays.value;
-    if (remaining <= 0 || !currentMembership) return 0; // 会员已过期或 currentMembership 为 undefined
+    if (remaining <= 0 || !userInfo?.usergroup) return 0; // 会员已过期或 usergroup 为 undefined
 
     // 定义每日费用（每月固定30天）
     const dailyCost: MembershipCost = {
@@ -391,7 +518,7 @@ const upgradeCost = computed(() => {
     };
 
     // 当前会员的剩余价值
-    const currentRemainingValue = dailyCost[currentMembership] * remaining;
+    const currentRemainingValue = dailyCost[userInfo?.usergroup] * remaining;
 
     // 目标会员的费用
     const targetMembership = upgradeOption.value;

@@ -81,7 +81,6 @@
 
 <script lang="ts" setup>
 import { ref, onMounted } from 'vue';
-import { LogoGithub } from '@vicons/ionicons5';
 import { BalanceScale, CheckCircle, TimesCircle, InfoCircle } from '@vicons/fa';
 import { useScreenStore } from '@/stores/useScreen';
 import { storeToRefs } from 'pinia';
