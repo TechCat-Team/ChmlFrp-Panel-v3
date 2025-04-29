@@ -98,17 +98,6 @@ const routes: Array<RouteRecordRaw> = [
         }
       },
       {
-        path: '/expand/too-white',
-        name: '域名过白',
-        component: () => import('@/pages/Expand/TooWhite.vue'),
-        meta: {
-          title: '域名过白 - ChmlFrp',
-          keywords: 'ChmlFrp, 域名过白, 域名放行, 端口映射, frp, 免费frp, 映射',
-          description: '使用中国境内节点需验证域名是备案，未备案的域名无法使用中国境内节点，您可以在这里添加域名白名单。',
-          requiresAuth: true,
-        }
-      },
-      {
         path: '/expand/free-ssl',
         name: '免费SSL',
         component: () => import('@/pages/Expand/FreeSSL.vue'),
@@ -273,15 +262,6 @@ const routes: Array<RouteRecordRaw> = [
         component: () => import('@/pages/Admin/DomainNameManagement.vue'),
         meta: {
           title: '免费域名管理 - 管理员控制台 - ChmlFrp',
-          requiresAuth: true,
-        }
-      },
-      {
-        path: '/admin/too-white',
-        name: '域名过白管理',
-        component: () => import('@/pages/Admin/WhiteTreatment.vue'),
-        meta: {
-          title: '兑换码管理 - 管理员控制台 - ChmlFrp',
           requiresAuth: true,
         }
       },

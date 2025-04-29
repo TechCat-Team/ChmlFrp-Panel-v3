@@ -19,7 +19,6 @@ import {
   PricetagOutline,
   PlanetOutline,
   KeyOutline,
-  ShieldCheckmarkOutline,
   PieChartOutline,
   BrowsersOutline,
   GiftOutline,
@@ -133,17 +132,6 @@ export const computedMenuOptionsUser = computed(() => [{
       ),
       key: '免费域名',
       icon: renderIcon(LinkOutline)
-    },
-    {
-      label: () => h(
-        RouterLink,
-        {
-          to: { name: '域名过白' }
-        },
-        { default: () => '域名过白' }
-      ),
-      key: '域名过白',
-      icon: renderIcon(ShieldCheckmarkOutline)
     },
     {
       label: () => h(
@@ -339,17 +327,6 @@ export const computedMenuOptionsAdmin = computed(() => [
             ),
             key: '免费域名管理',
             icon: renderIcon(LinkOutline)
-          },
-          {
-            label: () => h(
-              RouterLink,
-              {
-                to: { name: '域名过白管理' }
-              },
-              { default: () => '域名过白管理' }
-            ),
-            key: '域名过白管理',
-            icon: renderIcon(ShieldCheckmarkOutline)
           },
           {
             label: () => h(
