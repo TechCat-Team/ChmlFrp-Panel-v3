@@ -1,18 +1,20 @@
 <template>
-    <n-space justify="space-between">
-        <span
-            :style="{ display: isHidden ? 'none' : 'flex', color: themeStore.primaryColor, marginLeft: '24px', fontSize: '26px', transition: 'color 0.2s' }">
-            ChmlFrp
-        </span>
-        <div :style="{ display: isHidden ? 'flex' : 'none' }">
-            <n-dropdown size="large" :options="computedMenuOptions">
-                <n-button quaternary style="font-size: 18px">
-                    <n-icon :component="MenuOutline" style="cursor: pointer;"></n-icon>
+    <div class="top-bar">
+        <!-- 手机菜单按钮 -->
+        <div class="menu-button" v-if="isHidden">
+            <n-dropdown trigger="click" :options="computedMenuOptions">
+                <n-button quaternary size="large">
+                    <n-icon :component="MenuOutline" />
                 </n-button>
             </n-dropdown>
         </div>
-        <n-space class="center-aligned" justify="space-between">
-            <n-popover trigger="click" style="border-radius: 8px; max-height: 60vh; width: 350px">
+
+        <!-- 左侧 LOGO -->
+        <span class="logo" :style="{ color: themeStore.primaryColor }" v-if="!isHidden">
+            ChmlFrp
+        </span>
+        <div class="right-section">
+            <!-- <n-popover trigger="click" style="border-radius: 8px; max-height: 60vh; width: 350px">
                 <template #trigger>
                     <n-button quaternary style="position: relative">
                         <n-icon :component="NotificationsOutline" style="font-size: 18px; cursor: pointer">
@@ -21,24 +23,24 @@
                     </n-button>
                 </template>
 
-                <n-spin :show="loading">
-                    <n-list v-if="notifications.length">
-                        <n-list-item v-for="notice in notifications" :key="notice.id">
-                            <n-thing content-indented>
-                                <template #header>
+<n-spin :show="loading">
+    <n-list v-if="notifications.length">
+        <n-list-item v-for="notice in notifications" :key="notice.id">
+            <n-thing content-indented>
+                <template #header>
                                     <n-time :time="new Date(notice.time)" type="relative" />
                                 </template>
-                                <template #description>
+                <template #description>
                                     <n-text depth="3">{{ formatMessageTime(notice.time) }}</n-text>
                                 </template>
-                                <n-text>{{ notice.content }}</n-text>
-                            </n-thing>
-                        </n-list-item>
-                    </n-list>
+                <n-text>{{ notice.content }}</n-text>
+            </n-thing>
+        </n-list-item>
+    </n-list>
 
-                    <n-empty v-else size="large" description="暂时没有新消息" style="margin: 20px 0" />
-                </n-spin>
-            </n-popover>
+    <n-empty v-else size="large" description="暂时没有新消息" style="margin: 20px 0" />
+</n-spin>
+</n-popover> -->
             <n-popover trigger="hover" style="border-radius: 8px;">
                 <template #trigger>
                     <n-button quaternary style="font-size: 18px;" @click="ThemeSwitcherDrawer('right')">
@@ -63,8 +65,8 @@
                     </div>
                 </n-button>
             </n-dropdown>
-        </n-space>
-    </n-space>
+        </div>
+    </div>
     <n-drawer v-model:show="themeSwitcherDrawer" :placement="placement" :default-width="251" resizable>
         <n-drawer-content title="面板配置">
             <ThemeSwitcher />
@@ -116,7 +118,7 @@ const fetchNotifications = async () => {
     try {
         const response = await fetch('https://cf-v2.uapis.cn/messages?token=7ulOTvzeKHDaeKsjDVsjfT3F')
         const { state, data, code } = await response.json()
-        
+
         if (code === 200 && state === 'success') {
             notifications.value = data
             // 根据quanti字段计算未读数（根据实际业务需求调整）
@@ -236,7 +238,7 @@ const updateUserDropdownOptions = () => {
 // 初始化菜单项
 updateUserDropdownOptions();
 
-onMounted(fetchNotifications);
+// onMounted(fetchNotifications);
 </script>
 
 <style>
@@ -279,5 +281,46 @@ onMounted(fetchNotifications);
     font-weight: 600;
     letter-spacing: 0.5px;
     transition: color var(--transition-duration);
+}
+
+.top-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 60px;
+    padding: 0 16px;
+    box-sizing: border-box;
+    position: relative;
+}
+
+.logo {
+    font-size: 26px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+.menu-button {
+    position: absolute;
+    left: 16px;
+}
+
+.right-section {
+    display: flex;
+    align-items: center;
+    margin-left: auto;
+    /* 右对齐 */
+    gap: 8px;
+}
+
+/* 响应式处理：手机屏幕时调整布局 */
+@media screen and (max-width: 768px) {
+    .logo {
+        margin: 0 auto;
+    }
+
+    .right-section {
+        position: absolute;
+        right: 16px;
+    }
 }
 </style>

@@ -57,9 +57,14 @@
                 <n-grid-item>
                     <n-card title="Linux脚本">
                         <template #header-extra>
-                            <n-button text @click="handleCopy('LinuxScript')">
-                                <n-icon :component="CopyOutline" />
-                            </n-button>
+                            <n-tooltip trigger="hover">
+                                <template #trigger>
+                                    <n-button text @click="handleCopy('LinuxScript')">
+                                        <n-icon :component="CopyOutline" />
+                                    </n-button>
+                                </template>
+                                不建议使用，问题很多，建议后续更新
+                            </n-tooltip>
                         </template>
                         <n-code :code="LinuxScript" language="powershell" word-wrap v-if="LinuxScript !== ''" />
                         <div v-else-if="loadingGenerate">
@@ -229,7 +234,7 @@ const getConfigFile = async () => {
         } else {
             LinuxScript.value = `curl -O https://www.chmlfrp.cn/script/linux/frpc_install.sh && chmod +x frpc_install.sh && sudo ./frpc_install.sh "${userInfo?.usertoken}" "${nodeValue.value}"`
         }
-        
+
         const response = await axios.get('https://cf-v2.uapis.cn/tunnel_config', { params });
         tunnelConfig.value = response.data.data;
     } catch (error) {

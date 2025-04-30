@@ -64,7 +64,6 @@ declare module 'vue' {
     NModal: typeof import('naive-ui')['NModal']
     NNumberAnimation: typeof import('naive-ui')['NNumberAnimation']
     NP: typeof import('naive-ui')['NP']
-    NPagination: typeof import('naive-ui')['NPagination']
     NPerformantEllipsis: typeof import('naive-ui')['NPerformantEllipsis']
     NPopover: typeof import('naive-ui')['NPopover']
     NProgress: typeof import('naive-ui')['NProgress']

@@ -117,9 +117,10 @@
                                                                     clearable />
                                                             </n-gi>
                                                             <n-gi :span="2">
-                                                                <n-button :loading="loadingCaptcha" @click="GeeTest"
-                                                                    style="width: 100%;" strong secondary type="primary"
-                                                                    round size="large" :disabled="buttonDisabled">
+                                                                <n-button :loading="loadingCaptcha"
+                                                                    @click="GeeTest('register')" style="width: 100%;"
+                                                                    strong secondary type="primary" round size="large"
+                                                                    :disabled="buttonDisabled">
                                                                     {{ buttonText }}
                                                                 </n-button>
                                                             </n-gi>
@@ -167,6 +168,22 @@
                                             <n-input v-model:value="resetModel.email" size="large" round
                                                 placeholder="请输入注册时使用的邮箱" clearable />
                                         </n-form-item>
+                                        <n-form-item label="验证码" path="verificationCode">
+                                            <n-grid x-gap="12" :cols="5">
+                                                <n-gi :span="3">
+                                                    <n-input v-model:value="resetModel.verificationCode" size="large"
+                                                        round placeholder="验证码" maxlength="6" clearable />
+                                                </n-gi>
+                                                <n-gi :span="2">
+                                                    <n-button :loading="loadingCaptcha"
+                                                        @click="GeeTest('reset_password')" style="width: 100%;" strong
+                                                        secondary type="primary" round size="large"
+                                                        :disabled="buttonDisabled">
+                                                        {{ buttonText }}
+                                                    </n-button>
+                                                </n-gi>
+                                            </n-grid>
+                                        </n-form-item>
                                         <n-form-item label="新密码" path="newPassword">
                                             <n-input v-model:value="resetModel.newPassword" type="password" size="large"
                                                 round placeholder="新密码" show-password-on="mousedown" clearable />
@@ -178,7 +195,8 @@
                                         </n-form-item>
                                         <n-flex justify="space-between">
                                             <n-button text @click="toLogin">返回登录</n-button>
-                                            <n-button round type="primary" @click="handleResetPassword">重置密码</n-button>
+                                            <n-button round type="primary" @click="handleResetPassword"
+                                                :loading="loginLoading">重置密码</n-button>
                                         </n-flex>
                                     </n-form>
                                 </template>
@@ -213,11 +231,13 @@ const buttonText = ref('发送验证码')
 const countdown = ref(60)
 const userStore = useUserStore();
 const clause = ref(false);
-const dialog = useDialog()
+const dialog = useDialog();
+const type = ref('');
 
 const userInfo = userStore.userInfo;
 
-const GeeTest = () => {
+const GeeTest = (Type: string) => {
+    type.value = Type
     loadingCaptcha.value = true
     window.initGeetest4(
         {
@@ -244,7 +264,7 @@ const GeeTest = () => {
 const sendMailboxVerificationCode = async (geetestResult: GeetestResult) => {
     try {
         const response = await axios.post('https://cf-v2.uapis.cn/sendmailcode', {
-            type: 'register',
+            type: type,
             mail: formModel.value.email,
             captcha_output: geetestResult.captcha_output,
             lot_number: geetestResult.lot_number,
@@ -438,12 +458,60 @@ watch(mode, (newMode, oldMode) => {
 const toLogin = () => { isRegister.value = false; isReset.value = false }
 const toReset = () => { isReset.value = true; isRegister.value = false }
 
-const resetModel = ref({ email: '', newPassword: '', confirmPassword: '' })
+const resetModel = ref({ email: '', verificationCode: '', newPassword: '', confirmPassword: '' })
+
+const resetRules = {
+    email: [
+        { required: true, message: '请输入邮箱地址', trigger: 'blur' },
+        { type: 'email', message: '请输入有效的邮箱格式', trigger: ['blur', 'input'] }
+    ],
+    verificationCode: [
+        { required: true, message: '请输入验证码', trigger: 'blur' },
+        {
+            pattern: /^[0-9]{6}$/,
+            message: '验证码必须为6位数字',
+            trigger: ['blur', 'input']
+        }
+    ],
+    newPassword: [
+        { required: true, message: '请输入新密码', trigger: 'blur' },
+        {
+            pattern: /^(?![a-zA-Z]+$)(?!\d+$)(?![^\da-zA-Z\s]+$).{6,48}$/,
+            message: '密码6~48位，且至少包含字母、数字、特殊符号中任意两种',
+            trigger: ['blur', 'input']
+        }
+    ],
+    confirmPassword: [
+        { required: true, message: '请再次输入新密码', trigger: 'blur' },
+        {
+            validator: (rule: any, value: string) => {
+                if (value !== resetModel.value.newPassword) {
+                    return new Error('两次输入的密码不一致')
+                }
+                return true
+            },
+            trigger: 'blur'
+        }
+    ]
+}
 
 const handleResetPassword = async () => {
-    // TODO: 调用重置密码API
-    console.log('Resetting:', resetModel.value)
-    message.success('重置请求已发送，请查看邮箱')
+    loginLoading.value = true;
+    try {
+        const response = await axios.get(
+            `https://cf-v2.uapis.cn/email_reset_password?email=${resetModel.value.email}&new_password=${resetModel.value.newPassword}&code=${resetModel.value.verificationCode}`
+        );
+        if (response.data.code === 200) {
+            message.success(response.data.msg);
+        } else {
+            message.error(response.data.msg);
+        }
+    } catch (error) {
+        console.error('重置密码API调用失败', error);
+        message.error('重置密码API调用失败: ' + error);
+    } finally {
+        loginLoading.value = false
+    }
     toLogin()
 }
 

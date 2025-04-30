@@ -6,11 +6,12 @@
         <n-h1 prefix="bar">ChmlFrp-下载中心</n-h1>
         <div>
           <n-p>
-            此处下载的程序为ChmlFrp核心程序，需通过终端启动，无操作UI，全平台兼容，bug最少。除了这些，您还可以前往菜单的
+            此处下载的程序为ChmlFrp核心程序，需通过终端启动，无操作UI，全平台兼容，bug最少。
+            <!-- 除了这些，您还可以前往菜单的
             <n-button @click="navigateToMarketplace" text>
               扩展功能->应用市场
             </n-button>
-            下载其他客户端！
+            下载其他客户端！ -->
           </n-p>
         </div>
         <n-button v-if="!isHidden" text tag="a" target="_blank" type="primary"

@@ -132,28 +132,6 @@ export const computedMenuOptionsUser = computed(() => [{
       ),
       key: '免费域名',
       icon: renderIcon(LinkOutline)
-    },
-    {
-      label: () => h(
-        RouterLink,
-        {
-          to: { name: '免费SSL' }
-        },
-        { default: () => '免费SSL' }
-      ),
-      key: '免费SSL',
-      icon: renderIcon(KeyOutline)
-    },
-    {
-      label: () => h(
-        RouterLink,
-        {
-          to: { name: '应用市场' }
-        },
-        { default: () => '应用市场' }
-      ),
-      key: '应用市场',
-      icon: renderIcon(BagHandleOutline)
     }
   ]
 },

@@ -48,7 +48,7 @@
                             </n-tag>
                         </template>
 
-                        <n-tag round :bordered="false" type="default" size="small" class="remark-tag">
+                        <n-tag round :bordered="false" type="primary" size="small">
                             {{ domain.remarks || '未命名服务' }}
                         </n-tag>
 

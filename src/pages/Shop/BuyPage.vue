@@ -13,12 +13,22 @@
                 </template>
                 <n-ul>
                     <n-li>节点权限：普通节点</n-li>
-                    <n-li>国内节点速率限制：8m</n-li>
-                    <n-li>国外节点速率限制：32m</n-li>
+                    <n-tooltip trigger="hover">
+                        <template #trigger>
+                            <n-li>国内节点限速：8m</n-li>
+                        </template>
+                        单位Mbps
+                    </n-tooltip>
+                    <n-tooltip trigger="hover">
+                        <template #trigger>
+                            <n-li>国外节点限速：32m</n-li>
+                        </template>
+                        单位Mbps
+                    </n-tooltip>
                     <n-li>流量限制：无限制</n-li>
                     <n-li>隧道数量：4条</n-li>
                     <n-li>二级域名数量：2条</n-li>
-                    <n-li>免费SSL数量：1条</n-li>
+                    <!-- <n-li>免费SSL数量：1条</n-li> -->
                     <n-li>官方技术支持：不支持</n-li>
                 </n-ul>
                 <template #action>
@@ -60,18 +70,28 @@
                 </template>
                 <n-ul>
                     <n-li>节点权限：普通/会员节点</n-li>
-                    <n-li>国内节点速率限制：16m</n-li>
-                    <n-li>国外节点速率限制：64m</n-li>
+                    <n-tooltip trigger="hover">
+                        <template #trigger>
+                            <n-li>国内节点限速：16m</n-li>
+                        </template>
+                        单位Mbps
+                    </n-tooltip>
+                    <n-tooltip trigger="hover">
+                        <template #trigger>
+                            <n-li>国外节点限速：64m</n-li>
+                        </template>
+                        单位Mbps
+                    </n-tooltip>
                     <n-li>隧道数量：8条</n-li>
                     <n-li>流量限制：无限制</n-li>
                     <n-li>二级域名数量：4条</n-li>
-                    <n-li>免费SSL数量：2条</n-li>
+                    <!-- <n-li>免费SSL数量：2条</n-li> -->
                     <n-li>官方技术支持：不支持</n-li>
                 </n-ul>
                 <template #action>
                     <n-flex justify="space-between">
                         <n-p>8000积分/月</n-p>
-                        <n-button @click="show = true" round type="primary" size="small">立即购买</n-button>
+                        <n-button @click="ljgm('普通会员')" round type="primary" size="small">立即购买</n-button>
                     </n-flex>
                 </template>
             </n-card>
@@ -103,18 +123,33 @@
                 </template>
                 <n-ul>
                     <n-li>节点权限：普通/会员节点</n-li>
-                    <n-li>国内节点速率限制：24m</n-li>
-                    <n-li>国外节点速率限制：96m</n-li>
+                    <n-tooltip trigger="hover">
+                        <template #trigger>
+                            <n-li>国内节点限速：24m</n-li>
+                        </template>
+                        单位Mbps
+                    </n-tooltip>
+                    <n-tooltip trigger="hover">
+                        <template #trigger>
+                            <n-li>国外节点限速：96m</n-li>
+                        </template>
+                        单位Mbps
+                    </n-tooltip>
                     <n-li>隧道数量：12条</n-li>
                     <n-li>流量限制：无限制</n-li>
                     <n-li>二级域名数量：8条</n-li>
-                    <n-li>免费SSL数量：4条</n-li>
-                    <n-li>官方技术支持：每月1次</n-li>
+                    <!-- <n-li>免费SSL数量：4条</n-li> -->
+                    <n-tooltip trigger="hover">
+                        <template #trigger>
+                            <n-li>官方技术支持：每月1次</n-li>
+                        </template>
+                        任何与ChmlFrp映射相关的问题，都可以联系技术QQ：242247494申请手把手教学！
+                    </n-tooltip>
                 </n-ul>
                 <template #action>
                     <n-flex justify="space-between">
                         <n-p>12000积分/月</n-p>
-                        <n-button @click="show = true" round type="primary" size="small">立即购买</n-button>
+                        <n-button @click="ljgm('高级会员')" round type="primary" size="small">立即购买</n-button>
                     </n-flex>
                 </template>
             </n-card>
@@ -145,18 +180,33 @@
                 </template>
                 <n-ul>
                     <n-li>节点权限：普通/会员节点</n-li>
-                    <n-li>国内节点速率限制：32m</n-li>
-                    <n-li>国外节点速率限制：128m</n-li>
+                    <n-tooltip trigger="hover">
+                        <template #trigger>
+                            <n-li>国内节点限速：32m</n-li>
+                        </template>
+                        单位Mbps
+                    </n-tooltip>
+                    <n-tooltip trigger="hover">
+                        <template #trigger>
+                            <n-li>国外节点限速：128m</n-li>
+                        </template>
+                        单位Mbps
+                    </n-tooltip>
                     <n-li>隧道数量：16条</n-li>
                     <n-li>流量限制：无限制</n-li>
                     <n-li>二级域名数量：16条</n-li>
-                    <n-li>免费SSL数量：12条</n-li>
-                    <n-li>官方技术支持：每月2次</n-li>
+                    <!-- <n-li>免费SSL数量：12条</n-li> -->
+                    <n-tooltip trigger="hover">
+                        <template #trigger>
+                            <n-li>官方技术支持：每月2次</n-li>
+                        </template>
+                        任何与ChmlFrp映射相关的问题，都可以联系技术QQ：242247494申请手把手教学！
+                    </n-tooltip>
                 </n-ul>
                 <template #action>
                     <n-flex justify="space-between">
                         <n-p>18000积分/月</n-p>
-                        <n-button @click="show = true" round type="primary" size="small">立即购买</n-button>
+                        <n-button @click="ljgm('超级会员')" round type="primary" size="small">立即购买</n-button>
                     </n-flex>
                 </template>
             </n-card>
@@ -183,8 +233,10 @@
     </n-grid>
     <n-modal v-model:show="showModal">
         <n-card style="max-width: 420px" title="永久会员购买" :bordered="false" role="dialog" aria-modal="true">
-            <n-text>您正在请求购买 永久{{ targetGroup }}，您当前为 <n-text v-if="userInfo?.term === '9999-09-09' && userInfo?.usergroup !== '免费用户'">永久</n-text>{{ userInfo?.usergroup }}，升级到 永久{{ targetGroup }} 需要支付 {{ payAmount }} 元。
-            <br />请选择支付方式。</n-text>
+            <n-text>您正在请求购买 永久{{ targetGroup }}，您当前为 <n-text
+                    v-if="userInfo?.term === '9999-09-09' && userInfo?.usergroup !== '免费用户'">永久</n-text>{{
+                        userInfo?.usergroup }}，升级到 永久{{ targetGroup }} 需要支付 {{ payAmount }} 元。
+                <br />请选择支付方式。</n-text>
             <template #footer>
                 <n-flex justify="end">
                     <n-button strong secondary size="small" @click="showModal = false">取消</n-button>
@@ -255,9 +307,8 @@
                         </n-card>
 
                         <!-- 购买按钮 -->
-                        <n-button type="primary" block
-                            :disabled="!selectedMembership || !selectedDuration || costPoints > currentPoints"
-                            @click="handlePurchase">
+                        <n-button type="primary" block @click="handlePurchase" :loading="loading"
+                            :disabled="!selectedMembership || !selectedDuration || costPoints > currentPoints">
                             确认购买
                         </n-button>
                     </n-space>
@@ -331,7 +382,7 @@
                         </n-card>
 
                         <n-button type="primary" block :disabled="!upgradeOption || upgradeCost > currentPoints"
-                            @click="handleUpgrade">
+                            @click="handleUpgrade" :loading="loading">
                             确认升级
                         </n-button>
                     </n-space>
@@ -346,6 +397,7 @@ import { ref, computed } from 'vue';
 import { useUserStore } from '@/stores/user';
 import { useRoute, useRouter } from 'vue-router';
 import { useLoadUserInfo } from '@/components/useLoadUser';
+import axios from 'axios';
 
 const userStore = useUserStore();
 const userInfo = userStore.userInfo;
@@ -356,6 +408,7 @@ const selectedDuration = ref(null); // 购买时长
 const upgradeOption = ref('');
 const currentPoints = userInfo?.integral || 0;
 const showModal = ref(false);
+const loading = ref(false);
 
 const route = useRoute()
 const router = useRouter()
@@ -379,6 +432,12 @@ const checkTradeStatus = () => {
 onMounted(() => {
     checkTradeStatus()
 })
+
+
+const ljgm = (vipType: string) => {
+    selectedMembership.value = vipType
+    show.value = true
+}
 
 function getPrice(group: string): number {
     if (group === '普通会员') return 80
@@ -541,13 +600,73 @@ const remainingPointsAfterUpgrade = computed(() => {
 });
 
 // 处理购买
-const handlePurchase = () => {
-    console.log(`购买 ${selectedMembership.value} 会员，时长 ${selectedDuration.value}，消耗 ${costPoints.value} 积分`);
+const handlePurchase = async () => {
+    loading.value = true;
+    try {
+        const response = await axios.get('https://cf-v1.uapis.cn/api/jfsc.php', {
+            params: {
+                usertoken: userInfo?.usertoken,
+                package: selectedMembership.value,
+                term: selectedDuration.value
+            }
+        });
+        const data = response.data;
+        if (data?.status === 'success') {
+            userStore.setUser({ term: data.daoqi });
+            userStore.setUser({ integral: userInfo?.integral ?? 0 - data.points });
+            userStore.setUser({ usergroup: data.package });
+            userStore.setUser({ tunnel: data.tunnel });
+            userStore.setUser({ bandwidth: data.bandwidth });
+            dialog.success({
+                title: '会员购买成功',
+                content: '您购买了' + data.package + '，到期日期为' + data.daoqi + '，消耗了' + data.points + '点积分，感谢您的支持！',
+                positiveText: '确认',
+                onPositiveClick: () => {
+                    message.success('再次感谢您对ChmlFrp的支持！')
+                }
+            })
+        } else {
+            message.error(data?.message);
+        }
+    } catch (error) {
+        console.error('购买请求失败:', error);
+        message.error('购买请求异常，请检查网络或稍后再试');
+    }
+    loading.value = false;
 };
 
 // 处理升级
-const handleUpgrade = () => {
-    console.log(`升级到 ${upgradeOption.value} 会员，需补差价 ${upgradeCost.value} 积分`);
+const handleUpgrade = async () => {
+    loading.value = true;
+    try {
+        const response = await axios.get('https://cf-v1.uapis.cn/api/tcsj.php', {
+            params: {
+                usertoken: userInfo?.usertoken,
+                package: upgradeOption.value
+            }
+        });
+        const data = response.data;
+        if (data?.success === true) {
+            userStore.setUser({ integral: userInfo?.integral ?? 0 - data.xhjf });
+            userStore.setUser({ usergroup: data.package });
+            userStore.setUser({ tunnel: data.tunnel });
+            userStore.setUser({ bandwidth: data.bandwidth });
+            dialog.success({
+                title: '会员升级成功',
+                content: '您升级到了' + data.package + '，消耗了' + data.xhjf + '点积分，感谢您的支持！',
+                positiveText: '确认',
+                onPositiveClick: () => {
+                    message.success('再次感谢您对ChmlFrp的支持！')
+                }
+            })
+        } else {
+            message.error(data?.message);
+        }
+    } catch (error) {
+        console.error('购买请求失败:', error);
+        message.error('购买请求异常，请检查网络或稍后再试');
+    }
+    loading.value = false
 };
 </script>
 

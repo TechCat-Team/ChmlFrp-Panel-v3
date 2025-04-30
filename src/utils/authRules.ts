@@ -86,7 +86,7 @@ export const registerRules: FormRules = {
     clause: [
         {
             required: true,
-            message: '条款不能不选',
+            message: '不同意条款则无法使用我们的服务',
             trigger: 'blur'
         },
     ]

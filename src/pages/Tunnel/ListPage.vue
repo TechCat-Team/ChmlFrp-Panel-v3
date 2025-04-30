@@ -491,7 +491,7 @@
                         尚未启动过此隧道
                     </span>
                 </n-thing>
-                <template #footer>
+                <!-- <template #footer>
                     <n-row class="center-content">
                         <n-col :span="8">
                             <div>
@@ -514,10 +514,10 @@
                             <n-number-animation show-separator :from="0" :to="card.cur_conns" />
                         </n-col>
                     </n-row>
-                </template>
+                </template> -->
                 <template #action>
-                    <n-flex justify="space-around">
-                        <n-button round quaternary type="primary" @click="editTunnel(card)">
+                    <n-flex justify="end">
+                        <!-- <n-button round quaternary type="primary" @click="editTunnel(card)">
                             <template #icon>
                                 <n-icon :component="CreateOutline" />
                             </template>
@@ -528,7 +528,7 @@
                                 <n-icon :component="EyeOutline" />
                             </template>
                             查看
-                        </n-button>
+                        </n-button> -->
                         <n-button round quaternary type="error" @click="handleConfirm(card.name, card.id)">
                             <template #icon>
                                 <n-icon :component="TrashOutline" />
@@ -1243,7 +1243,7 @@ const fetchTunnelCards = async () => {
         } else {
             // 映射数据并设置状态和标签
             tunnelCards.value = data.map(card => {
-                let status: Status = { type: 'error', label: '离线' };
+                let status: Status = { type: 'error', label: '维护' };
 
                 // 根据节点状态设置状态
                 if (card.nodestate === 'online') {
@@ -1251,7 +1251,7 @@ const fetchTunnelCards = async () => {
                         ? { type: 'success', label: '在线' }
                         : { type: 'warning', label: '离线' };
                 } else if (card.nodestate === 'offline') {
-                    status = { type: 'error', label: '离线' };
+                    status = { type: 'error', label: '维护' };
                 }
 
                 // 设置 tags
