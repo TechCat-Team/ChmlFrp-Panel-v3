@@ -264,7 +264,7 @@ const GeeTest = (Type: string) => {
 const sendMailboxVerificationCode = async (geetestResult: GeetestResult) => {
     try {
         const response = await axios.post('https://cf-v2.uapis.cn/sendmailcode', {
-            type: type,
+            type: type.value,
             mail: formModel.value.email,
             captcha_output: geetestResult.captcha_output,
             lot_number: geetestResult.lot_number,
