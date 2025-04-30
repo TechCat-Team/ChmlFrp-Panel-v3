@@ -118,7 +118,7 @@
                                                             </n-gi>
                                                             <n-gi :span="2">
                                                                 <n-button :loading="loadingCaptcha"
-                                                                    @click="GeeTest('register')" style="width: 100%;"
+                                                                    @click="GeeTest('register', formModel.email)" style="width: 100%;"
                                                                     strong secondary type="primary" round size="large"
                                                                     :disabled="buttonDisabled">
                                                                     {{ buttonText }}
@@ -176,9 +176,9 @@
                                                 </n-gi>
                                                 <n-gi :span="2">
                                                     <n-button :loading="loadingCaptcha"
-                                                        @click="GeeTest('reset_password')" style="width: 100%;" strong
+                                                        @click="GeeTest('reset_password', resetModel.email)" style="width: 100%;" strong
                                                         secondary type="primary" round size="large"
-                                                        :disabled="buttonDisabled">
+                                                        :disabled="resetModel.email === ''">
                                                         {{ buttonText }}
                                                     </n-button>
                                                 </n-gi>
@@ -233,11 +233,13 @@ const userStore = useUserStore();
 const clause = ref(false);
 const dialog = useDialog();
 const type = ref('');
+const emaill = ref('');
 
 const userInfo = userStore.userInfo;
 
-const GeeTest = (Type: string) => {
+const GeeTest = (Type: string, email: string) => {
     type.value = Type
+    emaill.value = email
     loadingCaptcha.value = true
     window.initGeetest4(
         {
@@ -265,7 +267,7 @@ const sendMailboxVerificationCode = async (geetestResult: GeetestResult) => {
     try {
         const response = await axios.post('https://cf-v2.uapis.cn/sendmailcode', {
             type: type.value,
-            mail: formModel.value.email,
+            mail: emaill.value,
             captcha_output: geetestResult.captcha_output,
             lot_number: geetestResult.lot_number,
             pass_token: geetestResult.pass_token,
