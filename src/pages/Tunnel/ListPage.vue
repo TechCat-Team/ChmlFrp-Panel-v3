@@ -348,8 +348,8 @@
                         </n-form-item>
                     </n-col>
                     <n-col :span="12">
-                        <n-form-item label="节点选择" path="node" @click="nodeDetails">
-                            <n-select v-model:value="formData.node" placeholder="请选择节点" />
+                        <n-form-item label="节点选择" path="node">
+                            <n-select disabled v-model:value="formData.node" placeholder="请选择节点" />
                         </n-form-item>
                     </n-col>
                     <n-col :span="12">
@@ -430,8 +430,7 @@
                     <n-button v-if="formData.type === 'TCP' || formData.type === 'UDP'"
                         @click="generateRandomPort">随机外网端口</n-button>
                     <n-button @click="generateRandomTunnelName">随机隧道名</n-button>
-                    <n-button @click="tunnelInfoModal = false">取消</n-button>
-                    <n-button @click="createATunnelUp">上一步</n-button>
+                    <n-button @click="editTunnelModal = false">取消</n-button>
                     <n-button type="primary" @click="determineTheChangeOfTheTunnel"
                         :loading="loadingCreateTunnel">确定</n-button>
                 </n-flex>
@@ -517,13 +516,13 @@
                 </template> -->
                 <template #action>
                     <n-flex justify="end">
-                        <!-- <n-button round quaternary type="primary" @click="editTunnel(card)">
+                        <n-button round quaternary type="primary" @click="editTunnel(card)">
                             <template #icon>
                                 <n-icon :component="CreateOutline" />
                             </template>
                             编辑
                         </n-button>
-                        <n-button @click="goToTunnelInfo" round quaternary type="primary">
+                        <!-- <n-button @click="goToTunnelInfo" round quaternary type="primary">
                             <template #icon>
                                 <n-icon :component="EyeOutline" />
                             </template>
@@ -666,56 +665,95 @@ const editTunnel = (card: TunnelCard) => {
     editTunnelModal.value = true
 };
 
-const determineTheChangeOfTheTunnel = async () => {
-    loadingCreateTunnel.value = true;
-
-    if (formData.domainNameLabel === "免费域名" && (formData.type === 'HTTP' || formData.type === 'HTTPS')) {
-        // 检查remarks中是否包含card.node
-        if (formData.remarks.includes(formData.node)) {
-            try {
-                const response = await axios.post('https://cf-v2.uapis.cn/update_free_subdomain', {
-                    token: userInfo?.usertoken,
-                    domain: formData.choose,
-                    record: formData.recordValue,
-                    ttl: "10分钟",
-                    target: NodeInfo.value.ip,
-                    remarks: '解析 网站 到 ' + formData.name + ' - ' + formData.node
-                }, {
-                    headers: {
-                        'Content-Type': 'application/json',
-                    }
-                });
-                const data = response.data;
-                if (data.state === 'success') {
-                    // 头疼，这里应该写编辑隧道
-                } else {
-                    message.error("免费域名编辑失败：" + data.msg);
-                }
-            } catch (error) {
-                message.error('编辑免费域名API请求失败:' + error);
+// 修改隧道apiv1
+const apiChangeTunnelV1 = async () => {
+    try {
+        const response = await axios.post('https://cf-v1.uapis.cn/api/cztunnel.php', {
+            usertoken: userInfo?.usertoken,
+            userid: userInfo?.userid,
+            type: formData.type.toLowerCase(),
+            node: formData.node,
+            name: formData.name,
+            ap: formData.ap,
+            // TCP或UDP隧道提交dorp为外网端口，HTTP或HTTPS隧道dorp为域名
+            dorp: formData.type.toLowerCase() === "tcp" || formData.type.toLowerCase() === "udp" ? formData.dorp : formData.domain,
+            localip: formData.localip,
+            nport: formData.nport,
+            tunnelid: formData.tunnelid,
+            encryption: formData.encryption.toString(),
+            compression: formData.compression.toString(),
+        }, {
+            headers: {
+                'Content-Type': 'application/json',
             }
+        });
+        const data = response.data;
+        if (response.status === 200 && data.code === 200) {
+            message.success("隧道编辑成功")
+            return data
         } else {
-            try {
-                // 头疼+1，这里也应该写编辑隧道
-            } catch (error) {
-                message.error('隧道编辑API调用失败:' + error);
-            }
+            message.error("隧道编辑失败: " + data.error);
         }
-    } else if (formData.domainNameLabel === "自定义" && (formData.type === 'HTTP' || formData.type === 'HTTPS')) {
+    } catch (error) {
+        message.error('隧道编辑API请求失败:' + error);
+    }
+    return null
+}
+
+// 修改隧道apiv2
+const apiChangeTunnelV2 = async () => {
+    try {
+        const response = await axios.post('http://cf-v2.uapis.cn/update_tunnel', {
+            tunnelid: formData.tunnelid,
+            token: userInfo?.usertoken,
+            tunnelname: formData.name,
+            node: formData.node,
+            localip: formData.localip,
+            porttype: formData.type.toLowerCase(),
+            localport: formData.nport,
+            // 根据类型设置 banddomain 或 remoteport
+            ...(formData.type.toUpperCase() === 'HTTP' || formData.type.toUpperCase() === 'HTTPS'
+                ? { banddomain: formData.domain }
+                : { remoteport: formData.dorp }),
+            encryption: formData.encryption,
+            compression: formData.compression,
+            extraparams: ""
+        }, {
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+        const data = response.data;
+        if (response.status === 200 && data.code === 200) {
+            message.success("隧道编辑成功")
+            return data
+        } else {
+            message.error("隧道编辑失败: " + data.msg);
+        }
+    } catch (error) {
+        message.error('隧道编辑API请求失败:' + error);
+    }
+    return null
+}
+
+const determineTheChangeOfTheTunnel = async () => {
+    if (formData.type === 'HTTP' || formData.type === 'HTTPS') {
         try {
-            // 头疼+2，这里还是应该写编辑隧道
+            // apiv2似乎存在问题，返回“指定的端口不在允许的范围内”
+            // let err = await apiChangeTunnelV2()
+            let err = await apiChangeTunnelV1()
+            err === null ? null : (editTunnelModal.value = false, fetchTunnelCards())
         } catch (error) {
             message.error('隧道编辑API调用失败:' + error);
         }
     } else {
         try {
-            // 头疼+3，这里照样应该写编辑隧道
+            let err = await apiChangeTunnelV2()
+            err === null ? null : (editTunnelModal.value = false, fetchTunnelCards())
         } catch (error) {
             message.error('隧道编辑API调用失败:' + error);
         }
     }
-    loadingCreateTunnel.value = false;
-    // 最终评价：石山！不写了草！CPU烧了
 }
 
 interface Domain {
