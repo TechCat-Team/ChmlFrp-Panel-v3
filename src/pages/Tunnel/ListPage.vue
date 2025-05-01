@@ -228,7 +228,8 @@
                 v-if="formData.domainNameLabel === '自定义' && (formData.type === 'HTTP' || formData.type === 'HTTPS') && NodeInfo.china !== 'no'">
                 自定义域名解析到中国境内节点(中国特别行政区除外)建站，您的域名必须在工信部备案，不备案将被拦截导致无法访问。
             </n-alert>
-            <n-alert title="注意" style="margin-bottom: 32px;" type="warning" v-if="formData.domainNameLabel === '自定义' && (formData.type === 'HTTP' || formData.type === 'HTTPS')">
+            <n-alert title="注意" style="margin-bottom: 32px;" type="warning"
+                v-if="formData.domainNameLabel === '自定义' && (formData.type === 'HTTP' || formData.type === 'HTTPS')">
                 请使用自定义域名需要将您的 {{ formData.domain }} 域名通过CNAME解析至 {{ NodeInfo.ip }} 才能正常访问。
             </n-alert>
             <n-row :gutter="15" style="margin-top: 15px;">
@@ -435,7 +436,7 @@
                     <n-button @click="generateRandomTunnelName">随机隧道名</n-button>
                     <n-button @click="editTunnelModal = false">取消</n-button>
                     <n-button type="primary" @click="determineTheChangeOfTheTunnel"
-                        :loading="loadingCreateTunnel">确定</n-button>
+                        :loading="loadingEditTunnel">确定</n-button>
                 </n-flex>
             </template>
         </n-card>
@@ -565,10 +566,10 @@
 </template>
 
 <script setup lang="ts">
-import { RefreshOutline, AddOutline, ArrowUpOutline, ArrowDownOutline, EyeOutline, TrashOutline, CreateOutline, BanOutline, EarthOutline, ShieldCheckmarkOutline } from '@vicons/ionicons5'
+import { RefreshOutline, AddOutline, TrashOutline, CreateOutline, BanOutline, EarthOutline, ShieldCheckmarkOutline } from '@vicons/ionicons5'
 import { useScreenStore } from '@/stores/useScreen';
 import { storeToRefs } from 'pinia';
-import { useRouter } from 'vue-router';
+// import { useRouter } from 'vue-router';
 import axios from 'axios';
 // 获取登录信息
 import { useUserStore } from '@/stores/user';
@@ -576,11 +577,11 @@ import { useUserStore } from '@/stores/user';
 const userStore = useUserStore();
 const userInfo = userStore.userInfo;
 
-const router = useRouter();
-const goToTunnelInfo = () => {
-    const url = router.resolve({ path: '/tunnel/info' }).href;
-    window.open(url, '_blank');
-}
+// const router = useRouter();
+// const goToTunnelInfo = () => {
+//     const url = router.resolve({ path: '/tunnel/info' }).href;
+//     window.open(url, '_blank');
+// }
 
 const message = useMessage()
 const dialog = useDialog()
@@ -594,6 +595,7 @@ const deletetButtonLoading = ref(false)
 const loadingTunnelInfo = ref(false)
 const loadingNodeMap = ref(false)
 const loadingCreateTunnel = ref(false)
+const loadingEditTunnel = ref(false)
 const addTheTunnelButtonShow = ref(false)
 
 const screenStore = useScreenStore();
@@ -653,10 +655,10 @@ const editTunnel = (card: TunnelCard) => {
                         formData.remarks = domainRecord.remarks;
 
                         // 保留修改前记录以便比对删除
-                        formData.choose = domainRecord.domain;
-                        formData.recordValue = domainRecord.record;
-                        formData.name = card.name
-                        formData.node = card.node
+                        formData.chooseOld = domainRecord.domain;
+                        formData.recordValueOld = domainRecord.record;
+                        formData.nameOld = card.name
+                        formData.nodeOld = card.node
 
                         formData.domainNameLabel = '免费域名';
 
@@ -807,9 +809,39 @@ const apiDeleteFreeDomain = async (domain: string, record: string, flag = true) 
     return null
 }
 
+// 获取免费节点详情
+const apiGetFreeNodeInfo = async () => {
+    try {
+        const { data } = await axios.get(`https://cf-v2.uapis.cn/get_user_free_subdomains?token=${userInfo?.usertoken}`);
+        if (data.state === 'success') {
+            return data.data
+        } else {
+            message.error("节点详情获取失败: " + data.msg);
+        }
+    } catch (error) {
+        message.error('节点详情API请求失败:' + error);
+    }
+    return null
+}
+
 // 修改免费域名
 const apiUpdateFreeDomain = async (domainOld: string, recordOld: string, domain: string, record: string, target: string, remarks: string, flag = true) => {
     try {
+        // 获取旧解析参数
+        let freeDomainOld = await apiGetFreeNodeInfo()
+        if (freeDomainOld === null) {
+            return null
+        }
+
+        const targetOld = freeDomainOld.find((item: { record: string; domain: string; }) => item.record === recordOld && item.domain === domainOld)?.target
+        if (!targetOld) {
+            return null
+        }
+        const remarksOld = freeDomainOld.find((item: { record: string; domain: string; }) => item.record === recordOld && item.domain === domainOld)?.remarks
+        if (!remarksOld) {
+            return null
+        }
+
         // 删除原纪录
         const deleteResponse = await apiDeleteFreeDomain(domainOld, recordOld, false);
         if (deleteResponse === null) {
@@ -820,7 +852,7 @@ const apiUpdateFreeDomain = async (domainOld: string, recordOld: string, domain:
         const createResponse = await apiCreateFreeDomain(domain, record, target, remarks, false);
         if (createResponse === null) {
             // 回溯删除原纪录
-            const rollbackResponse = await apiCreateFreeDomain(domainOld, recordOld, target, remarks, false);
+            const rollbackResponse = await apiCreateFreeDomain(domainOld, recordOld, targetOld, remarksOld, false);
             if (rollbackResponse === null) {
                 message.error("免费域名修改失败，回溯失败，请前往免费域名管理页面删除错误域名")
             } else {
@@ -868,23 +900,28 @@ const apiGetNodeInfo = async (node: string) => {
 }
 
 const determineTheChangeOfTheTunnel = async () => {
+    // loading提示
+    loadingEditTunnel.value = true
     // HTTP 或 HTTPS 隧道
     if (formData.type === 'HTTP' || formData.type === 'HTTPS') {
         // 免费域名
         if (formData.domainNameLabel === '免费域名') {
+            const freeDomainChanged = formData.choose !== formData.chooseOld || formData.recordValue !== formData.recordValueOld || formData.node !== formData.nodeOld || formData.name !== formData.nameOld
             // 仅在发生变动时提交域名更改
-            if (formData.choose !== formData.choose || formData.recordValue !== formData.recordValue || formData.node !== formData.node) {
+            if (freeDomainChanged) {
                 // 更新隧道绑定域名
                 formData.domain = formData.recordValue + '.' + formData.choose
                 // 获取节点对应的域名 (target)
                 let nodeInfo = await apiGetNodeInfo(formData.node)
                 if (nodeInfo === null) {
+                    loadingEditTunnel.value = false
                     return null
                 }
                 // 更新免费域名记录
-                let err = await apiUpdateFreeDomain(formData.choose, formData.recordValue, formData.choose, formData.recordValue, nodeInfo.ip, "解析 网站 到 " + formData.name + " - " + formData.node, true);
+                let err = await apiUpdateFreeDomain(formData.chooseOld, formData.recordValueOld, formData.choose, formData.recordValue, nodeInfo.ip, "解析 网站 到 " + formData.name + " - " + formData.node, true);
                 if (err === null) {
                     message.error("免费域名修改失败")
+                    loadingEditTunnel.value = false
                     return null
                 }
             }
@@ -897,26 +934,29 @@ const determineTheChangeOfTheTunnel = async () => {
                 if (err === null) {
                     // 回溯免费域名更改
                     // 获取旧节点对应的域名 (target)
-                    let nodeInfoOld = await apiGetNodeInfo(formData.node)
+                    let nodeInfoOld = await apiGetNodeInfo(formData.nodeOld)
                     if (nodeInfoOld === null) {
                         // 回溯失败，让用户自行处理
                         message.error("修改失败，回溯失败，请前往免费域名管理页面删除错误域名")
+                        loadingEditTunnel.value = false
                         return null
                     }
-                    let err = await apiUpdateFreeDomain(formData.choose, formData.recordValue, formData.choose, formData.recordValue, nodeInfoOld.ip, "解析 网站 到 " + formData.name + " - " + formData.node, false);
+                    let err = await apiUpdateFreeDomain(formData.choose, formData.recordValue, formData.chooseOld, formData.recordValueOld, nodeInfoOld.ip, "解析 网站 到 " + formData.nameOld + " - " + formData.nodeOld, false);
                     if (err === null) {
                         // 回溯失败，让用户自行处理
                         message.error("修改失败，回溯失败，请前往免费域名管理页面删除错误域名")
+                        loadingEditTunnel.value = false
                         return null
                     }
                     message.error("修改失败，回溯成功")
+                    loadingEditTunnel.value = false
                     return null
                 }
 
                 editTunnelModal.value = false
 
                 // 如果免费域名被修改，需要提示用户生效存在延迟
-                if (formData.choose !== formData.choose || formData.recordValue !== formData.recordValue || formData.node !== formData.node) {
+                if (freeDomainChanged) {
                     dialog.success({
                         title: '成功',
                         content: '隧道修改成功！但是您使用了ChmlFrp提供的免费域名，域名解析通常不会立即生效，一般在48小时内彻底生效，部分DNS会在几分钟内生效。简而言之，您方才修改的免费域名需要等待一段时间后才能正常使用。',
@@ -951,6 +991,7 @@ const determineTheChangeOfTheTunnel = async () => {
             message.error('隧道编辑API调用失败:' + error);
         }
     }
+    loadingEditTunnel.value = false
 }
 
 interface Domain {
@@ -1030,6 +1071,10 @@ const formData = reactive({
     recordValue: '',
     remarks: '',
     tunnelid: 0,
+    chooseOld: '',
+    recordValueOld: '',
+    nodeOld: '',
+    nameOld: ''
 });
 
 const typeOptions = ['TCP', 'UDP', 'HTTP', 'HTTPS'].map((v) => ({
@@ -1268,22 +1313,22 @@ onMounted(() => {
 });
 
 // 流量单位换算
-function formatBytes(bytes: string | number): { value: number; suffix: string } {
-    let num: number;
-    if (typeof bytes === 'string') {
-        num = parseFloat(bytes);
-    } else {
-        num = bytes;
-    }
-    const units = ['Bytes', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB'];
-    if (num === 0) return { value: 0, suffix: 'Bytes' };
-    let index = 0;
-    while (num >= 1024 && index < units.length - 1) {
-        num /= 1024;
-        index++;
-    }
-    return { value: parseFloat(num.toFixed(2)), suffix: units[index] };
-}
+// function formatBytes(bytes: string | number): { value: number; suffix: string } {
+//     let num: number;
+//     if (typeof bytes === 'string') {
+//         num = parseFloat(bytes);
+//     } else {
+//         num = bytes;
+//     }
+//     const units = ['Bytes', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB'];
+//     if (num === 0) return { value: 0, suffix: 'Bytes' };
+//     let index = 0;
+//     while (num >= 1024 && index < units.length - 1) {
+//         num /= 1024;
+//         index++;
+//     }
+//     return { value: parseFloat(num.toFixed(2)), suffix: units[index] };
+// }
 
 interface NodeCard {
     id: number;
