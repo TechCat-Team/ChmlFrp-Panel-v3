@@ -2,7 +2,7 @@
     <n-back-top :right="100" />
     <n-card size="small">
         <n-alert title="购买须知" type="warning">
-            购买后积分不退还。多次购买同一套餐则增加对应会员时长，如果要升级会员请选择升级会员。
+            购买后积分不退还。多次购买同一套餐则增加对应会员时长，如果要升级会员请选择升级会员。会员购买失败或无法支付，请联系客服QQ：242247494为您开通临时支付渠道
         </n-alert>
     </n-card>
     <n-grid style="margin-top: 12px" :x-gap="12" :y-gap="12" cols="1 s:2 m:3 l:4" responsive="screen">

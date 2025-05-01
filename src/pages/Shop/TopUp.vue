@@ -2,7 +2,7 @@
     <n-back-top :right="100" />
     <n-card size="small">
         <n-alert title="提示" type="warning">
-            充值后不支持退款，如果积分充值未到账，并且在扫码付款页面忘记点击补单。请联系客服QQ：242247494进行补发。
+            充值后不支持退款，如果无法支付或支付后未到账，请联系客服QQ：242247494开通临时支付渠道或进行补发。
         </n-alert>
     </n-card>
     <n-card style="margin-top: 16px;">

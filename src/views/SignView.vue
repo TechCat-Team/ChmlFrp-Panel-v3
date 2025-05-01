@@ -178,7 +178,7 @@
                                                     <n-button :loading="loadingCaptcha"
                                                         @click="GeeTest('reset_password', resetModel.email)" style="width: 100%;" strong
                                                         secondary type="primary" round size="large"
-                                                        :disabled="resetModel.email === ''">
+                                                        :disabled="resetModel.email === '' || buttonDisabled === true">
                                                         {{ buttonText }}
                                                     </n-button>
                                                 </n-gi>

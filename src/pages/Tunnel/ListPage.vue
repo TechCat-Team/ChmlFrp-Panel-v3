@@ -220,13 +220,16 @@
     </n-modal>
     <n-modal v-model:show="tunnelInfoModal">
         <n-card style="width: 800px" title="创建隧道" :bordered="false" size="huge" role="dialog" aria-modal="true">
-            <n-alert title="注意" type="info" style="margin-bottom: 32px;"
+            <n-alert title="注意" type="info" style="margin-bottom: 8px;"
                 v-if="formData.domainNameLabel === '免费域名' && (formData.type === 'HTTP' || formData.type === 'HTTPS')">
                 免费域名禁止用于中国境内节点(中国特别行政区除外)建站，如果您给国内节点解析免费域名并建站，会被备案拦截导致无法访问
             </n-alert>
-            <n-alert title="注意" type="info" style="margin-bottom: 32px;"
-                v-if="formData.domainNameLabel === '自定义' && (formData.type === 'HTTP' || formData.type === 'HTTPS')">
+            <n-alert title="注意" type="info" style="margin-bottom: 8px;"
+                v-if="formData.domainNameLabel === '自定义' && (formData.type === 'HTTP' || formData.type === 'HTTPS') && NodeInfo.china !== 'no'">
                 自定义域名解析到中国境内节点(中国特别行政区除外)建站，您的域名必须在工信部备案，不备案将被拦截导致无法访问。
+            </n-alert>
+            <n-alert title="注意" style="margin-bottom: 32px;" type="warning" v-if="formData.domainNameLabel === '自定义' && (formData.type === 'HTTP' || formData.type === 'HTTPS')">
+                请使用自定义域名需要将您的 {{ formData.domain }} 域名通过CNAME解析至 {{ NodeInfo.ip }} 才能正常访问。
             </n-alert>
             <n-row :gutter="15" style="margin-top: 15px;">
                 <n-form ref="tunnelForm" :model="formData" size="medium" label-width="100px">
@@ -521,14 +524,14 @@
                             <template #icon>
                                 <n-icon :component="CreateOutline" />
                             </template>
-                            编辑
-                        </n-button>
-                        <n-button @click="goToTunnelInfo" round quaternary type="primary">
-                            <template #icon>
+            编辑
+            </n-button>
+            <n-button @click="goToTunnelInfo" round quaternary type="primary">
+                <template #icon>
                                 <n-icon :component="EyeOutline" />
                             </template>
-                            查看
-                        </n-button> -->
+                查看
+            </n-button> -->
                         <n-button round quaternary type="error" @click="handleConfirm(card.name, card.id)">
                             <template #icon>
                                 <n-icon :component="TrashOutline" />
