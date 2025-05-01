@@ -351,18 +351,18 @@
                         </n-form-item>
                     </n-col>
                     <n-col :span="12">
-                        <n-form-item label="节点选择" path="node" @click="nodeDetails">
-                            <n-select v-model:value="formData.node" placeholder="请选择节点" />
+                        <n-form-item label="节点选择" path="node">
+                            <n-select v-model:value="formData.node" :options="updateNodeOptions" placeholder="请选择节点" />
                         </n-form-item>
                     </n-col>
                     <n-col :span="12">
                         <n-form-item v-if="formData.type === 'TCP' || formData.type === 'UDP'" label="端口类型" path="type">
                             <n-select v-model:value="formData.type" :options="typeOptionsTCPUDP" placeholder="请选择端口类型"
-                                clearable />
+                                clearable @update:value="updateTypeTrig" />
                         </n-form-item>
                         <n-form-item v-else label="端口类型" path="type">
                             <n-select v-model:value="formData.type" :options="typeOptionsHTTPHTTPS"
-                                placeholder="请选择端口类型" clearable />
+                                placeholder="请选择端口类型" clearable @update:value="updateTypeTrig" />
                         </n-form-item>
                     </n-col>
                     <n-col :span="12">
@@ -389,15 +389,15 @@
                     <n-col
                         v-if="formData.domainNameLabel === '免费域名' && (formData.type === 'HTTP' || formData.type === 'HTTPS')"
                         :span="12">
-                        <n-form-item label="请选择免费域名" path="choose">
-                            <n-select disabled v-model:value="formData.choose" :options="domainNameOptions" />
+                        <n-form-item label="免费域名选择" path="choose">
+                            <n-select v-model:value="formData.choose" :options="domainNameOptions" />
                         </n-form-item>
                     </n-col>
                     <n-col
                         v-if="formData.domainNameLabel === '免费域名' && (formData.type === 'HTTP' || formData.type === 'HTTPS')"
                         :span="12">
-                        <n-form-item label="新建域名" path="dorp">
-                            <n-input disabled v-model:value="formData.recordValue" placeholder="请输入域名前缀">
+                        <n-form-item label="域名前缀" path="dorp">
+                            <n-input v-model:value="formData.recordValue" placeholder="请输入域名前缀">
                                 <template #suffix>
                                     .{{ formData.choose }}
                                 </template>
@@ -433,8 +433,7 @@
                     <n-button v-if="formData.type === 'TCP' || formData.type === 'UDP'"
                         @click="generateRandomPort">随机外网端口</n-button>
                     <n-button @click="generateRandomTunnelName">随机隧道名</n-button>
-                    <n-button @click="tunnelInfoModal = false">取消</n-button>
-                    <n-button @click="createATunnelUp">上一步</n-button>
+                    <n-button @click="editTunnelModal = false">取消</n-button>
                     <n-button type="primary" @click="determineTheChangeOfTheTunnel"
                         :loading="loadingCreateTunnel">确定</n-button>
                 </n-flex>
@@ -520,14 +519,14 @@
                 </template> -->
                 <template #action>
                     <n-flex justify="end">
-                        <!-- <n-button round quaternary type="primary" @click="editTunnel(card)">
+                        <n-button round quaternary type="primary" @click="editTunnel(card)">
                             <template #icon>
                                 <n-icon :component="CreateOutline" />
                             </template>
-            编辑
-            </n-button>
-            <n-button @click="goToTunnelInfo" round quaternary type="primary">
-                <template #icon>
+                            编辑
+                        </n-button>
+                        <!-- <n-button @click="goToTunnelInfo" round quaternary type="primary">
+                            <template #icon>
                                 <n-icon :component="EyeOutline" />
                             </template>
                 查看
@@ -652,7 +651,17 @@ const editTunnel = (card: TunnelCard) => {
                         formData.choose = domainRecord.domain;
                         formData.recordValue = domainRecord.record;
                         formData.remarks = domainRecord.remarks;
+
+                        // 保留修改前记录以便比对删除
+                        formData.chooseOld = domainRecord.domain;
+                        formData.recordValueOld = domainRecord.record;
+                        formData.nameOld = card.name
+                        formData.nodeOld = card.node
+
                         formData.domainNameLabel = '免费域名';
+
+                        // 获取可选的免费域名列表
+                        subDomainData()
                     }
                 } else {
                     // 如果没有找到匹配的记录
@@ -666,59 +675,282 @@ const editTunnel = (card: TunnelCard) => {
                 formData.domainNameLabel = '自定义'; // 出现错误时设置为自定义
             });
     }
+
+    // 获取可选节点信息
+    updateFetchNodeOptions()
+
     editTunnelModal.value = true
 };
 
-const determineTheChangeOfTheTunnel = async () => {
-    loadingCreateTunnel.value = true;
-
-    if (formData.domainNameLabel === "免费域名" && (formData.type === 'HTTP' || formData.type === 'HTTPS')) {
-        // 检查remarks中是否包含card.node
-        if (formData.remarks.includes(formData.node)) {
-            try {
-                const response = await axios.post('https://cf-v2.uapis.cn/update_free_subdomain', {
-                    token: userInfo?.usertoken,
-                    domain: formData.choose,
-                    record: formData.recordValue,
-                    ttl: "10分钟",
-                    target: NodeInfo.value.ip,
-                    remarks: '解析 网站 到 ' + formData.name + ' - ' + formData.node
-                }, {
-                    headers: {
-                        'Content-Type': 'application/json',
-                    }
-                });
-                const data = response.data;
-                if (data.state === 'success') {
-                    // 头疼，这里应该写编辑隧道
-                } else {
-                    message.error("免费域名编辑失败：" + data.msg);
-                }
-            } catch (error) {
-                message.error('编辑免费域名API请求失败:' + error);
+// 修改隧道apiv1
+const apiChangeTunnelV1 = async () => {
+    try {
+        const response = await axios.post('https://cf-v1.uapis.cn/api/cztunnel.php', {
+            usertoken: userInfo?.usertoken,
+            userid: userInfo?.userid,
+            type: formData.type.toLowerCase(),
+            node: formData.node,
+            name: formData.name,
+            ap: formData.ap,
+            // TCP或UDP隧道提交dorp为外网端口，HTTP或HTTPS隧道dorp为域名
+            dorp: formData.type.toLowerCase() === "tcp" || formData.type.toLowerCase() === "udp" ? formData.dorp : formData.domain,
+            localip: formData.localip,
+            nport: formData.nport,
+            tunnelid: formData.tunnelid,
+            encryption: formData.encryption.toString(),
+            compression: formData.compression.toString(),
+        }, {
+            headers: {
+                'Content-Type': 'application/json',
             }
+        });
+        const data = response.data;
+        if (response.status === 200 && data.code === 200) {
+            message.success("隧道编辑成功")
+            return data
         } else {
+            message.error("隧道编辑失败: " + data.error);
+        }
+    } catch (error) {
+        message.error('隧道编辑API请求失败:' + error);
+    }
+    return null
+}
+
+// 修改隧道apiv2
+const apiChangeTunnelV2 = async () => {
+    try {
+        const response = await axios.post('https://cf-v2.uapis.cn/update_tunnel', {
+            tunnelid: formData.tunnelid,
+            token: userInfo?.usertoken,
+            tunnelname: formData.name,
+            node: formData.node,
+            localip: formData.localip,
+            porttype: formData.type.toLowerCase(),
+            localport: formData.nport,
+            // 根据类型设置 banddomain 或 remoteport
+            ...(formData.type.toUpperCase() === 'HTTP' || formData.type.toUpperCase() === 'HTTPS'
+                ? { banddomain: formData.domain }
+                : { remoteport: formData.dorp }),
+            encryption: formData.encryption,
+            compression: formData.compression,
+            extraparams: formData.ap
+        }, {
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+        const data = response.data;
+        if (response.status === 200 && data.code === 200) {
+            message.success("隧道编辑成功")
+            return data
+        } else {
+            message.error("隧道编辑失败: " + data.msg);
+        }
+    } catch (error) {
+        message.error('隧道编辑API请求失败:' + error);
+    }
+    return null
+}
+
+// 创建免费域名
+const apiCreateFreeDomain = async (domain: string, record: string, target: string, remarks: string, flag = true) => {
+    try {
+        const response = await axios.post('https://cf-v2.uapis.cn/create_free_subdomain', {
+            "token": userInfo?.usertoken,
+            "domain": domain,
+            "record": record,
+            "type": "CNAME",
+            "target": target,
+            "ttl": "10分钟",
+            "remarks": remarks
+        }, {
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+        const data = response.data;
+        if (data.state === 'success') {
+            flag && message.success("免费域名创建成功")
+            return data
+        } else {
+            message.error("免费域名创建失败: " + data.msg);
+        }
+    } catch (error) {
+        message.error('免费域名创建API请求失败:' + error);
+    }
+    return null
+}
+
+// 删除免费域名
+const apiDeleteFreeDomain = async (domain: string, record: string, flag = true) => {
+    try {
+        const response = await axios.post('https://cf-v2.uapis.cn/delete_free_subdomain', {
+            token: userInfo?.usertoken,
+            domain: domain,
+            record: record
+        }, {
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+        const data = response.data;
+        if (data.state === 'success') {
+            flag && message.success("免费域名删除成功")
+            return data
+        } else {
+            message.error("免费域名删除失败: " + data.msg);
+        }
+    } catch (error) {
+        message.error('免费域名删除API请求失败:' + error);
+    }
+    return null
+}
+
+// 修改免费域名
+const apiUpdateFreeDomain = async (domainOld: string, recordOld: string, domain: string, record: string, target: string, remarks: string, flag = true) => {
+    try {
+        // 删除原纪录
+        const deleteResponse = await apiDeleteFreeDomain(domainOld, recordOld, false);
+        if (deleteResponse === null) {
+            return null
+        }
+
+        // 创建新纪录
+        const createResponse = await apiCreateFreeDomain(domain, record, target, remarks, false);
+        if (createResponse === null) {
+            // 回溯删除原纪录
+            const rollbackResponse = await apiCreateFreeDomain(domainOld, recordOld, target, remarks, false);
+            if (rollbackResponse === null) {
+                message.error("免费域名修改失败，回溯失败，请前往免费域名管理页面删除错误域名")
+            } else {
+                message.error("免费域名修改失败，回溯成功")
+            }
+            return null
+        }
+
+        flag && message.success("免费域名修改成功")
+        return createResponse
+    } catch (error) {
+        message.error('免费域名修改API请求失败:' + error);
+    }
+    return null
+}
+
+// 获取节点列表
+const apiGetNodeList = async () => {
+    try {
+        const { data } = await axios.get('https://cf-v2.uapis.cn/node');
+        if (data.state === 'success') {
+            return data.data
+        } else {
+            message.error("节点列表获取失败: " + data.msg);
+        }
+    } catch (error) {
+        message.error('节点列表API请求失败:' + error);
+    }
+    return null
+}
+
+// 获取节点详情
+const apiGetNodeInfo = async (node: string) => {
+    try {
+        const { data } = await axios.get(`https://cf-v2.uapis.cn/nodeinfo?token=${userInfo?.usertoken}&node=${node}`);
+        if (data.state === 'success') {
+            return data.data
+        } else {
+            message.error("节点详情获取失败: " + data.msg);
+        }
+    } catch (error) {
+        message.error('节点详情API请求失败:' + error);
+    }
+    return null
+}
+
+const determineTheChangeOfTheTunnel = async () => {
+    // HTTP 或 HTTPS 隧道
+    if (formData.type === 'HTTP' || formData.type === 'HTTPS') {
+        // 免费域名
+        if (formData.domainNameLabel === '免费域名') {
+            // 仅在发生变动时提交域名更改
+            if (formData.choose !== formData.chooseOld || formData.recordValue !== formData.recordValueOld || formData.node !== formData.nodeOld) {
+                // 更新隧道绑定域名
+                formData.domain = formData.recordValue + '.' + formData.choose
+                // 获取节点对应的域名 (target)
+                let nodeInfo = await apiGetNodeInfo(formData.node)
+                if (nodeInfo === null) {
+                    return null
+                }
+                // 更新免费域名记录
+                let err = await apiUpdateFreeDomain(formData.chooseOld, formData.recordValueOld, formData.choose, formData.recordValue, nodeInfo.ip, "解析 网站 到 " + formData.name + " - " + formData.node, true);
+                if (err === null) {
+                    message.error("免费域名修改失败")
+                    return null
+                }
+            }
+            // 修改隧道
             try {
-                // 头疼+1，这里也应该写编辑隧道
+                // apiv2似乎存在问题，返回“指定的端口不在允许的范围内”
+                // let err = await apiChangeTunnelV2()
+                let err = await apiChangeTunnelV1()
+
+                if (err === null) {
+                    // 回溯免费域名更改
+                    // 获取旧节点对应的域名 (target)
+                    let nodeInfoOld = await apiGetNodeInfo(formData.node)
+                    if (nodeInfoOld === null) {
+                        // 回溯失败，让用户自行处理
+                        message.error("修改失败，回溯失败，请前往免费域名管理页面删除错误域名")
+                        return null
+                    }
+                    let err = await apiUpdateFreeDomain(formData.choose, formData.recordValue, formData.chooseOld, formData.recordValueOld, nodeInfoOld.ip, "解析 网站 到 " + formData.nameOld + " - " + formData.nodeOld, false);
+                    if (err === null) {
+                        // 回溯失败，让用户自行处理
+                        message.error("修改失败，回溯失败，请前往免费域名管理页面删除错误域名")
+                        return null
+                    }
+                    message.error("修改失败，回溯成功")
+                    return null
+                }
+
+                editTunnelModal.value = false
+
+                // 如果免费域名被修改，需要提示用户生效存在延迟
+                if (formData.choose !== formData.chooseOld || formData.recordValue !== formData.recordValueOld || formData.node !== formData.nodeOld) {
+                    dialog.success({
+                        title: '成功',
+                        content: '隧道修改成功！但是您使用了ChmlFrp提供的免费域名，域名解析通常不会立即生效，一般在48小时内彻底生效，部分DNS会在几分钟内生效。简而言之，您方才修改的免费域名需要等待一段时间后才能正常使用。',
+                        positiveText: '我知道了',
+                    })
+                }
+
+                fetchTunnelCards()
+
             } catch (error) {
                 message.error('隧道编辑API调用失败:' + error);
             }
         }
-    } else if (formData.domainNameLabel === "自定义" && (formData.type === 'HTTP' || formData.type === 'HTTPS')) {
-        try {
-            // 头疼+2，这里还是应该写编辑隧道
-        } catch (error) {
-            message.error('隧道编辑API调用失败:' + error);
+        // 自定义域名
+        else {
+            try {
+                // apiv2似乎存在问题，返回“指定的端口不在允许的范围内”
+                // let err = await apiChangeTunnelV2()
+                let err = await apiChangeTunnelV1()
+                err === null ? null : (editTunnelModal.value = false, fetchTunnelCards())
+            } catch (error) {
+                message.error('隧道编辑API调用失败:' + error);
+            }
         }
-    } else {
+    }
+    // TCP 或 UDP 隧道
+    else {
         try {
-            // 头疼+3，这里照样应该写编辑隧道
+            let err = await apiChangeTunnelV2()
+            err === null ? null : (editTunnelModal.value = false, fetchTunnelCards())
         } catch (error) {
             message.error('隧道编辑API调用失败:' + error);
         }
     }
-    loadingCreateTunnel.value = false;
-    // 最终评价：石山！不写了草！CPU烧了
 }
 
 interface Domain {
@@ -726,6 +958,42 @@ interface Domain {
     domain: string
     remarks: string | null
     icpFiling: boolean
+}
+
+// 存储修改时可被选择的节点列表
+const updateNodeOptions = ref([])
+
+// 获取并对应充填修改时可选择的节点列表
+const updateFetchNodeOptions = async () => {
+    let nodeList = await apiGetNodeList();
+    if (nodeList === null) {
+        return null;
+    }
+
+    // 筛选节点
+    const filteredNodeList = nodeList.filter((node: { web: string; udp: string }) => {
+        const show =
+            (formData.type === 'HTTP' || formData.type === 'HTTPS' ? node.web === 'yes' : true) &&
+            (formData.type === 'UDP' ? node.udp === 'true' : true) &&
+            (userInfo?.usergroup === '免费用户' ? node.nodegroup === 'user' : true);
+
+        return show;
+    });
+
+    updateNodeOptions.value = filteredNodeList.map((node: { name: string }) => ({
+        label: node.name,
+        value: node.name,
+    }));
+
+    // 如果当前选中的节点不在可选列表中，则清空选中值
+    if (!updateNodeOptions.value.some((option: { value: string }) => option.value === formData.node)) {
+        formData.node = '';
+    }
+};
+
+// 在编辑隧道类型更新时，重新列出对应的可用节点列表
+const updateTypeTrig = async () => {
+    updateFetchNodeOptions()
 }
 
 // 用于存储域名选项的数据
