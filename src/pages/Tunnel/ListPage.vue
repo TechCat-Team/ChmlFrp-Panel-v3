@@ -653,10 +653,10 @@ const editTunnel = (card: TunnelCard) => {
                         formData.remarks = domainRecord.remarks;
 
                         // 保留修改前记录以便比对删除
-                        formData.chooseOld = domainRecord.domain;
-                        formData.recordValueOld = domainRecord.record;
-                        formData.nameOld = card.name
-                        formData.nodeOld = card.node
+                        formData.choose = domainRecord.domain;
+                        formData.recordValue = domainRecord.record;
+                        formData.name = card.name
+                        formData.node = card.node
 
                         formData.domainNameLabel = '免费域名';
 
@@ -687,7 +687,7 @@ const apiChangeTunnelV1 = async () => {
     try {
         const response = await axios.post('https://cf-v1.uapis.cn/api/cztunnel.php', {
             usertoken: userInfo?.usertoken,
-            userid: userInfo?.userid,
+            userid: userInfo?.id,
             type: formData.type.toLowerCase(),
             node: formData.node,
             name: formData.name,
@@ -873,7 +873,7 @@ const determineTheChangeOfTheTunnel = async () => {
         // 免费域名
         if (formData.domainNameLabel === '免费域名') {
             // 仅在发生变动时提交域名更改
-            if (formData.choose !== formData.chooseOld || formData.recordValue !== formData.recordValueOld || formData.node !== formData.nodeOld) {
+            if (formData.choose !== formData.choose || formData.recordValue !== formData.recordValue || formData.node !== formData.node) {
                 // 更新隧道绑定域名
                 formData.domain = formData.recordValue + '.' + formData.choose
                 // 获取节点对应的域名 (target)
@@ -882,7 +882,7 @@ const determineTheChangeOfTheTunnel = async () => {
                     return null
                 }
                 // 更新免费域名记录
-                let err = await apiUpdateFreeDomain(formData.chooseOld, formData.recordValueOld, formData.choose, formData.recordValue, nodeInfo.ip, "解析 网站 到 " + formData.name + " - " + formData.node, true);
+                let err = await apiUpdateFreeDomain(formData.choose, formData.recordValue, formData.choose, formData.recordValue, nodeInfo.ip, "解析 网站 到 " + formData.name + " - " + formData.node, true);
                 if (err === null) {
                     message.error("免费域名修改失败")
                     return null
@@ -903,7 +903,7 @@ const determineTheChangeOfTheTunnel = async () => {
                         message.error("修改失败，回溯失败，请前往免费域名管理页面删除错误域名")
                         return null
                     }
-                    let err = await apiUpdateFreeDomain(formData.choose, formData.recordValue, formData.chooseOld, formData.recordValueOld, nodeInfoOld.ip, "解析 网站 到 " + formData.nameOld + " - " + formData.nodeOld, false);
+                    let err = await apiUpdateFreeDomain(formData.choose, formData.recordValue, formData.choose, formData.recordValue, nodeInfoOld.ip, "解析 网站 到 " + formData.name + " - " + formData.node, false);
                     if (err === null) {
                         // 回溯失败，让用户自行处理
                         message.error("修改失败，回溯失败，请前往免费域名管理页面删除错误域名")
@@ -916,7 +916,7 @@ const determineTheChangeOfTheTunnel = async () => {
                 editTunnelModal.value = false
 
                 // 如果免费域名被修改，需要提示用户生效存在延迟
-                if (formData.choose !== formData.chooseOld || formData.recordValue !== formData.recordValueOld || formData.node !== formData.nodeOld) {
+                if (formData.choose !== formData.choose || formData.recordValue !== formData.recordValue || formData.node !== formData.node) {
                     dialog.success({
                         title: '成功',
                         content: '隧道修改成功！但是您使用了ChmlFrp提供的免费域名，域名解析通常不会立即生效，一般在48小时内彻底生效，部分DNS会在几分钟内生效。简而言之，您方才修改的免费域名需要等待一段时间后才能正常使用。',
@@ -971,7 +971,7 @@ const updateFetchNodeOptions = async () => {
     }
 
     // 筛选节点
-    const filteredNodeList = nodeList.filter((node: { web: string; udp: string }) => {
+    const filteredNodeList = nodeList.filter((node: { web: string; udp: string; nodegroup: string }) => {
         const show =
             (formData.type === 'HTTP' || formData.type === 'HTTPS' ? node.web === 'yes' : true) &&
             (formData.type === 'UDP' ? node.udp === 'true' : true) &&
