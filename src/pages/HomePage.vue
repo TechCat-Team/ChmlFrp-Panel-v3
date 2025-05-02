@@ -4,7 +4,7 @@
         <n-card>
             <n-space justify="space-between">
                 <div style="display: flex; align-items: center;">
-                    <n-avatar :size="72" round :style="{ display: isHidden ? 'none' : 'flex' }"
+                    <n-avatar :size="72" round :style="{ display: isHidden ? 'none' : 'flex' }" style="flex-shrink: 0;"
                         :src="userInfo?.userimg" />
                     <div :style="textStyle">
                         <h3 style="margin: 0;">{{ greeting }}</h3>
