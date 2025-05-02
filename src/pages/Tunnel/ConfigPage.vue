@@ -190,7 +190,7 @@ const getTunnelList = async () => {
         }));
    
         // 生成节点选项
-        const nodes = Array.from(new Set(tunnels.map((t: Tunnel) => t.node)));
+        const nodes = Array.from(new Set(tunnels.map((t: Tunnel) => t.node))); 
         nodeOptions.value = nodes.map((node: string) => ({
             label: node,
             value: node,
