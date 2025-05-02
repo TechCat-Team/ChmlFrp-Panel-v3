@@ -354,24 +354,24 @@ export const computedMenuOptionsGuest = computed(() => [
       }
     ]
   },
-  {
-    label: '扩展功能',
-    key: '扩展功能',
-    icon: renderIcon(ExtensionPuzzleOutline),
-    children: [
-      {
-        label: () => h(
-          RouterLink,
-          {
-            to: { name: '应用市场' }
-          },
-          { default: () => '应用市场' }
-        ),
-        key: '应用市场',
-        icon: renderIcon(BagHandleOutline)
-      }
-    ]
-  },
+  // {
+  //   label: '扩展功能',
+  //   key: '扩展功能',
+  //   icon: renderIcon(ExtensionPuzzleOutline),
+  //   children: [
+  //     {
+  //       label: () => h(
+  //         RouterLink,
+  //         {
+  //           to: { name: '应用市场' }
+  //         },
+  //         { default: () => '应用市场' }
+  //       ),
+  //       key: '应用市场',
+  //       icon: renderIcon(BagHandleOutline)
+  //     }
+  //   ]
+  // },
   {
     label: '其他信息',
     key: '其他信息',

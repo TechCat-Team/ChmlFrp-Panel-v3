@@ -532,7 +532,8 @@
                             </template>
                 查看
             </n-button> -->
-                        <n-button round quaternary type="error" @click="handleConfirm(card.name, card.id)">
+                        <n-button :disabled="!deletetTunnelSuccess" round quaternary type="error"
+                            @click="handleConfirm(card.name, card.id, card.type, card.dorp)">
                             <template #icon>
                                 <n-icon :component="TrashOutline" />
                             </template>
@@ -959,7 +960,7 @@ const determineTheChangeOfTheTunnel = async () => {
                 if (freeDomainChanged) {
                     dialog.success({
                         title: '成功',
-                        content: '隧道修改成功！但是您使用了ChmlFrp提供的免费域名，域名解析通常不会立即生效，一般在48小时内彻底生效，部分DNS会在几分钟内生效。简而言之，您方才修改的免费域名需要等待一段时间后才能正常使用。',
+                        content: '隧道修改成功！此隧道使用的免费域名已同步更新解析，但是域名解析通常不会立即生效，需要等待DNS缓存更新，这个时间一般10分钟，慢的则需要48小时。请耐心等待，期间域名可能无法访问。',
                         positiveText: '我知道了',
                     })
                 }
@@ -1148,130 +1149,94 @@ const generateRandomTunnelName = () => {
 
 const createATunnel = async () => {
     loadingCreateTunnel.value = true;
-    if (formData.domainNameLabel === "免费域名" && (formData.type === 'HTTP' || formData.type === 'HTTPS')) {
-        try {
-            const response = await axios.post('https://cf-v2.uapis.cn/create_free_subdomain', {
-                token: userInfo?.usertoken,
-                domain: formData.choose,
-                record: formData.recordValue,
-                type: "CNAME",
-                ttl: "10分钟",
-                target: NodeInfo.value.ip,
-                remarks: '解析 网站 到 ' + formData.name + ' - ' + formData.node
-            }, {
-                headers: {
-                    'Content-Type': 'application/json',
-                }
-            });
-            const data = response.data;
-            if (data.state === 'success') {
-                try {
-                    const response = await axios.post('https://cf-v2.uapis.cn/create_tunnel', {
-                        token: userInfo?.usertoken,
-                        tunnelname: formData.name,
-                        node: formData.node,
-                        localip: formData.localip,
-                        porttype: formData.type,
-                        localport: formData.nport,
-                        banddomain: formData.recordValue + '.' + formData.choose,
-                        encryption: formData.encryption,
-                        compression: formData.compression,
-                        extraparams: formData.ap
-                    }, {
-                        headers: {
-                            'Content-Type': 'application/json',
-                        }
-                    });
-                    const data = response.data;
-                    if (data.state === 'success') {
-                        tunnelInfoModal.value = false
-                        dialog.success({
-                            title: '成功',
-                            content: '隧道创建成功！但是您使用了ChmlFrp提供的免费域名，域名解析通常不会立即生效，一般在48小时内彻底生效，部分DNS会在几分钟内生效。简而言之，您创建的免费域名需要等待一段时间后才能正常使用。',
-                            positiveText: '我知道了',
-                            onPositiveClick: () => {
-                                message.success('隧道创建成功！')
-                                fetchTunnelCards();
-                            }
-                        })
-                    } else {
-                        message.error(data.msg);
-                        console.error('隧道创建失败:', data.msg);
-                    }
-                } catch (error) {
-                    console.error('隧道创建API调用失败:', error);
-                }
-            } else {
-                message.error("免费域名创建失败：" + data.msg);
-            }
-        } catch (error) {
-            console.error('创建免费域名API请求失败:', error);
-        }
-    } else if (formData.domainNameLabel === "自定义" && (formData.type === 'HTTP' || formData.type === 'HTTPS')) {
-        try {
-            const response = await axios.post('https://cf-v2.uapis.cn/create_tunnel', {
-                token: userInfo?.usertoken,
-                tunnelname: formData.name,
-                node: formData.node,
-                localip: formData.localip,
-                porttype: formData.type,
-                localport: formData.nport,
-                banddomain: formData.domain,
-                encryption: formData.encryption,
-                compression: formData.compression,
-                extraparams: formData.ap
-            }, {
-                headers: {
-                    'Content-Type': 'application/json',
-                }
-            });
-            const data = response.data;
-            if (data.state === 'success') {
-                tunnelInfoModal.value = false
-                message.success("隧道创建成功！")
-                fetchTunnelCards();
-            } else {
-                message.error(data.msg);
-                console.error('隧道创建失败:', data.msg);
-            }
-        } catch (error) {
-            console.error('隧道创建API调用失败:', error);
-        }
-    } else {
-        try {
-            const response = await axios.post('https://cf-v2.uapis.cn/create_tunnel', {
-                token: userInfo?.usertoken,
-                tunnelname: formData.name,
-                node: formData.node,
-                localip: formData.localip,
-                porttype: formData.type,
-                localport: formData.nport,
-                remoteport: formData.dorp,
-                encryption: formData.encryption,
-                compression: formData.compression,
-                extraparams: formData.ap
-            }, {
-                headers: {
-                    'Content-Type': 'application/json',
-                }
-            });
-            const data = response.data;
-            if (data.state === 'success') {
-                tunnelInfoModal.value = false
-                message.success("隧道创建成功！")
-                fetchTunnelCards();
-            } else {
-                message.error(data.msg);
-                console.error('隧道创建失败:', data.msg);
-            }
-        } catch (error) {
-            console.error('隧道创建API调用失败:', error);
-        }
-    }
-    loadingCreateTunnel.value = false;
-}
 
-const handleConfirm = (title: string, id: number) => {
+    // 生成 banddomain（仅当使用免费域名时用）
+    const isHttp = formData.type === 'HTTP' || formData.type === 'HTTPS';
+    const isFreeDomain = formData.domainNameLabel === "免费域名";
+    const banddomain = isFreeDomain && isHttp
+        ? `${formData.recordValue}.${formData.choose}`
+        : formData.domain;
+
+    // 构建隧道请求体
+    const tunnelPayload: any = {
+        token: userInfo?.usertoken,
+        tunnelname: formData.name,
+        node: formData.node,
+        localip: formData.localip,
+        porttype: formData.type,
+        localport: formData.nport,
+        encryption: formData.encryption,
+        compression: formData.compression,
+        extraparams: formData.ap
+    };
+
+    if (isHttp) {
+        tunnelPayload.banddomain = banddomain;
+    } else {
+        tunnelPayload.remoteport = formData.dorp;
+    }
+
+    try {
+        // 创建隧道
+        const tunnelRes = await axios.post('https://cf-v2.uapis.cn/create_tunnel', tunnelPayload, {
+            headers: { 'Content-Type': 'application/json' }
+        });
+
+        const tunnelData = tunnelRes.data;
+        if (tunnelData.state === 'success') {
+            // 成功后才创建免费域名（如果需要）
+            if (isHttp && isFreeDomain) {
+                try {
+                    const subdomainRes = await axios.post('https://cf-v2.uapis.cn/create_free_subdomain', {
+                        token: userInfo?.usertoken,
+                        domain: formData.choose,
+                        record: formData.recordValue,
+                        type: "CNAME",
+                        ttl: "10分钟",
+                        target: NodeInfo.value.ip,
+                        remarks: `解析 网站 到 ${formData.name} - ${formData.node}`
+                    }, {
+                        headers: { 'Content-Type': 'application/json' }
+                    });
+
+                    const subData = subdomainRes.data;
+                    if (subData.state !== 'success') {
+                        message.error("免费域名创建失败：" + subData.msg);
+                    }
+                } catch (err) {
+                    console.error("创建免费域名失败:", err);
+                    message.error("创建免费域名失败");
+                }
+                tunnelInfoModal.value = false;
+                dialog.success({
+                    title: '成功',
+                    content: '隧道创建成功！但是您使用了ChmlFrp提供的免费域名，域名解析通常不会立即生效，一般10分钟左右生效，最长需48小时。',
+                    positiveText: '我知道了',
+                    onPositiveClick: () => {
+                        message.success("隧道创建成功！");
+                        fetchTunnelCards();
+                    }
+                });
+            } else {
+                tunnelInfoModal.value = false;
+                message.success("隧道创建成功！");
+                fetchTunnelCards();
+            }
+        } else {
+            message.error(tunnelData.msg);
+            console.error('隧道创建失败:', tunnelData.msg);
+        }
+    } catch (err) {
+        console.error("隧道创建API调用失败:", err);
+        message.error("隧道创建API调用失败");
+    }
+
+    loadingCreateTunnel.value = false;
+};
+
+
+const deletetTunnelSuccess = ref(true);
+const handleConfirm = (title: string, id: number, ttype: string, dorp: string) => {
     dialog.warning({
         title: '警告',
         content: '您正在删除隧道：' + title + '(' + id + ')，请确认是否删除。',
@@ -1279,8 +1244,9 @@ const handleConfirm = (title: string, id: number) => {
         negativeText: '取消',
         loading: deletetButtonLoading.value,
         onPositiveClick: async () => {
+            deletetTunnelSuccess.value = false;
             deletetButtonLoading.value = true;
-            deletetTunnel(title, id);
+            deletetTunnel(title, id, ttype, dorp);
             deletetButtonLoading.value = false;
             if (tunnelCards.value !== null) {
                 const index = tunnelCards.value.findIndex(tunnel => tunnel.name === title);
@@ -1293,19 +1259,67 @@ const handleConfirm = (title: string, id: number) => {
         },
     });
 };
-
-const deletetTunnel = async (title: string, id: number) => {
+const deletetTunnel = async (title: string, id: number, ttype: string, dorp: string) => {
     try {
         const response = await axios.get(`https://cf-v1.uapis.cn/api/deletetl.php?token=${userInfo?.usertoken}&nodeid=${id}&userid=${userInfo?.id}`);
         if (response.data.code === 200) {
             message.success('成功删除隧道：' + title);
+            if (ttype === 'http' || ttype === 'https') {
+                // 调用API获取用户的免费二级域名
+                fetch(`https://cf-v2.uapis.cn/get_user_free_subdomains?token=${userInfo?.usertoken}`)
+                    .then(response => response.json())  // 解析JSON响应
+                    .then(data => {
+                        const domainRecord = data.data.find((item: { record: string; domain: string; }) => item.record + '.' + item.domain === dorp);
+                        if (domainRecord) {
+                            // 检查remarks中是否包含"网站"
+                            if (domainRecord.remarks.includes('网站')) {
+                                dialog.warning({
+                                    title: '警告',
+                                    content: '隧道删除成功！但是此隧道绑定了免费域名，请问是否同步删除此隧道的域名解析。',
+                                    positiveText: '删除',
+                                    negativeText: '不删除',
+                                    loading: deletetButtonLoading.value,
+                                    onPositiveClick: async () => {
+                                        try {
+                                            const response = await axios.post('https://cf-v2.uapis.cn/delete_free_subdomain', {
+                                                token: userInfo?.usertoken,
+                                                domain: domainRecord.domain,
+                                                record: domainRecord.record
+                                            }, {
+                                                headers: {
+                                                    'Content-Type': 'application/json',
+                                                }
+                                            });
+                                            const data = response.data;
+                                            if (data.state === 'success') {
+                                                message.success("免费域名同步删除成功")
+                                            } else {
+                                                message.error("免费域名删除失败: " + data.msg);
+                                            }
+                                        } catch (error) {
+                                            message.error('免费域名删除API请求失败:' + error);
+                                        }
+                                    },
+                                });
+                            }
+                        }
+                    })
+                    .catch(error => {
+                        // 处理API调用错误
+                        console.error('获取域名信息失败', error);
+                        message.error('获取域名信息失败', error);
+                        formData.domainNameLabel = '自定义'; // 出现错误时设置为自定义
+                    });
+            }
         } else {
             message.error(response.data.error);
+            fetchTunnelCards();
         }
     } catch (error) {
         console.error('删除隧道API调用失败', error);
         message.error('删除隧道API调用失败' + error);
     }
+    deletetTunnelSuccess.value = true
 };
 
 onMounted(() => {
