@@ -40,5 +40,9 @@ export const useStyleStore = defineStore('style', {
 
       return `rgba(${r}, ${g}, ${b}, ${alpha})`;
     },
+    getTheme() {
+      const themeStore = useThemeStore();
+      return themeStore.theme;
+    },
   },
 });

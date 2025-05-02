@@ -695,8 +695,110 @@ const updateChart = (apiData: ApiData) => {
         myChart.setOption(option);
 
         // 添加窗口大小变化监听器
-        window.addEventListener('resize', () => {
+        const resizeHandler = () => {
             myChart.resize();
+        };
+        window.addEventListener('resize', resizeHandler);
+
+
+        // 明暗切换时重新渲染图表
+        const unwatchTheme = watch(() => styleStore.getTheme(), () => {
+            const option: echarts.EChartsOption = {
+                title: {
+                    text: '流量统计',
+                    textStyle: {
+                        color: themeVars.value.textColorBase
+                    }
+                },
+                tooltip: {
+                    trigger: 'axis'
+                },
+                legend: {
+                    textStyle: {
+                        color: themeVars.value.textColorBase
+                    }
+                },
+                xAxis: {
+                    type: 'category',
+                    boundaryGap: false,
+                    data: times,
+                    axisLabel: {
+                        color: themeVars.value.textColorBase
+                    }
+                },
+                yAxis: {
+                    type: 'value',
+                    axisLabel: {
+                        formatter: '{value} MB',
+                        color: themeVars.value.textColorBase
+                    }
+                },
+                series: [
+                    {
+                        name: '上传',
+                        type: 'line',
+                        data: trafficOutMB,
+                        stack: 'Total',
+                        smooth: true,
+                        lineStyle: {
+                            width: 0
+                        },
+                        showSymbol: false,
+                        areaStyle: {
+                            opacity: 0.8,
+                            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                                {
+                                    offset: 0,
+                                    color: 'rgb(0, 221, 255)'
+                                },
+                                {
+                                    offset: 1,
+                                    color: 'rgb(77, 119, 255)'
+                                }
+                            ])
+                        },
+                        emphasis: {
+                            focus: 'series'
+                        },
+                    },
+                    {
+                        name: '下载',
+                        type: 'line',
+                        data: trafficInMB,
+                        stack: 'Total',
+                        smooth: true,
+                        lineStyle: {
+                            width: 0
+                        },
+                        showSymbol: false,
+                        areaStyle: {
+                            opacity: 0.8,
+                            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                                {
+                                    offset: 0,
+                                    color: 'rgb(128, 255, 165)'
+                                },
+                                {
+                                    offset: 1,
+                                    color: 'rgb(1, 191, 236)'
+                                }
+                            ])
+                        },
+                        emphasis: {
+                            focus: 'series'
+                        },
+                    }
+                ]
+            };
+
+            myChart.setOption(option);
+        });
+
+        // 在组件卸载时清理事件监听器和观察者
+        onUnmounted(() => {
+            window.removeEventListener('resize', resizeHandler);
+            unwatchTheme();
+            myChart.dispose();
         });
     } else {
         console.error('[首页]找不到id为“main”(流量统计面积折线图)的元素。');
