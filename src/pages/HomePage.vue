@@ -693,6 +693,11 @@ const updateChart = (apiData: ApiData) => {
         };
 
         myChart.setOption(option);
+
+        // 添加窗口大小变化监听器
+        window.addEventListener('resize', () => {
+            myChart.resize();
+        });
     } else {
         console.error('[首页]找不到id为“main”(流量统计面积折线图)的元素。');
     }
