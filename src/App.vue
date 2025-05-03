@@ -138,10 +138,8 @@ provide('isTouchDevice', isTouchDevice);
 
 const detectInputMethod = (event: PointerEvent) => {
   if (event.pointerType === 'touch') {
-    console.log('Touch device detected');
     isTouchDevice.value = true;
   } else if (event.pointerType === 'mouse') {
-    console.log('Mouse device detected');
     isTouchDevice.value = false;
   }
 };
