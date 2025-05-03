@@ -240,11 +240,11 @@
             <n-form :model="resetPasswordValue" :rules="resetPasswordRules">
                 <n-form-item-row label="原密码" path="original_password">
                     <n-input round type="password" v-model:value="resetPasswordValue.original_password"
-                        show-password-on="mousedown" />
+                        :show-password-on="isTouchDevice ? 'click' : 'mousedown'" />
                 </n-form-item-row>
                 <n-form-item-row label="新密码" path="new_password">
                     <n-input round type="password" v-model:value="resetPasswordValue.new_password" maxlength="48"
-                        show-password-on="mousedown" />
+                        :show-password-on="isTouchDevice ? 'click' : 'mousedown'" />
                 </n-form-item-row>
                 <n-form-item-row label="重复新密码" path="reentered_new_password">
                     <n-input round type="password" v-model:value="resetPasswordValue.reentered_new_password"
@@ -372,6 +372,10 @@ import CryptoJS from 'crypto-js';
 // 获取登录信息
 import { useUserStore } from '@/stores/user';
 import { useLoadUserInfo } from '@/components/useLoadUser';
+
+import { inject } from 'vue';
+
+const isTouchDevice = inject('isTouchDevice')
 
 const userStore = useUserStore();
 const userInfo = userStore.userInfo;

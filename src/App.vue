@@ -131,6 +131,21 @@ watch(() => themeStore.isRGBMode, (newVal) => {
   }
 });
 
+// 触屏识别
+const isTouchDevice = ref(false);
+
+provide('isTouchDevice', isTouchDevice);
+
+const detectInputMethod = (event: PointerEvent) => {
+  if (event.pointerType === 'touch') {
+    console.log('Touch device detected');
+    isTouchDevice.value = true;
+  } else if (event.pointerType === 'mouse') {
+    console.log('Mouse device detected');
+    isTouchDevice.value = false;
+  }
+};
+
 onMounted(() => {
   if (themeStore.isRGBMode) {
     animatePrimaryColor();
@@ -141,6 +156,8 @@ onMounted(() => {
   } else {
     document.documentElement.style.setProperty('--modal-filter', '0px');
   }
+  // 更新目前的指针方式
+  window.addEventListener('pointerdown', detectInputMethod);
 });
 
 onUnmounted(() => {
@@ -148,6 +165,8 @@ onUnmounted(() => {
     cancelAnimationFrame(animationFrameId);
     animationFrameId = null;
   }
+  // 移除指针事件监听器
+  window.removeEventListener('pointerdown', detectInputMethod);
 });
 </script>
 

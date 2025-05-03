@@ -54,7 +54,8 @@
                                         </n-form-item>
                                         <n-form-item path="password">
                                             <n-input v-model:value="model.password" size="large" round placeholder="密码"
-                                                type="password" maxlength="64" show-password-on="mousedown" />
+                                                type="password" maxlength="64"
+                                                :show-password-on="isTouchDevice ? 'click' : 'mousedown'" />
                                         </n-form-item>
                                         <n-flex justify="space-between">
                                             <n-checkbox size="small" v-model:checked="keepLoggedIn" label="保持登录" />
@@ -90,7 +91,8 @@
                                                     <n-form-item label="密码" path="password">
                                                         <n-input v-model:value="formModel.password" size="large" round
                                                             placeholder="密码" type="password" maxlength="48"
-                                                            show-password-on="mousedown" clearable />
+                                                            :show-password-on="isTouchDevice ? 'click' : 'mousedown'"
+                                                            clearable />
                                                     </n-form-item>
                                                     <n-form-item label="QQ" path="qq">
                                                         <n-input v-model:value="formModel.qq" size="large" round
@@ -105,7 +107,8 @@
                                                     <n-form-item label="确认密码" path="confirmPassword">
                                                         <n-input v-model:value="formModel.confirmPassword" size="large"
                                                             round placeholder="确认密码" type="password" maxlength="48"
-                                                            show-password-on="mousedown" clearable />
+                                                            :show-password-on="isTouchDevice ? 'click' : 'mousedown'"
+                                                            clearable />
                                                     </n-form-item>
                                                 </template>
                                                 <template v-if="currentStep === 3">
@@ -118,9 +121,9 @@
                                                             </n-gi>
                                                             <n-gi :span="2">
                                                                 <n-button :loading="loadingCaptcha"
-                                                                    @click="GeeTest('register', formModel.email)" style="width: 100%;"
-                                                                    strong secondary type="primary" round size="large"
-                                                                    :disabled="buttonDisabled">
+                                                                    @click="GeeTest('register', formModel.email)"
+                                                                    style="width: 100%;" strong secondary type="primary"
+                                                                    round size="large" :disabled="buttonDisabled">
                                                                     {{ buttonText }}
                                                                 </n-button>
                                                             </n-gi>
@@ -176,8 +179,9 @@
                                                 </n-gi>
                                                 <n-gi :span="2">
                                                     <n-button :loading="loadingCaptcha"
-                                                        @click="GeeTest('reset_password', resetModel.email)" style="width: 100%;" strong
-                                                        secondary type="primary" round size="large"
+                                                        @click="GeeTest('reset_password', resetModel.email)"
+                                                        style="width: 100%;" strong secondary type="primary" round
+                                                        size="large"
                                                         :disabled="resetModel.email === '' || buttonDisabled === true">
                                                         {{ buttonText }}
                                                     </n-button>
@@ -186,12 +190,13 @@
                                         </n-form-item>
                                         <n-form-item label="新密码" path="newPassword">
                                             <n-input v-model:value="resetModel.newPassword" type="password" size="large"
-                                                round placeholder="新密码" show-password-on="mousedown" clearable />
+                                                round placeholder="新密码"
+                                                :show-password-on="isTouchDevice ? 'click' : 'mousedown'" clearable />
                                         </n-form-item>
                                         <n-form-item label="确认密码" path="confirmPassword">
                                             <n-input v-model:value="resetModel.confirmPassword" type="password"
-                                                size="large" round placeholder="确认新密码" show-password-on="mousedown"
-                                                clearable />
+                                                size="large" round placeholder="确认新密码"
+                                                :show-password-on="isTouchDevice ? 'click' : 'mousedown'" clearable />
                                         </n-form-item>
                                         <n-flex justify="space-between">
                                             <n-button text @click="toLogin">返回登录</n-button>
@@ -216,6 +221,10 @@ import {
     FormInst
 } from 'naive-ui'
 import { loginRules, registerRules } from '@/utils/authRules'
+
+import { inject } from 'vue';
+
+const isTouchDevice = inject('isTouchDevice')
 
 const loginLoading = ref(false);
 
@@ -797,7 +806,6 @@ h1 {
     opacity: 1;
     transform: translateX(0);
 }
-
 .slide-right-leave-to {
     opacity: 0;
     transform: translateX(20px);
