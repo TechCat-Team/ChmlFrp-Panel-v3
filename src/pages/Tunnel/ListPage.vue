@@ -1076,9 +1076,11 @@ const updatePortTrig = () => {
         const minPort = parseInt(NodeInfo.value.rport.split('-')[0]) || 10000;
         const maxPort = parseInt(NodeInfo.value.rport.split('-')[1]) || 65535;
         if (formData.dorp < minPort || formData.dorp > maxPort) {
+            message.destroyAll()
             message.error(`外网端口必须在 ${minPort} 到 ${maxPort} 之间`)
         }
         else {
+            message.destroyAll()
             message.success(`外网端口合规`)
         }
     }
@@ -1676,7 +1678,6 @@ const copyToClipboard = (text: string) => {
 }
 
 .mapDiv {
-    width: 100%;
-    height: 100%;
+    width: 100%;   height: 100%;
 }
 </style>
