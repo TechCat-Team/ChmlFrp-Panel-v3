@@ -267,7 +267,7 @@
                                 placeholder="请选择域名类型" />
                         </n-form-item>
                         <n-form-item v-else label="外网端口" path="dorp">
-                            <n-input v-model:value="formData.dorp" clearable />
+                            <n-input v-model:value="formData.dorp" clearable @update:value="updatePortTrig" />
                         </n-form-item>
                     </n-col>
                     <n-col :span="24"
@@ -353,7 +353,8 @@
                     </n-col>
                     <n-col :span="12">
                         <n-form-item label="节点选择" path="node">
-                            <n-select v-model:value="formData.node" :options="updateNodeOptions" placeholder="请选择节点" />
+                            <n-select v-model:value="formData.node" :options="updateNodeOptions" placeholder="请选择节点"
+                                @update:value="updateNodeTrig" />
                         </n-form-item>
                     </n-col>
                     <n-col :span="12">
@@ -378,7 +379,7 @@
                                 placeholder="请选择域名类型" />
                         </n-form-item>
                         <n-form-item v-else label="外网端口" path="dorp">
-                            <n-input v-model:value="formData.dorp" clearable />
+                            <n-input v-model:value="formData.dorp" clearable @update:value="updatePortTrig" />
                         </n-form-item>
                     </n-col>
                     <n-col :span="24"
@@ -680,6 +681,23 @@ const editTunnel = (card: TunnelCard) => {
 
     // 获取可选节点信息
     updateFetchNodeOptions()
+
+    // 获取选择的节点详情
+    apiGetNodeInfo(formData.node)
+        .then((res) => {
+            if (res) {
+                NodeInfo.value = res
+            }
+            else {
+                message.error('获取节点详情失败, 节点可能离线, 请稍后再试')
+                return null
+            }
+        })
+        .catch((error) => {
+            console.error('获取节点详情失败', error);
+            message.error('获取节点详情失败', error);
+            return null
+        });
 
     editTunnelModal.value = true
 };
@@ -1037,6 +1055,34 @@ const updateTypeTrig = async () => {
     updateFetchNodeOptions()
 }
 
+// 在更改节点后，获取节点详情，确认端口等配置是否合适
+const updateNodeTrig = async () => {
+    const nodeDetails = await apiGetNodeInfo(formData.node)
+    if (nodeDetails) {
+        NodeInfo.value = nodeDetails
+    } else {
+        message.error('获取节点详情失败, 节点可能离线, 请更换节点')
+        return null
+    }
+
+    // 检查现在的填写值是否合规
+    updatePortTrig()
+}
+
+// 填写端口检查
+const updatePortTrig = () => {
+    if (formData.type === 'TCP' || formData.type === 'UDP') {
+        const minPort = parseInt(NodeInfo.value.rport.split('-')[0]) || 10000;
+        const maxPort = parseInt(NodeInfo.value.rport.split('-')[1]) || 65535;
+        if (formData.dorp < minPort || formData.dorp > maxPort) {
+            message.error(`外网端口必须在 ${minPort} 到 ${maxPort} 之间`)
+        }
+        else {
+            message.success(`外网端口合规`)
+        }
+    }
+}
+
 // 用于存储域名选项的数据
 const domainNameOptions = ref([])
 
@@ -1130,9 +1176,11 @@ const domainTypeOptions = ['自定义', '免费域名'].map((v) => ({
     value: v
 }))
 
-// 随机生成一个10000~65535之间的外网端口
+// 随机生成外网端口
 const generateRandomPort = () => {
-    formData.dorp = Math.floor(Math.random() * 55535) + 10000;
+    const minPort = parseInt(NodeInfo.value.rport.split('-')[0]) || 10000;
+    const maxPort = parseInt(NodeInfo.value.rport.split('-')[1]) || 65535;
+    formData.dorp = Math.floor(Math.random() * (maxPort - minPort + 1)) + Number(minPort)
 }
 
 // 随机生成一个8位的随机隧道名
