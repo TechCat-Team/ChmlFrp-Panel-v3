@@ -6,7 +6,7 @@
       <n-message-provider>
         <!-- 对话框 -->
         <n-dialog-provider>
-            <ViewComponent />
+          <ViewComponent />
         </n-dialog-provider>
       </n-message-provider>
     </n-loading-bar-provider>
@@ -134,6 +134,12 @@ watch(() => themeStore.isRGBMode, (newVal) => {
 onMounted(() => {
   if (themeStore.isRGBMode) {
     animatePrimaryColor();
+  }
+  // 初始化模糊效果
+  if (themeStore.isDialogBoxHairGlass) {
+    document.documentElement.style.setProperty('--modal-filter', '10px');
+  } else {
+    document.documentElement.style.setProperty('--modal-filter', '0px');
   }
 });
 
