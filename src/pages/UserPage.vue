@@ -352,6 +352,11 @@
             </template>
         </n-card>
     </n-modal>
+
+    <!-- 模糊遮罩 -->
+    <div v-show="showBlurOverlay"
+        style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; backdrop-filter: blur(var(--modal-filter)); z-index: 9998; pointer-events: all;">
+    </div>
 </template>
 
 <script setup lang="ts">
@@ -381,6 +386,8 @@ const message = useMessage()
 const router = useRouter();
 
 const loadingQianDao = ref(true); // 签到骨架屏加载状态
+
+const showBlurOverlay = ref(false);
 
 const loadingQianDaoButton = ref(false) // 签到按钮加载状态
 const loadingUpdateImg = ref(false) // 用户名确定按钮加载状态
@@ -598,12 +605,16 @@ const onSignButtonClick = () => {
             width: '100%',
         },
         (captchaObj: CaptchaObj) => {
-            captchaObj.showCaptcha();
             captchaObj.onNextReady(function () {
                 QianDaoTest.value = '验证码验证[2/3]'
             });
+            captchaObj.showCaptcha();
+
+            showBlurOverlay.value = true;
+
             captchaObj.onClose(function () {
                 message.warning('签到验证关闭，此次签到未成功')
+                showBlurOverlay.value = false
                 loadingQianDaoButton.value = false
                 QianDaoTest.value = '签到'
             });
@@ -619,38 +630,48 @@ const onSignButtonClick = () => {
     );
 };
 
-const signIn = (geetestResult: GeetestResult) => {
+const signIn = async (geetestResult: GeetestResult) => {
     QianDaoTest.value = '调用签到API[3/3]'
-    fetch('https://cf-v2.uapis.cn/qiandao', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
+
+    try {
+        const response = await axios.post('https://cf-v2.uapis.cn/qiandao', {
             token: userInfo?.usertoken,
             captcha_output: geetestResult.captcha_output,
             lot_number: geetestResult.lot_number,
             pass_token: geetestResult.pass_token,
             gen_time: geetestResult.gen_time,
-        }),
-    })
-        .then(response => response.json())
-        .then(data => {
-            if (data.state === 'success') {
-                loadingQianDaoButton.value = false;
-                dialog.success({
-                    title: '签到成功',
-                    content: data.msg,
-                    positiveText: '哇'
-                });
-            } else {
-                loadingQianDaoButton.value = false;
-                QianDaoTest.value = '签到';
-                message.error(data.msg)
+        }, {
+            headers: {
+                'Content-Type': 'application/json',
             }
         });
-    // 3 秒后恢复按钮状态
+        const data = response.data;
+        if (data.state === 'success') {
+            showBlurOverlay.value = false;
+            loadingQianDaoButton.value = false;
+            is_signed_in_today.value = true;
+            dialog.success({
+                title: '签到成功',
+                content: data.msg,
+                positiveText: '哇'
+            });
+        } else {
+            showBlurOverlay.value = false;
+            is_signed_in_today.value = false;
+            loadingQianDaoButton.value = false;
+            QianDaoTest.value = '签到';
+            message.error("签到失败：" + data.msg);
+        }
+    } catch (error) {
+        showBlurOverlay.value = false;
+        is_signed_in_today.value = false;
+        loadingQianDaoButton.value = false;
+        QianDaoTest.value = '签到';
+        console.error('签到API请求失败:', error);
+    }
     setTimeout(() => {
+        showBlurOverlay.value = false;
+        is_signed_in_today.value = false;
         loadingQianDaoButton.value = false;
         QianDaoTest.value = '签到';
         qiandaoinfo();
