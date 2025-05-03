@@ -4,7 +4,7 @@
         <n-card>
             <n-space justify="space-between">
                 <div style="display: flex; align-items: center;">
-                    <n-avatar :size="72" round :style="{ display: isHidden ? 'none' : 'flex' }"
+                    <n-avatar :size="72" round :style="{ display: isHidden ? 'none' : 'flex' }" style="flex-shrink: 0;"
                         :src="userInfo?.userimg" />
                     <div :style="textStyle">
                         <h3 style="margin: 0;">{{ greeting }}</h3>
@@ -239,6 +239,11 @@
     </n-flex>
     <n-modal v-model:show="showDialog" preset="dialog" title="第一次使用？" content="那不妨来看看ChmlFrp使用教程！" positive-text="确认"
         negative-text="算了" @positive-click="WatchTutorial" @negative-click="closeDialog" />
+
+    <!-- 模糊遮罩 -->
+    <div v-show="showBlurOverlay"
+        style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; backdrop-filter: blur(var(--modal-filter)); z-index: 9998; pointer-events: all;">
+    </div>
 </template>
 
 <script lang="ts" setup>
@@ -265,6 +270,7 @@ const loadingTrafficInfo = ref(true)
 const QianDaoTest = ref('签到')
 const signedInSuccess = ref(false);
 const showDialog = ref(false);
+const showBlurOverlay = ref(false);
 
 const countdown = ref(10);
 
@@ -470,8 +476,12 @@ const onSignButtonClick = () => {
                 QianDaoTest.value = '验证码验证[2/3]';
             });
             captchaObj.showCaptcha();
+
+            showBlurOverlay.value = true;
+
             captchaObj.onClose(function () {
                 message.warning('签到验证关闭，此次签到未成功');
+                showBlurOverlay.value = false;
                 loadingQianDaoButton.value = false;
                 QianDaoTest.value = '签到';
             });
@@ -504,6 +514,7 @@ const signIn = async (geetestResult: GeetestResult) => {
         });
         const data = response.data;
         if (data.state === 'success') {
+            showBlurOverlay.value = false;
             loadingQianDaoButton.value = false;
             signedInSuccess.value = true;
             dialog.success({
@@ -512,18 +523,21 @@ const signIn = async (geetestResult: GeetestResult) => {
                 positiveText: '哇'
             });
         } else {
+            showBlurOverlay.value = false;
             signedInSuccess.value = false;
             loadingQianDaoButton.value = false;
             QianDaoTest.value = '签到';
             message.error("签到失败：" + data.msg);
         }
     } catch (error) {
+        showBlurOverlay.value = false;
         signedInSuccess.value = false;
         loadingQianDaoButton.value = false;
         QianDaoTest.value = '签到';
         console.error('签到API请求失败:', error);
     }
     setTimeout(() => {
+        showBlurOverlay.value = false;
         signedInSuccess.value = false;
         loadingQianDaoButton.value = false;
         QianDaoTest.value = '签到';
@@ -693,6 +707,113 @@ const updateChart = (apiData: ApiData) => {
         };
 
         myChart.setOption(option);
+
+        // 添加窗口大小变化监听器
+        const resizeHandler = () => {
+            myChart.resize();
+        };
+        window.addEventListener('resize', resizeHandler);
+
+
+        // 明暗切换时重新渲染图表
+        const unwatchTheme = watch(() => styleStore.getTheme(), () => {
+            const option: echarts.EChartsOption = {
+                title: {
+                    text: '流量统计',
+                    textStyle: {
+                        color: themeVars.value.textColorBase
+                    }
+                },
+                tooltip: {
+                    trigger: 'axis'
+                },
+                legend: {
+                    textStyle: {
+                        color: themeVars.value.textColorBase
+                    }
+                },
+                xAxis: {
+                    type: 'category',
+                    boundaryGap: false,
+                    data: times,
+                    axisLabel: {
+                        color: themeVars.value.textColorBase
+                    }
+                },
+                yAxis: {
+                    type: 'value',
+                    axisLabel: {
+                        formatter: '{value} MB',
+                        color: themeVars.value.textColorBase
+                    }
+                },
+                series: [
+                    {
+                        name: '上传',
+                        type: 'line',
+                        data: trafficOutMB,
+                        stack: 'Total',
+                        smooth: true,
+                        lineStyle: {
+                            width: 0
+                        },
+                        showSymbol: false,
+                        areaStyle: {
+                            opacity: 0.8,
+                            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                                {
+                                    offset: 0,
+                                    color: 'rgb(0, 221, 255)'
+                                },
+                                {
+                                    offset: 1,
+                                    color: 'rgb(77, 119, 255)'
+                                }
+                            ])
+                        },
+                        emphasis: {
+                            focus: 'series'
+                        },
+                    },
+                    {
+                        name: '下载',
+                        type: 'line',
+                        data: trafficInMB,
+                        stack: 'Total',
+                        smooth: true,
+                        lineStyle: {
+                            width: 0
+                        },
+                        showSymbol: false,
+                        areaStyle: {
+                            opacity: 0.8,
+                            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                                {
+                                    offset: 0,
+                                    color: 'rgb(128, 255, 165)'
+                                },
+                                {
+                                    offset: 1,
+                                    color: 'rgb(1, 191, 236)'
+                                }
+                            ])
+                        },
+                        emphasis: {
+                            focus: 'series'
+                        },
+                    }
+                ]
+            };
+
+            myChart.setOption(option);
+        });
+
+        // 在组件卸载时清理事件监听器和观察者
+        onUnmounted(() => {
+            window.removeEventListener('resize', resizeHandler);
+            unwatchTheme();
+            myChart.dispose();
+        });
     } else {
         console.error('[首页]找不到id为“main”(流量统计面积折线图)的元素。');
     }

@@ -234,6 +234,15 @@ const getConfigFile = async () => {
             node: nodeValue.value,
         };
 
+        const response = await axios.get('https://cf-v2.uapis.cn/tunnel_config', { params });
+        if (response.data.state !== 'success') {
+            message.success('获取配置文件失败:' + response.data.msg);
+            tunnelConfig.value = response.data.msg;
+            LinuxScript.value = response.data.msg;
+            loadingGenerate.value = false;
+            return null;
+        }
+
         // 如果选择了隧道才传递 tunnel_names 参数
         if (multipleSelectValue.value.length > 0) {
             params.tunnel_names = multipleSelectValue.value.join(',');
@@ -242,7 +251,6 @@ const getConfigFile = async () => {
             LinuxScript.value = `curl -O https://www.chmlfrp.cn/script/linux/frpc_install.sh && chmod +x frpc_install.sh && sudo ./frpc_install.sh "${userInfo?.usertoken}" "${nodeValue.value}"`
         }
 
-        const response = await axios.get('https://cf-v2.uapis.cn/tunnel_config', { params });
         tunnelConfig.value = response.data.data;
     } catch (error) {
         console.error('获取配置文件失败:', error);

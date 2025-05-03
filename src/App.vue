@@ -6,7 +6,7 @@
       <n-message-provider>
         <!-- 对话框 -->
         <n-dialog-provider>
-            <ViewComponent />
+          <ViewComponent />
         </n-dialog-provider>
       </n-message-provider>
     </n-loading-bar-provider>
@@ -131,10 +131,31 @@ watch(() => themeStore.isRGBMode, (newVal) => {
   }
 });
 
+// 触屏识别
+const isTouchDevice = ref(false);
+
+provide('isTouchDevice', isTouchDevice);
+
+const detectInputMethod = (event: PointerEvent) => {
+  if (event.pointerType === 'touch') {
+    isTouchDevice.value = true;
+  } else if (event.pointerType === 'mouse') {
+    isTouchDevice.value = false;
+  }
+};
+
 onMounted(() => {
   if (themeStore.isRGBMode) {
     animatePrimaryColor();
   }
+  // 初始化模糊效果
+  if (themeStore.isDialogBoxHairGlass) {
+    document.documentElement.style.setProperty('--modal-filter', '10px');
+  } else {
+    document.documentElement.style.setProperty('--modal-filter', '0px');
+  }
+  // 更新目前的指针方式
+  window.addEventListener('pointerdown', detectInputMethod);
 });
 
 onUnmounted(() => {
@@ -142,6 +163,8 @@ onUnmounted(() => {
     cancelAnimationFrame(animationFrameId);
     animationFrameId = null;
   }
+  // 移除指针事件监听器
+  window.removeEventListener('pointerdown', detectInputMethod);
 });
 </script>
 
