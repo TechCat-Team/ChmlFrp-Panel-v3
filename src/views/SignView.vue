@@ -532,7 +532,7 @@ const toggleRegister = () => {
 
 // 检测窗口大小以确定是否为手机端
 const handleResize = () => {
-    isMobile.value = window.innerWidth <= 768
+    isMobile.value = window.innerWidth <= 1023
 }
 
 onMounted(() => {
@@ -806,6 +806,7 @@ h1 {
     opacity: 1;
     transform: translateX(0);
 }
+
 .slide-right-leave-to {
     opacity: 0;
     transform: translateX(20px);
