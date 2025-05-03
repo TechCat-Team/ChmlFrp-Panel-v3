@@ -174,23 +174,30 @@ const loadingGenerate = ref(false);
 const getTunnelList = async () => {
     try {
         const response = await axios.get(`https://cf-v2.uapis.cn/tunnel?token=${userInfo?.usertoken}`);
-        const tunnels: Tunnel[] = response.data.data; // 使用明确的类型
+
+        if (response.data.code !== 200) {
+            console.error('获取隧道列表失败:', response.data.msg);
+            message.error('获取隧道列表失败: ' + response.data.msg);
+            return;
+        }
+
+        const tunnels: Tunnel[] = response.data.data;
 
         // 保存所有隧道数据
         allTunnels.value = tunnels.map((t: Tunnel) => ({
             name: t.name,
             node: t.node,
         }));
-
+   
         // 生成节点选项
-        const nodes = Array.from(new Set(tunnels.map((t: Tunnel) => t.node)));
+        const nodes = Array.from(new Set(tunnels.map((t: Tunnel) => t.node))); 
         nodeOptions.value = nodes.map((node: string) => ({
             label: node,
             value: node,
         }));
     } catch (error) {
-        console.error('获取隧道列表失败:', error);
-        message.error('获取隧道列表失败:' + error);
+        console.error('API响应失败:', error);
+        message.error('API响应失败:' + error);
     }
 };
 
