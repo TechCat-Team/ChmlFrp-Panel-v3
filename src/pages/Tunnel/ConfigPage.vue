@@ -176,7 +176,7 @@ const getTunnelList = async () => {
         const response = await axios.get(`https://cf-v2.uapis.cn/tunnel?token=${userInfo?.usertoken}`);
 
         if (response.data.code !== 200) {
-            console.error('获取隧道列表失败:', response.data.msg);
+            console.error('获取隧道列表失败，您可能没有创建隧道');
             message.error('获取隧道列表失败: ' + response.data.msg);
             return;
         }

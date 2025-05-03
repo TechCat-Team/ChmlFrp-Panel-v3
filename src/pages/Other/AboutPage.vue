@@ -60,6 +60,9 @@
         <n-p style="opacity: 0.6;">
             Copyright © 2021 - {{ currentYear }} TechCat All rights reserved.
         </n-p>
+        <n-p style="opacity: 0.6;">
+            此网站由 PH_CDN 提供 CDN 加速与防御支持。
+        </n-p>
     </n-card>
     <n-card title="开发环境依赖" style="margin-top: 15px">
         <n-skeleton v-if="loading" text :repeat="8" :sharp="false" />
