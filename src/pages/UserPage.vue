@@ -375,6 +375,8 @@ import { useLoadUserInfo } from '@/components/useLoadUser';
 
 import { inject } from 'vue';
 
+import api from '@/api'
+
 const isTouchDevice = inject('isTouchDevice')
 
 const userStore = useUserStore();
@@ -425,8 +427,8 @@ const newUserImg = ref('') // 新头像链接
 const newUserName = ref(`${userInfo?.username}`) // 新用户名
 const newQQ = ref(`${userInfo?.qq}`) // 新QQ号
 const resetPasswordValue = ref({
-    original_password: null,
-    new_password: null,
+    original_password: '',
+    new_password: '',
     reentered_new_password: null
 })
 
@@ -488,24 +490,24 @@ const deleteAccountAtLastTips = () => {
 const deleteAccount = async () => {
     deleteAccountLoading.value = true
     try {
-        const response = await axios.get(`https://cf-v2.uapis.cn/delete_account?token=${userInfo?.usertoken}&email_code=${deleteAccountCode.value}`);
-        if (response.data.code === 200) {
-            message.success(response.data.msg + '，账户注销成功')
-            dialog.success({
-                title: '账户注销成功',
-                content: '您的账户已经成功注销，所有数据均已删除，期待下次与您相见！',
-                positiveText: '好的',
-                onPositiveClick: () => {
-                    userStore.clearUser();
-                    router.push('/sign');
-                }
-            })
-        } else {
-            message.error(response.data.msg)
-        }
+        const response = await api.v2.user.deleteAccount(
+            userInfo?.usertoken || '',
+            deleteAccountCode.value
+        );
+
+        message.success(response.msg + '，账户注销成功')
+        dialog.success({
+            title: '账户注销成功',
+            content: '您的账户已经成功注销，所有数据均已删除，期待下次与您相见！',
+            positiveText: '好的',
+            onPositiveClick: () => {
+                userStore.clearUser();
+                router.push('/sign');
+            }
+        })
+
     } catch (error) {
-        console.error('注销账户API调用失败', error);
-        message.error('注销账户API调用失败' + error)
+        message.error('注销账户失败: ' + (error as Error).message);
     }
     deleteAccountLoading.value = false
 };
@@ -536,29 +538,19 @@ const deleteAccountGeeTest = () => {
 
 const sendDeleteAccountVerificationCode = async (geetestResult: GeetestResult) => {
     try {
-        const response = await axios.post('https://cf-v2.uapis.cn/sendmailcode', {
-            type: 'delete_account',
-            mail: userInfo?.email,
-            captcha_output: geetestResult.captcha_output,
-            lot_number: geetestResult.lot_number,
-            pass_token: geetestResult.pass_token,
-            gen_time: geetestResult.gen_time,
-        }, {
-            headers: {
-                'Content-Type': 'application/json',
-            }
-        });
-        const data = response.data;
-        if (data.state === 'success') {
-            message.success("邮箱验证码发送成功")
-            deleteAccountButtonDisabled.value = true
-            startDeleteAccountCountdown()
-        } else {
-            message.error(data.msg);
-            console.error('邮件发送失败:', data.msg);
-        }
+        await api.v2.user.sendMailCode(
+            'delete_account',
+            userInfo?.email || '',
+            geetestResult.lot_number,
+            geetestResult.captcha_output,
+            geetestResult.pass_token,
+            geetestResult.gen_time,
+        )
+        message.success("邮箱验证码发送成功")
+        deleteAccountButtonDisabled.value = true
+        startDeleteAccountCountdown()
     } catch (error) {
-        console.error('邮件发送API调用失败:', error);
+        console.error('邮件发送失败: ', (error as Error).message);
     }
     deleteAccountLoadingCaptcha.value = false
 }
@@ -594,7 +586,7 @@ const qiandaoinfo = async () => {
             is_signed_in_today.value = response.data.is_signed_in_today;
         }
     } catch (error) {
-        console.error('签到信息API调用失败', error);
+        console.error('签到信息获取失败: ', error);
     }
     loadingQianDao.value = false
 }
@@ -638,40 +630,29 @@ const signIn = async (geetestResult: GeetestResult) => {
     QianDaoTest.value = '调用签到API[3/3]'
 
     try {
-        const response = await axios.post('https://cf-v2.uapis.cn/qiandao', {
-            token: userInfo?.usertoken,
-            captcha_output: geetestResult.captcha_output,
-            lot_number: geetestResult.lot_number,
-            pass_token: geetestResult.pass_token,
-            gen_time: geetestResult.gen_time,
-        }, {
-            headers: {
-                'Content-Type': 'application/json',
-            }
+        const data = await api.v2.user.signIn(
+            userInfo?.usertoken || '',
+            geetestResult.lot_number,
+            geetestResult.captcha_output,
+            geetestResult.pass_token,
+            geetestResult.gen_time,
+        );
+
+        showBlurOverlay.value = false;
+        loadingQianDaoButton.value = false;
+        is_signed_in_today.value = true;
+        dialog.success({
+            title: '签到成功',
+            content: data.msg,
+            positiveText: '哇'
         });
-        const data = response.data;
-        if (data.state === 'success') {
-            showBlurOverlay.value = false;
-            loadingQianDaoButton.value = false;
-            is_signed_in_today.value = true;
-            dialog.success({
-                title: '签到成功',
-                content: data.msg,
-                positiveText: '哇'
-            });
-        } else {
-            showBlurOverlay.value = false;
-            is_signed_in_today.value = false;
-            loadingQianDaoButton.value = false;
-            QianDaoTest.value = '签到';
-            message.error("签到失败：" + data.msg);
-        }
+
     } catch (error) {
         showBlurOverlay.value = false;
         is_signed_in_today.value = false;
         loadingQianDaoButton.value = false;
         QianDaoTest.value = '签到';
-        console.error('签到API请求失败:', error);
+        message.error('签到失败: ' + (error as Error).message);
     }
     setTimeout(() => {
         showBlurOverlay.value = false;
@@ -685,21 +666,17 @@ const signIn = async (geetestResult: GeetestResult) => {
 const resetUserImg = async (userImg: string) => {
     loadingUpdateImg.value = true;
     try {
-        const encodedUserImg = encodeURIComponent(userImg); //编码特殊字符
-        const response = await axios.get(
-            `https://cf-v2.uapis.cn/update_userimg?token=${userInfo?.usertoken}&new_userimg=${encodedUserImg}`
+        const response = await api.v2.user.updateUserImage(
+            userInfo?.usertoken || '',
+            userImg
         );
 
-        if (response.data.code === 200) {
-            message.success(response.data.msg);
-            modifyAvatarModal.value = false;
-            userStore.setUser({ userimg: userImg });
-        } else {
-            message.error(response.data.msg);
-        }
+        message.success(response.msg);
+        modifyAvatarModal.value = false;
+        userStore.setUser({ userimg: userImg });
+
     } catch (error) {
-        console.error('修改头像API调用失败', error);
-        message.error('修改头像API调用失败: ' + error);
+        message.error('修改头像失败: ' + (error as Error).message);
     } finally {
         loadingUpdateImg.value = false;
     }
@@ -707,34 +684,31 @@ const resetUserImg = async (userImg: string) => {
 
 const resetTokenAPI = async () => {
     try {
-        const response = await axios.get(`https://cf-v2.uapis.cn/retoken?token=${userInfo?.usertoken}`);
-        if (response.data.code === 200) {
-            message.success('TOKEN已重置，请重新登录')
-            userStore.clearUser();
-            router.push('/sign');
-        } else {
-            message.error(response.data.msg)
-        }
+        await api.v2.user.resetToken(userInfo?.usertoken || '');
+
+        message.success('TOKEN已重置，请重新登录')
+        userStore.clearUser();
+        router.push('/sign');
+
     } catch (error) {
-        console.error('重置TokenAPI调用失败', error);
-        message.error('重置TokenAPI调用失败' + error)
+        message.error('重置Token失败: ' + (error as Error).message)
     }
 };
 
 const resetQQ = async () => {
     loadingUpdateQQ.value = true
     try {
-        const response = await axios.get(`https://cf-v2.uapis.cn/update_qq?token=${userInfo?.usertoken}&new_qq=${newQQ.value}`);
-        if (response.data.code === 200) {
-            message.success(response.data.msg)
-            changeQQModal.value = false
-            userStore.setUser({ qq: newQQ.value });
-        } else {
-            message.error(response.data.msg)
-        }
+        const response = await api.v2.user.updateQQ(
+            userInfo?.usertoken || '',
+            newQQ.value
+        );
+
+        message.success(response.msg)
+        changeQQModal.value = false
+        userStore.setUser({ qq: newQQ.value });
+
     } catch (error) {
-        console.error('修改QQAPI调用失败', error);
-        message.error('修改QQAPI调用失败' + error)
+        message.error('修改QQ失败: ' + (error as Error).message)
     }
     loadingUpdateQQ.value = false
 };
@@ -742,17 +716,17 @@ const resetQQ = async () => {
 const resetUserName = async () => {
     loadingUpdateUserName.value = true
     try {
-        const response = await axios.get(`https://cf-v2.uapis.cn/update_username?token=${userInfo?.usertoken}&new_username=${newUserName.value}`);
-        if (response.data.code === 200) {
-            message.success(response.data.msg)
-            changeTheUsernameModal.value = false
-            userStore.setUser({ username: newUserName.value });
-        } else {
-            message.error(response.data.msg)
-        }
+        const response = await api.v2.user.updateUserName(
+            userInfo?.usertoken || '',
+            newUserName.value
+        );
+
+        message.success(response.msg)
+        changeTheUsernameModal.value = false
+        userStore.setUser({ username: newUserName.value });
+
     } catch (error) {
-        console.error('修改用户名API调用失败', error);
-        message.error('修改用户名API调用失败' + error)
+        message.error('修改用户名失败: ' + (error as Error).message)
     }
     loadingUpdateUserName.value = false
 };
@@ -803,18 +777,19 @@ const resetPasswordRules = {
 const resetPassword = async () => {
     loadingUpdatePassword.value = true
     try {
-        const response = await axios.get(`https://cf-v2.uapis.cn/reset_password?token=${userInfo?.usertoken}&original_password=${resetPasswordValue.value.original_password}&new_password=${resetPasswordValue.value.new_password}`);
-        if (response.data.code === 200) {
-            message.success(response.data.msg)
-            changePasswordModal.value = false
-            userStore.clearUser();
-            router.push('/sign');
-        } else {
-            message.error(response.data.msg)
-        }
+        const response = await api.v2.user.resetPassword(
+            resetPasswordValue.value.original_password,
+            resetPasswordValue.value.new_password,
+            userInfo?.usertoken || '',
+        )
+
+        message.success(response.msg)
+        changePasswordModal.value = false
+        userStore.clearUser();
+        router.push('/sign');
+
     } catch (error) {
-        console.error('修改密码API调用失败', error);
-        message.error('修改密码API调用失败' + error)
+        message.error('修改密码失败: ' + (error as Error).message)
     }
     loadingUpdatePassword.value = false
 };
@@ -856,29 +831,21 @@ const sendVerificationCode = async (
     loadingCaptcha: Ref<boolean>
 ) => {
     try {
-        const response = await axios.post('https://cf-v2.uapis.cn/sendmailcode', {
-            type: 'reset_email',
-            mail: email,
-            captcha_output: geetestResult.captcha_output,
-            lot_number: geetestResult.lot_number,
-            pass_token: geetestResult.pass_token,
-            gen_time: geetestResult.gen_time,
-        }, {
-            headers: {
-                'Content-Type': 'application/json',
-            }
-        })
-        const data = response.data
-        if (data.state === 'success') {
-            message.success('邮箱验证码发送成功')
-            buttonDisabled.value = true
-            startCountdown(buttonText, buttonDisabled)
-        } else {
-            message.error(data.msg)
-        }
+        await api.v2.user.sendMailCode(
+            'reset_email',
+            email,
+            geetestResult.lot_number,
+            geetestResult.captcha_output,
+            geetestResult.pass_token,
+            geetestResult.gen_time,
+        )
+
+        message.success('邮箱验证码发送成功')
+        buttonDisabled.value = true
+        startCountdown(buttonText, buttonDisabled)
+
     } catch (error) {
-        message.error('邮件发送API调用失败')
-        console.error('API调用失败:', error)
+        message.error('邮件发送失败: ' + (error as Error).message)
     } finally {
         loadingCaptcha.value = false
     }
@@ -905,18 +872,20 @@ watch(newEmail, (newVal) => {
 const resetEmail = async () => {
     LoadingResetEmail.value = true
     try {
-        const response = await axios.get(`https://cf-v2.uapis.cn/reset_email?token=${userInfo?.usertoken}&new_email=${newEmail.value}&email_code=${old_code.value}&new_email_code=${new_code.value}`);
-        if (response.data.code === 200) {
-            message.success(response.data.msg)
-            changeTheMailboxModal.value = false
-            userStore.clearUser();
-            router.push('/sign');
-        } else {
-            message.error(response.data.msg)
-        }
+        const response = await api.v2.user.resetEmail(
+            userInfo?.usertoken || '',
+            newEmail.value,
+            old_code.value,
+            new_code.value
+        )
+
+        message.success(response.msg)
+        changeTheMailboxModal.value = false
+        userStore.clearUser();
+        router.push('/sign');
+
     } catch (error) {
-        console.error('修改邮箱API调用失败', error);
-        message.error('修改邮箱API调用失败' + error)
+        message.error('修改邮箱失败: ' + (error as Error).message)
     }
     LoadingResetEmail.value = false
 };

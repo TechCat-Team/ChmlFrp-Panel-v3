@@ -405,11 +405,13 @@ const markers = ref<{ position: number[]; title: string }[]>([
 
 const latestStatus = ref<Status | null>(null); // 初始化为 null
 
+import api from '@/api'
+
 const fetchNodeData = async () => {
     try {
-        const response = await axios.get<ApiResponse>(`https://cf-v2.uapis.cn/node_status_info?nodename=${node}`);
-        if (response.data.code === 200) {
-            apiResponse.value = response.data;
+        const response = await api.v2.node.getNodeStatusInfo(node as string)
+        if (response.code === 200) {
+            apiResponse.value = response;
             await handleTabChange();
 
             // 排序状态列表并获取最新状态
@@ -420,7 +422,7 @@ const fetchNodeData = async () => {
             latestStatus.value = sortedStatusList[0] || null; // 直接获取最新状态
 
             await updateCharts();
-        } else if (response.data.code === 404) {
+        } else if (response.code === 404) {
             whetherTheNodeExists.value = true;
         } else {
             apiError.value = true;

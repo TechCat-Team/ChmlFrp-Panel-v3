@@ -259,6 +259,8 @@ import { useRouter } from 'vue-router';
 // 获取登录信息
 import { useUserStore } from '@/stores/user';
 
+import api from '@/api'
+
 const userStore = useUserStore();
 const userInfo = userStore.userInfo;
 
@@ -413,7 +415,7 @@ const yiyan = async () => {
 interface FriendLinks {
     name: string;
     url: string;
-    description: string;
+    description: string | null;
 }
 
 const friendLinks = ref<FriendLinks[]>([]);
@@ -423,19 +425,19 @@ const user_amount = ref('');
 const panelinfo = async () => {
     loadingPanelInfo.value = true
     try {
-        const response = await axios.get('https://cf-v2.uapis.cn/panelinfo');
-        if (response.data.code === 200) {
-            tunnel_amount.value = response.data.data.tunnel_amount;
-            node_amount.value = response.data.data.node_amount;
-            user_amount.value = response.data.data.user_amount;
-            friendLinks.value = response.data.data.friend_links.map((links: FriendLinks) => ({
+        const response = await api.v2.panel.getPanelInfo()
+        if (response.code === 200) {
+            tunnel_amount.value = response.data.tunnel_amount.toString();
+            node_amount.value = response.data.node_amount.toString();
+            user_amount.value = response.data.user_amount.toString();
+            friendLinks.value = response.data.friend_links!.map((links: FriendLinks) => ({
                 name: links.name,
                 url: links.url,
-                description: links.description,
-            }));
+                description: links.description || '',
+            }))
         }
     } catch (error) {
-        console.error('面板信息API调用失败', error);
+        message.error('面板信息API调用失败: ' + error);
     }
     loadingPanelInfo.value = false
 };
@@ -501,40 +503,26 @@ const signIn = async (geetestResult: GeetestResult) => {
     QianDaoTest.value = '调用签到API[3/3]';
 
     try {
-        const response = await axios.post('https://cf-v2.uapis.cn/qiandao', {
-            token: userInfo?.usertoken,
-            captcha_output: geetestResult.captcha_output,
-            lot_number: geetestResult.lot_number,
-            pass_token: geetestResult.pass_token,
-            gen_time: geetestResult.gen_time,
-        }, {
-            headers: {
-                'Content-Type': 'application/json',
-            }
+        const data = await api.v2.user.signIn(
+            userInfo?.usertoken || '',
+            geetestResult.lot_number,
+            geetestResult.captcha_output,
+            geetestResult.pass_token,
+            geetestResult.gen_time);
+        showBlurOverlay.value = false;
+        loadingQianDaoButton.value = false;
+        signedInSuccess.value = true;
+        dialog.success({
+            title: '签到成功',
+            content: data.msg,
+            positiveText: '哇'
         });
-        const data = response.data;
-        if (data.state === 'success') {
-            showBlurOverlay.value = false;
-            loadingQianDaoButton.value = false;
-            signedInSuccess.value = true;
-            dialog.success({
-                title: '签到成功',
-                content: data.msg,
-                positiveText: '哇'
-            });
-        } else {
-            showBlurOverlay.value = false;
-            signedInSuccess.value = false;
-            loadingQianDaoButton.value = false;
-            QianDaoTest.value = '签到';
-            message.error("签到失败：" + data.msg);
-        }
     } catch (error) {
         showBlurOverlay.value = false;
         signedInSuccess.value = false;
         loadingQianDaoButton.value = false;
         QianDaoTest.value = '签到';
-        console.error('签到API请求失败:', error);
+        message.error("签到失败：" + (error as Error).message);
     }
     setTimeout(() => {
         showBlurOverlay.value = false;

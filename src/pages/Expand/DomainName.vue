@@ -232,10 +232,11 @@
 
 <script lang="ts" setup>
 import { RefreshOutline, AddOutline, TrashOutline, CreateOutline, EyeOutline, InformationCircleOutline } from '@vicons/ionicons5'
-import axios from 'axios';
 import { NIcon } from 'naive-ui'
 // 获取登录信息
 import { useUserStore } from '@/stores/user';
+
+import api from '@/api'
 
 const userStore = useUserStore();
 const userInfo = userStore.userInfo;
@@ -289,14 +290,10 @@ const domainData = ref<freeDomain[]>([])
 const fetchDomainData = async () => {
     loading.value = true
     try {
-        const response = await axios.get(`https://cf-v2.uapis.cn/get_user_free_subdomains?token=${userInfo?.usertoken}`)
-        if (response.data.code === 200) {
-            domainData.value = response.data.data
-        } else {
-            console.error('获取创建的免费域名数据失败:', response.data.msg)
-        }
+        const response = await api.v2.domain.getUserFreeSubdomains(userInfo?.usertoken || '')
+        domainData.value = response.data
     } catch (error) {
-        console.error('获取创建的免费域名API请求失败:', error)
+        message.error('获取创建的免费域名数据失败: ' + (error as Error).message)
     } finally {
         loading.value = false
     }
@@ -367,12 +364,12 @@ const model = ref({
     selectedDomain: '',
     selectedRecordType: 'A',
     recordValue: '',
-    TTLValue: '10分钟',
+    TTLValue: '10分钟' as '1分钟' | '2分钟' | '5分钟' | '10分钟' | '15分钟' | '30分钟' | '1小时' | '2小时' | '5小时' | '12小时' | '1天',
     target: '',
 })
 
 const fastModel = ref({
-    selectedDomain: null,
+    selectedDomain: '',
     selectedRecordType: 'CNAME',
     selectedTunnel: null,
     recordValue: '',
@@ -386,20 +383,19 @@ interface Domain {
 }
 
 // 用于存储域名选项的数据
-const domainNameOptions = ref([])
+const domainNameOptions = ref<{ label: string; value: string }[]>([])
 
 // 从 API 获取域名数据并将其格式化为 n-select 的选项格式
 const subDomainData = async () => {
     try {
-        const response = await axios.get('https://cf-v2.uapis.cn/list_available_domains')
-        const domains = response.data.data
+        const domains = (await api.v2.domain.listAvailableDomains()).data;
 
         domainNameOptions.value = domains.map((domain: Domain) => ({
             label: domain.domain, // 显示的域名名称
             value: domain.domain  // 选项的值
         }))
     } catch (error) {
-        console.error('获取域名数据失败:', error)
+        message.error('获取域名数据失败: ' + (error as Error).message)
     }
 }
 
@@ -448,36 +444,28 @@ const targetPlaceholder = computed(() => {
 const handleSubmit = async () => {
     determineLoading.value = true
     try {
-        const response = await axios.post('https://cf-v2.uapis.cn/create_free_subdomain', {
-            token: userInfo?.usertoken,
+        await api.v2.domain.createFreeSubdomain({
+            token: userInfo?.usertoken || '',
             domain: model.value.selectedDomain,
             record: model.value.recordValue,
             type: model.value.selectedRecordType,
             ttl: model.value.TTLValue,
             target: model.value.target,
             remarks: '自定义地址'
-        }, {
-            headers: {
-                'Content-Type': 'application/json',
+        })
+
+        createDomainNameModal.value = false
+        dialog.success({
+            title: '成功',
+            content: '域名解析创建成功，但是域名解析通常不会立即生效，一般在48小时内彻底生效，部分DNS会在几分钟内生效。简而言之，您创建的免费域名需要等待一段时间后才能正常使用。',
+            positiveText: '我知道了',
+            onPositiveClick: () => {
+                message.success('免费域名创建成功')
+                fetchDomainData()
             }
-        });
-        const data = response.data;
-        if (data.state === 'success') {
-            createDomainNameModal.value = false
-            dialog.success({
-                title: '成功',
-                content: '域名解析创建成功，但是域名解析通常不会立即生效，一般在48小时内彻底生效，部分DNS会在几分钟内生效。简而言之，您创建的免费域名需要等待一段时间后才能正常使用。',
-                positiveText: '我知道了',
-                onPositiveClick: () => {
-                    message.success('免费域名创建成功')
-                    fetchDomainData()
-                }
-            })
-        } else {
-            message.error("免费域名创建失败：" + data.msg);
-        }
+        })
     } catch (error) {
-        console.error('创建免费域名API请求失败:', error);
+        message.error('创建免费域名失败: ' + (error as Error).message);
     }
     determineLoading.value = false
 }
@@ -499,36 +487,28 @@ const handleFastSubmit = async () => {
     }
 
     try {
-        const response = await axios.post('https://cf-v2.uapis.cn/create_free_subdomain', {
-            token: userInfo?.usertoken,
+        await api.v2.domain.createFreeSubdomain({
+            token: userInfo?.usertoken || '',
             domain: fastModel.value.selectedDomain,
             record: fastRecord,
             type: fastType,
             ttl: '10分钟',
-            target: fastTarget,
+            target: fastTarget || '',
             remarks: '解析 ' + fastModel.value.selectedRecordType + ' 到 ' + fastTunnelInfo
-        }, {
-            headers: {
-                'Content-Type': 'application/json',
+        })
+
+        createDomainNameModal.value = false
+        dialog.success({
+            title: '成功',
+            content: '域名解析创建成功，但是域名解析通常不会立即生效，一般在48小时内彻底生效，部分DNS会在几分钟内生效',
+            positiveText: '我知道了',
+            onPositiveClick: () => {
+                message.success('免费域名创建成功')
+                fetchDomainData()
             }
-        });
-        const data = response.data;
-        if (data.state === 'success') {
-            createDomainNameModal.value = false
-            dialog.success({
-                title: '成功',
-                content: '域名解析创建成功，但是域名解析通常不会立即生效，一般在48小时内彻底生效，部分DNS会在几分钟内生效',
-                positiveText: '我知道了',
-                onPositiveClick: () => {
-                    message.success('免费域名创建成功')
-                    fetchDomainData()
-                }
-            })
-        } else {
-            message.error("免费域名创建失败：" + data.msg);
-        }
+        })
     } catch (error) {
-        console.error('创建免费域名API请求失败:', error);
+        message.error('创建免费域名失败: ' + (error as Error).message);
     }
     determineLoading.value = false
 }
@@ -536,35 +516,27 @@ const handleFastSubmit = async () => {
 const resetDomainName = async () => {
     determineLoading.value = true
     try {
-        const response = await axios.post('https://cf-v2.uapis.cn/update_free_subdomain', {
-            token: userInfo?.usertoken,
+        await api.v2.domain.updateFreeSubdomain({
+            token: userInfo?.usertoken || '',
             domain: model.value.selectedDomain,
             record: model.value.recordValue,
             ttl: model.value.TTLValue,
             target: model.value.target,
             remarks: '自定义解析'
-        }, {
-            headers: {
-                'Content-Type': 'application/json',
+        })
+
+        resetDomainNameModal.value = false
+        dialog.success({
+            title: '成功',
+            content: '域名解析修改成功！但是域名解析通常不会立即生效，一般在48小时内彻底生效，部分DNS会在几分钟内生效',
+            positiveText: '我知道了',
+            onPositiveClick: () => {
+                message.success('免费域名修改成功！')
+                fetchDomainData()
             }
-        });
-        const data = response.data;
-        if (data.state === 'success') {
-            resetDomainNameModal.value = false
-            dialog.success({
-                title: '成功',
-                content: '域名解析修改成功！但是域名解析通常不会立即生效，一般在48小时内彻底生效，部分DNS会在几分钟内生效',
-                positiveText: '我知道了',
-                onPositiveClick: () => {
-                    message.success('免费域名修改成功！')
-                    fetchDomainData()
-                }
-            })
-        } else {
-            message.error("免费域名修改失败：" + data.msg);
-        }
+        })
     } catch (error) {
-        console.error('修改免费域名API请求失败:', error);
+        message.error('修改免费域名失败: ' + (error as Error).message);
     }
     determineLoading.value = false
 }
@@ -602,7 +574,18 @@ const generateOptions = (domain: freeDomain, index: number) => [
                 model.value.selectedDomain = domain.domain || 'null';
                 model.value.selectedRecordType = domain.type;
                 model.value.recordValue = domain.record;
-                model.value.TTLValue = domain.ttl;
+                model.value.TTLValue = domain.ttl as
+                    | '1分钟'
+                    | '2分钟'
+                    | '5分钟'
+                    | '10分钟'
+                    | '15分钟'
+                    | '30分钟'
+                    | '1小时'
+                    | '2小时'
+                    | '5小时'
+                    | '12小时'
+                    | '1天';
                 model.value.target = domain.target;
                 resetDomainNameModal.value = true
             }
@@ -623,24 +606,17 @@ const generateOptions = (domain: freeDomain, index: number) => [
 const deleteDomain = async (domain: freeDomain, index: number) => {
     domainLoading.value[index] = true;
     try {
-        const response = await axios.post('https://cf-v2.uapis.cn/delete_free_subdomain', {
-            token: userInfo?.usertoken,
+        await api.v2.domain.deleteFreeSubdomain({
+            token: userInfo?.usertoken || '',
             domain: domain.domain,
             record: domain.record
-        }, {
-            headers: {
-                'Content-Type': 'application/json',
-            }
         });
-        const data = response.data;
-        if (data.state === 'success') {
-            domainData.value.splice(index, 1);
-            message.success(`删除域名: ${domain.record}.${domain.domain}，成功！`);
-        } else {
-            message.error("免费域名创建失败：" + data.msg);
-        }
+
+        domainData.value.splice(index, 1);
+        message.success(`删除域名: ${domain.record}.${domain.domain}，成功！`);
     } catch (error) {
-        console.error('创建免费域名API请求失败:', error);
+        message.error('删除免费域名失败: ' + (error as Error).message);
+        domainLoading.value[index] = false;
     }
     domainLoading.value.splice(index, 1);
 };
@@ -648,7 +624,7 @@ const deleteDomain = async (domain: freeDomain, index: number) => {
 interface SelectedTunnelInfo {
     label: string;
     ip: string;
-    dorp: number;
+    dorp: string;
 }
 
 const selectedTunnelInfo = ref<SelectedTunnelInfo | null>(null);
@@ -657,7 +633,7 @@ interface TunnelOption {
     name: string;
     node: string;
     ip: string;
-    dorp: number;
+    dorp: string;
     label: string;
     value: string;
 }
@@ -680,18 +656,34 @@ const handleTabChange = (activeName: string) => {
     loadingSelectedTunnel.value = true;
 
     if (activeName === '快速解析') {
-        axios.get(`https://cf-v2.uapis.cn/tunnel?token=${userInfo?.usertoken}`)
+        api.v2.tunnel.getTunnelList(userInfo?.usertoken || '')
             .then(response => {
-                tunnelOptions.value = response.data.data.map((tunnel: TunnelOption) => ({
+                tunnelOptions.value = response.data!.map((tunnel: {
+                    id: number;
+                    name: string;
+                    localip: string;
+                    type: string;
+                    nport: number;
+                    dorp: string;
+                    node: string;
+                    state: string;
+                    userid: number;
+                    encryption: string;
+                    compression: string;
+                    ap: string;
+                    uptime: string | null;
+                    ip: string;
+                }) => ({
                     label: `${tunnel.name} - ${tunnel.node}`,
                     value: tunnel.name,
                     node: tunnel.node,
                     ip: tunnel.ip,
-                    dorp: tunnel.dorp
+                    dorp: tunnel.dorp,
+                    name: tunnel.name
                 }));
             })
             .catch(error => {
-                console.error('获取隧道数据失败:', error);
+                message.error('获取隧道数据失败: ' + (error as Error).message);
             });
     }
     loadingSelectedTunnel.value = false;
@@ -701,58 +693,58 @@ const handleTabChange = (activeName: string) => {
 
 <style scoped>
 .custom-card {
-  border-radius: 12px;
-  /* box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); */
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border-radius: 12px;
+    /* box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); */
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .custom-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
+    transform: translateY(-4px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
 }
 
 .type-tag {
-  margin-left: 8px;
-  font-weight: 600;
-  letter-spacing: 0.5px;
+    margin-left: 8px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
 }
 
 .remark-tag {
-  background-color: rgba(241, 241, 241, 0.8);
-  color: #666;
+    background-color: rgba(241, 241, 241, 0.8);
+    color: #666;
 }
 
 .footer-content {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
 }
 
 .footer-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
 .item-label {
-  font-size: 0.9em;
-  color: #666;
-  margin-right: 12px;
+    font-size: 0.9em;
+    color: #666;
+    margin-right: 12px;
 }
 
 .full-height-spin {
-  height: 100%;
+    height: 100%;
 }
 
 .custom-dropdown {
-  border-radius: 12px;
+    border-radius: 12px;
 }
 
 .grid-item {
-  transition: opacity 0.2s ease;
+    transition: opacity 0.2s ease;
 }
 
 .grid-item:hover {
-  opacity: 0.95;
+    opacity: 0.95;
 }
 </style>

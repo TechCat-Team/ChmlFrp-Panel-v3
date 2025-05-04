@@ -91,6 +91,8 @@ import {
 import { useUserStore } from '@/stores/user';
 import dayjs from 'dayjs'
 
+import api from '@/api'
+
 const userStore = useUserStore();
 const userInfo = userStore.userInfo;
 
@@ -116,17 +118,14 @@ const formatMessageTime = (isoTime: string) => {
 // 获取通知数据
 const fetchNotifications = async () => {
     try {
-        const response = await fetch('https://cf-v2.uapis.cn/messages?token=7ulOTvzeKHDaeKsjDVsjfT3F')
-        const { state, data, code } = await response.json()
+        const response = await api.v2.user.getMessages(userInfo?.usertoken || '')
 
-        if (code === 200 && state === 'success') {
-            notifications.value = data
-            // 根据quanti字段计算未读数（根据实际业务需求调整）
-            unreadCount.value = data.filter((n: { quanti: string; }) => n.quanti === 'yes').length
-        }
+        notifications.value = response.data || []
+        // 根据quanti字段计算未读数（根据实际业务需求调整）
+        unreadCount.value = notifications.value.filter((n: { quanti: string; }) => n.quanti === 'yes').length
+
     } catch (e) {
-        console.error('获取通知失败:', e)
-        message.error('获取通知失败，请检查网络')
+        message.error('获取通知失败: ' + (e as Error).message)
     } finally {
         loading.value = false
     }
