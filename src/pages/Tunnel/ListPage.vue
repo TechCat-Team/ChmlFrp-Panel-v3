@@ -49,40 +49,48 @@
             <n-empty v-else-if="filteredNodeCards.length === 0" description="您选择的分类没有任何节点" />
             <n-grid v-else style="margin-top: 12px" cols="1 m:3 xl:4 2xl:5" :x-gap="12" :y-gap="12" responsive="screen">
                 <n-grid-item v-for="(nodeCard, index) in filteredNodeCards" :key="index">
-                    <n-card size="small" style="height: 90px" hoverable @click="handleNodeCardClick(nodeCard)">
-                        <template #header>
-                            <span style="color: gray;">
-                                #{{ nodeCard.id }}
-                            </span>
-                            <n-divider vertical />
-                            {{ nodeCard.name }}
+                    <n-tooltip trigger="hover">
+                        <template #trigger>
+                            <n-card size="small" style="height: 90px" hoverable @click="handleNodeCardClick(nodeCard)">
+                                <template #header>
+                                    <span style="color: gray;">
+                                        #{{ nodeCard.id }}
+                                    </span>
+                                    <n-divider vertical />
+                                    {{ nodeCard.name }}
+                                </template>
+                                <template #header-extra v-if="nodeCard.nodegroup === 'vip'">
+                                    <n-tag size="small" round type="warning">
+                                        VIP
+                                    </n-tag>
+                                </template>
+                                <n-space>
+                                    <n-tag :bordered="false" round size="small" type="success"
+                                        v-if="nodeCard.web === 'yes'">
+                                        <template #icon>
+                                            <n-icon :component="EarthOutline" />
+                                        </template>
+                                        建站
+                                    </n-tag>
+                                    <n-tag :bordered="false" round size="small" type="error"
+                                        v-if="nodeCard.udp === 'false'">
+                                        <template #icon>
+                                            <n-icon :component="BanOutline" />
+                                        </template>
+                                        UDP
+                                    </n-tag>
+                                    <n-tag :bordered="false" round size="small" type="info"
+                                        v-if="nodeCard.fangyu === 'true'">
+                                        <template #icon>
+                                            <n-icon :component="ShieldCheckmarkOutline" />
+                                        </template>
+                                        防御
+                                    </n-tag>
+                                </n-space>
+                            </n-card>
                         </template>
-                        <template #header-extra v-if="nodeCard.nodegroup === 'vip'">
-                            <n-tag size="small" round type="warning">
-                                VIP
-                            </n-tag>
-                        </template>
-                        <n-space>
-                            <n-tag :bordered="false" round size="small" type="success" v-if="nodeCard.web === 'yes'">
-                                <template #icon>
-                                    <n-icon :component="EarthOutline" />
-                                </template>
-                                建站
-                            </n-tag>
-                            <n-tag :bordered="false" round size="small" type="error" v-if="nodeCard.udp === 'false'">
-                                <template #icon>
-                                    <n-icon :component="BanOutline" />
-                                </template>
-                                UDP
-                            </n-tag>
-                            <n-tag :bordered="false" round size="small" type="info" v-if="nodeCard.fangyu === 'true'">
-                                <template #icon>
-                                    <n-icon :component="ShieldCheckmarkOutline" />
-                                </template>
-                                防御
-                            </n-tag>
-                        </n-space>
-                    </n-card>
+                        {{ nodeCard.notes }}
+                    </n-tooltip>
                 </n-grid-item>
             </n-grid>
         </n-card>
@@ -338,6 +346,10 @@
             <n-alert title="注意" type="info" style="margin-bottom: 32px;"
                 v-if="formData.domainNameLabel === '自定义' && (formData.type === 'HTTP' || formData.type === 'HTTPS')">
                 自定义域名解析到中国境内节点(中国特别行政区除外)建站，您的域名必须在工信部备案，不备案将被拦截导致无法访问。
+            </n-alert>
+            <n-alert title="注意" style="margin-bottom: 32px;" type="warning"
+                v-if="formData.domainNameLabel === '自定义' && (formData.type === 'HTTP' || formData.type === 'HTTPS')">
+                请使用自定义域名需要将您的 {{ formData.domain }} 域名通过CNAME解析至 {{ NodeInfo.ip }} 才能正常访问。
             </n-alert>
             <n-row :gutter="15" style="margin-top: 15px;">
                 <n-form ref="tunnelForm" :model="formData" size="medium" label-width="100px">
@@ -1355,6 +1367,7 @@ interface NodeCard {
     fangyu: string;
     udp: string;
     area: string;
+    notes: string;
 }
 
 const nodeCards = ref<NodeCard[]>([]);
@@ -1372,7 +1385,8 @@ const createNodes = async () => {
             china: node.china, // 是否为境内带宽
             fangyu: node.fangyu, // 防御
             udp: node.udp, // 是否允许UDP
-            area: node.area // 地区
+            area: node.area, // 地区
+            notes: node.notes
         }));
         nodeListModal.value = true // 显示节点列表模态框
     } catch (error) {

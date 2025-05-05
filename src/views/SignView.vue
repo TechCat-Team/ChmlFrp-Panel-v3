@@ -166,7 +166,7 @@
                                     </n-form>
                                 </template>
                                 <template v-else>
-                                    <n-form ref="resetFormRef" :model="resetModel">
+                                    <n-form ref="resetFormRef" :model="resetModel" :rules="resetRules">
                                         <n-form-item label="邮箱" path="email">
                                             <n-input v-model:value="resetModel.email" size="large" round
                                                 placeholder="请输入注册时使用的邮箱" clearable />

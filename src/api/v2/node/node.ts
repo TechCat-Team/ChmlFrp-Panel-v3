@@ -10,6 +10,7 @@ interface Node {
     web: 'yes' | 'no';
     udp: 'true' | 'false';
     fangyu: 'true' | 'false';
+    notes: string;
 }
 
 interface NodeListResponse extends BaseResponse {
