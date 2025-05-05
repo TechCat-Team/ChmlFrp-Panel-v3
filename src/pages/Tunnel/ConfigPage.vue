@@ -131,11 +131,12 @@
 </template>
 
 <script lang="ts" setup>
-import axios from 'axios';
 import { ref } from 'vue';
 import { CopyOutline } from '@vicons/ionicons5'
 // 获取登录信息
 import { useUserStore } from '@/stores/user';
+
+import api from '@/api'
 
 const userStore = useUserStore();
 const userInfo = userStore.userInfo;
@@ -173,31 +174,24 @@ const loadingGenerate = ref(false);
 // 获取隧道列表 API
 const getTunnelList = async () => {
     try {
-        const response = await axios.get(`https://cf-v2.uapis.cn/tunnel?token=${userInfo?.usertoken}`);
+        const response = await api.v2.tunnel.getTunnelList(userInfo?.usertoken || '');
 
-        if (response.data.code !== 200) {
-            console.error('获取隧道列表失败，您可能没有创建隧道');
-            message.error('获取隧道列表失败: ' + response.data.msg);
-            return;
-        }
-
-        const tunnels: Tunnel[] = response.data.data;
+        const tunnels: Tunnel[] = response.data || [];
 
         // 保存所有隧道数据
         allTunnels.value = tunnels.map((t: Tunnel) => ({
             name: t.name,
             node: t.node,
         }));
-   
+
         // 生成节点选项
-        const nodes = Array.from(new Set(tunnels.map((t: Tunnel) => t.node))); 
+        const nodes = Array.from(new Set(tunnels.map((t: Tunnel) => t.node)));
         nodeOptions.value = nodes.map((node: string) => ({
             label: node,
             value: node,
         }));
     } catch (error) {
-        console.error('API响应失败:', error);
-        message.error('API响应失败:' + error);
+        message.error("获取隧道列表失败: " + (error as Error).message);
     }
 };
 
@@ -234,15 +228,6 @@ const getConfigFile = async () => {
             node: nodeValue.value,
         };
 
-        const response = await axios.get('https://cf-v2.uapis.cn/tunnel_config', { params });
-        if (response.data.state !== 'success') {
-            message.success('获取配置文件失败:' + response.data.msg);
-            tunnelConfig.value = response.data.msg;
-            LinuxScript.value = response.data.msg;
-            loadingGenerate.value = false;
-            return null;
-        }
-
         // 如果选择了隧道才传递 tunnel_names 参数
         if (multipleSelectValue.value.length > 0) {
             params.tunnel_names = multipleSelectValue.value.join(',');
@@ -251,10 +236,13 @@ const getConfigFile = async () => {
             LinuxScript.value = `curl -O https://www.chmlfrp.cn/script/linux/frpc_install.sh && chmod +x frpc_install.sh && sudo ./frpc_install.sh "${userInfo?.usertoken}" "${nodeValue.value}"`
         }
 
-        tunnelConfig.value = response.data.data;
+        const response = await api.v2.tunnel.getTunnelConfig(userInfo?.usertoken || '', params.node || '', params.tunnel_names);
+
+        tunnelConfig.value = response.data || '';
     } catch (error) {
-        console.error('获取配置文件失败:', error);
-        message.error('获取配置文件失败:' + error);
+        message.error('获取配置文件失败: ' + (error as Error).message);
+        tunnelConfig.value = (error as Error).message;
+        LinuxScript.value = (error as Error).message;
     }
     loadingGenerate.value = false;
 };

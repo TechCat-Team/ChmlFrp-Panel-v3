@@ -216,7 +216,6 @@
 <script lang="ts" setup>
 import { useRouter } from 'vue-router';
 import { useUserStore } from '@/stores/user';
-import axios from 'axios';
 import {
     FormInst
 } from 'naive-ui'
@@ -274,29 +273,13 @@ const GeeTest = (Type: string, email: string) => {
 
 const sendMailboxVerificationCode = async (geetestResult: GeetestResult) => {
     try {
-        const response = await axios.post('https://cf-v2.uapis.cn/sendmailcode', {
-            type: type.value,
-            mail: emaill.value,
-            captcha_output: geetestResult.captcha_output,
-            lot_number: geetestResult.lot_number,
-            pass_token: geetestResult.pass_token,
-            gen_time: geetestResult.gen_time,
-        }, {
-            headers: {
-                'Content-Type': 'application/json',
-            }
-        });
-        const data = response.data;
-        if (data.state === 'success') {
-            message.success("邮箱验证码发送成功")
-            buttonDisabled.value = true
-            startCountdown()
-        } else {
-            message.error(data.msg);
-            console.error('邮件发送失败:', data.msg);
-        }
+        await api.v2.user.sendMailCode(type.value, emaill.value, geetestResult.lot_number, geetestResult.captcha_output, geetestResult.pass_token, geetestResult.gen_time)
+
+        message.success("邮箱验证码发送成功")
+        buttonDisabled.value = true
+        startCountdown()
     } catch (error) {
-        console.error('邮件发送API调用失败:', error);
+        message.error('邮件发送失败: ' + (error as Error).message);
     }
     loadingCaptcha.value = false
 }
@@ -334,17 +317,17 @@ const nextStep = async () => {
     } else if (currentStep.value === 3) {
         RegLoading.value = true;
         try {
-            const response = await axios.get(`https://cf-v2.uapis.cn/register?username=${formModel.value.username}&password=${formModel.value.password}&mail=${formModel.value.email}&qq=${formModel.value.qq}&code=${formModel.value.verificationCode}`);
-            const data = response.data;
-            if (data.state === 'success') {
-                message.success("注册成功，请登录")
-                toggleRegister()
-            } else {
-                message.error(data.msg);
-                console.error('注册失败:', data.msg);
-            }
+            await api.v2.user.register(
+                formModel.value.username,
+                formModel.value.password,
+                formModel.value.email,
+                formModel.value.qq,
+                formModel.value.verificationCode)
+
+            message.success("注册成功，请登录")
+            toggleRegister()
         } catch (error) {
-            console.error('注册API调用失败:', error);
+            message.error('注册失败: ' + (error as Error).message);
         }
         RegLoading.value = false;
     } else {
@@ -382,6 +365,8 @@ const model = ref<ModelType>({
     password: null
 })
 
+import api from '@/api';
+
 const handleValidateButtonClick = async () => {
     loginLoading.value = true; // 登录按钮状态设置为加载中
 
@@ -393,34 +378,23 @@ const handleValidateButtonClick = async () => {
     try {
         await formRef.value?.validate();
 
-        const response = await axios.get('https://cf-v2.uapis.cn/login', {
-            params: {
-                username: model.value.email,
-                password: model.value.password,
-            },
-        });
+        const { data } = await api.v2.user.login(model.value.email ? model.value.email : "", model.value.password ? model.value.password : "")
 
-        if (response.data.code === 200 && response.data.state === 'success') {
-            const { data } = response.data;
-            const userInfo = { ...data };
+        const userInfo = { ...data };
 
-            const storageDuration = keepLoggedIn.value ? 'permanent' : '1d';
-            userStore.setUser(userInfo, storageDuration);
+        const storageDuration = keepLoggedIn.value ? 'permanent' : '1d';
+        userStore.setUser(userInfo, storageDuration);
 
-            loadingMessage.type = 'success';
-            loadingMessage.content = data.usergroup === '免费用户'
-                ? `登录成功，欢迎您，${data.username}！`
-                : `登录成功，欢迎您，尊贵的会员用户${data.username}！`;
+        loadingMessage.type = 'success';
+        loadingMessage.content = data.usergroup === '免费用户'
+            ? `登录成功，欢迎您，${data.username}！`
+            : `登录成功，欢迎您，尊贵的会员用户${data.username}！`;
 
-            router.push('/home');
-        } else {
-            loadingMessage.type = 'error';
-            loadingMessage.content = `登录失败，${response.data.msg}`;
-        }
+        router.push('/home');
     } catch (error) {
         console.error('表单验证或登录失败', error);
         loadingMessage.type = 'error';
-        loadingMessage.content = '表单验证或登录失败，请重试。';
+        loadingMessage.content = '登陆失败: ' + (error as Error).message;
     } finally {
         // 在完成操作后，4秒后自动关闭
         setTimeout(() => {
@@ -509,17 +483,15 @@ const resetRules = {
 const handleResetPassword = async () => {
     loginLoading.value = true;
     try {
-        const response = await axios.get(
-            `https://cf-v2.uapis.cn/email_reset_password?email=${resetModel.value.email}&new_password=${resetModel.value.newPassword}&code=${resetModel.value.verificationCode}`
+        const response = await api.v2.user.resetPasswordByEmail(
+            resetModel.value.email,
+            resetModel.value.newPassword,
+            resetModel.value.verificationCode
         );
-        if (response.data.code === 200) {
-            message.success(response.data.msg);
-        } else {
-            message.error(response.data.msg);
-        }
+
+        message.success(response.msg);
     } catch (error) {
-        console.error('重置密码API调用失败', error);
-        message.error('重置密码API调用失败: ' + error);
+        message.error('重置密码失败: ' + (error as Error).message);
     } finally {
         loginLoading.value = false
     }

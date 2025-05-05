@@ -576,6 +576,8 @@ import axios from 'axios';
 // 获取登录信息
 import { useUserStore } from '@/stores/user';
 
+import api from '@/api'
+
 const userStore = useUserStore();
 const userInfo = userStore.userInfo;
 
@@ -642,8 +644,7 @@ const editTunnel = (card: TunnelCard) => {
 
     if (card.type === 'http' || card.type === 'https') {
         // 调用API获取用户的免费二级域名
-        fetch(`https://cf-v2.uapis.cn/get_user_free_subdomains?token=${userInfo?.usertoken}`)
-            .then(response => response.json())  // 解析JSON响应
+        api.v2.domain.getUserFreeSubdomains(userInfo?.usertoken as string)
             .then(data => {
                 const domainRecord = data.data.find((item: { record: string; domain: string; }) => item.record + '.' + item.domain === card.dorp);
 
@@ -674,8 +675,7 @@ const editTunnel = (card: TunnelCard) => {
             })
             .catch(error => {
                 // 处理API调用错误
-                console.error('获取域名信息失败', error);
-                message.error('获取域名信息失败', error);
+                message.error('获取域名信息失败: ' + (error as Error).message);
                 formData.domainNameLabel = '自定义'; // 出现错误时设置为自定义
             });
     }
@@ -687,7 +687,12 @@ const editTunnel = (card: TunnelCard) => {
     apiGetNodeInfo(formData.node)
         .then((res) => {
             if (res) {
-                NodeInfo.value = res
+                NodeInfo.value = {
+                    ...res,
+                    udp: res.udp === 'true',
+                    fangyu: res.fangyu === 'true',
+                    ipv6: res.ipv6 || ''
+                }
             }
             else {
                 message.error('获取节点详情失败, 节点可能离线, 请稍后再试')
@@ -741,9 +746,9 @@ const apiChangeTunnelV1 = async () => {
 // 修改隧道apiv2
 const apiChangeTunnelV2 = async () => {
     try {
-        const response = await axios.post('https://cf-v2.uapis.cn/update_tunnel', {
+        const data = await api.v2.tunnel.updateTunnel({
             tunnelid: formData.tunnelid,
-            token: userInfo?.usertoken,
+            token: userInfo?.usertoken || '',
             tunnelname: formData.name,
             node: formData.node,
             localip: formData.localip,
@@ -756,20 +761,12 @@ const apiChangeTunnelV2 = async () => {
             encryption: formData.encryption,
             compression: formData.compression,
             extraparams: formData.ap
-        }, {
-            headers: {
-                'Content-Type': 'application/json',
-            }
-        });
-        const data = response.data;
-        if (response.status === 200 && data.code === 200) {
-            message.success("隧道编辑成功")
-            return data
-        } else {
-            message.error("隧道编辑失败: " + data.msg);
-        }
+        })
+
+        message.success("隧道编辑成功")
+        return data
     } catch (error) {
-        message.error('隧道编辑API请求失败:' + error);
+        message.error('隧道编辑失败: ' + (error as Error).message);
     }
     return null
 }
@@ -777,28 +774,20 @@ const apiChangeTunnelV2 = async () => {
 // 创建免费域名
 const apiCreateFreeDomain = async (domain: string, record: string, target: string, remarks: string, flag = true) => {
     try {
-        const response = await axios.post('https://cf-v2.uapis.cn/create_free_subdomain', {
-            "token": userInfo?.usertoken,
-            "domain": domain,
-            "record": record,
-            "type": "CNAME",
-            "target": target,
-            "ttl": "10分钟",
-            "remarks": remarks
-        }, {
-            headers: {
-                'Content-Type': 'application/json',
-            }
-        });
-        const data = response.data;
-        if (data.state === 'success') {
-            flag && message.success("免费域名创建成功")
-            return data
-        } else {
-            message.error("免费域名创建失败: " + data.msg);
-        }
+        const data = await api.v2.domain.createFreeSubdomain({
+            token: userInfo?.usertoken || '',
+            domain: domain,
+            record: record,
+            type: 'CNAME',
+            target: target,
+            ttl: '10分钟',
+            remarks: remarks
+        })
+
+        flag && message.success("免费域名创建成功")
+        return data
     } catch (error) {
-        message.error('免费域名创建API请求失败:' + error);
+        message.error('免费域名创建失败: ' + (error as Error).message);
     }
     return null
 }
@@ -806,24 +795,16 @@ const apiCreateFreeDomain = async (domain: string, record: string, target: strin
 // 删除免费域名
 const apiDeleteFreeDomain = async (domain: string, record: string, flag = true) => {
     try {
-        const response = await axios.post('https://cf-v2.uapis.cn/delete_free_subdomain', {
-            token: userInfo?.usertoken,
+        const data = await api.v2.domain.deleteFreeSubdomain({
+            token: userInfo?.usertoken || '',
             domain: domain,
             record: record
-        }, {
-            headers: {
-                'Content-Type': 'application/json',
-            }
-        });
-        const data = response.data;
-        if (data.state === 'success') {
-            flag && message.success("免费域名删除成功")
-            return data
-        } else {
-            message.error("免费域名删除失败: " + data.msg);
-        }
+        })
+
+        flag && message.success("免费域名删除成功")
+        return data
     } catch (error) {
-        message.error('免费域名删除API请求失败:' + error);
+        message.error('免费域名删除失败: ' + (error as Error).message);
     }
     return null
 }
@@ -831,14 +812,10 @@ const apiDeleteFreeDomain = async (domain: string, record: string, flag = true) 
 // 获取免费节点详情
 const apiGetFreeNodeInfo = async () => {
     try {
-        const { data } = await axios.get(`https://cf-v2.uapis.cn/get_user_free_subdomains?token=${userInfo?.usertoken}`);
-        if (data.state === 'success') {
-            return data.data
-        } else {
-            message.error("节点详情获取失败: " + data.msg);
-        }
+        const data = await api.v2.domain.getUserFreeSubdomains(userInfo?.usertoken || '');
+        return data.data
     } catch (error) {
-        message.error('节点详情API请求失败:' + error);
+        message.error('节点详情获取失败: ' + (error as Error).message);
     }
     return null
 }
@@ -891,14 +868,10 @@ const apiUpdateFreeDomain = async (domainOld: string, recordOld: string, domain:
 // 获取节点列表
 const apiGetNodeList = async () => {
     try {
-        const { data } = await axios.get('https://cf-v2.uapis.cn/node');
-        if (data.state === 'success') {
-            return data.data
-        } else {
-            message.error("节点列表获取失败: " + data.msg);
-        }
+        const data = await api.v2.node.getNodeList();
+        return data.data
     } catch (error) {
-        message.error('节点列表API请求失败:' + error);
+        message.error("节点列表获取失败: " + (error as Error).message);
     }
     return null
 }
@@ -906,14 +879,10 @@ const apiGetNodeList = async () => {
 // 获取节点详情
 const apiGetNodeInfo = async (node: string) => {
     try {
-        const { data } = await axios.get(`https://cf-v2.uapis.cn/nodeinfo?token=${userInfo?.usertoken}&node=${node}`);
-        if (data.state === 'success') {
-            return data.data
-        } else {
-            message.error("节点详情获取失败: " + data.msg);
-        }
+        const data = await api.v2.node.getNodeInfo(userInfo?.usertoken || '', node);
+        return data.data
     } catch (error) {
-        message.error('节点详情API请求失败:' + error);
+        message.error("节点详情获取失败: " + (error as Error).message);
     }
     return null
 }
@@ -1021,7 +990,7 @@ interface Domain {
 }
 
 // 存储修改时可被选择的节点列表
-const updateNodeOptions = ref([])
+const updateNodeOptions = ref<{ label: string; value: string }[]>([]);
 
 // 获取并对应充填修改时可选择的节点列表
 const updateFetchNodeOptions = async () => {
@@ -1060,7 +1029,13 @@ const updateTypeTrig = async () => {
 const updateNodeTrig = async () => {
     const nodeDetails = await apiGetNodeInfo(formData.node)
     if (nodeDetails) {
-        NodeInfo.value = nodeDetails
+        NodeInfo.value = {
+            ...nodeDetails!,
+            udp: nodeDetails!.udp === 'true',
+            fangyu: nodeDetails!.fangyu === 'true',
+            ipv6: nodeDetails!.ipv6 || ''
+        }
+
     } else {
         message.error('获取节点详情失败, 节点可能离线, 请更换节点')
         return null
@@ -1087,13 +1062,12 @@ const updatePortTrig = () => {
 }
 
 // 用于存储域名选项的数据
-const domainNameOptions = ref([])
+const domainNameOptions = ref<{ label: string; value: string }[]>([])
 
 // 从 API 获取域名数据并将其格式化为 n-select 的选项格式
 const subDomainData = async () => {
     try {
-        const response = await axios.get('https://cf-v2.uapis.cn/list_available_domains')
-        const domains = response.data.data
+        const domains = await (await api.v2.domain.listAvailableDomains()).data
 
         domainNameOptions.value = domains.map((domain: Domain) => ({
             label: domain.domain, // 显示的域名名称
@@ -1208,8 +1182,8 @@ const createATunnel = async () => {
         : formData.domain;
 
     // 构建隧道请求体
-    const tunnelPayload: any = {
-        token: userInfo?.usertoken,
+    const tunnelPayload = {
+        token: userInfo?.usertoken || '',
         tunnelname: formData.name,
         node: formData.node,
         localip: formData.localip,
@@ -1217,45 +1191,32 @@ const createATunnel = async () => {
         localport: formData.nport,
         encryption: formData.encryption,
         compression: formData.compression,
-        extraparams: formData.ap
+        extraparams: formData.ap,
+        banddomain: isHttp ? banddomain : undefined,
+        remoteport: isHttp ? undefined : formData.dorp
     };
-
-    if (isHttp) {
-        tunnelPayload.banddomain = banddomain;
-    } else {
-        tunnelPayload.remoteport = formData.dorp;
-    }
 
     try {
         // 创建隧道
-        const tunnelRes = await axios.post('https://cf-v2.uapis.cn/create_tunnel', tunnelPayload, {
-            headers: { 'Content-Type': 'application/json' }
-        });
+        const tunnelRes = await api.v2.tunnel.createTunnel(tunnelPayload);
 
-        const tunnelData = tunnelRes.data;
+        const tunnelData = tunnelRes;
         if (tunnelData.state === 'success') {
             // 成功后才创建免费域名（如果需要）
             if (isHttp && isFreeDomain) {
                 try {
-                    const subdomainRes = await axios.post('https://cf-v2.uapis.cn/create_free_subdomain', {
-                        token: userInfo?.usertoken,
+                    await api.v2.domain.createFreeSubdomain({
+                        token: userInfo?.usertoken || '',
                         domain: formData.choose,
                         record: formData.recordValue,
                         type: "CNAME",
                         ttl: "10分钟",
                         target: NodeInfo.value.ip,
                         remarks: `解析 网站 到 ${formData.name} - ${formData.node}`
-                    }, {
-                        headers: { 'Content-Type': 'application/json' }
-                    });
-
-                    const subData = subdomainRes.data;
-                    if (subData.state !== 'success') {
-                        message.error("免费域名创建失败：" + subData.msg);
-                    }
+                    })
                 } catch (err) {
                     console.error("创建免费域名失败:", err);
-                    message.error("创建免费域名失败");
+                    message.error("创建免费域名失败: " + (err as Error).message);
                 }
                 tunnelInfoModal.value = false;
                 dialog.success({
@@ -1316,8 +1277,7 @@ const deletetTunnel = async (title: string, id: number, ttype: string, dorp: str
             message.success('成功删除隧道：' + title);
             if (ttype === 'http' || ttype === 'https') {
                 // 调用API获取用户的免费二级域名
-                fetch(`https://cf-v2.uapis.cn/get_user_free_subdomains?token=${userInfo?.usertoken}`)
-                    .then(response => response.json())  // 解析JSON响应
+                api.v2.domain.getUserFreeSubdomains(userInfo?.usertoken || '')
                     .then(data => {
                         const domainRecord = data.data.find((item: { record: string; domain: string; }) => item.record + '.' + item.domain === dorp);
                         if (domainRecord) {
@@ -1331,23 +1291,15 @@ const deletetTunnel = async (title: string, id: number, ttype: string, dorp: str
                                     loading: deletetButtonLoading.value,
                                     onPositiveClick: async () => {
                                         try {
-                                            const response = await axios.post('https://cf-v2.uapis.cn/delete_free_subdomain', {
-                                                token: userInfo?.usertoken,
+                                            await api.v2.domain.deleteFreeSubdomain({
+                                                token: userInfo?.usertoken || '',
                                                 domain: domainRecord.domain,
                                                 record: domainRecord.record
-                                            }, {
-                                                headers: {
-                                                    'Content-Type': 'application/json',
-                                                }
-                                            });
-                                            const data = response.data;
-                                            if (data.state === 'success') {
-                                                message.success("免费域名同步删除成功")
-                                            } else {
-                                                message.error("免费域名删除失败: " + data.msg);
-                                            }
+                                            })
+
+                                            message.success("免费域名同步删除成功")
                                         } catch (error) {
-                                            message.error('免费域名删除API请求失败:' + error);
+                                            message.error('免费域名失败: ' + (error as Error).message);
                                         }
                                     },
                                 });
@@ -1357,7 +1309,7 @@ const deletetTunnel = async (title: string, id: number, ttype: string, dorp: str
                     .catch(error => {
                         // 处理API调用错误
                         console.error('获取域名信息失败', error);
-                        message.error('获取域名信息失败', error);
+                        message.error('获取域名信息失败: ' + (error as Error).message);
                         formData.domainNameLabel = '自定义'; // 出现错误时设置为自定义
                     });
             }
@@ -1411,8 +1363,8 @@ const createNodes = async () => {
     addTheTunnelButtonShow.value = true // 新建隧道按钮加载
     // 加载节点列表
     try {
-        const response = await axios.get('https://cf-v2.uapis.cn/node');
-        nodeCards.value = response.data.data.map((node: NodeCard) => ({
+        const response = await api.v2.node.getNodeList();
+        nodeCards.value = response.data.map((node: NodeCard) => ({
             id: node.id, // 节点ID
             name: node.name, // 节点名
             nodegroup: node.nodegroup, // 权限组
@@ -1489,7 +1441,7 @@ const NodeInfo = ref({
     nodegroup: 'user', //节点权限组
     china: 'yes', //节点是否走国内带宽
     web: 'no', //节点是否允许web
-    ipv6: null, //节点IPV6
+    ipv6: '', //节点IPV6
     toowhite: false, //节点建站是否需要过白
     name: '', //节点名
     state: '', //节点状态
@@ -1506,14 +1458,10 @@ const handleNodeCardClick = async (card: NodeCard) => {
     nodeInfoModal.value = true;
     loadingTunnelInfo.value = true;
     try {
-        const { data } = await axios.get(`https://cf-v2.uapis.cn/nodeinfo?token=${userInfo?.usertoken}&node=${card.name}`);
-        if (data.code === 200) {
-            Object.assign(NodeInfo.value, data.data);
-        } else {
-            message.error(data.error);
-        }
+        const data = await api.v2.node.getNodeInfo(userInfo?.usertoken || '', card.name);
+        Object.assign(NodeInfo.value, data.data);
     } catch (error) {
-        message.error('节点详情API调用失败: ' + error);
+        message.error('节点详情获取失败: ' + (error as Error).message);
     } finally {
         loadingTunnelInfo.value = false;
     }
@@ -1605,16 +1553,7 @@ const tunnelCards = ref<TunnelCard[] | null>(null);
 const fetchTunnelCards = async () => {
     loadingTunnel.value = true;
     try {
-        const response = await axios.get<{ msg: string; code: number; data: TunnelCard[] }>(`https://cf-v2.uapis.cn/tunnel?token=${userInfo?.usertoken}`);
-        const { data, code, msg } = response.data;
-
-        // 判断 API 返回的状态码和消息
-        if (code !== 200) {
-            console.error(`获取隧道数据失败: ${msg}`);
-            loadingTunnel.value = false;
-            tunnelCards.value = null;
-            return;
-        }
+        const { data } = await api.v2.tunnel.getTunnelList(userInfo?.usertoken || '');
 
         // 判断 data 是否为空
         if (!data || data.length === 0) {
@@ -1645,7 +1584,10 @@ const fetchTunnelCards = async () => {
         }
     } catch (error) {
         // 错误处理逻辑
-        console.error('获取隧道列表失败', error);
+        message.error('获取隧道列表失败: ' + (error as Error).message);
+        loadingTunnel.value = false;
+        tunnelCards.value = null;
+        return;
     }
     loadingTunnel.value = false;
 };
@@ -1678,6 +1620,7 @@ const copyToClipboard = (text: string) => {
 }
 
 .mapDiv {
-    width: 100%;   height: 100%;
+    width: 100%;
+    height: 100%;
 }
 </style>

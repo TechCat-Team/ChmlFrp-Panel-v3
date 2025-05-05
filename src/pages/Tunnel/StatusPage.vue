@@ -129,7 +129,6 @@
 
 <script lang="ts" setup>
 import { LinkOutline, BarcodeOutline, ArrowUpOutline, ArrowDownOutline } from '@vicons/ionicons5'
-import axios from 'axios';
 import { useRouter } from 'vue-router';
 
 const available = ref(false)
@@ -212,9 +211,9 @@ const overallStatusMessage = ref('');
 
 const fetchUptimeData = async () => {
     try {
-        const response = await axios.get(`https://cf-v2.uapis.cn/node_uptime?time=${daysToShow.value}`);
-        if (response.data.code === 200) {
-            uptimeData.value = response.data.data;
+        const response = await api.v2.node.getNodeUptime(daysToShow.value)
+        if (response.code === 200) {
+            uptimeData.value = response.data;
 
             const dateArray = generateLast90Days();
 
@@ -278,11 +277,13 @@ const curCounts = ref(0); // 总在线隧道数
 const onlineNodes = ref(0); // 当前总在线节点
 const tunnelCounts = ref(0); //当前总在线隧道
 
+import api from '@/api'
+
 const nodeStatus = async () => {
     try {
-        const response = await axios.get('https://cf-v2.uapis.cn/node_stats');
-        if (response.data.code === 200) {
-            nodeStatusCards.value = response.data.data;
+        const response = await api.v2.node.getNodeStats();
+        if (response.code === 200) {
+            nodeStatusCards.value = response.data;
             // 节点排序
             nodeStatusCards.value.sort((a, b) => {
                 if (a.state === 'offline' && b.state !== 'offline') return 1;
@@ -297,7 +298,7 @@ const nodeStatus = async () => {
             curCounts.value = nodeStatusCards.value.reduce((sum, card) => sum + card.cur_counts, 0);
             onlineNodes.value = nodeStatusCards.value.filter(card => card.state === 'online').length;
         } else {
-            console.error('获取节点状态数据失败:', response.data.msg);
+            console.error('获取节点状态数据失败:', response.msg);
         }
     } catch (error) {
         console.error('获取节点状态API请求失败:', error);
