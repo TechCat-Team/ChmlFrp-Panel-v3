@@ -250,7 +250,12 @@
 import { useScreenStore } from '@/stores/useScreen';
 import { storeToRefs } from 'pinia';
 import { useThemeVars } from 'naive-ui';
-import * as echarts from 'echarts';
+import * as echarts from 'echarts/core';
+import { LineChart } from 'echarts/charts';
+import { TooltipComponent, LegendComponent, TitleComponent, GridComponent } from 'echarts/components';
+import { CanvasRenderer } from 'echarts/renderers';
+echarts.use([LineChart, TooltipComponent, LegendComponent, TitleComponent, GridComponent, CanvasRenderer]);
+
 import { LinkOutline, ServerOutline, ArrowUpCircleOutline, ArrowDownCircleOutline, CheckmarkCircle } from '@vicons/ionicons5';
 import axios from 'axios';
 // 根据主题自适应样式背景颜色
@@ -606,7 +611,7 @@ const updateChart = (apiData: ApiData) => {
         const trafficInMB = apiData.data.map(item => (Number(item.traffic_in) / (1024 * 1024)).toFixed(2));
         const trafficOutMB = apiData.data.map(item => (Number(item.traffic_out) / (1024 * 1024)).toFixed(2));
 
-        const option: echarts.EChartsOption = {
+        const option = {
             title: {
                 text: '流量统计',
                 textStyle: {
@@ -705,7 +710,7 @@ const updateChart = (apiData: ApiData) => {
 
         // 明暗切换时重新渲染图表
         const unwatchTheme = watch(() => styleStore.getTheme(), () => {
-            const option: echarts.EChartsOption = {
+            const option = {
                 title: {
                     text: '流量统计',
                     textStyle: {
