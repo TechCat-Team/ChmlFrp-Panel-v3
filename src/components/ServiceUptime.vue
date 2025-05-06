@@ -59,7 +59,6 @@
 import { DiamondOutline, DiceOutline } from '@vicons/ionicons5'
 import { useScreenStore } from '@/stores/useScreen';
 import { storeToRefs } from 'pinia';
-import { defineProps } from 'vue';
 import { format, subDays } from 'date-fns';
 
 const props = defineProps({

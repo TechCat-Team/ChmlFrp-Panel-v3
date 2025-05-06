@@ -50,49 +50,55 @@
         </n-h3>
         <n-grid cols="2 s:3 l:4 xl:5 2xl:6" :x-gap="12" :y-gap="12" responsive="screen">
             <n-grid-item>
-                <n-tooltip trigger="hover">
-                    <template #trigger>
-                        <n-card size="small" hoverable @click="pay('wxpay')" :disabled="!isAmountValid">
-                            <n-space align="center">
-                                <n-icon size="40" color="#07C160">
-                                    <LogoWechat />
-                                </n-icon>
-                                <span style="font-size: 24px;">微信支付</span>
-                            </n-space>
-                        </n-card>
-                    </template>
-                    点击后会直接跳转至付款页面
-                </n-tooltip>
+                <n-spin :show="loading">
+                    <n-tooltip trigger="hover">
+                        <template #trigger>
+                            <n-card size="small" hoverable @click="pay('wxpay')" :disabled="!isAmountValid">
+                                <n-space align="center">
+                                    <n-icon size="40" color="#07C160">
+                                        <LogoWechat />
+                                    </n-icon>
+                                    <span style="font-size: 24px;">微信支付</span>
+                                </n-space>
+                            </n-card>
+                        </template>
+                        点击后会直接跳转至付款页面
+                    </n-tooltip>
+                </n-spin>
             </n-grid-item>
             <n-grid-item>
-                <n-tooltip trigger="hover">
-                    <template #trigger>
-                        <n-card size="small" hoverable @click="pay('alipay')" :disabled="!isAmountValid">
-                            <n-space align="center">
-                                <n-icon size="40" color="#1677FF">
-                                    <LogoAlipay />
-                                </n-icon>
-                                <span style="font-size: 24px;">支付宝</span>
-                            </n-space>
-                        </n-card>
-                    </template>
-                    点击后会直接跳转至付款页面
-                </n-tooltip>
+                <n-spin :show="loading">
+                    <n-tooltip trigger="hover">
+                        <template #trigger>
+                            <n-card size="small" hoverable @click="pay('alipay')" :disabled="!isAmountValid">
+                                <n-space align="center">
+                                    <n-icon size="40" color="#1677FF">
+                                        <LogoAlipay />
+                                    </n-icon>
+                                    <span style="font-size: 24px;">支付宝</span>
+                                </n-space>
+                            </n-card>
+                        </template>
+                        点击后会直接跳转至付款页面
+                    </n-tooltip>
+                </n-spin>
             </n-grid-item>
             <n-grid-item>
-                <n-tooltip trigger="hover">
-                    <template #trigger>
-                        <n-card size="small" hoverable @click="pay('qqpay')" :disabled="!isAmountValid">
-                            <n-space align="center">
-                                <n-icon size="40" color="#12B7F5">
-                                    <Qq />
-                                </n-icon>
-                                <span style="font-size: 24px;">QQ支付</span>
-                            </n-space>
-                        </n-card>
-                    </template>
-                    点击后会直接跳转至付款页面
-                </n-tooltip>
+                <n-spin :show="loading">
+                    <n-tooltip trigger="hover">
+                        <template #trigger>
+                            <n-card size="small" hoverable @click="pay('qqpay')" :disabled="!isAmountValid">
+                                <n-space align="center">
+                                    <n-icon size="40" color="#12B7F5">
+                                        <Qq />
+                                    </n-icon>
+                                    <span style="font-size: 24px;">QQ支付</span>
+                                </n-space>
+                            </n-card>
+                        </template>
+                        点击后会直接跳转至付款页面
+                    </n-tooltip>
+                </n-spin>
             </n-grid-item>
         </n-grid>
     </n-card>
@@ -108,6 +114,7 @@ import { useLoadUserInfo } from '@/components/useLoadUser';
 // 获取登录信息
 import { useUserStore } from '@/stores/user';
 import { useRoute, useRouter } from 'vue-router';
+import axios from 'axios';
 
 const route = useRoute()
 const router = useRouter()
@@ -138,6 +145,8 @@ onMounted(() => {
 
 const userStore = useUserStore();
 const userInfo = userStore.userInfo;
+
+const loading = ref(false);
 
 // 预设金额配置
 const presetAmounts = [
@@ -197,7 +206,7 @@ const validateAmount = () => {
 }
 
 // 支付函数
-const pay = (type: 'wxpay' | 'alipay' | 'qqpay') => {
+const pay = async (ttype: 'wxpay' | 'alipay' | 'qqpay') => {
     const amount = parseInt(customAmount.value) || 3
     if (amount < 3) {
         message.error('金额最少为3元')
@@ -209,11 +218,32 @@ const pay = (type: 'wxpay' | 'alipay' | 'qqpay') => {
     }
 
     const currentFullUrl = window.location.href
-    const paymentUrl = `https://cf-v1.uapis.cn/api/cz.php?name=积分充值&type=${type}&usertoken=${userInfo?.usertoken}&money=${amount}&return=${currentFullUrl}`
 
-    // 跳转到支付API
-    window.location.href = paymentUrl
-}
+    loading.value = true;
+    try {
+        const response = await axios.get('https://cf-v1.uapis.cn/api/pay.php', {
+            params: {
+                usertoken: userInfo?.usertoken,
+                name: '积分充值',
+                type: ttype,
+                money: amount,
+                return: currentFullUrl
+            }
+        });
+        const data = response.data;
+        if (data?.success === true) {
+            // 跳转到支付API
+            message.success('获取付款链接成功，正在跳转至支付页面，请稍等。');
+            window.location.href = data.url
+        } else {
+            message.error(data?.message);
+        }
+    } catch (error) {
+        console.error('购买请求失败:', error);
+        message.error('购买请求异常，请检查网络或稍后再试');
+    }
+    loading.value = false;
+};
 </script>
 
 <style lang="scss">

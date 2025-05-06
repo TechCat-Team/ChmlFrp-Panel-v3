@@ -4,7 +4,7 @@
     "module": "esnext",
     "strict": true,
     "jsx": "preserve",
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "experimentalDecorators": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
@@ -12,11 +12,11 @@
     "forceConsistentCasingInFileNames": true,
     "useDefineForClassFields": true,
     "sourceMap": true,
+    "isolatedModules": true,
     "baseUrl": ".",
     "types": [
-      "webpack-env",
-      "jest",
-      "./src/auto-imports.d.ts"
+      "./src/auto-imports.d.ts",
+      "vite/client"
     ],
     "paths": {
       "@/*": [
@@ -28,7 +28,10 @@
       "dom",
       "dom.iterable",
       "scripthost"
-    ]
+    ],
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true
   },
   "include": [
     "src/**/*.ts",
@@ -36,7 +39,9 @@
     "src/**/*.d.ts",
     "src/**/*.vue",
     "tests/**/*.ts",
-    "tests/**/*.tsx"
+    "tests/**/*.tsx",
+    "vite.config.ts",
+    "env.d.ts"
   ],
   "exclude": [
     "node_modules"

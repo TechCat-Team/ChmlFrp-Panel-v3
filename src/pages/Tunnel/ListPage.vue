@@ -705,6 +705,7 @@ const editTunnel = (card: TunnelCard) => {
                     fangyu: res.fangyu === 'true',
                     ipv6: res.ipv6 || ''
                 }
+                return res;
             }
             else {
                 message.error('获取节点详情失败, 节点可能离线, 请稍后再试')
@@ -1186,72 +1187,77 @@ const generateRandomTunnelName = () => {
 const createATunnel = async () => {
     loadingCreateTunnel.value = true;
 
-    // 生成 banddomain（仅当使用免费域名时用）
-    const isHttp = formData.type === 'HTTP' || formData.type === 'HTTPS';
-    const isFreeDomain = formData.domainNameLabel === "免费域名";
-    const banddomain = isFreeDomain && isHttp
-        ? `${formData.recordValue}.${formData.choose}`
-        : formData.domain;
+    if (formData.nport !== 0) {
 
-    // 构建隧道请求体
-    const tunnelPayload = {
-        token: userInfo?.usertoken || '',
-        tunnelname: formData.name,
-        node: formData.node,
-        localip: formData.localip,
-        porttype: formData.type,
-        localport: formData.nport,
-        encryption: formData.encryption,
-        compression: formData.compression,
-        extraparams: formData.ap,
-        banddomain: isHttp ? banddomain : undefined,
-        remoteport: isHttp ? undefined : formData.dorp
-    };
+        // 生成 banddomain（仅当使用免费域名时用）
+        const isHttp = formData.type === 'HTTP' || formData.type === 'HTTPS';
+        const isFreeDomain = formData.domainNameLabel === "免费域名";
+        const banddomain = isFreeDomain && isHttp
+            ? `${formData.recordValue}.${formData.choose}`
+            : formData.domain;
 
-    try {
-        // 创建隧道
-        const tunnelRes = await api.v2.tunnel.createTunnel(tunnelPayload);
+        // 构建隧道请求体
+        const tunnelPayload = {
+            token: userInfo?.usertoken || '',
+            tunnelname: formData.name,
+            node: formData.node,
+            localip: formData.localip,
+            porttype: formData.type,
+            localport: formData.nport,
+            encryption: formData.encryption,
+            compression: formData.compression,
+            extraparams: formData.ap,
+            banddomain: isHttp ? banddomain : undefined,
+            remoteport: isHttp ? undefined : formData.dorp
+        };
 
-        const tunnelData = tunnelRes;
-        if (tunnelData.state === 'success') {
-            // 成功后才创建免费域名（如果需要）
-            if (isHttp && isFreeDomain) {
-                try {
-                    await api.v2.domain.createFreeSubdomain({
-                        token: userInfo?.usertoken || '',
-                        domain: formData.choose,
-                        record: formData.recordValue,
-                        type: "CNAME",
-                        ttl: "10分钟",
-                        target: NodeInfo.value.ip,
-                        remarks: `解析 网站 到 ${formData.name} - ${formData.node}`
-                    })
-                } catch (err) {
-                    console.error("创建免费域名失败:", err);
-                    message.error("创建免费域名失败: " + (err as Error).message);
-                }
-                tunnelInfoModal.value = false;
-                dialog.success({
-                    title: '成功',
-                    content: '隧道创建成功！但是您使用了ChmlFrp提供的免费域名，域名解析通常不会立即生效，一般10分钟左右生效，最长需48小时。',
-                    positiveText: '我知道了',
-                    onPositiveClick: () => {
-                        message.success("隧道创建成功！");
-                        fetchTunnelCards();
+        try {
+            // 创建隧道
+            const tunnelRes = await api.v2.tunnel.createTunnel(tunnelPayload);
+
+            const tunnelData = tunnelRes;
+            if (tunnelData.state === 'success') {
+                // 成功后才创建免费域名（如果需要）
+                if (isHttp && isFreeDomain) {
+                    try {
+                        await api.v2.domain.createFreeSubdomain({
+                            token: userInfo?.usertoken || '',
+                            domain: formData.choose,
+                            record: formData.recordValue,
+                            type: "CNAME",
+                            ttl: "10分钟",
+                            target: NodeInfo.value.ip,
+                            remarks: `解析 网站 到 ${formData.name} - ${formData.node}`
+                        })
+                    } catch (err) {
+                        console.error("创建免费域名失败:", err);
+                        message.error("创建免费域名失败: " + (err as Error).message);
                     }
-                });
+                    tunnelInfoModal.value = false;
+                    dialog.success({
+                        title: '成功',
+                        content: '隧道创建成功！但是您使用了ChmlFrp提供的免费域名，域名解析通常不会立即生效，一般10分钟左右生效，最长需48小时。',
+                        positiveText: '我知道了',
+                        onPositiveClick: () => {
+                            message.success("隧道创建成功！");
+                            fetchTunnelCards();
+                        }
+                    });
+                } else {
+                    tunnelInfoModal.value = false;
+                    message.success("隧道创建成功！");
+                    fetchTunnelCards();
+                }
             } else {
-                tunnelInfoModal.value = false;
-                message.success("隧道创建成功！");
-                fetchTunnelCards();
+                message.error(tunnelData.msg);
+                console.error('隧道创建失败:', tunnelData.msg);
             }
-        } else {
-            message.error(tunnelData.msg);
-            console.error('隧道创建失败:', tunnelData.msg);
+        } catch (err) {
+            console.error("隧道创建API调用失败:", err);
+            message.error("隧道创建API调用失败");
         }
-    } catch (err) {
-        console.error("隧道创建API调用失败:", err);
-        message.error("隧道创建API调用失败");
+    } else {
+        message.error("内网端口不能为0，请填写实际项目端口");
     }
 
     loadingCreateTunnel.value = false;

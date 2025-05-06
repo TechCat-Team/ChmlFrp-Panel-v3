@@ -240,9 +240,9 @@
             <template #footer>
                 <n-flex justify="end">
                     <n-button strong secondary size="small" @click="showModal = false">取消</n-button>
-                    <n-button type="warning" size="small" @click="handlePay('qq')">QQ</n-button>
-                    <n-button type="success" size="small" @click="handlePay('wechat')">微信</n-button>
-                    <n-button type="info" size="small" @click="handlePay('alipay')">支付宝</n-button>
+                    <n-button :loading="loadingzf" :disabled="loadingzf" type="warning" size="small" @click="handlePay('qq')">QQ</n-button>
+                    <n-button :loading="loadingzf" :disabled="loadingzf" type="success" size="small" @click="handlePay('wechat')">微信</n-button>
+                    <n-button :loading="loadingzf" :disabled="loadingzf" type="info" size="small" @click="handlePay('alipay')">支付宝</n-button>
                 </n-flex>
             </template>
         </n-card>
@@ -409,6 +409,7 @@ const upgradeOption = ref('');
 const currentPoints = userInfo?.integral || 0;
 const showModal = ref(false);
 const loading = ref(false);
+const loadingzf = ref(false);
 
 const route = useRoute()
 const router = useRouter()
@@ -477,7 +478,6 @@ function canPurchase(target: string): boolean {
 
 const targetGroup = ref('')
 const payAmount = ref(0)
-const payLink = ref('')
 
 // 判断是否为临时会员（非免费用户但 term 不是永久）
 const isTemporaryUser = computed(() => {
@@ -508,16 +508,35 @@ function openUpgradeModal(group: string) {
         return
     }
 
-    const currentFullUrl = window.location.href
-    // 默认生成支付宝支付链接
-    payLink.value = `https://cf-v1.uapis.cn/api/cz.php?name=永久会员购买&type=alipay&usertoken=${userInfo?.usertoken}&money=${payAmount.value}&return=${currentFullUrl}`
     showModal.value = true
 }
 
-function handlePay(type: string) {
+async function handlePay(ttype: string) {
     const currentFullUrl = window.location.href
-    const url = `https://cf-v1.uapis.cn/api/cz.php?name=永久会员购买&type=${type}&usertoken=${userInfo?.usertoken}&money=${payAmount.value}&return=${currentFullUrl}`
-    window.location.href = url
+    loadingzf.value = true;
+    try {
+        const response = await axios.get('https://cf-v1.uapis.cn/api/pay.php', {
+            params: {
+                usertoken: userInfo?.usertoken,
+                name: '永久会员购买',
+                type: ttype,
+                money: payAmount.value,
+                return: currentFullUrl
+            }
+        });
+        const data = response.data;
+        if (data?.success === true) {
+            // 跳转到支付API
+            message.success('获取付款链接成功，正在跳转至支付页面，请稍等。');
+            window.location.href = data.url
+        } else {
+            message.error(data?.message);
+        }
+    } catch (error) {
+        console.error('购买请求失败:', error);
+        message.error('购买请求异常，请检查网络或稍后再试');
+    }
+    loadingzf.value = false;
 }
 
 // 定义基础月费类型
