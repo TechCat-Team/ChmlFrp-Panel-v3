@@ -120,7 +120,7 @@
                         </n-descriptions-item>
                         <n-descriptions-item label="防御">
                             <n-skeleton v-if="loadingTunnelInfo" width="60.65px" height="28px" round />
-                            <n-tooltip v-else-if="NodeInfo.fangyu" trigger="hover">
+                            <n-tooltip v-else-if="NodeInfo.fangyu === true" trigger="hover">
                                 <template #trigger>
                                     <n-tag round type="success">
                                         有防御
