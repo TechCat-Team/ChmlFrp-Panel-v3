@@ -116,7 +116,7 @@
                     </n-alert>
                     <n-alert v-if="userInfo?.realname === '未实名'" title="您尚未实名" style="margin-bottom: 10px"
                         type="warning" @click="goToUserPage">
-                        不实名则无法使用ChmlFrp提供的服务，点击此提示可前往个人中心实名，我们允许未成年实名。
+                        根据相关法律规定，不实名则无法使用ChmlFrp提供的服务，点击此提示可前往个人中心免费实名，我们允许未成年实名。
                     </n-alert>
                     <n-alert title="提示" type="info" style="margin-bottom: 10px">
                         如果这里没有您想了解的，可以前往
@@ -127,12 +127,16 @@
                     </n-alert>
                     <n-flex style="margin-top: 20px">
                         <n-button style="border-radius: 5px" tertiary type="primary"
-                            @click="GoToQqGroup('https://qm.qq.com/q/ip5zGz1f9K')">
-                            QQ交流群一群
+                            @click="GoToQqGroup('https://qm.qq.com/q/ip5zGz1f9K', 992067118)">
+                            QQ一群
                         </n-button>
                         <n-button style="border-radius: 5px" tertiary type="primary"
-                            @click="GoToQqGroup('https://qm.qq.com/q/MJ0aeYCi8S')">
-                            QQ交流群二群
+                            @click="GoToQqGroup('https://qm.qq.com/q/MJ0aeYCi8S', 592908249)">
+                            QQ二群
+                        </n-button>
+                        <n-button style="border-radius: 5px" tertiary type="primary"
+                            @click="GoToQqGroup('https://qm.qq.com/q/l5LAQEDAVq', 838521529)">
+                            QQ三群
                         </n-button>
                     </n-flex>
                 </n-card>
@@ -144,15 +148,15 @@
                                     使用chmlfrp映射远程桌面、数据库等，映射后会暴露在公网环境。您应该注意您的数据安全，设置安全的密码。因此类问题造成的锁机·重要文件被盗，我们概不负责。
                                 </n-p>
                                 <n-p>
-                                    除此之外，您需要注意不要泄露TOKEN，如果不小心泄露，请立刻重置TOKEN。
+                                    除此之外，您需要注意不要泄露TOKEN，如果不小心泄露，请立刻前往个人资料页重置TOKEN。
                                 </n-p>
                             </div>
                         </n-collapse-item>
                         <n-collapse-item title="关于实名" name="2">
                             <div>
-                                实名认证接口对接阿里云二要素接口。允许未成年认证，但是请不要使用非本人身份证。
+                                实名认证接口对接聚美智数二要素接口。允许未成年认证，但是请不要使用非本人身份证。
                                 <br />
-                                如果实名认证接口出现实名认证失败等问题请加入交流群联系群主。或发送邮件至chaoji@chcat.cn
+                                如果实名认证接口出现实名认证失败等问题请加入交流群反馈。或发送邮件至chaoji@chcat.cn
                             </div>
                         </n-collapse-item>
                         <n-collapse-item title="延迟问题" name="3">
@@ -189,11 +193,31 @@
                         </n-collapse-item>
                         <n-collapse-item title="信息安全" name="7">
                             <div>
-                                我们会保存用户的实名信息及用户数据，但是留存的用户数据全部采用业内标准的加密格式
+                                根据《网络安全法》第二十一条、《数据安全法》第二十七条及《个人信息保护法》第十三条规定，作为端口映射服务提供方，我们需依法采取以下措施：
+                                <br /><br />
+                                <strong>【数据存储】</strong><br />
+                                • 实名信息：采用国家密码局认证的SM2算法（256位密钥）加密存储，以满足《网络安全法》第二十四条实名制要求<br />
+                                • 密码信息：通过Bcrypt算法加密（16字符盐值），无法反向解密。<br />
                                 <br />
-                                实名信息采用AES 256 CBC加密。密码信息通过Bcrypt加密
+                                <strong>【数据使用】</strong><br />
+                                您的数据仅用于：<br />
+                                1. 保障ChmlFrp服务的正常运行及故障排查<br />
+                                2. 在您同意的情况下，披露给其他产品或第三方。<br />
+                                3. 履行《网络安全法》规定的违法内容追溯义务<br />
+                                4. 配合有权机关依法调取（需出示正式法律文书）<br />
                                 <br />
-                                我们承诺不会泄露用户的任何信息，也不会拿用户的信息开玩笑。
+                                <strong>【特别提示】</strong><br />
+                                根据《网络数据安全管理条例》，若您的端口映射行为涉及：<br />
+                                • 色情政治等违法违规内容<br />
+                                • 提供VPN代理服务<br />
+                                • 其他法律法规禁止的情形<br />
+                                我们有权暂停服务并依法报告监管部门。
+                                <br /><br />
+                                <p>您有权：<br>
+                                    • 通过 <a href="mailto:chaoji@chcat.cn">chaoji@chcat.cn</a> 申请数据访问<br>
+                                    • 在账户设置中直接注销账号<br>
+                                    • 随时撤回第三方共享授权
+                                </p>
                             </div>
                         </n-collapse-item>
                         <n-collapse-item title="禁止内容" name="8">
@@ -539,34 +563,17 @@ const signIn = async (geetestResult: GeetestResult) => {
 };
 
 // 前往QQ群提示群规、提问准则
-const GoToQqGroup = (Link: string) => {
+const GoToQqGroup = (Link: string, qq: number) => {
     dialog.warning({
         title: '警告',
-        content: 'QQ交流群提问前请一定要看群规，第二次违反规定将被禁言30天。',
+        content: '进群提问题之前，一定要携带完整的报错、截图。例如Frpc运行截图，配置文件、隧道截图。并且请给Token打码。如果无法跳转加入QQ群，请通过此群号进入：' + qq,
         positiveText: '我知道了',
         negativeText: '取消',
         onPositiveClick: () => {
-            knew(Link)
-        },
-    })
-}
-
-// 您真的知道了吗？
-const knew = (Link: string) => {
-    dialog.warning({
-        title: '警告',
-        content: '您真的知道了吗？',
-        positiveText: '知道了',
-        negativeText: '再看一眼',
-        onPositiveClick: () => {
             window.open(Link, '_blank');
         },
-        onNegativeClick: () => {
-            GoToQqGroup(Link)
-        }
     })
 }
-
 
 // ECharts
 const themeVars = useThemeVars();
