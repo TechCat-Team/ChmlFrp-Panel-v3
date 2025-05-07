@@ -9,43 +9,46 @@
     "build": "vite build",
     "preview": "vite preview"
   },
+  "packageManager": "pnpm@8.6.0",
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=8.0.0"
+  },
   "dependencies": {
-    "@types/three": "^0.165.0",
-    "@vicons/fa": "^0.12.0",
-    "@vicons/ionicons5": "^0.12.0",
-    "@vueuse/core": "^10.9.0",
-    "axios": "^1.7.4",
-    "core-js": "^3.8.3",
+    "@types/three": "^0.176.0",
+    "@vicons/fa": "^0.13.0",
+    "@vicons/ionicons5": "^0.13.0",
+    "@vueuse/core": "^13.1.0",
+    "axios": "^1.9.0",
+    "core-js": "^3.42.0",
     "crypto-js": "^4.2.0",
     "date-fns": "^4.1.0",
     "dayjs": "^1.11.13",
-    "echarts": "^5.5.0",
-    "highlight.js": "^11.9.0",
-    "naive-ui": "^2.38.2",
-    "pinia": "^2.1.7",
-    "skinview3d": "^3.0.1",
-    "three": "^0.165.0",
+    "echarts": "^5.6.0",
+    "highlight.js": "^11.11.1",
+    "naive-ui": "^2.41.0",
+    "pinia": "^3.0.2",
+    "skinview3d": "^3.4.1",
+    "three": "^0.176.0",
     "vfonts": "^0.0.3",
-    "vue": "^3.2.13",
-    "vue-class-component": "^8.0.0-0",
-    "vue-router": "^4.0.3"
+    "vue": "^3.5.13",
+    "vue-router": "^4.5.1"
   },
   "devDependencies": {
     "@types/crypto-js": "^4.2.2",
-    "@types/echarts": "^4.9.22",
     "@types/node": "^22.15.12",
     "@typescript-eslint/eslint-plugin": "^8.32.0",
     "@typescript-eslint/parser": "^8.32.0",
     "@vitejs/plugin-vue": "^5.2.3",
-    "@vue/eslint-config-typescript": "^9.1.0",
+    "@vue/eslint-config-typescript": "^14.5.0",
     "eslint": "^9.26.0",
-    "eslint-import-resolver-webpack": "^0.13.8",
-    "eslint-plugin-vue": "^8.0.3",
-    "sass": "^1.32.7",
-    "sass-loader": "^12.0.0",
-    "typescript": "~4.5.5",
-    "unplugin-auto-import": "^0.17.6",
-    "unplugin-vue-components": "^0.27.0",
+    "eslint-import-resolver-webpack": "^0.13.10",
+    "eslint-plugin-vue": "^10.1.0",
+    "sass": "^1.87.0",
+    "sass-loader": "^16.0.5",
+    "typescript": "~5.8.3",
+    "unplugin-auto-import": "^19.2.0",
+    "unplugin-vue-components": "^28.5.0",
     "vite": "^6.3.5"
   },
   "eslintConfig": {
@@ -62,7 +65,7 @@
       "import/resolver": {
         "typescript": {}
       }
-    },    
+    },
     "parserOptions": {
       "ecmaVersion": 2020,
       "sourceType": "module"
