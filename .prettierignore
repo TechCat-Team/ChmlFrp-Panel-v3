@@ -1,0 +1,4 @@
+# Ignore auto-generated files
+.eslintrc-auto-import.json
+components.d.ts
+auto-imports.d.ts
