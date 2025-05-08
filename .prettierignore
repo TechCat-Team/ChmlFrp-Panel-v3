@@ -2,3 +2,5 @@
 .eslintrc-auto-import.json
 components.d.ts
 auto-imports.d.ts
+pnpm-lock.yaml
+package.json
