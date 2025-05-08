@@ -1075,6 +1075,16 @@ const determineTheChangeOfTheTunnel = async () => {
         loadingEditTunnel.value = false;
         return null;
     }
+    if (formData.domainNameLabel === '自定义' && formData.domain === '') {
+        message.error('请输入域名');
+        loadingEditTunnel.value = false;
+        return null;
+    }
+    if (formData.domainNameLabel === '免费域名' && (formData.choose === '' || formData.recordValue === '')) {
+        message.error('请选择并填写免费域名');
+        loadingEditTunnel.value = false;
+        return null;
+    }
 
     // HTTP 或 HTTPS 隧道
     if (formData.type === 'HTTP' || formData.type === 'HTTPS') {
@@ -1248,6 +1258,11 @@ const updateNodeTrig = async () => {
         return null;
     }
 
+    // 更新免费域名可选项
+    if (formData.domainNameLabel === '免费域名') {
+        subDomainData();
+    }
+
     // 检查现在的填写值是否合规
     updatePortTrig();
 
@@ -1277,10 +1292,29 @@ const subDomainData = async () => {
     try {
         const domains = (await api.v2.domain.listAvailableDomains()).data;
 
-        domainNameOptions.value = domains.map((domain: Domain) => ({
-            label: domain.domain, // 显示的域名名称
-            value: domain.domain, // 选项的值
-        }));
+        // 境内节点过滤掉无备案的域名，此处由于返回缺乏绝对判据，暂时使用国内节点滤除港澳台处理
+        domainNameOptions.value = domains
+            .filter(
+                (domain: Domain) =>
+                    NodeInfo.value.china !== 'yes' ||
+                    ['香港', '澳门', '台湾'].some((region) => NodeInfo.value.area.includes(region)) ||
+                    domain.icpFiling
+            )
+            .map((domain: Domain) => ({
+                label: domain.domain, // 显示的域名名称
+                value: domain.domain, // 选项的值
+            }));
+
+        formData.choose = formData.chooseOld;
+        // 如果当前选中的域名不在可选列表中，则清空选中值
+        if (!domainNameOptions.value.some((option: { value: string }) => option.value === formData.choose)) {
+            formData.choose = '';
+        }
+
+        // 如果当前节点没有可选的域名，给出提示
+        if (domainNameOptions.value.length === 0) {
+            message.error('当前节点没有可用的免费域名，请更换节点或使用自定义域名');
+        }
     } catch (error) {
         message.error('获取域名数据失败: ' + (error as Error).message);
     }
