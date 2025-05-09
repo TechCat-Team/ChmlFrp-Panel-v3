@@ -1331,10 +1331,6 @@ const subDomainData = async () => {
             }));
 
         formData.choose = formData.chooseOld;
-        // 如果当前选中的域名不在可选列表中，则清空选中值
-        if (!domainNameOptions.value.some((option: { value: string }) => option.value === formData.choose)) {
-            formData.choose = '';
-        }
 
         // 如果当前节点没有可选的域名，给出提示
         if (domainNameOptions.value.length === 0) {
@@ -1345,14 +1341,25 @@ const subDomainData = async () => {
                     '当前节点是境内节点或特殊节点，不 可以使用 未备案 的免费域名，请更换节点或使用 已经备案的自定义域名',
                 positiveText: '好的马上改',
                 onPositiveClick: () => {
-                    formData.domainNameLabel = '自定义';
-                    formData.domain = '';
+                    if (editTunnelModal.value) {
+                        formData.node = formData.nodeOld;
+                    } else if (tunnelInfoModal.value) {
+                        formData.domainNameLabel = '自定义';
+                        formData.domain = '';
+                    }
                 },
                 onClose: () => {
-                    formData.domainNameLabel = '自定义';
-                    formData.domain = '';
+                    if (editTunnelModal.value) {
+                        formData.node = formData.nodeOld;
+                    } else if (tunnelInfoModal.value) {
+                        formData.domainNameLabel = '自定义';
+                        formData.domain = '';
+                    }
                 },
             });
+        } else if (!domainNameOptions.value.some((option: { value: string }) => option.value === formData.choose)) {
+            // 如果当前选中的域名不在可选列表中，则清空选中值
+            formData.choose = '';
         }
     } catch (error) {
         message.error('获取域名数据失败: ' + (error as Error).message);
