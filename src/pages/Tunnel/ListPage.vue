@@ -323,6 +323,7 @@
                                 v-model:value="formData.domainNameLabel"
                                 :options="domainTypeOptions"
                                 placeholder="请选择域名类型"
+                                @update:value="updateDomainTypeTrig"
                             />
                         </n-form-item>
                         <n-form-item v-else label="外网端口" path="dorp">
@@ -390,7 +391,9 @@
             </n-row>
             <template #footer>
                 <n-flex justify="end">
-                    <n-button @click="generateRandomPort">随机外网端口</n-button>
+                    <n-button v-if="formData.type === 'TCP' || formData.type === 'UDP'" @click="generateRandomPort"
+                        >随机外网端口</n-button
+                    >
                     <n-button @click="generateRandomTunnelName">随机隧道名</n-button>
                     <n-button @click="tunnelInfoModal = false">取消</n-button>
                     <n-button @click="createATunnelUp">上一步</n-button>
@@ -489,6 +492,7 @@
                                 v-model:value="formData.domainNameLabel"
                                 :options="domainTypeOptions"
                                 placeholder="请选择域名类型"
+                                @update:value="updateDomainTypeTrig"
                             />
                         </n-form-item>
                         <n-form-item v-else label="外网端口" path="dorp">
@@ -1075,15 +1079,27 @@ const determineTheChangeOfTheTunnel = async () => {
         loadingEditTunnel.value = false;
         return null;
     }
-    if (formData.domainNameLabel === '自定义' && formData.domain === '') {
-        message.error('请输入域名');
-        loadingEditTunnel.value = false;
-        return null;
-    }
-    if (formData.domainNameLabel === '免费域名' && (formData.choose === '' || formData.recordValue === '')) {
-        message.error('请选择并填写免费域名');
-        loadingEditTunnel.value = false;
-        return null;
+    if (formData.type === 'TCP' || formData.type === 'UDP') {
+        const minPort = parseInt(NodeInfo.value.rport.split('-')[0]) || 10000;
+        const maxPort = parseInt(NodeInfo.value.rport.split('-')[1]) || 65535;
+        if (formData.dorp < minPort || formData.dorp > maxPort) {
+            message.error(`外网端口必须在 ${minPort} 到 ${maxPort} 之间`);
+            return null;
+        }
+    } else {
+        if (formData.domainNameLabel === '') {
+            message.error('请选择域名类型');
+            loadingEditTunnel.value = false;
+            return null;
+        } else if (formData.domainNameLabel === '自定义' && formData.domain === '') {
+            message.error('请输入域名');
+            loadingEditTunnel.value = false;
+            return null;
+        } else if (formData.domainNameLabel === '免费域名' && (formData.choose === '' || formData.recordValue === '')) {
+            message.error('请选择并填写免费域名');
+            loadingEditTunnel.value = false;
+            return null;
+        }
     }
 
     // HTTP 或 HTTPS 隧道
@@ -1269,6 +1285,15 @@ const updateNodeTrig = async () => {
     return null;
 };
 
+// 更换域名类型触发
+const updateDomainTypeTrig = () => {
+    if (formData.domainNameLabel === '自定义') {
+        formData.domain = '';
+    } else if (formData.domainNameLabel === '免费域名') {
+        subDomainData();
+    }
+};
+
 // 填写端口检查
 const updatePortTrig = () => {
     if (formData.type === 'TCP' || formData.type === 'UDP') {
@@ -1313,7 +1338,21 @@ const subDomainData = async () => {
 
         // 如果当前节点没有可选的域名，给出提示
         if (domainNameOptions.value.length === 0) {
-            message.error('当前节点没有可用的免费域名，请更换节点或使用自定义域名');
+            // 整个大的提示框
+            dialog.error({
+                title: '此节点没有可选的免费域名',
+                content:
+                    '当前节点是境内节点或特殊节点，不 可以使用 未备案 的免费域名，请更换节点或使用 已经备案的自定义域名',
+                positiveText: '好的马上改',
+                onPositiveClick: () => {
+                    formData.domainNameLabel = '自定义';
+                    formData.domain = '';
+                },
+                onClose: () => {
+                    formData.domainNameLabel = '自定义';
+                    formData.domain = '';
+                },
+            });
         }
     } catch (error) {
         message.error('获取域名数据失败: ' + (error as Error).message);
@@ -1422,6 +1461,32 @@ const createATunnel = async () => {
             return null;
         }
 
+        if (formData.type === 'TCP' || formData.type === 'UDP') {
+            const minPort = parseInt(NodeInfo.value.rport.split('-')[0]) || 10000;
+            const maxPort = parseInt(NodeInfo.value.rport.split('-')[1]) || 65535;
+            if (formData.dorp < minPort || formData.dorp > maxPort) {
+                message.error(`外网端口必须在 ${minPort} 到 ${maxPort} 之间`);
+                return null;
+            }
+        } else {
+            if (formData.domainNameLabel === '') {
+                message.error('请选择域名类型');
+                loadingEditTunnel.value = false;
+                return null;
+            } else if (formData.domainNameLabel === '自定义' && formData.domain === '') {
+                message.error('请输入域名');
+                loadingEditTunnel.value = false;
+                return null;
+            } else if (
+                formData.domainNameLabel === '免费域名' &&
+                (formData.choose === '' || formData.recordValue === '')
+            ) {
+                message.error('请选择并填写免费域名');
+                loadingEditTunnel.value = false;
+                return null;
+            }
+        }
+
         // 生成 banddomain（仅当使用免费域名时用）
         const isHttp = formData.type === 'HTTP' || formData.type === 'HTTPS';
         const isFreeDomain = formData.domainNameLabel === '免费域名';
@@ -1442,15 +1507,7 @@ const createATunnel = async () => {
             remoteport: isHttp ? undefined : formData.dorp,
         };
 
-        // 创建隧道
-        try {
-            await api.v2.tunnel.createTunnel(tunnelPayload);
-        } catch (error) {
-            message.error('隧道创建失败: ' + (error as Error).message);
-            return null;
-        }
-
-        // 成功后才创建免费域名（如果需要）
+        // 尝试创建免费域名（如果需要）
         if (isHttp && isFreeDomain) {
             try {
                 await api.v2.domain.createFreeSubdomain({
@@ -1466,23 +1523,43 @@ const createATunnel = async () => {
                 message.error('创建免费域名失败: ' + (error as Error).message);
                 return null;
             }
+        }
 
-            tunnelInfoModal.value = false;
+        // 创建隧道
+        try {
+            await api.v2.tunnel.createTunnel(tunnelPayload);
+        } catch (error) {
+            message.error('隧道创建失败: ' + (error as Error).message);
+
+            // 如果是免费域名进行回退
+            if (isHttp && isFreeDomain) {
+                try {
+                    await api.v2.domain.deleteFreeSubdomain({
+                        token: userInfo?.usertoken || '',
+                        domain: formData.choose,
+                        record: formData.recordValue,
+                    });
+                } catch (error) {
+                    message.error('回溯失败，请自行删除已创建的免费域名记录: ' + (error as Error).message);
+                }
+            }
+
+            return null;
+        }
+
+        tunnelInfoModal.value = false;
+
+        if (isHttp && isFreeDomain) {
             dialog.success({
                 title: '成功',
                 content:
                     '隧道创建成功！但是您使用了ChmlFrp提供的免费域名，域名解析通常不会立即生效，一般10分钟左右生效，最长需48小时。',
                 positiveText: '我知道了',
-                onPositiveClick: () => {
-                    message.success('隧道创建成功！');
-                    fetchTunnelCards();
-                },
             });
-        } else {
-            tunnelInfoModal.value = false;
-            message.success('隧道创建成功！');
-            fetchTunnelCards();
         }
+
+        message.success('隧道创建成功！');
+        fetchTunnelCards();
     } finally {
         loadingCreateTunnel.value = false;
     }
@@ -1767,7 +1844,9 @@ const goToTheTunnelDetails = () => {
     formData.node = NodeInfo.value.name;
     generateRandomPort();
     generateRandomTunnelName();
-    subDomainData();
+    if (formData.domainNameLabel === '免费域名') {
+        subDomainData();
+    }
 };
 
 // 监听 filters 变化，并保存到本地存储
