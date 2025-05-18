@@ -595,6 +595,11 @@
             </n-button>
         </template>
     </n-card>
+    <!-- 提示隧道状态显示并不准确 -->
+    <n-alert type="info" style="margin-bottom: 12px">
+        隧道状态监测并不准确，可能会出现隧道已停止但状态为在线，或者隧道已运行但状态为离线的情况，请以实际客户端回显状态为准。<br />
+        如果显示为节点已永久下线，请编辑隧道，更换节点。
+    </n-alert>
     <n-grid v-if="!loadingTunnel" cols="1 m:2 l:3 xl:4 2xl:5" :x-gap="12" :y-gap="12" responsive="screen">
         <n-grid-item v-for="(card, index) in tunnelCards" :key="index">
             <n-card size="small">
@@ -1915,8 +1920,11 @@ const fetchTunnelCards = async () => {
                 if (card.nodestate === 'online') {
                     status =
                         card.state === 'true' ? { type: 'success', label: '在线' } : { type: 'warning', label: '离线' };
+                } else if (card.ip === '') {
+                    // 节点已经永久移除
+                    status = { type: 'error', label: '节点已永久下线 请编辑更换' };
                 } else if (card.nodestate === 'offline') {
-                    status = { type: 'error', label: '维护' };
+                    status = { type: 'warning', label: '节点掉线 请稍后再试' };
                 }
 
                 // 设置 tags
