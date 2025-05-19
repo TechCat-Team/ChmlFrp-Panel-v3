@@ -1,6 +1,5 @@
 {
   "dependencies": {
-    "@types/three": "^0.176.0",
     "@vicons/fa": "^0.13.0",
     "@vicons/ionicons5": "^0.13.0",
     "@vueuse/core": "^13.1.0",
@@ -14,7 +13,6 @@
     "naive-ui": "^2.41.0",
     "pinia": "^3.0.2",
     "skinview3d": "^3.4.1",
-    "three": "^0.176.0",
     "vfonts": "^0.0.3",
     "vue": "^3.5.13",
     "vue-router": "^4.5.1"
@@ -38,5 +36,5 @@
     "vite": "^6.3.5"
   },
   "version": "0.1.6",
-  "buildTime": "2025/05/07 23:36:11"
+  "buildTime": "2025/05/19 10:53:23"
 }
