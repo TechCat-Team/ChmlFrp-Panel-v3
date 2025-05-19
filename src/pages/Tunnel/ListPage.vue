@@ -48,7 +48,7 @@
                             :type="filters.region === 'china' ? 'primary' : 'default'"
                             @click="filterRegion('china')"
                         >
-                            境内
+                            国内
                         </n-button>
                         <n-button
                             round
@@ -1761,7 +1761,10 @@ const filteredNodeCards = computed(() => {
             filters.value.region === 'all' ||
             (filters.value.region === 'china' && node.china === 'yes') ||
             (filters.value.region === 'overseas' &&
-                (node.china === 'no' || node.area.includes('香港') || node.area.includes('台湾')));
+                (node.china === 'no' ||
+                    node.area.includes('香港') ||
+                    node.area.includes('澳门') ||
+                    node.area.includes('台湾')));
 
         return matchUdp && matchNoPermission && matchWeb && matchRegion;
     });
