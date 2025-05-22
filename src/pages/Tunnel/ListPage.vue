@@ -48,7 +48,7 @@
                             :type="filters.region === 'china' ? 'primary' : 'default'"
                             @click="filterRegion('china')"
                         >
-                            境内
+                            国内
                         </n-button>
                         <n-button
                             round
@@ -595,6 +595,11 @@
             </n-button>
         </template>
     </n-card>
+    <!-- 提示隧道状态显示并不准确 -->
+    <n-alert type="info" style="margin-bottom: 12px">
+        隧道状态监测并不准确，可能会出现隧道已停止但状态为在线，或者隧道已运行但状态为离线的情况，请以实际客户端回显状态为准。<br />
+        如果显示为节点已永久下线，请编辑隧道，更换节点。
+    </n-alert>
     <n-grid v-if="!loadingTunnel" cols="1 m:2 l:3 xl:4 2xl:5" :x-gap="12" :y-gap="12" responsive="screen">
         <n-grid-item v-for="(card, index) in tunnelCards" :key="index">
             <n-card size="small">
@@ -603,9 +608,14 @@
                     <span style="color: gray; font-size: 14px">{{ card.id }}</span>
                 </template>
                 <template #header-extra>
-                    <n-tag round :bordered="false" :type="card.status?.type">
-                        {{ card.status?.label }}
-                    </n-tag>
+                    <n-tooltip trigger="hover">
+                        <template #trigger>
+                            <n-tag round :bordered="false" :type="card.status?.type">
+                                {{ card.status?.label }}
+                            </n-tag>
+                        </template>
+                        {{ card.status?.description }}
+                    </n-tooltip>
                 </template>
                 <n-thing content-style="margin-top: 10px;">
                     <template #description>
@@ -1756,7 +1766,10 @@ const filteredNodeCards = computed(() => {
             filters.value.region === 'all' ||
             (filters.value.region === 'china' && node.china === 'yes') ||
             (filters.value.region === 'overseas' &&
-                (node.china === 'no' || node.area.includes('香港') || node.area.includes('台湾')));
+                (node.china === 'no' ||
+                    node.area.includes('香港') ||
+                    node.area.includes('澳门') ||
+                    node.area.includes('台湾')));
 
         return matchUdp && matchNoPermission && matchWeb && matchRegion;
     });
@@ -1909,14 +1922,19 @@ const fetchTunnelCards = async () => {
         } else {
             // 映射数据并设置状态和标签
             tunnelCards.value = data.map((card) => {
-                let status: Status = { type: 'error', label: '维护' };
+                let status: Status = { type: 'error', label: '维护', description: '节点维护中' };
 
                 // 根据节点状态设置状态
                 if (card.nodestate === 'online') {
                     status =
-                        card.state === 'true' ? { type: 'success', label: '在线' } : { type: 'warning', label: '离线' };
+                        card.state === 'true'
+                            ? { type: 'success', label: '在线', description: '隧道在线 一切正常' }
+                            : { type: 'warning', label: '离线', description: '隧道离线 请检查客户端是否正常启动' };
+                } else if (card.ip === '') {
+                    // 节点已经永久移除
+                    status = { type: 'default', label: '永久下线', description: '节点已永久下线 请编辑更换' };
                 } else if (card.nodestate === 'offline') {
-                    status = { type: 'error', label: '维护' };
+                    status = { type: 'error', label: '节点掉线', description: '节点掉线 请稍后再试' };
                 }
 
                 // 设置 tags
