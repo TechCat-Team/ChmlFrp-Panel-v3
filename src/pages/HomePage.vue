@@ -658,216 +658,149 @@ interface ApiData {
     data: ApiDataItem[];
 }
 
+const chartDomRef = ref<HTMLElement | null>(null);
+let myChart: echarts.ECharts | null = null;
+let unwatchTheme: (() => void) | null = null;
+let resizeHandler: (() => void) | null = null;
+
+const getChartOption = (apiData: ApiData, reverse: boolean) => {
+    const times = apiData.data.map((item) => item.time);
+    const trafficInMB = apiData.data.map((item) => (Number(item.traffic_in) / (1024 * 1024)).toFixed(2));
+    const trafficOutMB = apiData.data.map((item) => (Number(item.traffic_out) / (1024 * 1024)).toFixed(2));
+
+    const textColor = reverse
+        ? themeVars.value.textColorBase === '#000'
+            ? '#fff'
+            : '#000'
+        : themeVars.value.textColorBase;
+
+    return {
+        title: {
+            text: '流量统计',
+            textStyle: {
+                color: textColor,
+            },
+        },
+        tooltip: {
+            trigger: 'axis',
+        },
+        legend: {
+            textStyle: {
+                color: textColor,
+            },
+        },
+        xAxis: {
+            type: 'category',
+            boundaryGap: false,
+            data: times,
+            axisLabel: {
+                color: textColor,
+            },
+        },
+        yAxis: {
+            type: 'value',
+            axisLabel: {
+                formatter: '{value} MB',
+                color: textColor,
+            },
+        },
+        series: [
+            {
+                name: '上传',
+                type: 'line',
+                data: trafficOutMB,
+                stack: 'Total',
+                smooth: true,
+                lineStyle: {
+                    width: 0,
+                },
+                showSymbol: false,
+                areaStyle: {
+                    opacity: 0.8,
+                    color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                        {
+                            offset: 0,
+                            color: 'rgb(0, 221, 255)',
+                        },
+                        {
+                            offset: 1,
+                            color: 'rgb(77, 119, 255)',
+                        },
+                    ]),
+                },
+                emphasis: {
+                    focus: 'series',
+                },
+            },
+            {
+                name: '下载',
+                type: 'line',
+                data: trafficInMB,
+                stack: 'Total',
+                smooth: true,
+                lineStyle: {
+                    width: 0,
+                },
+                showSymbol: false,
+                areaStyle: {
+                    opacity: 0.8,
+                    color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                        {
+                            offset: 0,
+                            color: 'rgb(128, 255, 165)',
+                        },
+                        {
+                            offset: 1,
+                            color: 'rgb(1, 191, 236)',
+                        },
+                    ]),
+                },
+                emphasis: {
+                    focus: 'series',
+                },
+            },
+        ],
+    };
+};
+
 const updateChart = (apiData: ApiData) => {
     const chartDom = document.getElementById('main');
     if (chartDom) {
-        const myChart = echarts.init(chartDom);
+        if (myChart) {
+            myChart.dispose();
+        }
 
-        // 将 API 返回的数据单位从字节转换为 MB
-        const times = apiData.data.map((item) => item.time);
-        const trafficInMB = apiData.data.map((item) => (Number(item.traffic_in) / (1024 * 1024)).toFixed(2));
-        const trafficOutMB = apiData.data.map((item) => (Number(item.traffic_out) / (1024 * 1024)).toFixed(2));
-
-        const option = {
-            title: {
-                text: '流量统计',
-                textStyle: {
-                    color: themeVars.value.textColorBase,
-                },
-            },
-            tooltip: {
-                trigger: 'axis',
-            },
-            legend: {
-                textStyle: {
-                    color: themeVars.value.textColorBase,
-                },
-            },
-            xAxis: {
-                type: 'category',
-                boundaryGap: false,
-                data: times,
-                axisLabel: {
-                    color: themeVars.value.textColorBase,
-                },
-            },
-            yAxis: {
-                type: 'value',
-                axisLabel: {
-                    formatter: '{value} MB',
-                    color: themeVars.value.textColorBase,
-                },
-            },
-            series: [
-                {
-                    name: '上传',
-                    type: 'line',
-                    data: trafficOutMB,
-                    stack: 'Total',
-                    smooth: true,
-                    lineStyle: {
-                        width: 0,
-                    },
-                    showSymbol: false,
-                    areaStyle: {
-                        opacity: 0.8,
-                        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-                            {
-                                offset: 0,
-                                color: 'rgb(0, 221, 255)',
-                            },
-                            {
-                                offset: 1,
-                                color: 'rgb(77, 119, 255)',
-                            },
-                        ]),
-                    },
-                    emphasis: {
-                        focus: 'series',
-                    },
-                },
-                {
-                    name: '下载',
-                    type: 'line',
-                    data: trafficInMB,
-                    stack: 'Total',
-                    smooth: true,
-                    lineStyle: {
-                        width: 0,
-                    },
-                    showSymbol: false,
-                    areaStyle: {
-                        opacity: 0.8,
-                        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-                            {
-                                offset: 0,
-                                color: 'rgb(128, 255, 165)',
-                            },
-                            {
-                                offset: 1,
-                                color: 'rgb(1, 191, 236)',
-                            },
-                        ]),
-                    },
-                    emphasis: {
-                        focus: 'series',
-                    },
-                },
-            ],
-        };
-
+        myChart = echarts.init(chartDom);
+        let option = getChartOption(apiData, false);
         myChart.setOption(option);
 
         // 添加窗口大小变化监听器
-        const resizeHandler = () => {
-            myChart.resize();
-        };
-        window.addEventListener('resize', resizeHandler);
+        if (!resizeHandler) {
+            resizeHandler = () => {
+                myChart && myChart.resize();
+            };
+            window.addEventListener('resize', resizeHandler);
+        }
 
         // 明暗切换时重新渲染图表
-        const unwatchTheme = watch(
-            () => styleStore.getTheme(),
-            () => {
-                const option = {
-                    title: {
-                        text: '流量统计',
-                        textStyle: {
-                            color: themeVars.value.textColorBase,
-                        },
-                    },
-                    tooltip: {
-                        trigger: 'axis',
-                    },
-                    legend: {
-                        textStyle: {
-                            color: themeVars.value.textColorBase,
-                        },
-                    },
-                    xAxis: {
-                        type: 'category',
-                        boundaryGap: false,
-                        data: times,
-                        axisLabel: {
-                            color: themeVars.value.textColorBase,
-                        },
-                    },
-                    yAxis: {
-                        type: 'value',
-                        axisLabel: {
-                            formatter: '{value} MB',
-                            color: themeVars.value.textColorBase,
-                        },
-                    },
-                    series: [
-                        {
-                            name: '上传',
-                            type: 'line',
-                            data: trafficOutMB,
-                            stack: 'Total',
-                            smooth: true,
-                            lineStyle: {
-                                width: 0,
-                            },
-                            showSymbol: false,
-                            areaStyle: {
-                                opacity: 0.8,
-                                color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-                                    {
-                                        offset: 0,
-                                        color: 'rgb(0, 221, 255)',
-                                    },
-                                    {
-                                        offset: 1,
-                                        color: 'rgb(77, 119, 255)',
-                                    },
-                                ]),
-                            },
-                            emphasis: {
-                                focus: 'series',
-                            },
-                        },
-                        {
-                            name: '下载',
-                            type: 'line',
-                            data: trafficInMB,
-                            stack: 'Total',
-                            smooth: true,
-                            lineStyle: {
-                                width: 0,
-                            },
-                            showSymbol: false,
-                            areaStyle: {
-                                opacity: 0.8,
-                                color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-                                    {
-                                        offset: 0,
-                                        color: 'rgb(128, 255, 165)',
-                                    },
-                                    {
-                                        offset: 1,
-                                        color: 'rgb(1, 191, 236)',
-                                    },
-                                ]),
-                            },
-                            emphasis: {
-                                focus: 'series',
-                            },
-                        },
-                    ],
-                };
-
-                myChart.setOption(option);
-            }
-        );
-
-        // 在组件卸载时清理事件监听器和观察者
-        onUnmounted(() => {
-            window.removeEventListener('resize', resizeHandler);
-            unwatchTheme();
-            myChart.dispose();
-        });
+        if (!unwatchTheme) {
+            unwatchTheme = watch(
+                () => styleStore.getTheme(),
+                () => {
+                    option = getChartOption(apiData, true);
+                    myChart && myChart.setOption(option, true);
+                }
+            );
+        }
     } else {
         console.error('[首页]找不到id为“main”(流量统计面积折线图)的元素。');
     }
 };
+
+// 在组件卸载时清理事件监听器和观察者
+onUnmounted(() => {
+    if (resizeHandler) window.removeEventListener('resize', resizeHandler);
+    if (unwatchTheme) unwatchTheme();
+    if (myChart) myChart.dispose();
+});
 </script>
