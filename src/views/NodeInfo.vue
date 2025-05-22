@@ -39,9 +39,7 @@
                                             <n-descriptions-item label="核数">
                                                 <n-tooltip trigger="hover">
                                                     <template #trigger>
-                                                        {{
-                                                            apiResponse?.data.node_details.num_cores
-                                                        }}
+                                                        {{ apiResponse?.data.node_details.num_cores }}
                                                     </template>
                                                     CPU的核心数量
                                                 </n-tooltip>
@@ -49,49 +47,53 @@
                                             <n-descriptions-item label="空闲">
                                                 <n-tooltip trigger="hover">
                                                     <template #trigger>
-                                                        {{ latestStatus ? (100 - latestStatus.cpu_usage).toFixed(2) :
-                                                            'N/A' }}%
+                                                        {{
+                                                            latestStatus
+                                                                ? (100 - latestStatus.cpu_usage).toFixed(2)
+                                                                : 'N/A'
+                                                        }}%
                                                     </template>
                                                     CPU剩余占用百分比
                                                 </n-tooltip>
                                             </n-descriptions-item>
-                                            <n-descriptions-item label="运行时间">{{
-                                                apiResponse?.data.node_details.uptime_seconds
-                                                    ? Math.ceil(apiResponse.data.node_details.uptime_seconds / 86400)
-                                                    : 'N/A'
-                                            }}天
+                                            <n-descriptions-item label="运行时间"
+                                                >{{
+                                                    apiResponse?.data.node_details.uptime_seconds
+                                                        ? Math.ceil(
+                                                              apiResponse.data.node_details.uptime_seconds / 86400
+                                                          )
+                                                        : 'N/A'
+                                                }}天
                                             </n-descriptions-item>
                                             <n-descriptions-item label="负荷">
                                                 <n-tooltip trigger="hover">
                                                     <template #trigger>
-                                                        {{
-                                                            apiResponse?.data.node_details.load1
-                                                        }},{{
-                                                            apiResponse?.data.node_details.load5 }},{{
-                                                            apiResponse?.data.node_details.load15
-                                                        }}
+                                                        {{ apiResponse?.data.node_details.load1 }},{{
+                                                            apiResponse?.data.node_details.load5
+                                                        }},{{ apiResponse?.data.node_details.load15 }}
                                                     </template>
                                                     近1分钟、5分钟、15分钟的负荷
                                                 </n-tooltip>
                                             </n-descriptions-item>
                                         </n-descriptions>
                                     </n-grid-item>
-                                    <n-grid-item span="1"
-                                        style="display: flex; justify-content: center; align-items: center;">
-                                        <n-progress style="width: 40px; height: 40px;" type="multiple-circle"
-                                            :stroke-width="10" :circle-gap="1" :percentage="[
-                                                percentage,
-                                                (percentage + 4) % 100,
-                                                (percentage + 10) % 100,
-                                            ]" :color="[
+                                    <n-grid-item
+                                        span="1"
+                                        style="display: flex; justify-content: center; align-items: center"
+                                    >
+                                        <n-progress
+                                            style="width: 40px; height: 40px"
+                                            type="multiple-circle"
+                                            :stroke-width="10"
+                                            :circle-gap="1"
+                                            :percentage="[percentage, (percentage + 4) % 100, (percentage + 10) % 100]"
+                                            :color="[
                                                 'var(--success-color)',
                                                 'var(--success-color)',
                                                 'var(--success-color)',
-                                            ]" :rail-style="[
-                                                { opacity: 0.6 },
-                                                { opacity: 0.6 },
-                                                { opacity: 0.6 },
-                                            ]">
+                                            ]"
+                                            :rail-style="[{ opacity: 0.6 }, { opacity: 0.6 }, { opacity: 0.6 }]"
+                                        >
                                         </n-progress>
                                     </n-grid-item>
                                 </n-grid>
@@ -103,27 +105,36 @@
                             <n-grid cols="4" item-responsive responsive="screen">
                                 <n-grid-item span="3">
                                     <n-descriptions :column="3">
-                                        <n-descriptions-item label="可用内存">{{
-                                            formatBytes(apiResponse?.data.node_details.memory_total).value }}
+                                        <n-descriptions-item label="可用内存"
+                                            >{{ formatBytes(apiResponse?.data.node_details.memory_total).value }}
                                             {{
                                                 formatBytes(apiResponse?.data.node_details.memory_total).suffix
-                                            }}</n-descriptions-item>
-                                        <n-descriptions-item v-if="latestStatus" label="已用内存">{{
-                                            formatBytes(latestStatus?.memory_used).value }} {{
-                                                formatBytes(latestStatus?.memory_used).suffix }}</n-descriptions-item>
-                                        <n-descriptions-item v-if="latestStatus" label="页面缓存">{{
-                                            formatBytes(latestStatus?.page_tables).value }} {{
-                                                formatBytes(latestStatus?.page_tables).suffix }}</n-descriptions-item>
+                                            }}</n-descriptions-item
+                                        >
+                                        <n-descriptions-item v-if="latestStatus" label="已用内存"
+                                            >{{ formatBytes(latestStatus?.memory_used).value }}
+                                            {{ formatBytes(latestStatus?.memory_used).suffix }}</n-descriptions-item
+                                        >
+                                        <n-descriptions-item v-if="latestStatus" label="页面缓存"
+                                            >{{ formatBytes(latestStatus?.page_tables).value }}
+                                            {{ formatBytes(latestStatus?.page_tables).suffix }}</n-descriptions-item
+                                        >
                                     </n-descriptions>
                                 </n-grid-item>
                                 <n-grid-item span="1">
-                                    <n-grid-item span="1"
-                                        style="display: flex; justify-content: center; align-items: center;">
-                                        <n-progress v-if="latestStatus" style="width: 50px; height: 50px;" type="circle"
-                                            :stroke-width="15" :circle-gap="1" :percentage="memoryUsedPercentage"
-                                            :rail-style="[
-                                                { opacity: 0.6 },
-                                            ]">
+                                    <n-grid-item
+                                        span="1"
+                                        style="display: flex; justify-content: center; align-items: center"
+                                    >
+                                        <n-progress
+                                            v-if="latestStatus"
+                                            style="width: 50px; height: 50px"
+                                            type="circle"
+                                            :stroke-width="15"
+                                            :circle-gap="1"
+                                            :percentage="memoryUsedPercentage"
+                                            :rail-style="[{ opacity: 0.6 }]"
+                                        >
                                             <div style="text-align: center; font-size: 8px">
                                                 {{ memoryUsedPercentage.toFixed(1) }}%
                                             </div>
@@ -135,39 +146,47 @@
                             <n-grid cols="4" item-responsive responsive="screen">
                                 <n-grid-item span="3">
                                     <n-descriptions :column="4">
-                                        <n-descriptions-item label="所有储存">{{
-                                            formatBytes(apiResponse?.data.node_details.storage_total).value }}
+                                        <n-descriptions-item label="所有储存"
+                                            >{{ formatBytes(apiResponse?.data.node_details.storage_total).value }}
                                             {{
                                                 formatBytes(apiResponse?.data.node_details.storage_total).suffix
-                                            }}</n-descriptions-item>
-                                        <n-descriptions-item label="已用储存">{{
-                                            formatBytes(apiResponse?.data.node_details.storage_used).value }}
+                                            }}</n-descriptions-item
+                                        >
+                                        <n-descriptions-item label="已用储存"
+                                            >{{ formatBytes(apiResponse?.data.node_details.storage_used).value }}
                                             {{
                                                 formatBytes(apiResponse?.data.node_details.storage_used).suffix
-                                            }}</n-descriptions-item>
+                                            }}</n-descriptions-item
+                                        >
                                         <n-descriptions-item label="剩余储存">
                                             {{
                                                 formatBytes(
                                                     (apiResponse?.data.node_details.storage_total || 0) -
-                                                    (apiResponse?.data.node_details.storage_used || 0)
+                                                        (apiResponse?.data.node_details.storage_used || 0)
                                                 ).value
                                             }}
                                             {{
                                                 formatBytes(
                                                     (apiResponse?.data.node_details.storage_total || 0) -
-                                                    (apiResponse?.data.node_details.storage_used || 0)
+                                                        (apiResponse?.data.node_details.storage_used || 0)
                                                 ).suffix
                                             }}
                                         </n-descriptions-item>
                                     </n-descriptions>
                                 </n-grid-item>
                                 <n-grid-item span="1">
-                                    <n-grid-item span="1"
-                                        style="display: flex; justify-content: center; align-items: center;">
-                                        <n-progress style="width: 50px; height: 50px;" type="circle" :stroke-width="15"
-                                            :circle-gap="1" :percentage="storageUsedPercentage" :rail-style="[
-                                                { opacity: 0.6 },
-                                            ]">
+                                    <n-grid-item
+                                        span="1"
+                                        style="display: flex; justify-content: center; align-items: center"
+                                    >
+                                        <n-progress
+                                            style="width: 50px; height: 50px"
+                                            type="circle"
+                                            :stroke-width="15"
+                                            :circle-gap="1"
+                                            :percentage="storageUsedPercentage"
+                                            :rail-style="[{ opacity: 0.6 }]"
+                                        >
                                             <div style="text-align: center; font-size: 8px">
                                                 {{ storageUsedPercentage.toFixed(1) }}%
                                             </div>
@@ -202,10 +221,12 @@
                                             <n-tooltip trigger="hover">
                                                 <template #trigger>
                                                     {{
-                                                        formatBytes(apiResponse?.data.node_details.total_traffic_out).value
+                                                        formatBytes(apiResponse?.data.node_details.total_traffic_out)
+                                                            .value
                                                     }}
                                                     {{
-                                                        formatBytes(apiResponse?.data.node_details.total_traffic_out).suffix
+                                                        formatBytes(apiResponse?.data.node_details.total_traffic_out)
+                                                            .suffix
                                                     }}
                                                 </template>
                                                 今日上传总流量(有较大误差)
@@ -215,10 +236,12 @@
                                             <n-tooltip trigger="hover">
                                                 <template #trigger>
                                                     {{
-                                                        formatBytes(apiResponse?.data.node_details.total_traffic_in).value
+                                                        formatBytes(apiResponse?.data.node_details.total_traffic_in)
+                                                            .value
                                                     }}
                                                     {{
-                                                        formatBytes(apiResponse?.data.node_details.total_traffic_in).suffix
+                                                        formatBytes(apiResponse?.data.node_details.total_traffic_in)
+                                                            .suffix
                                                     }}
                                                 </template>
                                                 今日下载总流量(有较大误差)
@@ -230,30 +253,45 @@
                             <n-divider />
                             <n-descriptions :column="4">
                                 <n-descriptions-item label="发送数据">
-                                    {{ latestStatus ? (latestStatus.sent_packets / 100000000).toFixed(2) + '亿' : 'N/A'
+                                    {{
+                                        latestStatus ? (latestStatus.sent_packets / 100000000).toFixed(2) + '亿' : 'N/A'
                                     }}
                                 </n-descriptions-item>
                                 <n-descriptions-item label="接收数据">
-                                    {{ latestStatus ? (latestStatus.recv_packets / 100000000).toFixed(2) + '亿' : 'N/A'
+                                    {{
+                                        latestStatus ? (latestStatus.recv_packets / 100000000).toFixed(2) + '亿' : 'N/A'
                                     }}
                                 </n-descriptions-item>
 
-                                <n-descriptions-item label="被动连接">{{ latestStatus?.passive_conn }}</n-descriptions-item>
-                                <n-descriptions-item label="活跃连接">{{ latestStatus?.active_conn }}</n-descriptions-item>
+                                <n-descriptions-item label="被动连接">{{
+                                    latestStatus?.passive_conn
+                                }}</n-descriptions-item>
+                                <n-descriptions-item label="活跃连接">{{
+                                    latestStatus?.active_conn
+                                }}</n-descriptions-item>
                             </n-descriptions>
                         </n-card>
                     </n-grid-item>
                     <n-grid-item :span="2">
                         <n-card>
-                            <n-skeleton v-if="loadingNodeMap" text style="width: 100%; margin-top: 16px"
-                                height="500px" />
-                            <MapComponent v-else style="margin-top: 16px" :width="'100%'" :height="'500px'"
-                                :markers="markers" />
+                            <n-skeleton
+                                v-if="loadingNodeMap"
+                                text
+                                style="width: 100%; margin-top: 16px"
+                                height="500px"
+                            />
+                            <MapComponent
+                                v-else
+                                style="margin-top: 16px"
+                                :width="'100%'"
+                                :height="'500px'"
+                                :markers="markers"
+                            />
                         </n-card>
                     </n-grid-item>
                     <n-grid-item>
                         <n-card style="height: 556px">
-                            <div id="frp-chart" style="width: 100%; height: 400px;"></div>
+                            <div id="frp-chart" style="width: 100%; height: 400px"></div>
                             <n-descriptions label-placement="top">
                                 <n-descriptions-item label="FRP版本">
                                     {{ apiResponse?.data.node_details.version }}
@@ -269,42 +307,42 @@
                     </n-grid-item>
                     <n-grid-item>
                         <n-card>
-                            <div id="network-chart" style="width: 100%; height: 400px;"></div>
+                            <div id="network-chart" style="width: 100%; height: 400px"></div>
                         </n-card>
                     </n-grid-item>
                     <n-grid-item>
                         <n-card>
-                            <div id="cpu-chart" style="width: 100%; height: 400px;"></div>
+                            <div id="cpu-chart" style="width: 100%; height: 400px"></div>
                         </n-card>
                     </n-grid-item>
                     <n-grid-item>
                         <n-card>
-                            <div id="memory-chart" style="width: 100%; height: 400px;"></div>
+                            <div id="memory-chart" style="width: 100%; height: 400px"></div>
                         </n-card>
                     </n-grid-item>
                     <n-grid-item>
                         <n-card>
-                            <div id="proxy-chart" style="width: 100%; height: 400px;"></div>
+                            <div id="proxy-chart" style="width: 100%; height: 400px"></div>
                         </n-card>
                     </n-grid-item>
                     <n-grid-item>
                         <n-card>
-                            <div id="cur-conns-chart" style="width: 100%; height: 400px;"></div>
+                            <div id="cur-conns-chart" style="width: 100%; height: 400px"></div>
                         </n-card>
                     </n-grid-item>
                     <n-grid-item>
                         <n-card>
-                            <div id="client-counts-chart" style="width: 100%; height: 400px;"></div>
+                            <div id="client-counts-chart" style="width: 100%; height: 400px"></div>
                         </n-card>
                     </n-grid-item>
                     <n-grid-item>
                         <n-card>
-                            <div id="packets-chart" style="width: 100%; height: 400px;"></div>
+                            <div id="packets-chart" style="width: 100%; height: 400px"></div>
                         </n-card>
                     </n-grid-item>
                     <n-grid-item>
                         <n-card>
-                            <div id="conn-chart" style="width: 100%; height: 400px;"></div>
+                            <div id="conn-chart" style="width: 100%; height: 400px"></div>
                         </n-card>
                     </n-grid-item>
                 </n-grid>
@@ -317,11 +355,27 @@
 import axios from 'axios';
 
 import * as echarts from 'echarts/core';
-import { LineChart } from 'echarts/charts';
-import { TooltipComponent, GridComponent } from 'echarts/components';
+import { LineChart, PieChart } from 'echarts/charts';
+import {
+    TooltipComponent,
+    GridComponent,
+    LegendComponent,
+    VisualMapComponent,
+    TitleComponent,
+    DataZoomComponent,
+} from 'echarts/components';
 import { CanvasRenderer } from 'echarts/renderers';
-echarts.use([LineChart, TooltipComponent, GridComponent, CanvasRenderer]);
-
+echarts.use([
+    LineChart,
+    PieChart,
+    TooltipComponent,
+    GridComponent,
+    LegendComponent,
+    VisualMapComponent,
+    TitleComponent,
+    DataZoomComponent,
+    CanvasRenderer,
+]);
 import { useThemeVars } from 'naive-ui';
 import { useRoute } from 'vue-router';
 
@@ -406,24 +460,25 @@ interface ApiResponse {
 const apiResponse = ref<ApiResponse | null>(null);
 const markers = ref<{ position: number[]; title: string }[]>([
     { position: [102.22092, 31.90059], title: '我的位置' },
-    { position: [116.407428, 39.91923], title: '节点位置' }
+    { position: [116.407428, 39.91923], title: '节点位置' },
 ]);
 
 const latestStatus = ref<Status | null>(null); // 初始化为 null
 
-import api from '@/api'
+import api from '@/api';
 
 const fetchNodeData = async () => {
     try {
-        const response = await api.v2.node.getNodeStatusInfo(node as string)
+        const response = await api.v2.node.getNodeStatusInfo(node as string);
         if (response.code === 200) {
             apiResponse.value = response;
             await handleTabChange();
 
             // 排序状态列表并获取最新状态
-            const sortedStatusList = apiResponse.value?.data.status_list?.slice().sort((a, b) => {
-                return new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime();
-            }) || [];
+            const sortedStatusList =
+                apiResponse.value?.data.status_list?.slice().sort((a, b) => {
+                    return new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime();
+                }) || [];
 
             latestStatus.value = sortedStatusList[0] || null; // 直接获取最新状态
 
@@ -441,7 +496,7 @@ const fetchNodeData = async () => {
 const handleTabChange = async () => {
     loadingNodeMap.value = true;
     try {
-        const response = await axios.get('https://api.uapis.cn/localaddr');
+        const response = await axios.get('https://uapis.cn/api/myip.php', { timeout: 5000 });
         const { latitude, longitude } = response.data;
         markers.value[0] = { position: [longitude, latitude], title: '我的位置' };
 
@@ -505,12 +560,13 @@ const updateCharts = () => {
     const connChart = echarts.init(connDom);
     var connOption;
 
-    const sortedStatusList = apiResponse.value?.data.status_list?.slice().sort((a, b) => {
-        return new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime(); // 降序排序
-    }) || [];
+    const sortedStatusList =
+        apiResponse.value?.data.status_list?.slice().sort((a, b) => {
+            return new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime(); // 降序排序
+        }) || [];
 
     function bytesToGB(bytes: number): number {
-        return bytes / (1024 ** 3);
+        return bytes / 1024 ** 3;
     }
 
     const latestStatus = sortedStatusList[0];
@@ -518,73 +574,73 @@ const updateCharts = () => {
     // 如果 latestStatus 存在，则提取隧道类型数据
     const tunnelTypeData = latestStatus
         ? {
-            TCP: latestStatus.proxy_tcp,
-            UDP: latestStatus.proxy_udp,
-            HTTP: latestStatus.proxy_http,
-            HTTPS: latestStatus.proxy_https
-        }
+              TCP: latestStatus.proxy_tcp,
+              UDP: latestStatus.proxy_udp,
+              HTTP: latestStatus.proxy_http,
+              HTTPS: latestStatus.proxy_https,
+          }
         : { TCP: 0, UDP: 0, HTTP: 0, HTTPS: 0 };
 
-
     // 提取CPU占用数据
-    const cpuData = sortedStatusList?.map(status => {
-        return [formatTimestamp(status.timestamp), status.cpu_usage.toFixed(2)];
-    }) || [];
+    const cpuData =
+        sortedStatusList?.map((status) => {
+            return [formatTimestamp(status.timestamp), status.cpu_usage.toFixed(2)];
+        }) || [];
 
-    const CPUDateList = cpuData.map(item => item[0]);
-    const cpuValueList = cpuData.map(item => item[1]);
+    const CPUDateList = cpuData.map((item) => item[0]);
+    const cpuValueList = cpuData.map((item) => item[1]);
 
     // 提取网络数据
     const networkData = sortedStatusList || [];
-    const networkDateList = networkData.map(status => formatTimestamp(status.timestamp));
-    const uploadValueList = networkData.map(status => status.upload_bandwidth_usage_percent);
-    const downloadValueList = networkData.map(status => status.download_bandwidth_usage_percent);
+    const networkDateList = networkData.map((status) => formatTimestamp(status.timestamp));
+    const uploadValueList = networkData.map((status) => status.upload_bandwidth_usage_percent);
+    const downloadValueList = networkData.map((status) => status.download_bandwidth_usage_percent);
 
     // 提取内存占用数据
     const memoryData = sortedStatusList || [];
-    const memoryDateList = memoryData.map(status => formatTimestamp(status.timestamp));
-    const memoryValueList = memoryData.map(status => bytesToGB(status.memory_used).toFixed(2));
+    const memoryDateList = memoryData.map((status) => formatTimestamp(status.timestamp));
+    const memoryValueList = memoryData.map((status) => bytesToGB(status.memory_used).toFixed(2));
 
     // 提取映射端口数据
     const proxyData = sortedStatusList || [];
-    const proxyDateList = proxyData.map(status => formatTimestamp(status.timestamp));
-    const proxyTcpValueList = proxyData.map(status => status.proxy_tcp);
-    const proxyUdpValueList = proxyData.map(status => status.proxy_udp);
-    const proxyHttpValueList = proxyData.map(status => status.proxy_http);
-    const proxyHttpsValueList = proxyData.map(status => status.proxy_https);
+    const proxyDateList = proxyData.map((status) => formatTimestamp(status.timestamp));
+    const proxyTcpValueList = proxyData.map((status) => status.proxy_tcp);
+    const proxyUdpValueList = proxyData.map((status) => status.proxy_udp);
+    const proxyHttpValueList = proxyData.map((status) => status.proxy_http);
+    const proxyHttpsValueList = proxyData.map((status) => status.proxy_https);
 
     // 提取映射客户端数量数据
     const clientCountsData = sortedStatusList || [];
-    const clientCountsDateList = clientCountsData.map(status => formatTimestamp(status.timestamp));
-    const clientCountsValueList = clientCountsData.map(status => status.client_counts);
+    const clientCountsDateList = clientCountsData.map((status) => formatTimestamp(status.timestamp));
+    const clientCountsValueList = clientCountsData.map((status) => status.client_counts);
 
     // 提取映射连接数量数据
     const curCountsData = sortedStatusList || [];
-    const curCountsDateList = curCountsData.map(status => formatTimestamp(status.timestamp));
-    const curCountsValueList = curCountsData.map(status => status.cur_conns);
+    const curCountsDateList = curCountsData.map((status) => formatTimestamp(status.timestamp));
+    const curCountsValueList = curCountsData.map((status) => status.cur_conns);
 
     // 提取发送、接收数据包数量数据
     const packetsData = sortedStatusList || [];
-    const packetsDateList = packetsData.map(status => formatTimestamp(status.timestamp));
-    const sentPacketsValueList = packetsData.map(status => status.sent_packets);
-    const recvPacketsValueList = packetsData.map(status => status.recv_packets);
+    const packetsDateList = packetsData.map((status) => formatTimestamp(status.timestamp));
+    const sentPacketsValueList = packetsData.map((status) => status.sent_packets);
+    const recvPacketsValueList = packetsData.map((status) => status.recv_packets);
 
     // 提取活跃、被动连接数数量数据
     const connData = sortedStatusList || [];
-    const connDateList = connData.map(status => formatTimestamp(status.timestamp));
-    const activeConnValueList = connData.map(status => status.active_conn);
-    const passiveConnValueList = connData.map(status => status.passive_conn);
+    const connDateList = connData.map((status) => formatTimestamp(status.timestamp));
+    const activeConnValueList = connData.map((status) => status.active_conn);
+    const passiveConnValueList = connData.map((status) => status.passive_conn);
 
     frpOption = {
         tooltip: {
-            trigger: 'item'
+            trigger: 'item',
         },
         legend: {
             top: '5%',
             left: 'center',
             textStyle: {
-                color: themeVars.value.textColorBase
-            }
+                color: themeVars.value.textColorBase,
+            },
         },
         series: [
             {
@@ -594,31 +650,31 @@ const updateCharts = () => {
                 avoidLabelOverlap: false,
                 itemStyle: {
                     borderRadius: 10,
-                    borderWidth: 2
+                    borderWidth: 2,
                 },
                 label: {
                     show: false,
-                    position: 'center'
+                    position: 'center',
                 },
                 emphasis: {
                     label: {
                         show: true,
                         fontSize: 40,
                         fontWeight: 'bold',
-                        color: themeVars.value.textColorBase
-                    }
+                        color: themeVars.value.textColorBase,
+                    },
                 },
                 labelLine: {
-                    show: false
+                    show: false,
                 },
                 data: [
                     { value: tunnelTypeData.TCP, name: 'TCP' },
                     { value: tunnelTypeData.UDP, name: 'UDP' },
                     { value: tunnelTypeData.HTTP, name: 'HTTP' },
                     { value: tunnelTypeData.HTTPS, name: 'HTTPS' },
-                ]
-            }
-        ]
+                ],
+            },
+        ],
     };
 
     cpuOption = {
@@ -632,31 +688,31 @@ const updateCharts = () => {
             left: 'center',
             text: 'CPU占用',
             textStyle: {
-                color: themeVars.value.textColorBase
-            }
+                color: themeVars.value.textColorBase,
+            },
         },
         tooltip: {
-            trigger: 'axis'
+            trigger: 'axis',
         },
         xAxis: {
             data: CPUDateList,
             textStyle: {
-                color: themeVars.value.textColorBase
-            }
+                color: themeVars.value.textColorBase,
+            },
         },
         yAxis: {
             type: 'value',
             axisLabel: {
                 formatter: '{value}%',
-                color: themeVars.value.textColorBase
-            }
+                color: themeVars.value.textColorBase,
+            },
         },
         dataZoom: [
             {
                 type: 'inside',
                 start: 0,
-                end: 100
-            }
+                end: 100,
+            },
         ],
         series: [
             {
@@ -664,46 +720,46 @@ const updateCharts = () => {
                 smooth: true,
                 showSymbol: false,
                 data: cpuValueList,
-                areaStyle: {}
-            }
-        ]
+                areaStyle: {},
+            },
+        ],
     };
 
     networkOption = {
         title: {
             text: '网络占用',
             textStyle: {
-                color: themeVars.value.textColorBase
-            }
+                color: themeVars.value.textColorBase,
+            },
         },
         legend: {
             textStyle: {
-                color: themeVars.value.textColorBase
+                color: themeVars.value.textColorBase,
             },
-            data: ['上传占用', '下载占用']
+            data: ['上传占用', '下载占用'],
         },
         tooltip: {
-            trigger: 'axis'
+            trigger: 'axis',
         },
         xAxis: {
             data: networkDateList,
             axisLabel: {
-                color: themeVars.value.textColorBase
-            }
+                color: themeVars.value.textColorBase,
+            },
         },
         yAxis: {
             type: 'value',
             axisLabel: {
                 formatter: '{value}%',
-                color: themeVars.value.textColorBase
-            }
+                color: themeVars.value.textColorBase,
+            },
         },
         dataZoom: [
             {
                 type: 'inside',
                 start: 0,
-                end: 100
-            }
+                end: 100,
+            },
         ],
         series: [
             {
@@ -715,7 +771,7 @@ const updateCharts = () => {
                 stack: '%',
                 areaStyle: {},
                 emphasis: {
-                    focus: 'series'
+                    focus: 'series',
                 },
             },
             {
@@ -727,10 +783,10 @@ const updateCharts = () => {
                 stack: '%',
                 areaStyle: {},
                 emphasis: {
-                    focus: 'series'
+                    focus: 'series',
                 },
-            }
-        ]
+            },
+        ],
     };
 
     memoryOption = {
@@ -738,31 +794,31 @@ const updateCharts = () => {
             left: 'center',
             text: '内存占用',
             textStyle: {
-                color: themeVars.value.textColorBase
-            }
+                color: themeVars.value.textColorBase,
+            },
         },
         tooltip: {
-            trigger: 'axis'
+            trigger: 'axis',
         },
         xAxis: {
             data: memoryDateList,
             axisLabel: {
-                color: themeVars.value.textColorBase
-            }
+                color: themeVars.value.textColorBase,
+            },
         },
         yAxis: {
             type: 'value',
             axisLabel: {
                 formatter: '{value}G',
-                color: themeVars.value.textColorBase
-            }
+                color: themeVars.value.textColorBase,
+            },
         },
         dataZoom: [
             {
                 type: 'inside',
                 start: 0,
-                end: 100
-            }
+                end: 100,
+            },
         ],
         series: [
             {
@@ -771,50 +827,50 @@ const updateCharts = () => {
                 showSymbol: false,
                 data: memoryValueList,
                 areaStyle: {
-                    color: 'rgba(173, 216, 230, 0.5)'
+                    color: 'rgba(173, 216, 230, 0.5)',
                 },
                 lineStyle: {
-                    color: 'rgba(173, 216, 230, 1)'
-                }
-            }
-        ]
+                    color: 'rgba(173, 216, 230, 1)',
+                },
+            },
+        ],
     };
 
     proxyOption = {
         title: {
             text: '端口类型',
             textStyle: {
-                color: themeVars.value.textColorBase
-            }
+                color: themeVars.value.textColorBase,
+            },
         },
         legend: {
             textStyle: {
-                color: themeVars.value.textColorBase
+                color: themeVars.value.textColorBase,
             },
-            data: ['TCP', 'UDP', 'HTTP', 'HTTPS']
+            data: ['TCP', 'UDP', 'HTTP', 'HTTPS'],
         },
         tooltip: {
-            trigger: 'axis'
+            trigger: 'axis',
         },
         xAxis: {
             data: proxyDateList,
             axisLabel: {
-                color: themeVars.value.textColorBase
-            }
+                color: themeVars.value.textColorBase,
+            },
         },
         yAxis: {
             type: 'value',
             axisLabel: {
                 formatter: '{value}',
-                color: themeVars.value.textColorBase
-            }
+                color: themeVars.value.textColorBase,
+            },
         },
         dataZoom: [
             {
                 type: 'inside',
                 start: 0,
-                end: 100
-            }
+                end: 100,
+            },
         ],
         series: [
             {
@@ -825,7 +881,7 @@ const updateCharts = () => {
                 data: proxyTcpValueList,
                 areaStyle: {},
                 emphasis: {
-                    focus: 'series'
+                    focus: 'series',
                 },
             },
             {
@@ -836,7 +892,7 @@ const updateCharts = () => {
                 data: proxyUdpValueList,
                 areaStyle: {},
                 emphasis: {
-                    focus: 'series'
+                    focus: 'series',
                 },
             },
             {
@@ -847,7 +903,7 @@ const updateCharts = () => {
                 data: proxyHttpValueList,
                 areaStyle: {},
                 emphasis: {
-                    focus: 'series'
+                    focus: 'series',
                 },
             },
             {
@@ -858,10 +914,10 @@ const updateCharts = () => {
                 data: proxyHttpsValueList,
                 areaStyle: {},
                 emphasis: {
-                    focus: 'series'
+                    focus: 'series',
                 },
-            }
-        ]
+            },
+        ],
     };
 
     curConnsOption = {
@@ -869,31 +925,31 @@ const updateCharts = () => {
             left: 'center',
             text: '连接数',
             textStyle: {
-                color: themeVars.value.textColorBase
-            }
+                color: themeVars.value.textColorBase,
+            },
         },
         tooltip: {
-            trigger: 'axis'
+            trigger: 'axis',
         },
         xAxis: {
             data: curCountsDateList,
             axisLabel: {
-                color: themeVars.value.textColorBase
-            }
+                color: themeVars.value.textColorBase,
+            },
         },
         yAxis: {
             type: 'value',
             axisLabel: {
                 formatter: '{value}',
-                color: themeVars.value.textColorBase
-            }
+                color: themeVars.value.textColorBase,
+            },
         },
         dataZoom: [
             {
                 type: 'inside',
                 start: 0,
-                end: 100
-            }
+                end: 100,
+            },
         ],
         series: [
             {
@@ -903,10 +959,10 @@ const updateCharts = () => {
                 data: curCountsValueList,
                 areaStyle: {},
                 emphasis: {
-                    focus: 'series'
+                    focus: 'series',
                 },
-            }
-        ]
+            },
+        ],
     };
 
     clientCountsOption = {
@@ -914,31 +970,31 @@ const updateCharts = () => {
             left: 'center',
             text: '用户数',
             textStyle: {
-                color: themeVars.value.textColorBase
-            }
+                color: themeVars.value.textColorBase,
+            },
         },
         tooltip: {
-            trigger: 'axis'
+            trigger: 'axis',
         },
         xAxis: {
             data: clientCountsDateList,
             axisLabel: {
-                color: themeVars.value.textColorBase
-            }
+                color: themeVars.value.textColorBase,
+            },
         },
         yAxis: {
             type: 'value',
             axisLabel: {
                 formatter: '{value}',
-                color: themeVars.value.textColorBase
-            }
+                color: themeVars.value.textColorBase,
+            },
         },
         dataZoom: [
             {
                 type: 'inside',
                 start: 0,
-                end: 100
-            }
+                end: 100,
+            },
         ],
         series: [
             {
@@ -948,47 +1004,47 @@ const updateCharts = () => {
                 data: clientCountsValueList,
                 areaStyle: {},
                 emphasis: {
-                    focus: 'series'
+                    focus: 'series',
                 },
-            }
-        ]
+            },
+        ],
     };
 
     packetsOption = {
         title: {
             text: '数据包',
             textStyle: {
-                color: themeVars.value.textColorBase
-            }
+                color: themeVars.value.textColorBase,
+            },
         },
         legend: {
             textStyle: {
-                color: themeVars.value.textColorBase
+                color: themeVars.value.textColorBase,
             },
-            data: ['发送', '接收']
+            data: ['发送', '接收'],
         },
         tooltip: {
-            trigger: 'axis'
+            trigger: 'axis',
         },
         xAxis: {
             data: packetsDateList,
             axisLabel: {
-                color: themeVars.value.textColorBase
-            }
+                color: themeVars.value.textColorBase,
+            },
         },
         yAxis: {
             type: 'value',
             axisLabel: {
                 formatter: '{value}',
-                color: themeVars.value.textColorBase
-            }
+                color: themeVars.value.textColorBase,
+            },
         },
         dataZoom: [
             {
                 type: 'inside',
                 start: 0,
-                end: 100
-            }
+                end: 100,
+            },
         ],
         series: [
             {
@@ -999,7 +1055,7 @@ const updateCharts = () => {
                 data: sentPacketsValueList,
                 areaStyle: {},
                 emphasis: {
-                    focus: 'series'
+                    focus: 'series',
                 },
             },
             {
@@ -1010,47 +1066,47 @@ const updateCharts = () => {
                 data: recvPacketsValueList,
                 areaStyle: {},
                 emphasis: {
-                    focus: 'series'
+                    focus: 'series',
                 },
-            }
-        ]
+            },
+        ],
     };
 
     connOption = {
         title: {
             text: '连接数',
             textStyle: {
-                color: themeVars.value.textColorBase
-            }
+                color: themeVars.value.textColorBase,
+            },
         },
         legend: {
             textStyle: {
-                color: themeVars.value.textColorBase
+                color: themeVars.value.textColorBase,
             },
-            data: ['活跃连接', '被动连接']
+            data: ['活跃连接', '被动连接'],
         },
         tooltip: {
-            trigger: 'axis'
+            trigger: 'axis',
         },
         xAxis: {
             data: connDateList,
             axisLabel: {
-                color: themeVars.value.textColorBase
-            }
+                color: themeVars.value.textColorBase,
+            },
         },
         yAxis: {
             type: 'value',
             axisLabel: {
                 formatter: '{value}',
-                color: themeVars.value.textColorBase
-            }
+                color: themeVars.value.textColorBase,
+            },
         },
         dataZoom: [
             {
                 type: 'inside',
                 start: 0,
-                end: 100
-            }
+                end: 100,
+            },
         ],
         series: [
             {
@@ -1061,7 +1117,7 @@ const updateCharts = () => {
                 data: activeConnValueList,
                 areaStyle: {},
                 emphasis: {
-                    focus: 'series'
+                    focus: 'series',
                 },
             },
             {
@@ -1072,10 +1128,10 @@ const updateCharts = () => {
                 data: passiveConnValueList,
                 areaStyle: {},
                 emphasis: {
-                    focus: 'series'
+                    focus: 'series',
                 },
-            }
-        ]
+            },
+        ],
     };
 
     frpOption && frpChart.setOption(frpOption);
@@ -1087,31 +1143,35 @@ const updateCharts = () => {
     clientCountsOption && clientCountsChart.setOption(clientCountsOption);
     packetsOption && packetsChart.setOption(packetsOption);
     connOption && connChart.setOption(connOption);
-}
+};
 
 // 计算储存使用百分比
 const storageUsedPercentage = computed(() => {
     const total = apiResponse.value?.data.node_details.storage_total || 0;
     const used = apiResponse.value?.data.node_details.storage_used || 0;
-    return total > 0 ? (used / total) * 100 : 0;  // 确保总量大于0时才计算百分比
+    return total > 0 ? (used / total) * 100 : 0; // 确保总量大于0时才计算百分比
 });
 
 // 计算内存使用百分比
 const memoryUsedPercentage = computed(() => {
     const total = apiResponse.value?.data.node_details.memory_total || 0;
     const used = latestStatus.value?.memory_used || 0;
-    return total > 0 ? (used / total) * 100 : 0;  // 确保总量大于0时才计算百分比
+    return total > 0 ? (used / total) * 100 : 0; // 确保总量大于0时才计算百分比
 });
 
 onMounted(() => {
     fetchNodeData();
 });
 
-watch(themeVars, () => {
-    updateCharts();
-}, { deep: true });
+watch(
+    themeVars,
+    () => {
+        updateCharts();
+    },
+    { deep: true }
+);
 
-const percentage = ref(3)
+const percentage = ref(3);
 </script>
 
 <style scoped>
