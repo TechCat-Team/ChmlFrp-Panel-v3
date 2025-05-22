@@ -672,12 +672,12 @@ const handleTabChange = (activeName: string) => {
                     compression: string;
                     ap: string;
                     uptime: string | null;
-                    ip: string;
+                    ip: string | null;
                 }) => ({
                     label: `${tunnel.name} - ${tunnel.node}`,
                     value: tunnel.name,
                     node: tunnel.node,
-                    ip: tunnel.ip,
+                    ip: tunnel.ip ? tunnel.ip : '',
                     dorp: tunnel.dorp,
                     name: tunnel.name
                 }));

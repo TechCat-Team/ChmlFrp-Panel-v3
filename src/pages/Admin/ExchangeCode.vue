@@ -124,6 +124,8 @@ const rules: FormRules = {
     duration: {
         required: true,
         validator(rule, value) {
+            void rule;
+            
             if (value === null || value === undefined) {
                 return new Error('请选择有效期')
             }
@@ -134,6 +136,8 @@ const rules: FormRules = {
     count: {
         required: true,
         validator(rule, value) {
+            void rule;
+            
             if (value < 1 || value > 100) {
                 return new Error('数量范围1-100')
             }

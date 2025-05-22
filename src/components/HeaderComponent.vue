@@ -85,51 +85,51 @@ import { computedMenuOptions } from './Options/Menu'
 import {
     PersonCircleOutline as UserIcon,
     LogOutOutline as LogoutIcon,
-    MenuOutline, LogInOutline, NotificationsOutline
+    MenuOutline, LogInOutline
 } from '@vicons/ionicons5'
 // 获取登录信息
 import { useUserStore } from '@/stores/user';
-import dayjs from 'dayjs'
+// import dayjs from 'dayjs'
 
-import api from '@/api'
+// import api from '@/api'
 
 const userStore = useUserStore();
 const userInfo = userStore.userInfo;
 
 // 通知数据结构
-interface Notification {
-    id: number
-    userid: number
-    content: string
-    quanti: string
-    time: string
-}
+// interface Notification {
+//     id: number
+//     userid: number
+//     content: string
+//     quanti: string
+//     time: string
+// }
 
 // 响应式数据
-const notifications = ref<Notification[]>([])
-const loading = ref(true)
-const unreadCount = ref(0)
+// const notifications = ref<Notification[]>([])
+// const loading = ref(true)
+// const unreadCount = ref(0)
 
 // 格式化时间显示
-const formatMessageTime = (isoTime: string) => {
-    return dayjs(isoTime).format('YYYY-MM-DD HH:mm')
-}
+// const formatMessageTime = (isoTime: string) => {
+//     return dayjs(isoTime).format('YYYY-MM-DD HH:mm')
+// }
 
 // 获取通知数据
-const fetchNotifications = async () => {
-    try {
-        const response = await api.v2.user.getMessages(userInfo?.usertoken || '')
+// const fetchNotifications = async () => {
+//     try {
+//         const response = await api.v2.user.getMessages(userInfo?.usertoken || '')
 
-        notifications.value = response.data || []
-        // 根据quanti字段计算未读数（根据实际业务需求调整）
-        unreadCount.value = notifications.value.filter((n: { quanti: string; }) => n.quanti === 'yes').length
+//         notifications.value = response.data || []
+//         // 根据quanti字段计算未读数（根据实际业务需求调整）
+//         unreadCount.value = notifications.value.filter((n: { quanti: string; }) => n.quanti === 'yes').length
 
-    } catch (e) {
-        message.error('获取通知失败: ' + (e as Error).message)
-    } finally {
-        loading.value = false
-    }
-}
+//     } catch (e) {
+//         message.error('获取通知失败: ' + (e as Error).message)
+//     } finally {
+//         loading.value = false
+//     }
+// }
 
 // UserDropdown图标函数
 const renderIcon = (icon: Component, color?: string) => {

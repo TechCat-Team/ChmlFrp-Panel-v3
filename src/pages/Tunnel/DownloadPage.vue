@@ -64,10 +64,10 @@ import { Freebsd } from '@vicons/fa';
 import { ref, onMounted, computed } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useScreenStore } from '@/stores/useScreen';
-import { useRouter } from 'vue-router';
+// import { useRouter } from 'vue-router';
 
 // 获取路由实例
-const router = useRouter();
+// const router = useRouter();
 
 // 基础的手机端适配
 const screenStore = useScreenStore();
@@ -151,10 +151,10 @@ const showCard = (os: string) => {
 };
 
 // 跳转到应用市场
-const navigateToMarketplace = () => {
-  router.push('/expand/app-marketplace');
-};
-</script>
+// const navigateToMarketplace = () => {
+//   router.push('/expand/app-marketplace');
+// };
+// </script>
 
 <style lang="scss" scoped>
 .custom-card {

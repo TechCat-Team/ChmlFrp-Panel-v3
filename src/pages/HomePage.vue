@@ -658,7 +658,6 @@ interface ApiData {
     data: ApiDataItem[];
 }
 
-const chartDomRef = ref<HTMLElement | null>(null);
 let myChart: echarts.ECharts | null = null;
 let unwatchTheme: (() => void) | null = null;
 let resizeHandler: (() => void) | null = null;
