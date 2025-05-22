@@ -156,7 +156,7 @@
                         </n-descriptions-item>
                         <n-descriptions-item label="防御">
                             <n-skeleton v-if="loadingTunnelInfo" width="60.65px" height="28px" round />
-                            <n-tooltip v-else-if="NodeInfo.fangyu === true" trigger="hover">
+                            <n-tooltip v-else-if="NodeInfo.fangyu === 'true'" trigger="hover">
                                 <template #trigger>
                                     <n-tag round type="success"> 有防御 </n-tag>
                                 </template>
@@ -251,16 +251,6 @@
     </n-modal>
     <n-modal v-model:show="tunnelInfoModal">
         <n-card style="width: 800px" title="创建隧道" :bordered="false" size="huge" role="dialog" aria-modal="true">
-            <n-alert
-                title="注意"
-                type="info"
-                style="margin-bottom: 8px"
-                v-if="
-                    formData.domainNameLabel === '免费域名' && (formData.type === 'HTTP' || formData.type === 'HTTPS')
-                "
-            >
-                免费域名禁止用于中国境内节点(中国特别行政区除外)建站，如果您给国内节点解析免费域名并建站，会被备案拦截导致无法访问
-            </n-alert>
             <n-alert
                 title="注意"
                 type="info"
@@ -1348,7 +1338,7 @@ const subDomainData = async () => {
             dialog.error({
                 title: '此节点没有可选的免费域名',
                 content:
-                    '当前节点是境内节点或特殊节点，不 可以使用 未备案 的免费域名，请更换节点或使用 已经备案的自定义域名',
+                    '当前节点为中国境内节点，禁止使用免费域名，请更换为中国境外节点（允许港澳台节点，无需备案）',
                 positiveText: '好的马上改',
                 onPositiveClick: () => {
                     if (editTunnelModal.value) {
