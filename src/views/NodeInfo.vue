@@ -465,20 +465,95 @@ const markers = ref<{ position: number[]; title: string }[]>([
 
 const latestStatus = ref<Status | null>(null); // 初始化为 null
 
+let sortedStatusList: Status[] = [];
+
 import api from '@/api';
+
+// 判断状态是否全为0，即无效统计点
+const isAllZero = (status: Status) => {
+    // 只判断关键字段，按需调整
+    return (
+        status.cpu_usage === 0 &&
+        status.memory_used === 0 &&
+        status.active_conn === 0 &&
+        status.passive_conn === 0 &&
+        status.cur_conns === 0 &&
+        status.client_counts === 0 &&
+        status.proxy_tcp === 0 &&
+        status.proxy_udp === 0 &&
+        status.proxy_http === 0 &&
+        status.proxy_https === 0 &&
+        status.upload_bandwidth_usage_percent === 0 &&
+        status.download_bandwidth_usage_percent === 0 &&
+        status.sent_packets === 0 &&
+        status.recv_packets === 0
+    );
+};
+
+// 对 status_list 进行平滑处理
+const smoothStatusList = (list: Status[], maxZeroCount = 10): Status[] => {
+    const result = list.slice();
+    let i = 1;
+    while (i < result.length - 1) {
+        // 找连续全0的区间
+        if (isAllZero(result[i])) {
+            let start = i;
+            let end = i;
+            while (end < result.length - 1 && isAllZero(result[end])) {
+                end++;
+                // 最多maxZeroCount个
+                if (end - start + 1 > maxZeroCount) break;
+            }
+            // 前后都有正常点且长度<=maxZeroCount
+            if (start > 0 && end < result.length - 1 && !isAllZero(result[start - 1]) && !isAllZero(result[end])) {
+                const prev = result[start - 1];
+                const next = result[end];
+                for (let j = start; j < end; j++) {
+                    result[j] = {
+                        ...result[j],
+                        cpu_usage: (prev.cpu_usage + next.cpu_usage) / 2,
+                        memory_used: (prev.memory_used + next.memory_used) / 2,
+                        active_conn: Math.round((prev.active_conn + next.active_conn) / 2),
+                        passive_conn: Math.round((prev.passive_conn + next.passive_conn) / 2),
+                        cur_conns: Math.round((prev.cur_conns + next.cur_conns) / 2),
+                        client_counts: Math.round((prev.client_counts + next.client_counts) / 2),
+                        proxy_tcp: Math.round((prev.proxy_tcp + next.proxy_tcp) / 2),
+                        proxy_udp: Math.round((prev.proxy_udp + next.proxy_udp) / 2),
+                        proxy_http: Math.round((prev.proxy_http + next.proxy_http) / 2),
+                        proxy_https: Math.round((prev.proxy_https + next.proxy_https) / 2),
+                        upload_bandwidth_usage_percent:
+                            (prev.upload_bandwidth_usage_percent + next.upload_bandwidth_usage_percent) / 2,
+                        download_bandwidth_usage_percent:
+                            (prev.download_bandwidth_usage_percent + next.download_bandwidth_usage_percent) / 2,
+                        sent_packets: Math.round((prev.sent_packets + next.sent_packets) / 2),
+                        recv_packets: Math.round((prev.recv_packets + next.recv_packets) / 2),
+                    };
+                }
+                i = end; // 跳过已处理区间
+            } else {
+                i = end;
+            }
+        } else {
+            i++;
+        }
+    }
+    return result;
+};
 
 const fetchNodeData = async () => {
     try {
         const response = await api.v2.node.getNodeStatusInfo(node as string);
         if (response.code === 200) {
             apiResponse.value = response;
-            await handleTabChange();
 
             // 排序状态列表并获取最新状态
-            const sortedStatusList =
+            sortedStatusList =
                 apiResponse.value?.data.status_list?.slice().sort((a, b) => {
                     return new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime();
                 }) || [];
+
+            // 平滑处理
+            sortedStatusList = smoothStatusList(sortedStatusList);
 
             latestStatus.value = sortedStatusList[0] || null; // 直接获取最新状态
 
@@ -493,7 +568,8 @@ const fetchNodeData = async () => {
     }
 };
 
-const handleTabChange = async () => {
+// 获取本地地址
+const fetchLocalAddr = async () => {
     loadingNodeMap.value = true;
     try {
         const response = await axios.get('https://uapis.cn/api/myip.php', { timeout: 5000 });
@@ -514,60 +590,40 @@ const handleTabChange = async () => {
 };
 
 const themeVars = useThemeVars();
+
+const chartIds = [
+    'frp-chart',
+    'cpu-chart',
+    'network-chart',
+    'memory-chart',
+    'proxy-chart',
+    'cur-conns-chart',
+    'client-counts-chart',
+    'packets-chart',
+    'conn-chart',
+];
+const chartInstances: Record<string, echarts.ECharts | null> = {};
+
 const updateCharts = () => {
-    // 隧道类型饼图
-    const frpChartDom = document.getElementById('frp-chart');
-    const frpChart = echarts.init(frpChartDom);
-    var frpOption;
+    // 先销毁已有实例，防止内存泄漏
+    chartIds.forEach((id) => {
+        if (chartInstances[id]) {
+            chartInstances[id]?.dispose();
+            chartInstances[id] = null;
+        }
+    });
 
-    // CPU图表
-    const cpuChartDom = document.getElementById('cpu-chart');
-    const cpuChart = echarts.init(cpuChartDom);
-    var cpuOption;
+    // 重新初始化
+    chartIds.forEach((id) => {
+        const dom = document.getElementById(id);
+        if (dom) {
+            chartInstances[id] = echarts.init(dom);
+        }
+    });
 
-    // 网络图表
-    const networkChartDom = document.getElementById('network-chart');
-    const networkChart = echarts.init(networkChartDom);
-    var networkOption;
-
-    // 内存图表
-    const memoryChartDom = document.getElementById('memory-chart');
-    const memoryChart = echarts.init(memoryChartDom);
-    var memoryOption;
-
-    // 映射端口图表
-    const proxyChartDom = document.getElementById('proxy-chart');
-    const proxyChart = echarts.init(proxyChartDom);
-    var proxyOption;
-
-    // 隧道连接数图表
-    const curConnsDom = document.getElementById('cur-conns-chart');
-    const curConnsChart = echarts.init(curConnsDom);
-    var curConnsOption;
-
-    // 映射客户端数量图表
-    const clientCountsDom = document.getElementById('client-counts-chart');
-    const clientCountsChart = echarts.init(clientCountsDom);
-    var clientCountsOption;
-
-    // 发送、接收的数据包数图表
-    const packetsDom = document.getElementById('packets-chart');
-    const packetsChart = echarts.init(packetsDom);
-    var packetsOption;
-
-    // 活跃、被动连接数图表
-    const connDom = document.getElementById('conn-chart');
-    const connChart = echarts.init(connDom);
-    var connOption;
-
-    const sortedStatusList =
-        apiResponse.value?.data.status_list?.slice().sort((a, b) => {
-            return new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime(); // 降序排序
-        }) || [];
-
-    function bytesToGB(bytes: number): number {
+    const bytesToGB = (bytes: number): number => {
         return bytes / 1024 ** 3;
-    }
+    };
 
     const latestStatus = sortedStatusList[0];
 
@@ -631,7 +687,7 @@ const updateCharts = () => {
     const activeConnValueList = connData.map((status) => status.active_conn);
     const passiveConnValueList = connData.map((status) => status.passive_conn);
 
-    frpOption = {
+    let frpOption = {
         tooltip: {
             trigger: 'item',
         },
@@ -677,7 +733,7 @@ const updateCharts = () => {
         ],
     };
 
-    cpuOption = {
+    let cpuOption = {
         visualMap: {
             show: false,
             type: 'continuous',
@@ -725,7 +781,7 @@ const updateCharts = () => {
         ],
     };
 
-    networkOption = {
+    let networkOption = {
         title: {
             text: '网络占用',
             textStyle: {
@@ -789,7 +845,7 @@ const updateCharts = () => {
         ],
     };
 
-    memoryOption = {
+    let memoryOption = {
         title: {
             left: 'center',
             text: '内存占用',
@@ -836,7 +892,7 @@ const updateCharts = () => {
         ],
     };
 
-    proxyOption = {
+    let proxyOption = {
         title: {
             text: '端口类型',
             textStyle: {
@@ -920,7 +976,7 @@ const updateCharts = () => {
         ],
     };
 
-    curConnsOption = {
+    let curConnsOption = {
         title: {
             left: 'center',
             text: '连接数',
@@ -965,7 +1021,7 @@ const updateCharts = () => {
         ],
     };
 
-    clientCountsOption = {
+    let clientCountsOption = {
         title: {
             left: 'center',
             text: '用户数',
@@ -1010,7 +1066,7 @@ const updateCharts = () => {
         ],
     };
 
-    packetsOption = {
+    let packetsOption = {
         title: {
             text: '数据包',
             textStyle: {
@@ -1072,7 +1128,7 @@ const updateCharts = () => {
         ],
     };
 
-    connOption = {
+    let connOption = {
         title: {
             text: '连接数',
             textStyle: {
@@ -1134,15 +1190,25 @@ const updateCharts = () => {
         ],
     };
 
-    frpOption && frpChart.setOption(frpOption);
-    cpuOption && cpuChart.setOption(cpuOption);
-    networkOption && networkChart.setOption(networkOption);
-    memoryOption && memoryChart.setOption(memoryOption);
-    proxyOption && proxyChart.setOption(proxyOption);
-    curConnsOption && curConnsChart.setOption(curConnsOption);
-    clientCountsOption && clientCountsChart.setOption(clientCountsOption);
-    packetsOption && packetsChart.setOption(packetsOption);
-    connOption && connChart.setOption(connOption);
+    // 并行绘制
+    const chartTasks = [
+        () => chartInstances['frp-chart']?.setOption(frpOption),
+        () => chartInstances['cpu-chart']?.setOption(cpuOption),
+        () => chartInstances['network-chart']?.setOption(networkOption),
+        () => chartInstances['memory-chart']?.setOption(memoryOption),
+        () => chartInstances['proxy-chart']?.setOption(proxyOption),
+        () => chartInstances['cur-conns-chart']?.setOption(curConnsOption),
+        () => chartInstances['client-counts-chart']?.setOption(clientCountsOption),
+        () => chartInstances['packets-chart']?.setOption(packetsOption),
+        () => chartInstances['conn-chart']?.setOption(connOption),
+    ];
+
+    // 利用 requestAnimationFrame 并行调度
+    chartTasks.forEach((task) => {
+        requestAnimationFrame(() => {
+            task();
+        });
+    });
 };
 
 // 计算储存使用百分比
@@ -1161,6 +1227,7 @@ const memoryUsedPercentage = computed(() => {
 
 onMounted(() => {
     fetchNodeData();
+    fetchLocalAddr();
 });
 
 watch(
@@ -1170,6 +1237,14 @@ watch(
     },
     { deep: true }
 );
+
+window.addEventListener('resize', () => {
+    chartIds.forEach((id) => {
+        requestAnimationFrame(() => {
+            chartInstances[id]?.resize();
+        });
+    });
+});
 
 const percentage = ref(3);
 </script>
