@@ -156,7 +156,7 @@
                         </n-descriptions-item>
                         <n-descriptions-item label="防御">
                             <n-skeleton v-if="loadingTunnelInfo" width="60.65px" height="28px" round />
-                            <n-tooltip v-else-if="NodeInfo.fangyu === 'true'" trigger="hover">
+                            <n-tooltip v-else-if="NodeInfo.fangyu === true" trigger="hover">
                                 <template #trigger>
                                     <n-tag round type="success"> 有防御 </n-tag>
                                 </template>
@@ -1337,8 +1337,7 @@ const subDomainData = async () => {
             // 整个大的提示框
             dialog.error({
                 title: '此节点没有可选的免费域名',
-                content:
-                    '当前节点为中国境内节点，禁止使用免费域名，请更换为中国境外节点（允许港澳台节点，无需备案）',
+                content: '当前节点为中国境内节点，禁止使用免费域名，请更换为中国境外节点（允许港澳台节点，无需备案）',
                 positiveText: '好的马上改',
                 onPositiveClick: () => {
                     if (editTunnelModal.value) {
@@ -1872,6 +1871,7 @@ watch(
 interface Status {
     type: string;
     label: string;
+    description: string;
 }
 
 interface TunnelCard {
@@ -1920,7 +1920,7 @@ const fetchTunnelCards = async () => {
                         card.state === 'true'
                             ? { type: 'success', label: '在线', description: '隧道在线 一切正常' }
                             : { type: 'warning', label: '离线', description: '隧道离线 请检查客户端是否正常启动' };
-                } else if (card.ip === '') {
+                } else if (!card.ip || card.ip === '') {
                     // 节点已经永久移除
                     status = { type: 'default', label: '永久下线', description: '节点已永久下线 请编辑更换' };
                 } else if (card.nodestate === 'offline') {
@@ -1930,7 +1930,9 @@ const fetchTunnelCards = async () => {
                 // 设置 tags
                 const tags = [card.node, `${card.localip}:${card.nport} - ${card.type}`];
 
-                return { ...card, status, tags };
+                const ip = card.ip ? card.ip : '节点已下线';
+
+                return { ...card, status, tags, ip };
             });
         }
     } catch (error) {

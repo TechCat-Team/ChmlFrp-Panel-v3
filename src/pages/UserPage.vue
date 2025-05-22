@@ -764,6 +764,8 @@ const resetPasswordRules = {
         },
         {
             validator: (rule: string, value: string) => {
+                void rule;
+                
                 if (value !== resetPasswordValue.value.new_password) {
                     return new Error('两次输入的新密码不一致');
                 }

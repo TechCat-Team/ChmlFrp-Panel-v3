@@ -26,7 +26,6 @@ import {
   ConstructOutline,
   ListCircleOutline,
   ServerOutline,
-  BagHandleOutline
 } from '@vicons/ionicons5';
 
 const userStore = useUserStore();

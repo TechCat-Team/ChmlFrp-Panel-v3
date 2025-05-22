@@ -21,7 +21,7 @@ interface TunnelListResponse extends BaseResponse {
         today_traffic_out: number;
         cur_conns: number;
         nodestate: string;
-        ip: string;
+        ip: string | null;
     }> | null;
 }
 
@@ -99,10 +99,7 @@ export const createTunnel = (params: {
  * @returns {Promise<BaseResponse>} 返回删除隧道的响应数据
  * @deprecated 此函数当前不可用，可能会在未来的版本中恢复
  */
-export const deleteTunnel = (
-    token: string,
-    tunnelid: number
-): Promise<BaseResponse> => {
+export const deleteTunnel = (token: string, tunnelid: number): Promise<BaseResponse> => {
     return axiosInstance.post('/delete_tunnel', { token, tunnelid });
 };
 

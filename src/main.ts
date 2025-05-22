@@ -1,18 +1,20 @@
-import { createApp } from 'vue'
-import App from './App.vue'
-import router from './router'
-import { createPinia } from 'pinia'
-import '@/assets/styles/themes.css'
-import '@/assets/styles/global.scss'
+import { createApp } from 'vue';
+import App from './App.vue';
+import router from './router';
+import { createPinia } from 'pinia';
+import '@/assets/styles/themes.css';
+import '@/assets/styles/global.scss';
 
-const app = createApp(App)
+const app = createApp(App);
 
 // 通用字体
-import 'vfonts/Lato.css'
+import 'vfonts/Lato.css';
 // 等宽字体
-import 'vfonts/FiraCode.css'
+import 'vfonts/FiraCode.css';
 
 router.beforeEach((to, from, next) => {
+    void from;
+
     const meta = to.meta as { title?: string; keywords?: string; description?: string };
 
     if (meta) {
@@ -45,6 +47,6 @@ router.beforeEach((to, from, next) => {
     next();
 });
 
-app.use(createPinia())
-app.use(router)
-app.mount('#app')
+app.use(createPinia());
+app.use(router);
+app.mount('#app');

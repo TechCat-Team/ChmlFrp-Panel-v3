@@ -2,7 +2,7 @@
     <n-back-top :right="100" />
     <n-card title="统计信息">
         <template #header-extra>
-            <n-switch v-model:value="available" @change="onSwitchChange">
+            <n-switch v-model:value="available" @update:value="onSwitchChange">
                 <template #checked>
                     可用性
                 </template>
