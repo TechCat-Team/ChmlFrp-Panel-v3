@@ -803,7 +803,7 @@ const handleTabChange = (activeName: string) => {
                         ip: string | null;
                     }) => ({
                         label: `${tunnel.name} - ${tunnel.node}`,
-                        value: tunnel.name,
+                        value: `${tunnel.name} - ${tunnel.node}`,
                         node: tunnel.node,
                         ip: tunnel.ip ? tunnel.ip : '',
                         dorp: tunnel.dorp,
