@@ -187,6 +187,9 @@
                     </n-form>
                 </n-tab-pane>
                 <n-tab-pane name="快速解析">
+                    <n-alert title="注意" type="info" v-if="fastModel.selectedRecordType === 'CNAME'">
+                        免费域名无备案，如需在境内节点提供HTTP/HTTPS/其它法定范围内的公开服务，请使用您自行备案过的域名，免费域名无效
+                    </n-alert>
                     <n-form
                         style="margin-top: 10px"
                         :model="fastModel"
@@ -516,7 +519,7 @@ const recordTypeOptions = ['A', 'AAAA', 'CNAME', 'SRV'].map((v) => ({
     value: v,
 }));
 
-const fastRecordTypeOptions = ['CNAME', '网站', 'Java版MC'].map((v) => ({
+const fastRecordTypeOptions = ['CNAME', 'Java版MC'].map((v) => ({
     label: v,
     value: v,
 }));
@@ -589,8 +592,14 @@ const handleFastSubmit = async () => {
     let fastTarget = selectedTunnelInfo.value?.ip;
     let fastType = fastModel.value.selectedRecordType;
     const fastTunnelInfo = selectedTunnelInfo.value?.label;
-    if (fastModel.value.selectedRecordType === '网站') {
-        fastType = 'CNAME';
+
+    if (fastModel.value.selectedRecordType === 'CNAME') {
+        dialog.warning({
+            title: '注意',
+            content:
+                '免费域名无备案，如需在境内节点提供HTTP/HTTPS/其它法定范围内的公开服务，请使用您自行备案过的域名，免费域名无效',
+            positiveText: '我真的明白了',
+        });
     }
 
     if (fastModel.value.selectedRecordType === 'Java版MC') {
