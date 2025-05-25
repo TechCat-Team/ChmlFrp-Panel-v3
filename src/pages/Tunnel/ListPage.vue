@@ -785,7 +785,7 @@ const editTunnel = (card: TunnelCard) => {
     formData.name = card.name;
     formData.localip = card.localip;
     formData.node = card.node;
-    formData.nport = card.nport;
+    formData.nport = String(card.nport);
     formData.type = card.type.toUpperCase(); // 转换为大写
     formData.tunnelid = card.id;
 
@@ -889,7 +889,7 @@ const apiChangeTunnelV1 = async () => {
                         ? formData.dorp
                         : formData.domain,
                 localip: formData.localip,
-                nport: formData.nport,
+                nport: Number(formData.nport),
                 tunnelid: formData.tunnelid,
                 encryption: formData.encryption.toString(),
                 compression: formData.compression.toString(),
@@ -923,7 +923,7 @@ const apiChangeTunnelV2 = async () => {
             node: formData.node,
             localip: formData.localip,
             porttype: formData.type.toLowerCase(),
-            localport: formData.nport,
+            localport: Number(formData.nport),
             // 根据类型设置 banddomain 或 remoteport
             ...(formData.type.toUpperCase() === 'HTTP' || formData.type.toUpperCase() === 'HTTPS'
                 ? { banddomain: formData.domain }
@@ -1069,14 +1069,10 @@ const apiGetNodeInfo = async (node: string) => {
     return null;
 };
 
-const determineTheChangeOfTheTunnel = async () => {
-    // loading提示
-    loadingEditTunnel.value = true;
-
-    // 检查合规性
-    if (formData.nport < 1 || formData.nport > 65535) {
+// 检查合规性
+const checkFormData = (formData: any) => {
+    if (Number(formData.nport) < 1 || Number(formData.nport) > 65535) {
         message.error('内网端口必须在 1 到 65535 之间');
-        loadingEditTunnel.value = false;
         return null;
     }
     if (formData.type === 'TCP' || formData.type === 'UDP') {
@@ -1089,17 +1085,37 @@ const determineTheChangeOfTheTunnel = async () => {
     } else {
         if (formData.domainNameLabel === '') {
             message.error('请选择域名类型');
-            loadingEditTunnel.value = false;
-            return null;
-        } else if (formData.domainNameLabel === '自定义' && formData.domain === '') {
-            message.error('请输入域名');
-            loadingEditTunnel.value = false;
             return null;
         } else if (formData.domainNameLabel === '免费域名' && (formData.choose === '' || formData.recordValue === '')) {
             message.error('请选择并填写免费域名');
-            loadingEditTunnel.value = false;
             return null;
+        } else if (formData.domainNameLabel === '自定义') {
+            // 域名合规性校验
+            const domain = formData.domain.trim();
+            const isIp = /^(?:\d{1,3}\.){3}\d{1,3}$/.test(domain);
+            const isFrpOne = domain.endsWith('.frp.one');
+            const isValidDomain = /^(?!-)(?:[a-z0-9-]{1,63}\.)+[a-z]{2,}$/.test(domain);
+
+            if (!domain) {
+                message.error('请输入域名');
+                return null;
+            } else if (isIp || isFrpOne || !isValidDomain) {
+                message.error('域名不合规');
+                return null;
+            }
         }
+    }
+    return true;
+};
+
+const determineTheChangeOfTheTunnel = async () => {
+    // loading提示
+    loadingEditTunnel.value = true;
+
+    // 检查合规性
+    if (!checkFormData(formData)) {
+        loadingEditTunnel.value = false;
+        return null;
     }
 
     // HTTP 或 HTTPS 隧道
@@ -1370,7 +1386,7 @@ const formData = reactive({
     localip: '127.0.0.1',
     node: '',
     type: 'TCP',
-    nport: 0,
+    nport: '0',
     domainNameLabel: '',
     dorp: 25565,
     choose: '',
@@ -1462,35 +1478,9 @@ const createATunnel = async () => {
 
     try {
         // 检查合规性
-        if (formData.nport < 1 || formData.nport > 65535) {
-            message.error('内网端口必须在 1 到 65535 之间');
+        if (!checkFormData(formData)) {
+            loadingCreateTunnel.value = false;
             return null;
-        }
-
-        if (formData.type === 'TCP' || formData.type === 'UDP') {
-            const minPort = parseInt(NodeInfo.value.rport.split('-')[0]) || 10000;
-            const maxPort = parseInt(NodeInfo.value.rport.split('-')[1]) || 65535;
-            if (formData.dorp < minPort || formData.dorp > maxPort) {
-                message.error(`外网端口必须在 ${minPort} 到 ${maxPort} 之间`);
-                return null;
-            }
-        } else {
-            if (formData.domainNameLabel === '') {
-                message.error('请选择域名类型');
-                loadingEditTunnel.value = false;
-                return null;
-            } else if (formData.domainNameLabel === '自定义' && formData.domain === '') {
-                message.error('请输入域名');
-                loadingEditTunnel.value = false;
-                return null;
-            } else if (
-                formData.domainNameLabel === '免费域名' &&
-                (formData.choose === '' || formData.recordValue === '')
-            ) {
-                message.error('请选择并填写免费域名');
-                loadingEditTunnel.value = false;
-                return null;
-            }
         }
 
         // 生成 banddomain（仅当使用免费域名时用）
@@ -1505,7 +1495,7 @@ const createATunnel = async () => {
             node: formData.node,
             localip: formData.localip,
             porttype: formData.type,
-            localport: formData.nport,
+            localport: Number(formData.nport),
             encryption: formData.encryption,
             compression: formData.compression,
             extraparams: formData.ap,
