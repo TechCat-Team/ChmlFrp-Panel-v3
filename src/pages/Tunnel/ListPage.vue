@@ -1933,6 +1933,9 @@ const fetchTunnelCards = async () => {
         return;
     }
     loadingTunnel.value = false;
+
+    // remove in future
+    forceCheck();
 };
 
 const copyToClipboard = (text: string) => {
@@ -1946,6 +1949,30 @@ const copyToClipboard = (text: string) => {
             message.error('连接地址复制失败');
         });
 };
+
+// remove in future
+const forceCheck = () => {
+    if (tunnelCards.value && editTunnelModal.value === false) {
+        for (const card of tunnelCards.value) {
+            if (card.type === 'http' || card.type === 'https') {
+                const isIp = /^(?:\d{1,3}\.){3}\d{1,3}$/.test(card.dorp);
+                const isFrpOne = card.dorp.endsWith('.frp.one');
+                const isValidDomain = /^(?!-)(?:[a-z0-9-]{1,63}\.)+[a-z]{2,}$/.test(card.dorp);
+
+                if (isIp || isFrpOne || !isValidDomain) {
+                    editTunnel(card);
+                    message.error('域名不合规，请立即修正');
+                }
+            }
+        }
+    }
+};
+
+// remove in future
+// 每10s强行检查合规性
+setInterval(() => {
+    forceCheck();
+}, 10000);
 </script>
 
 <style scoped>
