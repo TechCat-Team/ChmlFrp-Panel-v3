@@ -980,7 +980,7 @@ const apiDeleteFreeDomain = async (domain: string, record: string, flag = true) 
 };
 
 // 获取免费节点详情
-const apiGetFreeNodeInfo = async () => {
+const apiGetUserFreeDomainList = async () => {
     try {
         const data = await api.v2.domain.getUserFreeSubdomains(userInfo?.usertoken || '');
         return data.data;
@@ -1002,7 +1002,7 @@ const apiUpdateFreeDomain = async (
 ) => {
     try {
         // 获取旧解析参数
-        let freeDomainOld = await apiGetFreeNodeInfo();
+        let freeDomainOld = await apiGetUserFreeDomainList();
         if (freeDomainOld === null) {
             return null;
         }
@@ -1344,6 +1344,8 @@ const subDomainData = async () => {
             .map((domain: Domain) => ({
                 label: domain.domain, // 显示的域名名称
                 value: domain.domain, // 选项的值
+                // 禁用部分记录条数已经超限的域名
+                disabled: domain.domain === 'ltzy.top' || domain.domain === 'owo.vin',
             }));
 
         formData.choose = formData.chooseOld;
