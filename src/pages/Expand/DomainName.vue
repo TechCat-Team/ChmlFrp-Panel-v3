@@ -508,6 +508,8 @@ const subDomainData = async () => {
         domainNameOptions.value = domains.map((domain: Domain) => ({
             label: domain.domain, // 显示的域名名称
             value: domain.domain, // 选项的值
+            // 禁用部分记录条数已经超限的域名
+            disabled: domain.domain === 'ltzy.top' || domain.domain === 'owo.vin',
         }));
     } catch (error) {
         message.error('获取域名数据失败: ' + (error as Error).message);
