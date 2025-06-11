@@ -638,44 +638,56 @@
                     </span>
                     <span v-else style="color: gray; font-size: 10px"> 尚未启动过此隧道 </span>
                 </n-thing>
-                <!-- <template #footer>
-                    <n-row class="center-content">
-                        <n-col :span="8">
-                            <div>
-                                <n-icon :component="ArrowUpOutline" />
-                                <n-number-animation show-separator :from="0"
-                                    :to="formatBytes(card.today_traffic_in).value" />
-                                {{ formatBytes(card.today_traffic_in).suffix }}
-                            </div>
-                        </n-col>
-                        <n-col :span="8">
-                            <div>
-                                <n-icon :component="ArrowDownOutline" />
-                                <n-number-animation show-separator :from="0"
-                                    :to="formatBytes(card.today_traffic_out).value" />
-                                {{ formatBytes(card.today_traffic_out).suffix }}
-                            </div>
-                        </n-col>
-                        <n-col :span="8">
-                            连接数
-                            <n-number-animation show-separator :from="0" :to="card.cur_conns" />
-                        </n-col>
-                    </n-row>
-                </template> -->
                 <template #action>
-                    <n-flex justify="end">
+  <n-grid cols="8" :x-gap="6" align="center">
+    <n-grid-item :span="7">
+      <n-row align="center" justify="start" style="margin-top: 6px;">
+        <n-col :span="8">
+          <div style="display: flex; align-items: center;">
+            <n-icon :component="ArrowUpOutline" />
+            <n-number-animation show-separator :from="0" 
+              :to="formatBytes(card.today_traffic_in).value" />
+            {{ formatBytes(card.today_traffic_in).suffix }}
+          </div>
+        </n-col>
+        <n-col :span="8">
+          <div style="display: flex; align-items: center;">
+            <n-icon :component="ArrowDownOutline" />
+            <n-number-animation show-separator :from="0" 
+              :to="formatBytes(card.today_traffic_out).value" />
+            {{ formatBytes(card.today_traffic_out).suffix }}
+          </div>
+        </n-col>
+        <n-col :span="8">
+          <div style="display: flex; align-items: center;">
+            连接数
+            <n-number-animation show-separator :from="0" :to="card.cur_conns" />
+          </div>
+        </n-col>
+      </n-row>
+    </n-grid-item>
+<n-grid-item :span="1" style="display: flex; justify-content: flex-end;">
+  <n-dropdown
+    trigger="click"
+    :options="getDropdownOptions()"
+    @select="(key: any) => handleDropdownSelect(key, card)"
+    placement="bottom-end"
+  >
+    <n-button quaternary circle size="medium" style="--n-padding: 8px;">
+      <template #icon>
+        <n-icon size="16"><BuildOutline /></n-icon>
+      </template>
+    </n-button>
+  </n-dropdown>
+</n-grid-item>
+  </n-grid>
+                    <!-- <n-flex justify="end">
                         <n-button round quaternary type="primary" @click="editTunnel(card)">
                             <template #icon>
                                 <n-icon :component="CreateOutline" />
                             </template>
                             编辑
                         </n-button>
-                        <!-- <n-button @click="goToTunnelInfo" round quaternary type="primary">
-                            <template #icon>
-                                <n-icon :component="EyeOutline" />
-                            </template>
-                查看
-            </n-button> -->
                         <n-button
                             :disabled="!deletetTunnelSuccess"
                             round
@@ -688,7 +700,7 @@
                             </template>
                             删除
                         </n-button>
-                    </n-flex>
+                    </n-flex> -->
                 </template>
             </n-card>
         </n-grid-item>
@@ -717,17 +729,94 @@
             </template>
         </n-empty>
     </n-card>
+    <n-modal v-model:show="ConfigModal">
+    <n-card
+    style="max-width: 600px"
+    title="配置代码"
+      :bordered="false"
+      size="medium"
+      role="dialog"
+      aria-modal="true"
+      closable
+      @close="CloseConfigModal"
+    >
+<n-collapse :default-expanded-names="['1', '3']">
+  <n-collapse-item title="快捷启动代码" name="1">
+    <div style="margin-bottom: 16px;">
+      <n-space vertical>
+        <!-- Windows 启动代码 -->
+          <n-collapse-item title="Windows" name="3" style="margin-bottom: 8px;">
+            <template #header-extra>
+              <n-button
+                text
+                tag="a"
+                @click.stop="copyToClipboard(windowsdaima)"
+              >
+                <n-icon :component="CopyOutline" />
+              </n-button>
+            </template>
+            <n-card size="small">
+            <n-code :code="windowsdaima" language="powershell" word-wrap />
+            </n-card>
+          </n-collapse-item>
+        <!-- Linux 启动代码 -->
+          <n-collapse-item title="Linux & MacOS" name="2" style="margin-bottom: 8px;">
+            <template #header-extra>
+              <n-button
+                text
+                tag="a"
+                @click="copyToClipboard(linuxdaima)"
+              >
+                <n-icon :component="CopyOutline" />
+              </n-button>
+            </template>
+            <n-card size="small">
+            <n-code :code="linuxdaima" language="shell" word-wrap />
+            </n-card>
+          </n-collapse-item>
+      </n-space>
+    </div>
+  </n-collapse-item>
+
+  <!-- Frpc.ini 配置 -->
+  <n-collapse-item title="Frpc.ini 配置" name="5">
+    <n-card size="small">
+      <n-code :code="frpcIniConfig" language="ini" word-wrap />
+      <template #action>
+        <n-button
+          secondary
+          type="primary"
+          size="small"
+          @click="copyToClipboard(frpcIniConfig)"
+        >
+          <template #icon>
+            <n-icon :component="CopyOutline" />
+          </template>
+          复制配置
+        </n-button>
+      </template>
+    </n-card>
+  </n-collapse-item>
+</n-collapse>
+    </n-card>
+  </n-modal>
 </template>
 
 <script setup lang="ts">
 import {
     RefreshOutline,
     AddOutline,
-    TrashOutline,
-    CreateOutline,
+    BuildOutline,
     BanOutline,
     EarthOutline,
     ShieldCheckmarkOutline,
+    ArrowUpOutline,
+    ArrowDownOutline,
+      CreateOutline,
+  CodeSlashOutline,
+  TrashOutline,
+  StatsChartOutline,
+  CopyOutline
 } from '@vicons/ionicons5';
 import { useScreenStore } from '@/stores/useScreen';
 import { storeToRefs } from 'pinia';
@@ -737,6 +826,7 @@ import axios from 'axios';
 import { useUserStore } from '@/stores/user';
 
 import api from '@/api';
+import { NIcon } from 'naive-ui';
 
 const userStore = useUserStore();
 const userInfo = userStore.userInfo;
@@ -761,6 +851,10 @@ const loadingNodeMap = ref(false);
 const loadingCreateTunnel = ref(false);
 const loadingEditTunnel = ref(false);
 const addTheTunnelButtonShow = ref(false);
+const ConfigModal = ref(false);
+const frpcIniConfig = ref('');
+const windowsdaima = ref('');
+const linuxdaima = ref('');
 
 const screenStore = useScreenStore();
 const { screenWidth } = storeToRefs(screenStore);
@@ -777,6 +871,69 @@ const count = ref(16);
 const handleLoad = () => {
     count.value += 1;
 };
+
+const getDropdownOptions = () => [
+  {
+    label: '编辑隧道',
+    key: 'edit',
+    icon: () => h(NIcon, null, { default: () => h(CreateOutline) })
+  },
+  {
+    label: '获取配置代码',
+    key: 'config',
+    icon: () => h(NIcon, null, { default: () => h(CodeSlashOutline) })
+  },
+  {
+    type: 'divider',
+    key: 'd1'
+  },
+  {
+    label: '获取近七天流量',
+    key: 'stats',
+    icon: () => h(NIcon, null, { default: () => h(StatsChartOutline) })
+  },
+  {
+    type: 'divider',
+    key: 'd2'
+  },
+  {
+    label: '删除隧道',
+    key: 'delete',
+    icon: () => h(NIcon, { color: '#ff4d4f' }, { default: () => h(TrashOutline) }),
+    props: {
+      style: { color: '#ff4d4f' }
+    },
+    disabled: !deletetTunnelSuccess.value // 保持原来的禁用逻辑
+  }
+]
+
+const handleDropdownSelect = (key: any, card: TunnelCard) => {
+  switch (key) {
+    case 'edit':
+      editTunnel(card)
+      break
+    case 'config':
+        getConfigCode(card)
+      break
+    case 'stats':
+    //   getTrafficStats(card)
+      break
+    case 'delete':
+      handleConfirm(card.name, card.id, card.type, card.dorp)
+      break
+  }
+}
+
+// 获取配置文件
+const getConfigCode = (card: TunnelCard) => {
+    windowsdaima.value = `frpc.exe -u ${userInfo?.usertoken} -t ${card.id}`
+    linuxdaima.value = `chmod +x frpc && ./frpc -u ${userInfo?.usertoken} -t ${card.id}`
+    ConfigModal.value = true;
+}
+
+const CloseConfigModal = () => {
+    ConfigModal.value = false;
+}
 
 // 编辑隧道操作
 const editTunnel = (card: TunnelCard) => {
@@ -1651,22 +1808,22 @@ onMounted(() => {
 });
 
 // 流量单位换算
-// function formatBytes(bytes: string | number): { value: number; suffix: string } {
-//     let num: number;
-//     if (typeof bytes === 'string') {
-//         num = parseFloat(bytes);
-//     } else {
-//         num = bytes;
-//     }
-//     const units = ['Bytes', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB'];
-//     if (num === 0) return { value: 0, suffix: 'Bytes' };
-//     let index = 0;
-//     while (num >= 1024 && index < units.length - 1) {
-//         num /= 1024;
-//         index++;
-//     }
-//     return { value: parseFloat(num.toFixed(2)), suffix: units[index] };
-// }
+function formatBytes(bytes: string | number): { value: number; suffix: string } {
+    let num: number;
+    if (typeof bytes === 'string') {
+        num = parseFloat(bytes);
+    } else {
+        num = bytes;
+    }
+    const units = ['Bytes', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB'];
+    if (num === 0) return { value: 0, suffix: 'Bytes' };
+    let index = 0;
+    while (num >= 1024 && index < units.length - 1) {
+        num /= 1024;
+        index++;
+    }
+    return { value: parseFloat(num.toFixed(2)), suffix: units[index] };
+}
 
 interface NodeCard {
     id: number;

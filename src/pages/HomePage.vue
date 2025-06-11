@@ -149,14 +149,6 @@
                             style="border-radius: 5px"
                             tertiary
                             type="primary"
-                            @click="GoToQqGroup('https://qm.qq.com/q/ip5zGz1f9K', 992067118)"
-                        >
-                            QQ一群
-                        </n-button>
-                        <n-button
-                            style="border-radius: 5px"
-                            tertiary
-                            type="primary"
                             @click="GoToQqGroup('https://qm.qq.com/q/MJ0aeYCi8S', 592908249)"
                         >
                             QQ二群
@@ -424,13 +416,13 @@ const greeting = computed(() => {
     } else if (hour >= 11 && hour < 14) {
         return `中午好，${userInfo?.username}，享受这温暖的阳光和美味的午餐吧。`;
     } else if (hour >= 14 && hour < 15) {
-        return `饮茶先啦，${userInfo?.username}，做那么多都没用的，老板不会喜欢你的，喂喝一下茶先吧`;
+        return `饮茶先啦，${userInfo?.username}，3点多啦，饮茶先啦。`;
     } else if (hour >= 15 && hour < 17) {
         return `下午好，${userInfo?.username}，午后的时光总是最适合专注与思考。`;
     } else if (hour >= 17 && hour < 22) {
         return `晚上好，${userInfo?.username}，夜幕降临，是时候享受片刻宁静了。`;
     } else {
-        return `少熬夜，${userInfo?.username}，愿你有一个宁静而甜美的梦境。`;
+        return `夜深了，${userInfo?.username}，记得早点休息，明天会更美好`;
     }
 });
 
@@ -443,8 +435,21 @@ onMounted(() => {
     // 检查是不是第一次访问网页
     const hasVisited = localStorage.getItem('hasVisitedPage');
 
-    if (!hasVisited) {
-        // 如果没有记录，则弹出使用教程
+    // 检查注册时间
+    const isRecentRegistration = () => {
+        if (!userInfo?.regtime) return false;
+        const today = new Date();
+        const todayStr = today.toISOString().split('T')[0];
+    
+        const yesterday = new Date();
+        yesterday.setDate(yesterday.getDate() - 1);
+        const yesterdayStr = yesterday.toISOString().split('T')[0];
+    
+        return userInfo.regtime === todayStr || userInfo.regtime === yesterdayStr;
+    };
+
+    if (!hasVisited && (userInfo?.regtime && isRecentRegistration())) {
+        // 弹出使用教程
         showDialog.value = true;
         // 设置访问状态
         localStorage.setItem('hasVisitedPage', 'true');

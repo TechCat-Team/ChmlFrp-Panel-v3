@@ -136,6 +136,15 @@ const showDialog = (money: number) => {
             message.success('ChmlFrp感谢您的支持！')
             useLoadUserInfo()
         },
+        maskClosable: false,
+        onMaskClick: () => {
+            message.warning('请点击确定关闭此弹窗')
+        },
+        onEsc: () => {
+            router.replace({ path: route.path, query: {} })
+            message.success('ChmlFrp感谢您的支持！')
+            useLoadUserInfo()
+        }
     })
 }
 

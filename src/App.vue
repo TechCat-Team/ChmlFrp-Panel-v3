@@ -22,10 +22,12 @@ import hljs from 'highlight.js/lib/core'
 import ini from 'highlight.js/lib/languages/ini'
 import nginx from 'highlight.js/lib/languages/nginx'
 import powershell from 'highlight.js/lib/languages/powershell'
+import shell from 'highlight.js/lib/languages/shell'
 
 hljs.registerLanguage('ini', ini)
 hljs.registerLanguage('nginx', nginx)
 hljs.registerLanguage('powershell', powershell)
+hljs.registerLanguage('shell', shell)
 
 const userStore = useUserStore();
 
