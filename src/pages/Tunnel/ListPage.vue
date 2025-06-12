@@ -800,6 +800,15 @@
 </n-collapse>
     </n-card>
   </n-modal>
+  <n-modal 
+      v-model:show="last7daysModal" 
+      preset="card" 
+      title="近七日流量" 
+      style="max-width: 800px"
+      :loading="loading"
+    >
+      <div ref="chartRef" style="width: 100%; height: 400px;"></div>
+    </n-modal>
 </template>
 
 <script setup lang="ts">
@@ -828,6 +837,8 @@ import { useUserStore } from '@/stores/user';
 import api from '@/api';
 import { NIcon } from 'naive-ui';
 
+import * as echarts from 'echarts';
+
 const userStore = useUserStore();
 const userInfo = userStore.userInfo;
 
@@ -855,6 +866,8 @@ const ConfigModal = ref(false);
 const frpcIniConfig = ref('');
 const windowsdaima = ref('');
 const linuxdaima = ref('');
+const last7daysModal = ref(false);
+const loading = ref(false);
 
 const screenStore = useScreenStore();
 const { screenWidth } = storeToRefs(screenStore);
@@ -910,26 +923,163 @@ const getDropdownOptions = () => [
 const handleDropdownSelect = (key: any, card: TunnelCard) => {
   switch (key) {
     case 'edit':
-      editTunnel(card)
-      break
+      editTunnel(card);
+      break;
     case 'config':
-        getConfigCode(card)
-      break
+      getConfigCode(card);
+      break;
     case 'stats':
-    //   getTrafficStats(card)
-      break
+      getTunnelLast7days(card.id, card.state); // 传入隧道ID
+      break;
     case 'delete':
-      handleConfirm(card.name, card.id, card.type, card.dorp)
-      break
+      handleConfirm(card.name, card.id, card.type, card.dorp);
+      break;
   }
-}
+};
 
 // 获取配置文件
-const getConfigCode = (card: TunnelCard) => {
-    windowsdaima.value = `frpc.exe -u ${userInfo?.usertoken} -t ${card.id}`
-    linuxdaima.value = `chmod +x frpc && ./frpc -u ${userInfo?.usertoken} -t ${card.id}`
+const getConfigCode = async (card: TunnelCard) => {
+    const response = await api.v2.tunnel.getTunnelConfig(userInfo?.usertoken || '', card.node || '', card.name);
+    frpcIniConfig.value = response.data || '';
+
+    windowsdaima.value = `frpc.exe -u ${userInfo?.usertoken} -p ${card.id}`
+    linuxdaima.value = `chmod +x frpc && ./frpc -u ${userInfo?.usertoken} -p ${card.id}`
     ConfigModal.value = true;
 }
+
+const chartRef = ref<HTMLElement | null>(null);
+let chartInstance: echarts.ECharts | null = null;
+
+// 获取近七日流量数据
+const getTunnelLast7days = async (tunnelId: Number, state: String) => {
+    if (state === 'false') {
+        message.error('隧道不在线，无法获取数据');
+    } else {
+
+  try {
+    loading.value = true;
+    const response = await axios.get(`https://cf-v2.uapis.cn/tunnel/last7days?token=${userInfo?.usertoken}&tunnel_id=${tunnelId}`);
+    
+    if (response.data.code === 200 && response.data.state === 'success') {
+      const { traffic_in, traffic_out } = response.data.data;
+      last7daysModal.value = true;
+      
+      // 确保DOM更新后初始化图表
+      nextTick(() => {
+        initChart(traffic_in, traffic_out);
+      });
+    } else {
+      message.error(response.data.msg || '获取流量数据失败');
+    }
+  } catch (error) {
+    message.error('获取流量数据时出错');
+    console.error('Error fetching traffic data:', error);
+  } finally {
+    loading.value = false;
+  }
+}
+};
+
+// 初始化图表
+const initChart = (trafficIn: number[], trafficOut: number[]) => {
+  if (!chartRef.value) return;
+  
+  // 销毁旧图表实例
+  if (chartInstance) {
+    chartInstance.dispose();
+  }
+  
+  // 创建新图表实例
+  chartInstance = echarts.init(chartRef.value);
+  
+  // 生成日期标签
+  const dates = [];
+  const now = new Date();
+  for (let i = 0; i < 7; i++) {
+    const date = new Date(now);
+    date.setDate(date.getDate() - i);
+    dates.unshift(`${date.getMonth() + 1}/${date.getDate()}`);
+  }
+  
+  // 字节转换为MB
+  const toMB = (bytes: number) => (bytes / (1024 * 1024)).toFixed(2);
+  
+  const option = {
+    tooltip: {
+      trigger: 'axis',
+      axisPointer: {
+        type: 'shadow'
+      },
+      formatter: (params: any) => {
+        let result = `${params[0].axisValue}<br>`;
+        params.forEach((item: any) => {
+          result += `${item.seriesName}: ${toMB(item.value)} MB<br>`;
+        });
+        return result;
+      }
+    },
+    legend: {
+      data: ['下载流量 (入)', '上传流量 (出)'],
+      right: 10,
+      top: 10
+    },
+    grid: {
+      left: '3%',
+      right: '4%',
+      bottom: '3%',
+      containLabel: true
+    },
+    xAxis: {
+      type: 'category',
+      data: dates,
+      axisLabel: {
+        rotate: 45
+      }
+    },
+    yAxis: {
+      type: 'value',
+      name: '流量 (MB)',
+      axisLine: {
+        show: true
+      },
+      axisLabel: {
+        formatter: '{value}'
+      }
+    },
+    series: [
+      {
+        name: '下载流量 (入)',
+        type: 'bar',
+        emphasis: {
+          focus: 'series'
+        },
+        itemStyle: {
+          color: '#5d8ff0' // 蓝色表示下载
+        },
+        data: trafficIn.map(toMB)
+      },
+      {
+        name: '上传流量 (出)',
+        type: 'bar',
+        emphasis: {
+          focus: 'series'
+        },
+        itemStyle: {
+          color: '#63e2b7' // 绿色表示上传
+        },
+        data: trafficOut.map(toMB)
+      }
+    ]
+  };
+  
+  chartInstance.setOption(option);
+  
+  // 响应式调整
+  const resizeHandler = () => {
+    chartInstance && chartInstance.resize();
+  };
+  window.addEventListener('resize', resizeHandler);
+};
 
 const CloseConfigModal = () => {
     ConfigModal.value = false;
