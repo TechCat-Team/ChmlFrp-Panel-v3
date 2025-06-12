@@ -562,7 +562,7 @@
             </template>
         </n-card>
     </n-modal>
-    <n-card style="margin-bottom: 20px" title="隧道列表">
+    <n-card style="margin-bottom: 12px" title="隧道列表">
         <template #header-extra>
             <n-button round quaternary :loading="loadingTunnel" @click="fetchTunnelCards">
                 <template #icon>
@@ -681,26 +681,6 @@
   </n-dropdown>
 </n-grid-item>
   </n-grid>
-                    <!-- <n-flex justify="end">
-                        <n-button round quaternary type="primary" @click="editTunnel(card)">
-                            <template #icon>
-                                <n-icon :component="CreateOutline" />
-                            </template>
-                            编辑
-                        </n-button>
-                        <n-button
-                            :disabled="!deletetTunnelSuccess"
-                            round
-                            quaternary
-                            type="error"
-                            @click="handleConfirm(card.name, card.id, card.type, card.dorp)"
-                        >
-                            <template #icon>
-                                <n-icon :component="TrashOutline" />
-                            </template>
-                            删除
-                        </n-button>
-                    </n-flex> -->
                 </template>
             </n-card>
         </n-grid-item>
