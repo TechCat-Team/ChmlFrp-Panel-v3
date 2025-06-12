@@ -817,7 +817,23 @@ import { useUserStore } from '@/stores/user';
 import api from '@/api';
 import { NIcon } from 'naive-ui';
 
-import * as echarts from 'echarts';
+import * as echarts from 'echarts/core';
+import { BarChart } from 'echarts/charts';
+import {
+  TooltipComponent,
+  LegendComponent,
+  GridComponent
+} from 'echarts/components';
+import { CanvasRenderer } from 'echarts/renderers';
+
+// 注册必要的组件
+echarts.use([
+  BarChart,
+  TooltipComponent,
+  LegendComponent,
+  GridComponent,
+  CanvasRenderer
+]);
 
 const userStore = useUserStore();
 const userInfo = userStore.userInfo;
