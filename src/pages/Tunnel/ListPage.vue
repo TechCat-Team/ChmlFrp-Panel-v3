@@ -751,7 +751,7 @@
               </n-button>
             </template>
             <n-card size="small">
-            <n-code :code="linuxdaima" language="shell" word-wrap />
+            <n-code :code="linuxdaima" word-wrap />
             </n-card>
           </n-collapse-item>
       </n-space>
