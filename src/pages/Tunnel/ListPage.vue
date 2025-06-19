@@ -805,7 +805,8 @@ import {
   CodeSlashOutline,
   TrashOutline,
   StatsChartOutline,
-  CopyOutline
+  CopyOutline,
+  CodeDownloadOutline
 } from '@vicons/ionicons5';
 import { useScreenStore } from '@/stores/useScreen';
 import { storeToRefs } from 'pinia';
@@ -837,12 +838,6 @@ echarts.use([
 
 const userStore = useUserStore();
 const userInfo = userStore.userInfo;
-
-// const router = useRouter();
-// const goToTunnelInfo = () => {
-//     const url = router.resolve({ path: '/tunnel/info' }).href;
-//     window.open(url, '_blank');
-// }
 
 const message = useMessage();
 const dialog = useDialog();
@@ -897,6 +892,11 @@ const getDropdownOptions = () => [
     key: 'd1'
   },
   {
+    label: '刷新流量等数据',
+    key: 'refresh',
+    icon: () => h(NIcon, null, { default: () => h(RefreshOutline) })
+  },
+  {
     label: '获取近七天流量',
     key: 'stats',
     icon: () => h(NIcon, null, { default: () => h(StatsChartOutline) })
@@ -906,13 +906,22 @@ const getDropdownOptions = () => [
     key: 'd2'
   },
   {
+    label: '强制下线隧道',
+    key: 'offtunnel',
+    icon: () => h(NIcon, { color: '#ff4d4f' }, { default: () => h(CodeDownloadOutline) }),
+    props: {
+      style: { color: '#ff4d4f' }
+    },
+    disabled: !deletetTunnelSuccess.value
+  },
+  {
     label: '删除隧道',
     key: 'delete',
     icon: () => h(NIcon, { color: '#ff4d4f' }, { default: () => h(TrashOutline) }),
     props: {
       style: { color: '#ff4d4f' }
     },
-    disabled: !deletetTunnelSuccess.value // 保持原来的禁用逻辑
+    disabled: !deletetTunnelSuccess.value
   }
 ]
 

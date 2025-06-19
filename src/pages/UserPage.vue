@@ -106,21 +106,7 @@
                         </n-row>
                     </n-form>
                 </n-card>
-                <n-card style="display: flex; justify-content: center; margin-top: 15px" title="账户详情">
-                    <template #header-extra>
-                        <n-tooltip trigger="hover">
-                            <template #trigger>
-                                <n-button quaternary circle @click="deleteAccountTips">
-                                    <template #icon>
-                                        <n-icon>
-                                            <CloseOutline />
-                                        </n-icon>
-                                    </template>
-                                </n-button>
-                            </template>
-                            注销账户
-                        </n-tooltip>
-                    </template>
+                <n-card style="display: flex; justify-content: center; margin-top: 15px">
                     <n-space justify="center">
                         <div
                             style="display: flex; align-items: center; justify-content: center; flex-direction: column;">
@@ -360,7 +346,7 @@
 </template>
 
 <script setup lang="ts">
-import { KeyOutline, PersonOutline, ImageOutline, MailOutline, LockClosedOutline, ChatboxEllipsesOutline, CloseOutline } from '@vicons/ionicons5'
+import { KeyOutline, PersonOutline, ImageOutline, MailOutline, LockClosedOutline, ChatboxEllipsesOutline, TrashBinOutline, CodeDownloadOutline } from '@vicons/ionicons5'
 import { ref, computed } from 'vue';
 import { FormInst, FormRules } from 'naive-ui';
 import { useStyleStore } from '@/stores/style';
@@ -567,6 +553,18 @@ const startDeleteAccountCountdown = () => {
             countdownAccountButton.value = 60 // 重置倒计时
         }
     }, 1000)
+}
+
+const OfflineAllTunnels = () => {
+    deleteAccountVerificationModal.value = false;
+    dialog.warning({
+        title: '警告',
+        content: '此操作将会停止运行所有您正在运行中的隧道，且frp进程将会自动关闭。请确定此操作是您预期内的。',
+        positiveText: '确定',
+        negativeText: '取消',
+        onPositiveClick: () => {
+        }
+    })
 }
 
 const last_sign_in_time = ref('');
@@ -1038,7 +1036,7 @@ const openChangeQQModal = () => {
 const settingCard = ref([
     {
         title: '重置token',
-        subtitle: '此操作不可逆，重置后所有客户端均需重新登录',
+        subtitle: '重置后所有客户端均需重新登录',
         icon: markRaw(KeyOutline),
         click: resetToken,
     },
@@ -1050,7 +1048,7 @@ const settingCard = ref([
     },
     {
         title: '更改头像',
-        subtitle: '不支持上传图片文件，请将图片上传到图床后再填写链接',
+        subtitle: '不支持上传图片文件，请填写图片链接',
         icon: markRaw(ImageOutline),
         click: openModifyAvatarModal
     },
@@ -1071,6 +1069,18 @@ const settingCard = ref([
         subtitle: '不正确的QQ号可能会影响到后续功能',
         icon: markRaw(ChatboxEllipsesOutline),
         click: openChangeQQModal,
+    },
+    {
+        title: '下线所有隧道',
+        subtitle: '一键下线所有运行中的隧道',
+        icon: markRaw(CodeDownloadOutline),
+        click: OfflineAllTunnels,
+    },
+    {
+        title: '注销账户',
+        subtitle: '注销ChmlFrp账户，删除账户所有信息',
+        icon: markRaw(TrashBinOutline),
+        click: deleteAccountTips,
     }
 ])
 </script>

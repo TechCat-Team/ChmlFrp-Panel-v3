@@ -20,7 +20,7 @@
         <template #footer>
             <n-grid cols="1 m:3" item-responsive responsive="screen" :x-gap="12" :y-gap="12">
                 <n-grid-item span="1 m:2">
-                    <n-card title="Frpc.ini">
+                    <n-card title="Frpc.ini" style="min-height: 334px;">
                         <template #header-extra>
                             <n-button text @click="handleCopy('tunnelConfig')">
                                 <n-icon :component="CopyOutline" />
@@ -55,7 +55,19 @@
                     </n-card>
                 </n-grid-item>
                 <n-grid-item>
-                    <n-card title="Linux脚本">
+                    <n-card title="启动代码">
+                        <template #header-extra>
+                            <n-button text>
+                                <n-icon :component="ShuffleOutline" />
+                            </n-button>
+                        </template>
+                        <n-code :code="LinuxScript" language="powershell" word-wrap v-if="LinuxScript !== ''" />
+                        <div v-else-if="loadingGenerate">
+                            <n-skeleton text :repeat="3" /> <n-skeleton text style="width: 60%" />
+                        </div>
+                        <n-empty v-else description="请生成配置文件" />
+                    </n-card>
+                    <n-card style="margin-top: 16px;" title="Linux脚本">
                         <template #header-extra>
                             <n-tooltip trigger="hover">
                                 <template #trigger>
@@ -132,7 +144,7 @@
 
 <script lang="ts" setup>
 import { ref } from 'vue';
-import { CopyOutline } from '@vicons/ionicons5'
+import { CopyOutline, ShuffleOutline } from '@vicons/ionicons5'
 // 获取登录信息
 import { useUserStore } from '@/stores/user';
 
