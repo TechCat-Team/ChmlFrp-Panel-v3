@@ -157,3 +157,22 @@ export const getTunnelConfig = (
         params: { token, node, tunnel_names },
     });
 };
+
+interface GetTunnelLast7daysResponse extends BaseResponse {
+    data: {
+        traffic_in: number[];
+        traffic_out: number[];
+    };
+}
+
+/**
+ * 获取近七日流量数据
+ * @param {string} token 用户身份令牌
+ * @param {number} tunnel_id 隧道ID
+ * @returns {Promise<GetTunnelLast7daysResponse>} 近七日流量数据响应
+ */
+export const getTunnelLast7days = (token: string, tunnel_id: number): Promise<GetTunnelLast7daysResponse> => {
+    return axiosInstance.get('/tunnel/last7days', {
+        params: { token, tunnel_id },
+    });
+};
