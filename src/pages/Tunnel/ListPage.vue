@@ -639,48 +639,54 @@
                     <span v-else style="color: gray; font-size: 10px"> 尚未启动过此隧道 </span>
                 </n-thing>
                 <template #action>
-  <n-grid cols="8" :x-gap="6" align="center">
-    <n-grid-item :span="7">
-      <n-row align="center" justify="start" style="margin-top: 6px;">
-        <n-col :span="8">
-          <div style="display: flex; align-items: center;">
-            <n-icon :component="ArrowUpOutline" />
-            <n-number-animation show-separator :from="0" 
-              :to="formatBytes(card.today_traffic_in).value" />
-            {{ formatBytes(card.today_traffic_in).suffix }}
-          </div>
-        </n-col>
-        <n-col :span="8">
-          <div style="display: flex; align-items: center;">
-            <n-icon :component="ArrowDownOutline" />
-            <n-number-animation show-separator :from="0" 
-              :to="formatBytes(card.today_traffic_out).value" />
-            {{ formatBytes(card.today_traffic_out).suffix }}
-          </div>
-        </n-col>
-        <n-col :span="8">
-          <div style="display: flex; align-items: center;">
-            连接数
-            <n-number-animation show-separator :from="0" :to="card.cur_conns" />
-          </div>
-        </n-col>
-      </n-row>
-    </n-grid-item>
-<n-grid-item :span="1" style="display: flex; justify-content: flex-end;">
-  <n-dropdown
-    trigger="click"
-    :options="getDropdownOptions()"
-    @select="(key: any) => handleDropdownSelect(key, card)"
-    placement="bottom-end"
-  >
-    <n-button quaternary circle size="medium" style="--n-padding: 8px;">
-      <template #icon>
-        <n-icon size="16"><BuildOutline /></n-icon>
-      </template>
-    </n-button>
-  </n-dropdown>
-</n-grid-item>
-  </n-grid>
+                    <n-grid cols="8" :x-gap="6" align="center">
+                        <n-grid-item :span="7">
+                            <n-row align="center" justify="start" style="margin-top: 6px">
+                                <n-col :span="8">
+                                    <div style="display: flex; align-items: center">
+                                        <n-icon :component="ArrowUpOutline" />
+                                        <n-number-animation
+                                            show-separator
+                                            :from="0"
+                                            :to="formatBytes(card.today_traffic_in).value"
+                                        />
+                                        {{ formatBytes(card.today_traffic_in).suffix }}
+                                    </div>
+                                </n-col>
+                                <n-col :span="8">
+                                    <div style="display: flex; align-items: center">
+                                        <n-icon :component="ArrowDownOutline" />
+                                        <n-number-animation
+                                            show-separator
+                                            :from="0"
+                                            :to="formatBytes(card.today_traffic_out).value"
+                                        />
+                                        {{ formatBytes(card.today_traffic_out).suffix }}
+                                    </div>
+                                </n-col>
+                                <n-col :span="8">
+                                    <div style="display: flex; align-items: center">
+                                        连接数
+                                        <n-number-animation show-separator :from="0" :to="card.cur_conns" />
+                                    </div>
+                                </n-col>
+                            </n-row>
+                        </n-grid-item>
+                        <n-grid-item :span="1" style="display: flex; justify-content: flex-end">
+                            <n-dropdown
+                                trigger="click"
+                                :options="getDropdownOptions()"
+                                @select="(key: any) => handleDropdownSelect(key, card)"
+                                placement="bottom-end"
+                            >
+                                <n-button quaternary circle size="medium" style="--n-padding: 8px">
+                                    <template #icon>
+                                        <n-icon size="16"><BuildOutline /></n-icon>
+                                    </template>
+                                </n-button>
+                            </n-dropdown>
+                        </n-grid-item>
+                    </n-grid>
                 </template>
             </n-card>
         </n-grid-item>
@@ -710,84 +716,65 @@
         </n-empty>
     </n-card>
     <n-modal v-model:show="ConfigModal">
-    <n-card
-    style="max-width: 600px"
-    title="配置代码"
-      :bordered="false"
-      size="medium"
-      role="dialog"
-      aria-modal="true"
-      closable
-      @close="CloseConfigModal"
-    >
-<n-collapse :default-expanded-names="['1', '3']">
-  <n-collapse-item title="快捷启动代码" name="1">
-    <div style="margin-bottom: 16px;">
-      <n-space vertical>
-        <!-- Windows 启动代码 -->
-          <n-collapse-item title="Windows" name="3" style="margin-bottom: 8px;">
-            <template #header-extra>
-              <n-button
-                text
-                tag="a"
-                @click.stop="copyToClipboard(windowsdaima)"
-              >
-                <n-icon :component="CopyOutline" />
-              </n-button>
-            </template>
-            <n-card size="small">
-            <n-code :code="windowsdaima" language="powershell" word-wrap />
-            </n-card>
-          </n-collapse-item>
-        <!-- Linux 启动代码 -->
-          <n-collapse-item title="Linux & MacOS" name="2" style="margin-bottom: 8px;">
-            <template #header-extra>
-              <n-button
-                text
-                tag="a"
-                @click="copyToClipboard(linuxdaima)"
-              >
-                <n-icon :component="CopyOutline" />
-              </n-button>
-            </template>
-            <n-card size="small">
-            <n-code :code="linuxdaima" word-wrap />
-            </n-card>
-          </n-collapse-item>
-      </n-space>
-    </div>
-  </n-collapse-item>
-
-  <!-- Frpc.ini 配置 -->
-  <n-collapse-item title="Frpc.ini 配置" name="5">
-    <n-card size="small">
-      <n-code :code="frpcIniConfig" language="ini" word-wrap />
-      <template #action>
-        <n-button
-          secondary
-          type="primary"
-          size="small"
-          @click="copyToClipboard(frpcIniConfig)"
+        <n-card
+            style="max-width: 600px"
+            title="配置代码"
+            :bordered="false"
+            size="medium"
+            role="dialog"
+            aria-modal="true"
+            closable
+            @close="CloseConfigModal"
         >
-          <template #icon>
-            <n-icon :component="CopyOutline" />
-          </template>
-          复制配置
-        </n-button>
-      </template>
-    </n-card>
-  </n-collapse-item>
-</n-collapse>
-    </n-card>
-  </n-modal>
-  <n-modal 
-      v-model:show="last7daysModal" 
-      preset="card" 
-      title="近七日流量" 
-      style="max-width: 800px"
-      :loading="loading"
-    >
-      <div ref="chartRef" style="width: 100%; height: 400px;"></div>
+            <n-collapse :default-expanded-names="['1', '3']">
+                <n-collapse-item title="快捷启动代码" name="1">
+                    <div style="margin-bottom: 16px">
+                        <n-space vertical>
+                            <!-- Windows 启动代码 -->
+                            <n-collapse-item title="Windows" name="3" style="margin-bottom: 8px">
+                                <template #header-extra>
+                                    <n-button text tag="a" @click.stop="copyToClipboard(windowsdaima)">
+                                        <n-icon :component="CopyOutline" />
+                                    </n-button>
+                                </template>
+                                <n-card size="small">
+                                    <n-code :code="windowsdaima" language="powershell" word-wrap />
+                                </n-card>
+                            </n-collapse-item>
+                            <!-- Linux 启动代码 -->
+                            <n-collapse-item title="Linux & MacOS" name="2" style="margin-bottom: 8px">
+                                <template #header-extra>
+                                    <n-button text tag="a" @click="copyToClipboard(linuxdaima)">
+                                        <n-icon :component="CopyOutline" />
+                                    </n-button>
+                                </template>
+                                <n-card size="small">
+                                    <n-code :code="linuxdaima" word-wrap />
+                                </n-card>
+                            </n-collapse-item>
+                        </n-space>
+                    </div>
+                </n-collapse-item>
+
+                <!-- Frpc.ini 配置 -->
+                <n-collapse-item title="Frpc.ini 配置" name="5">
+                    <n-card size="small">
+                        <n-code :code="frpcIniConfig" language="ini" word-wrap />
+                        <template #action>
+                            <n-button secondary type="primary" size="small" @click="copyToClipboard(frpcIniConfig)">
+                                <template #icon>
+                                    <n-icon :component="CopyOutline" />
+                                </template>
+                                复制配置
+                            </n-button>
+                        </template>
+                    </n-card>
+                </n-collapse-item>
+            </n-collapse>
+        </n-card>
+    </n-modal>
+    <n-modal v-model:show="last7daysModal" preset="card" title="近七日流量" style="max-width: 800px" :loading="loading">
+        <div ref="chartRef" style="width: 100%; height: 400px"></div>
     </n-modal>
 </template>
 
@@ -801,12 +788,12 @@ import {
     ShieldCheckmarkOutline,
     ArrowUpOutline,
     ArrowDownOutline,
-      CreateOutline,
-  CodeSlashOutline,
-  TrashOutline,
-  StatsChartOutline,
-  CopyOutline,
-  CodeDownloadOutline
+    CreateOutline,
+    CodeSlashOutline,
+    TrashOutline,
+    StatsChartOutline,
+    CopyOutline,
+    CodeDownloadOutline,
 } from '@vicons/ionicons5';
 import { useScreenStore } from '@/stores/useScreen';
 import { storeToRefs } from 'pinia';
@@ -820,21 +807,11 @@ import { NIcon } from 'naive-ui';
 
 import * as echarts from 'echarts/core';
 import { BarChart } from 'echarts/charts';
-import {
-  TooltipComponent,
-  LegendComponent,
-  GridComponent
-} from 'echarts/components';
+import { TooltipComponent, LegendComponent, GridComponent } from 'echarts/components';
 import { CanvasRenderer } from 'echarts/renderers';
 
 // 注册必要的组件
-echarts.use([
-  BarChart,
-  TooltipComponent,
-  LegendComponent,
-  GridComponent,
-  CanvasRenderer
-]);
+echarts.use([BarChart, TooltipComponent, LegendComponent, GridComponent, CanvasRenderer]);
 
 const userStore = useUserStore();
 const userInfo = userStore.userInfo;
@@ -877,69 +854,69 @@ const handleLoad = () => {
 };
 
 const getDropdownOptions = () => [
-  {
-    label: '编辑隧道',
-    key: 'edit',
-    icon: () => h(NIcon, null, { default: () => h(CreateOutline) })
-  },
-  {
-    label: '获取配置代码',
-    key: 'config',
-    icon: () => h(NIcon, null, { default: () => h(CodeSlashOutline) })
-  },
-  {
-    type: 'divider',
-    key: 'd1'
-  },
-  {
-    label: '刷新流量等数据',
-    key: 'refresh',
-    icon: () => h(NIcon, null, { default: () => h(RefreshOutline) })
-  },
-  {
-    label: '获取近七天流量',
-    key: 'stats',
-    icon: () => h(NIcon, null, { default: () => h(StatsChartOutline) })
-  },
-  {
-    type: 'divider',
-    key: 'd2'
-  },
-  {
-    label: '强制下线隧道',
-    key: 'offtunnel',
-    icon: () => h(NIcon, { color: '#ff4d4f' }, { default: () => h(CodeDownloadOutline) }),
-    props: {
-      style: { color: '#ff4d4f' }
+    {
+        label: '编辑隧道',
+        key: 'edit',
+        icon: () => h(NIcon, null, { default: () => h(CreateOutline) }),
     },
-    disabled: !deletetTunnelSuccess.value
-  },
-  {
-    label: '删除隧道',
-    key: 'delete',
-    icon: () => h(NIcon, { color: '#ff4d4f' }, { default: () => h(TrashOutline) }),
-    props: {
-      style: { color: '#ff4d4f' }
+    {
+        label: '获取配置代码',
+        key: 'config',
+        icon: () => h(NIcon, null, { default: () => h(CodeSlashOutline) }),
     },
-    disabled: !deletetTunnelSuccess.value
-  }
-]
+    {
+        type: 'divider',
+        key: 'd1',
+    },
+    {
+        label: '刷新流量等数据',
+        key: 'refresh',
+        icon: () => h(NIcon, null, { default: () => h(RefreshOutline) }),
+    },
+    {
+        label: '获取近七天流量',
+        key: 'stats',
+        icon: () => h(NIcon, null, { default: () => h(StatsChartOutline) }),
+    },
+    {
+        type: 'divider',
+        key: 'd2',
+    },
+    {
+        label: '强制下线隧道',
+        key: 'offtunnel',
+        icon: () => h(NIcon, { color: '#ff4d4f' }, { default: () => h(CodeDownloadOutline) }),
+        props: {
+            style: { color: '#ff4d4f' },
+        },
+        disabled: !deletetTunnelSuccess.value,
+    },
+    {
+        label: '删除隧道',
+        key: 'delete',
+        icon: () => h(NIcon, { color: '#ff4d4f' }, { default: () => h(TrashOutline) }),
+        props: {
+            style: { color: '#ff4d4f' },
+        },
+        disabled: !deletetTunnelSuccess.value,
+    },
+];
 
 const handleDropdownSelect = (key: any, card: TunnelCard) => {
-  switch (key) {
-    case 'edit':
-      editTunnel(card);
-      break;
-    case 'config':
-      getConfigCode(card);
-      break;
-    case 'stats':
-      getTunnelLast7days(card.id, card.state); // 传入隧道ID
-      break;
-    case 'delete':
-      handleConfirm(card.name, card.id, card.type, card.dorp);
-      break;
-  }
+    switch (key) {
+        case 'edit':
+            editTunnel(card);
+            break;
+        case 'config':
+            getConfigCode(card);
+            break;
+        case 'stats':
+            getTunnelLast7days(card.id, card.state); // 传入隧道ID
+            break;
+        case 'delete':
+            handleConfirm(card.name, card.id, card.type, card.dorp);
+            break;
+    }
 };
 
 // 获取配置文件
@@ -947,148 +924,131 @@ const getConfigCode = async (card: TunnelCard) => {
     const response = await api.v2.tunnel.getTunnelConfig(userInfo?.usertoken || '', card.node || '', card.name);
     frpcIniConfig.value = response.data || '';
 
-    windowsdaima.value = `frpc.exe -u ${userInfo?.usertoken} -p ${card.id}`
-    linuxdaima.value = `chmod +x frpc && ./frpc -u ${userInfo?.usertoken} -p ${card.id}`
+    windowsdaima.value = `frpc.exe -u ${userInfo?.usertoken} -p ${card.id}`;
+    linuxdaima.value = `chmod +x frpc && ./frpc -u ${userInfo?.usertoken} -p ${card.id}`;
     ConfigModal.value = true;
-}
+};
 
 const chartRef = ref<HTMLElement | null>(null);
 let chartInstance: echarts.ECharts | null = null;
 
 // 获取近七日流量数据
-const getTunnelLast7days = async (tunnelId: Number, state: String) => {
+const getTunnelLast7days = async (tunnelId: number, state: string) => {
     if (state === 'false') {
         message.error('隧道不在线，无法获取数据');
     } else {
+        try {
+            loading.value = true;
+            const response = await api.v2.tunnel.getTunnelLast7days(userInfo?.usertoken || '', tunnelId);
+            const { traffic_in, traffic_out } = response.data;
+            last7daysModal.value = true;
 
-  try {
-    loading.value = true;
-    const response = await axios.get(`https://cf-v2.uapis.cn/tunnel/last7days?token=${userInfo?.usertoken}&tunnel_id=${tunnelId}`);
-    
-    if (response.data.code === 200 && response.data.state === 'success') {
-      const { traffic_in, traffic_out } = response.data.data;
-      last7daysModal.value = true;
-      
-      // 确保DOM更新后初始化图表
-      nextTick(() => {
-        initChart(traffic_in, traffic_out);
-      });
-    } else {
-      message.error(response.data.msg || '获取流量数据失败');
+            // 确保DOM更新后初始化图表
+            nextTick(() => {
+                initChart(traffic_in, traffic_out);
+            });
+        } catch (error) {
+            message.error('获取流量数据时出错: ' + (error as Error).message);
+            last7daysModal.value = false;
+        } finally {
+            loading.value = false;
+        }
     }
-  } catch (error) {
-    message.error('获取流量数据时出错');
-    console.error('Error fetching traffic data:', error);
-  } finally {
-    loading.value = false;
-  }
-}
 };
 
 // 初始化图表
 const initChart = (trafficIn: number[], trafficOut: number[]) => {
-  if (!chartRef.value) return;
-  
-  // 销毁旧图表实例
-  if (chartInstance) {
-    chartInstance.dispose();
-  }
-  
-  // 创建新图表实例
-  chartInstance = echarts.init(chartRef.value);
-  
-  // 生成日期标签
-  const dates = [];
-  const now = new Date();
-  for (let i = 0; i < 7; i++) {
-    const date = new Date(now);
-    date.setDate(date.getDate() - i);
-    dates.unshift(`${date.getMonth() + 1}/${date.getDate()}`);
-  }
-  
-  // 字节转换为MB
-  const toMB = (bytes: number) => (bytes / (1024 * 1024)).toFixed(2);
-  
-  const option = {
-    tooltip: {
-      trigger: 'axis',
-      axisPointer: {
-        type: 'shadow'
-      },
-      formatter: (params: any) => {
-        let result = `${params[0].axisValue}<br>`;
-        params.forEach((item: any) => {
-          result += `${item.seriesName}: ${toMB(item.value)} MB<br>`;
-        });
-        return result;
-      }
-    },
-    legend: {
-      data: ['下载流量 (入)', '上传流量 (出)'],
-      right: 10,
-      top: 10
-    },
-    grid: {
-      left: '3%',
-      right: '4%',
-      bottom: '3%',
-      containLabel: true
-    },
-    xAxis: {
-      type: 'category',
-      data: dates,
-      axisLabel: {
-        rotate: 45
-      }
-    },
-    yAxis: {
-      type: 'value',
-      name: '流量 (MB)',
-      axisLine: {
-        show: true
-      },
-      axisLabel: {
-        formatter: '{value}'
-      }
-    },
-    series: [
-      {
-        name: '下载流量 (入)',
-        type: 'bar',
-        emphasis: {
-          focus: 'series'
+    if (!chartRef.value) return;
+
+    // 销毁旧图表实例
+    if (chartInstance) {
+        chartInstance.dispose();
+    }
+
+    // 创建新图表实例
+    chartInstance = echarts.init(chartRef.value);
+
+    // 生成日期标签
+    const dates = [];
+    const now = new Date();
+    for (let i = 0; i < 7; i++) {
+        const date = new Date(now);
+        date.setDate(date.getDate() - i);
+        dates.unshift(`${date.getMonth() + 1}/${date.getDate()}`);
+    }
+
+    const option = {
+        tooltip: {
+            trigger: 'axis',
+            axisPointer: {
+                type: 'shadow',
+            },
+            formatter: (params: any) => {
+                let result = `${params[0].axisValue}<br>`;
+                params.forEach((item: any) => {
+                    result += `${item.seriesName}: ${(item.value / (1024 * 1024)).toFixed(2)} MB<br>`;
+                });
+                return result;
+            },
         },
-        itemStyle: {
-          color: '#5d8ff0' // 蓝色表示下载
+        legend: {
+            data: ['下载流量 (入)', '上传流量 (出)'],
+            right: 10,
+            top: 10,
         },
-        data: trafficIn.map(toMB)
-      },
-      {
-        name: '上传流量 (出)',
-        type: 'bar',
-        emphasis: {
-          focus: 'series'
+        grid: {
+            left: '3%',
+            right: '4%',
+            bottom: '3%',
+            containLabel: true,
         },
-        itemStyle: {
-          color: '#63e2b7' // 绿色表示上传
+        xAxis: {
+            type: 'category',
+            data: dates,
+            axisLabel: {
+                rotate: 45,
+            },
         },
-        data: trafficOut.map(toMB)
-      }
-    ]
-  };
-  
-  chartInstance.setOption(option);
-  
-  // 响应式调整
-  const resizeHandler = () => {
-    chartInstance && chartInstance.resize();
-  };
-  window.addEventListener('resize', resizeHandler);
+        yAxis: {
+            type: 'value',
+            name: '流量 (MB)',
+            axisLine: {
+                show: true,
+            },
+            axisLabel: {
+                formatter: (value: number) => (value / 1024 / 1024).toFixed(0), // 字节转MB
+            },
+        },
+        series: [
+            {
+                name: '下载流量 (入)',
+                type: 'bar',
+                emphasis: { focus: 'series' },
+                itemStyle: { color: '#5d8ff0' },
+                data: trafficIn, // 直接传原始字节数
+            },
+            {
+                name: '上传流量 (出)',
+                type: 'bar',
+                emphasis: { focus: 'series' },
+                itemStyle: { color: '#63e2b7' },
+                data: trafficOut, // 直接传原始字节数
+            },
+        ],
+    };
+
+    chartInstance.setOption(option);
+
+    // 响应式调整
+    const resizeHandler = () => {
+        chartInstance && chartInstance.resize();
+    };
+    window.addEventListener('resize', resizeHandler);
 };
 
 const CloseConfigModal = () => {
     ConfigModal.value = false;
-}
+};
 
 // 编辑隧道操作
 const editTunnel = (card: TunnelCard) => {
@@ -1406,7 +1366,7 @@ const checkFormData = (formData: any) => {
             const domain = formData.domain.trim();
             const isIp = /^(?:\d{1,3}\.){3}\d{1,3}$/.test(domain);
             const isFrpOne = domain.endsWith('.frp.one');
-            const isValidDomain = /^(?!-)(?:[a-z0-9-]{1,63}\.)+[a-z]{2,}$/.test(domain);
+            const isValidDomain = /^(?:\*\.)?(?!-)(?:[a-z0-9-]{1,63}\.)+[a-z]{2,}$/.test(domain);
 
             if (!domain) {
                 message.error('请输入域名');
@@ -2104,7 +2064,12 @@ const handleNodeCardClick = async (card: NodeCard) => {
     loadingTunnelInfo.value = true;
     try {
         const data = await api.v2.node.getNodeInfo(userInfo?.usertoken || '', card.name);
-        Object.assign(NodeInfo.value, data.data);
+        NodeInfo.value = {
+            ...data.data,
+            udp: data.data.udp === 'true',
+            fangyu: data.data.fangyu === 'true',
+            ipv6: data.data.ipv6 || '',
+        };
     } catch (error) {
         message.error('节点详情获取失败: ' + (error as Error).message);
     } finally {
@@ -2269,7 +2234,7 @@ const forceCheck = () => {
             if (card.type === 'http' || card.type === 'https') {
                 const isIp = /^(?:\d{1,3}\.){3}\d{1,3}$/.test(card.dorp);
                 const isFrpOne = card.dorp.endsWith('.frp.one');
-                const isValidDomain = /^(?!-)(?:[a-z0-9-]{1,63}\.)+[a-z]{2,}$/.test(card.dorp);
+                const isValidDomain = /^(?:\*\.)?(?!-)(?:[a-z0-9-]{1,63}\.)+[a-z]{2,}$/.test(card.dorp);
 
                 if (isIp || isFrpOne || !isValidDomain) {
                     editTunnel(card);
