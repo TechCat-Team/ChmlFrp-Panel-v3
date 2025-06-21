@@ -2064,7 +2064,12 @@ const handleNodeCardClick = async (card: NodeCard) => {
     loadingTunnelInfo.value = true;
     try {
         const data = await api.v2.node.getNodeInfo(userInfo?.usertoken || '', card.name);
-        Object.assign(NodeInfo.value, data.data);
+        NodeInfo.value = {
+            ...data.data,
+            udp: data.data.udp === 'true',
+            fangyu: data.data.fangyu === 'true',
+            ipv6: data.data.ipv6 || '',
+        };
     } catch (error) {
         message.error('节点详情获取失败: ' + (error as Error).message);
     } finally {
