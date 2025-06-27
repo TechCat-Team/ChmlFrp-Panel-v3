@@ -8,7 +8,8 @@
     "dev": "vite",
     "build": "node generate-dependencies.js && vite build",
     "preview": "vite preview",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "update-version": "node bump-version.cjs patch"
   },
   "packageManager": "pnpm@10.11.0",
   "engines": {

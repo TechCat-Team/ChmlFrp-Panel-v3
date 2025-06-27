@@ -13,7 +13,11 @@
         </n-h3>
         <n-grid cols="2 s:3 m:4 l:5 xl:6 2xl:7" :x-gap="12" :y-gap="12" responsive="screen">
             <n-grid-item v-for="(item, index) in presetAmounts" :key="index">
-                <n-card size="small" hoverable @click="selectPresetAmount(item)">
+                <n-card size="small" hoverable @click="selectPresetAmount(item)"
+                    :style="selectedPresetAmount === item.amount
+                        ? { border: `2px solid ${themeVars.primaryColor}` }
+                        : {}"
+                >
                     <n-flex justify="space-between">
                         {{ item.points }}积分
                         <n-flex justify="end">
@@ -31,7 +35,7 @@
         <n-grid cols="5" item-responsive responsive="screen">
             <n-grid-item span="5 m:2">
                 <n-input v-model:value="customAmount" round clearable type="text" :allow-input="onlyAllowNumber"
-                    placeholder="请输入整数金额(最少为3，最多为9999)" @keydown.enter="validateAmount" @blur="validateMaxAmount">
+                    placeholder="请输入整数金额(最少为3，最多为9999)" @keydown.enter="validateAmount" @blur="validateMaxAmount" @input="onCustomAmountInput">
                     <template #prefix>
                         ￥
                     </template>
@@ -107,8 +111,8 @@
 <script lang="ts" setup>
 import { LogoAlipay, LogoWechat } from '@vicons/ionicons5'
 import { Qq } from '@vicons/fa'
-import { ref, computed } from 'vue'
-import { useMessage } from 'naive-ui'
+import { ref, computed, onMounted, watch } from 'vue'
+import { useMessage, useThemeVars } from 'naive-ui'
 import { useLoadUserInfo } from '@/components/useLoadUser';
 
 // 获取登录信息
@@ -120,6 +124,8 @@ const route = useRoute()
 const router = useRouter()
 const dialog = useDialog()
 const message = useMessage()
+const themeVars = useThemeVars()
+
 // 检查 URL 是否包含 trade_status 参数
 const checkTradeStatus = () => {
     if (route.query.trade_status === 'TRADE_SUCCESS') {
@@ -172,6 +178,7 @@ const presetAmounts = [
 ]
 
 const customAmount = ref('3')
+const selectedPresetAmount = ref<number | null>(null)
 
 // 计算积分
 const calculatedPoints = computed(() => {
@@ -205,6 +212,21 @@ const onlyAllowNumber = (value: string) => {
 // 选择预设金额
 const selectPresetAmount = (item: { amount: number }) => {
     customAmount.value = item.amount.toString()
+    selectedPresetAmount.value = item.amount
+}
+
+// 监听自定义金额变化，如果和预设金额匹配则自动高亮
+watch(customAmount, (val) => {
+    const match = presetAmounts.find(item => item.amount.toString() === val)
+    if (match) {
+        selectedPresetAmount.value = match.amount
+    } else {
+        selectedPresetAmount.value = null
+    }
+})
+
+const onCustomAmountInput = () => {
+    selectedPresetAmount.value = null
 }
 
 // 验证金额
