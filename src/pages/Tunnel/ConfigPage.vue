@@ -6,13 +6,24 @@
                 <n-select v-model:value="nodeValue" :options="nodeOptions" placeholder="请选择节点" />
             </n-grid-item>
             <n-grid-item span="10 m:5">
-                <n-select placeholder="请选择隧道，不选则该节点全部隧道" v-model:value="multipleSelectValue" filterable multiple tag
-                    :options="tunnelOptions" />
+                <n-select
+                    placeholder="请选择隧道，不选则该节点全部隧道"
+                    v-model:value="multipleSelectValue"
+                    filterable
+                    multiple
+                    tag
+                    :options="tunnelOptions"
+                />
             </n-grid-item>
             <n-grid-item span="10 m:2">
                 <n-flex justify="end">
-                    <n-button type="primary" @click="getConfigFile" :disabled="nodeValue === null"
-                        :loading="loadingGenerate">生成</n-button>
+                    <n-button
+                        type="primary"
+                        @click="getConfigFile"
+                        :disabled="nodeValue === null"
+                        :loading="loadingGenerate"
+                        >生成</n-button
+                    >
                     <n-button type="primary" @click="copyToClipboard" :disabled="tunnelConfig === ''">复制</n-button>
                 </n-flex>
             </n-grid-item>
@@ -20,7 +31,7 @@
         <template #footer>
             <n-grid cols="1 m:3" item-responsive responsive="screen" :x-gap="12" :y-gap="12">
                 <n-grid-item span="1 m:2">
-                    <n-card title="Frpc.ini" style="min-height: 334px;">
+                    <n-card title="Frpc.ini" style="min-height: 334px">
                         <template #header-extra>
                             <n-button text @click="handleCopy('tunnelConfig')">
                                 <n-icon :component="CopyOutline" />
@@ -67,7 +78,7 @@
                         </div>
                         <n-empty v-else description="请生成配置文件" />
                     </n-card>
-                    <n-card style="margin-top: 16px;" title="Linux脚本">
+                    <n-card style="margin-top: 16px" title="Linux脚本">
                         <template #header-extra>
                             <n-tooltip trigger="hover">
                                 <template #trigger>
@@ -88,7 +99,7 @@
             </n-grid>
         </template>
     </n-card>
-    <n-grid style="margin-top: 20px;" cols="1 s:5" responsive="screen" :x-gap="20" :y-gap="20">
+    <n-grid style="margin-top: 20px" cols="1 s:5" responsive="screen" :x-gap="20" :y-gap="20">
         <n-grid-item :span="3">
             <n-card title="常见教程">
                 <template #header-extra>
@@ -101,8 +112,9 @@
                     创建隧道时添加额外参数：
                     <n-code code="proxy_protocol_version = v2" language="ini" />
                     即可。<br />
-                    web服务可以通过在nginx配置中启用"Proxy Protocol"的解析并将结果设置在"X-Real-IP"这个Header中就可以在自己的Web服务中通过
-                    X-Real-IP 获取到用户的真实 IP。<br />
+                    web服务可以通过在nginx配置中启用"Proxy
+                    Protocol"的解析并将结果设置在"X-Real-IP"这个Header中就可以在自己的Web服务中通过 X-Real-IP
+                    获取到用户的真实 IP。<br />
                     操作：<br />
                     打开nginx网站的配置文件，将
                     <n-code :code="nginxConfig1" language="nginx" word-wrap />
@@ -124,16 +136,23 @@
         <n-grid-item :span="2">
             <n-card title="映射启动">
                 <template #header-extra>
-                    <n-button text tag="a"
+                    <n-button
+                        text
+                        tag="a"
                         href="https://docs.chcat.cn/docs/chmlfrp/%E4%BD%BF%E7%94%A8%E6%96%87%E6%A1%A3/tutorial"
-                        target="_blank" type="primary">
+                        target="_blank"
+                        type="primary"
+                    >
                         详细教程
                     </n-button>
                 </template>
                 <n-steps vertical :current="3">
                     <n-step title="步骤1" description="在隧道页面创建隧道" />
                     <n-step title="步骤2" description="在网站下载页面下载对应的软件版本(一般为amd64)" />
-                    <n-step title="步骤3" description="解压好下载的软件后，打开frpc.ini，在里面粘贴此页面生成的配置文件，然后保存" />
+                    <n-step
+                        title="步骤3"
+                        description="解压好下载的软件后，打开frpc.ini，在里面粘贴此页面生成的配置文件，然后保存"
+                    />
                     <n-step title="步骤4" description="在frp的windows路径栏输入cmd然后回车，启动cmd软件" />
                     <n-step title="步骤4" description="在打开的cmd内输入frpc启动映射" />
                 </n-steps>
@@ -144,28 +163,31 @@
 
 <script lang="ts" setup>
 import { ref } from 'vue';
-import { CopyOutline, ShuffleOutline } from '@vicons/ionicons5'
+import { CopyOutline, ShuffleOutline } from '@vicons/ionicons5';
 // 获取登录信息
 import { useUserStore } from '@/stores/user';
 
-import api from '@/api'
+import api from '@/api';
 
 const userStore = useUserStore();
 const userInfo = userStore.userInfo;
 
-const message = useMessage()
+const message = useMessage();
 
 onMounted(() => {
     getTunnelList();
 });
 
 const copyToClipboard = () => {
-    navigator.clipboard.writeText(tunnelConfig.value).then(() => {
-        message.success('配置文件复制成功')
-    }).catch(err => {
-        console.error('复制配置文件失败:', err);
-        message.error('配置文件复制失败')
-    });
+    navigator.clipboard
+        .writeText(tunnelConfig.value)
+        .then(() => {
+            message.success('配置文件复制成功');
+        })
+        .catch((err) => {
+            console.error('复制配置文件失败:', err);
+            message.error('配置文件复制失败');
+        });
 };
 
 interface Tunnel {
@@ -203,7 +225,7 @@ const getTunnelList = async () => {
             value: node,
         }));
     } catch (error) {
-        message.error("获取隧道列表失败: " + (error as Error).message);
+        message.error('获取隧道列表失败: ' + (error as Error).message);
     }
 };
 
@@ -215,8 +237,8 @@ watch(nodeValue, (newNode: string | null) => {
 
         // 筛选出该节点的隧道
         tunnelOptions.value = allTunnels.value
-            .filter(tunnel => tunnel.node === newNode)
-            .map(tunnel => ({
+            .filter((tunnel) => tunnel.node === newNode)
+            .map((tunnel) => ({
                 label: tunnel.name,
                 value: tunnel.name,
             }));
@@ -243,12 +265,16 @@ const getConfigFile = async () => {
         // 如果选择了隧道才传递 tunnel_names 参数
         if (multipleSelectValue.value.length > 0) {
             params.tunnel_names = multipleSelectValue.value.join(',');
-            LinuxScript.value = `curl -O https://www.chmlfrp.cn/script/linux/frpc_install.sh && chmod +x frpc_install.sh && sudo ./frpc_install.sh "${userInfo?.usertoken}" "${nodeValue.value}" "${params.tunnel_names = multipleSelectValue.value.join(',')}"`
+            LinuxScript.value = `curl -O https://www.chmlfrp.cn/script/linux/frpc_install.sh && chmod +x frpc_install.sh && sudo ./frpc_install.sh "${userInfo?.usertoken}" "${nodeValue.value}" "${(params.tunnel_names = multipleSelectValue.value.join(','))}"`;
         } else {
-            LinuxScript.value = `curl -O https://www.chmlfrp.cn/script/linux/frpc_install.sh && chmod +x frpc_install.sh && sudo ./frpc_install.sh "${userInfo?.usertoken}" "${nodeValue.value}"`
+            LinuxScript.value = `curl -O https://www.chmlfrp.cn/script/linux/frpc_install.sh && chmod +x frpc_install.sh && sudo ./frpc_install.sh "${userInfo?.usertoken}" "${nodeValue.value}"`;
         }
 
-        const response = await api.v2.tunnel.getTunnelConfig(userInfo?.usertoken || '', params.node || '', params.tunnel_names);
+        const response = await api.v2.tunnel.getTunnelConfig(
+            userInfo?.usertoken || '',
+            params.node || '',
+            params.tunnel_names
+        );
 
         tunnelConfig.value = response.data || '';
     } catch (error) {
@@ -260,29 +286,30 @@ const getConfigFile = async () => {
 };
 
 const handleCopy = (type: string) => {
-    const content = type === 'tunnelConfig' ? tunnelConfig.value : LinuxScript.value
+    const content = type === 'tunnelConfig' ? tunnelConfig.value : LinuxScript.value;
     if (!content) {
-        message.warning('请先生成配置文件')
-        return
+        message.warning('请先生成配置文件');
+        return;
     }
-    navigator.clipboard.writeText(content)
+    navigator.clipboard
+        .writeText(content)
         .then(() => message.success('复制成功'))
-        .catch(() => message.error('复制失败'))
-}
+        .catch(() => message.error('复制失败'));
+};
 
 const nginxConfig1 = `
 listen 80;
 listen 443 ssl http2; #如果有就改，没有则不添加这个。
-`
+`;
 
 const nginxConfig2 = `
 listen 80 proxy_protocol;
 listen 443 ssl http2 proxy_protocol;
-`
+`;
 
 const nginxConfig3 = `
 real_ip_header proxy_protocol;
 real_ip_recursive on;
 set_real_ip_from 127.0.0.1; #创建隧道时填的本地ip
-`
+`;
 </script>

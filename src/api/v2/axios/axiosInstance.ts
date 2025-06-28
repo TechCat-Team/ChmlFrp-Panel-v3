@@ -45,11 +45,7 @@ axiosInstance.interceptors.response.use(
 
         // 判断业务状态
         if (data.state !== 'success') {
-            throw new ApiError(
-                'response',
-                data.msg || '后端返回了未知错误',
-                data
-            );
+            throw new ApiError('response', data.msg || '后端返回了未知错误', data);
         }
 
         return data; // 返回成功的数据
@@ -57,19 +53,11 @@ axiosInstance.interceptors.response.use(
     (error) => {
         if (!error.response) {
             // 网络错误
-            return Promise.reject(
-                new ApiError(
-                    'network',
-                    '网络连接失败，请检查您的网络设置',
-                    error
-                )
-            );
+            return Promise.reject(new ApiError('network', '网络连接失败，请检查您的网络设置', error));
         }
 
         // 其他未知错误
-        return Promise.reject(
-            new ApiError('unknown', error.message || '未知错误', error.response)
-        );
+        return Promise.reject(new ApiError('unknown', error.message || '未知错误', error.response));
     }
 );
 

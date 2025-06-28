@@ -69,10 +69,7 @@ interface NodeInfoResponse extends BaseResponse {
  * 获取节点详情
  * @returns {Promise<NodeInfoResponse>} 节点详情数据
  */
-export const getNodeInfo = async (
-    token: string,
-    node: string
-): Promise<NodeInfoResponse> => {
+export const getNodeInfo = async (token: string, node: string): Promise<NodeInfoResponse> => {
     return axiosInstance.get('/nodeinfo', { params: { token, node } });
 };
 
@@ -125,10 +122,7 @@ interface NodeUptimeResponse extends BaseResponse {
  * @param {string} [node] 可选，返回对应节点的uptime数据
  * @returns {Promise<NodeUptimeResponse>} 节点在线率数据
  */
-export const getNodeUptime = async (
-    time: number,
-    node?: string
-): Promise<NodeUptimeResponse> => {
+export const getNodeUptime = async (time: number, node?: string): Promise<NodeUptimeResponse> => {
     return axiosInstance.get('/node_uptime', { params: { time, node } });
 };
 
@@ -180,8 +174,6 @@ interface NodeStatusInfoResponse extends BaseResponse {
  * @param {string} nodename 节点名称
  * @returns {Promise<NodeStatusInfoResponse>} 节点状态详情数据
  */
-export const getNodeStatusInfo = async (
-    nodename: string
-): Promise<NodeStatusInfoResponse> => {
+export const getNodeStatusInfo = async (nodename: string): Promise<NodeStatusInfoResponse> => {
     return axiosInstance.get('/node_status_info', { params: { nodename } });
 };

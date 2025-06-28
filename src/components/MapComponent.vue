@@ -15,23 +15,23 @@ export default defineComponent({
     props: {
         width: {
             type: String,
-            default: '100%'
+            default: '100%',
         },
         height: {
             type: String,
-            default: '500px'
+            default: '500px',
         },
         markers: {
             type: Array as PropType<Marker[]>,
-            default: () => []
-        }
+            default: () => [],
+        },
     },
     setup(props) {
         const mapContainer = ref<HTMLDivElement | null>(null);
 
         const calculateCenterAndZoom = (points: [number, number][], map: TMap) => {
-            const lngs = points.map(p => p[0]);
-            const lats = points.map(p => p[1]);
+            const lngs = points.map((p) => p[0]);
+            const lats = points.map((p) => p[1]);
 
             // 计算中心点
             const avgLng = (Math.min(...lngs) + Math.max(...lngs)) / 2;
@@ -61,7 +61,7 @@ export default defineComponent({
                     const map = new window.T.Map(mapContainer.value);
 
                     if (props.markers.length >= 2) {
-                        const positions = props.markers.map(marker => marker.position);
+                        const positions = props.markers.map((marker) => marker.position);
                         const { center, zoom } = calculateCenterAndZoom(positions, map);
                         map.centerAndZoom(center, zoom);
                     } else if (props.markers.length === 1) {
@@ -75,7 +75,7 @@ export default defineComponent({
                     map.enableScrollWheelZoom(true);
 
                     // 添加标记
-                    props.markers.forEach(markerData => {
+                    props.markers.forEach((markerData) => {
                         const point = new window.T.LngLat(markerData.position[0], markerData.position[1]);
                         const marker = new window.T.Marker(point);
                         map.addOverLay(marker);
@@ -84,7 +84,7 @@ export default defineComponent({
                             const label = new window.T.Label({
                                 position: point,
                                 text: markerData.title,
-                                offset: new window.T.Point(0, -20)
+                                offset: new window.T.Point(0, -20),
                             });
                             map.addOverLay(label);
                         }
@@ -95,8 +95,8 @@ export default defineComponent({
         });
 
         return {
-            mapContainer
+            mapContainer,
         };
-    }
+    },
 });
 </script>

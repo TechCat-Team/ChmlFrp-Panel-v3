@@ -8,9 +8,7 @@
     <n-grid style="margin-top: 12px" :x-gap="12" :y-gap="12" cols="1 s:2 m:3 l:4" responsive="screen">
         <n-grid-item>
             <n-card hoverable>
-                <template #header>
-                    免费用户
-                </template>
+                <template #header> 免费用户 </template>
                 <n-ul>
                     <n-li>节点权限：普通节点</n-li>
                     <n-tooltip trigger="hover">
@@ -41,33 +39,26 @@
             <n-card hoverable class="anniversary-card perk-card">
                 <n-flex vertical align="center" justify="center" class="thank-you-content">
                     <n-flex align="center" justify="center" class="celebration-header">
-                        <n-text strong type="error" style="font-size: 20px; margin-left: 8px;">
-                            我们四岁啦！🎉
-                        </n-text>
+                        <n-text strong type="error" style="font-size: 20px; margin-left: 8px"> 我们四岁啦！🎉 </n-text>
                     </n-flex>
                     <n-flex vertical align="center" class="thank-you-message">
-                        <n-text depth="2" style="text-align: center; line-height: 1.6;" class="perk-desc">
-                            ChmlFrp运营至今已满4周年，<br>
-                            感谢您一直以来的信任与支持。<br>
-                            四年坚持，初心不改；<br>
+                        <n-text depth="2" style="text-align: center; line-height: 1.6" class="perk-desc">
+                            ChmlFrp运营至今已满4周年，<br />
+                            感谢您一直以来的信任与支持。<br />
+                            四年坚持，初心不改；<br />
                             免费服务，始终无广。
                         </n-text>
 
-                        <n-space vertical align="center" style="margin-top: 16px;">
-                            <n-text depth="3" style="font-size: 12px;">
-                                因为有您，我们才能走得更远
-                            </n-text>
+                        <n-space vertical align="center" style="margin-top: 16px">
+                            <n-text depth="3" style="font-size: 12px"> 因为有您，我们才能走得更远 </n-text>
                         </n-space>
                     </n-flex>
                 </n-flex>
             </n-card>
-
         </n-grid-item>
         <n-grid-item>
             <n-card hoverable>
-                <template #header>
-                    普通会员
-                </template>
+                <template #header> 普通会员 </template>
                 <n-ul>
                     <n-li>节点权限：普通/会员节点</n-li>
                     <n-tooltip trigger="hover">
@@ -103,14 +94,21 @@
                             <svg viewBox="0 0 24 24" fill="none">
                                 <path
                                     d="M11 7h2v2h-2zm0 4h2v6h-2zm1-9C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"
-                                    fill="currentColor" />
+                                    fill="currentColor"
+                                />
                             </svg>
                         </n-icon>
                         <n-text strong>四周年福利</n-text>
                     </n-flex>
                     <n-text depth="2" class="perk-desc">{{ getPerkMessage('普通会员') }}</n-text>
-                    <n-button v-if="canPurchase('普通会员')" tertiary type="error" size="small" class="perk-btn"
-                        @click="openUpgradeModal('普通会员')">
+                    <n-button
+                        v-if="canPurchase('普通会员')"
+                        tertiary
+                        type="error"
+                        size="small"
+                        class="perk-btn"
+                        @click="openUpgradeModal('普通会员')"
+                    >
                         购买永久会员
                     </n-button>
                 </n-flex>
@@ -118,9 +116,7 @@
         </n-grid-item>
         <n-grid-item>
             <n-card hoverable>
-                <template #header>
-                    高级会员
-                </template>
+                <template #header> 高级会员 </template>
                 <n-ul>
                     <n-li>节点权限：普通/会员节点</n-li>
                     <n-tooltip trigger="hover">
@@ -160,14 +156,21 @@
                             <svg viewBox="0 0 24 24" fill="none">
                                 <path
                                     d="M11 7h2v2h-2zm0 4h2v6h-2zm1-9C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"
-                                    fill="currentColor" />
+                                    fill="currentColor"
+                                />
                             </svg>
                         </n-icon>
                         <n-text strong>四周年福利</n-text>
                     </n-flex>
                     <n-text depth="2" class="perk-desc">{{ getPerkMessage('高级会员') }}</n-text>
-                    <n-button v-if="canPurchase('高级会员')" tertiary type="error" size="small" class="perk-btn"
-                        @click="openUpgradeModal('高级会员')">
+                    <n-button
+                        v-if="canPurchase('高级会员')"
+                        tertiary
+                        type="error"
+                        size="small"
+                        class="perk-btn"
+                        @click="openUpgradeModal('高级会员')"
+                    >
                         购买永久会员
                     </n-button>
                 </n-flex>
@@ -175,9 +178,7 @@
         </n-grid-item>
         <n-grid-item>
             <n-card hoverable>
-                <template #header>
-                    超级会员
-                </template>
+                <template #header> 超级会员 </template>
                 <n-ul>
                     <n-li>节点权限：普通/会员节点</n-li>
                     <n-tooltip trigger="hover">
@@ -217,14 +218,21 @@
                             <svg viewBox="0 0 24 24" fill="none">
                                 <path
                                     d="M11 7h2v2h-2zm0 4h2v6h-2zm1-9C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"
-                                    fill="currentColor" />
+                                    fill="currentColor"
+                                />
                             </svg>
                         </n-icon>
                         <n-text strong>四周年福利</n-text>
                     </n-flex>
                     <n-text depth="2" class="perk-desc">{{ getPerkMessage('超级会员') }}</n-text>
-                    <n-button v-if="canPurchase('超级会员')" tertiary type="error" size="small" class="perk-btn"
-                        @click="openUpgradeModal('超级会员')">
+                    <n-button
+                        v-if="canPurchase('超级会员')"
+                        tertiary
+                        type="error"
+                        size="small"
+                        class="perk-btn"
+                        @click="openUpgradeModal('超级会员')"
+                    >
                         购买永久会员
                     </n-button>
                 </n-flex>
@@ -233,16 +241,39 @@
     </n-grid>
     <n-modal v-model:show="showModal">
         <n-card style="max-width: 420px" title="永久会员购买" :bordered="false" role="dialog" aria-modal="true">
-            <n-text>您正在请求购买 永久{{ targetGroup }}，您当前为 <n-text
-                    v-if="userInfo?.term === '9999-09-09' && userInfo?.usergroup !== '免费用户'">永久</n-text>{{
-                        userInfo?.usergroup }}，升级到 永久{{ targetGroup }} 需要支付 {{ payAmount }} 元。
-                <br />请选择支付方式。</n-text>
+            <n-text
+                >您正在请求购买 永久{{ targetGroup }}，您当前为
+                <n-text v-if="userInfo?.term === '9999-09-09' && userInfo?.usergroup !== '免费用户'">永久</n-text
+                >{{ userInfo?.usergroup }}，升级到 永久{{ targetGroup }} 需要支付 {{ payAmount }} 元。
+                <br />请选择支付方式。</n-text
+            >
             <template #footer>
                 <n-flex justify="end">
                     <n-button strong secondary size="small" @click="showModal = false">取消</n-button>
-                    <n-button :loading="loadingzf" :disabled="loadingzf" type="warning" size="small" @click="handlePay('qq')">QQ</n-button>
-                    <n-button :loading="loadingzf" :disabled="loadingzf" type="success" size="small" @click="handlePay('wechat')">微信</n-button>
-                    <n-button :loading="loadingzf" :disabled="loadingzf" type="info" size="small" @click="handlePay('alipay')">支付宝</n-button>
+                    <n-button
+                        :loading="loadingzf"
+                        :disabled="loadingzf"
+                        type="warning"
+                        size="small"
+                        @click="handlePay('qq')"
+                        >QQ</n-button
+                    >
+                    <n-button
+                        :loading="loadingzf"
+                        :disabled="loadingzf"
+                        type="success"
+                        size="small"
+                        @click="handlePay('wechat')"
+                        >微信</n-button
+                    >
+                    <n-button
+                        :loading="loadingzf"
+                        :disabled="loadingzf"
+                        type="info"
+                        size="small"
+                        @click="handlePay('alipay')"
+                        >支付宝</n-button
+                    >
                 </n-flex>
             </template>
         </n-card>
@@ -307,8 +338,13 @@
                         </n-card>
 
                         <!-- 购买按钮 -->
-                        <n-button type="primary" block @click="handlePurchase" :loading="loading"
-                            :disabled="!selectedMembership || !selectedDuration || costPoints > currentPoints">
+                        <n-button
+                            type="primary"
+                            block
+                            @click="handlePurchase"
+                            :loading="loading"
+                            :disabled="!selectedMembership || !selectedDuration || costPoints > currentPoints"
+                        >
                             确认购买
                         </n-button>
                     </n-space>
@@ -317,8 +353,15 @@
                 <!-- 会员升级标签页 -->
                 <n-tab-pane name="2" tab="会员升级">
                     <n-space vertical size="large">
-                        <n-alert type="info" title="会员升级说明"
-                            v-if="userInfo?.term !== '9999-09-09' && userInfo?.usergroup !== '免费用户' && userInfo?.usergroup !== '超级会员'">
+                        <n-alert
+                            type="info"
+                            title="会员升级说明"
+                            v-if="
+                                userInfo?.term !== '9999-09-09' &&
+                                userInfo?.usergroup !== '免费用户' &&
+                                userInfo?.usergroup !== '超级会员'
+                            "
+                        >
                             您当前是{{ userInfo?.usergroup }}，剩余 {{ remainingDays }} 天，升级可享受更多权益
                         </n-alert>
 
@@ -381,8 +424,13 @@
                             </n-space>
                         </n-card>
 
-                        <n-button type="primary" block :disabled="!upgradeOption || upgradeCost > currentPoints"
-                            @click="handleUpgrade" :loading="loading">
+                        <n-button
+                            type="primary"
+                            block
+                            :disabled="!upgradeOption || upgradeCost > currentPoints"
+                            @click="handleUpgrade"
+                            :loading="loading"
+                        >
                             确认升级
                         </n-button>
                     </n-space>
@@ -411,10 +459,10 @@ const showModal = ref(false);
 const loading = ref(false);
 const loadingzf = ref(false);
 
-const route = useRoute()
-const router = useRouter()
-const dialog = useDialog()
-const message = useMessage()
+const route = useRoute();
+const router = useRouter();
+const dialog = useDialog();
+const message = useMessage();
 // 检查 URL 是否包含 trade_status 参数
 const checkTradeStatus = () => {
     if (route.query.trade_status === 'TRADE_SUCCESS') {
@@ -423,104 +471,103 @@ const checkTradeStatus = () => {
             content: `您已成功购买会员，ChmlFrp感谢您的支持！。`,
             positiveText: '确定',
             onPositiveClick: () => {
-                router.replace({ path: route.path, query: {} })
-                useLoadUserInfo()
+                router.replace({ path: route.path, query: {} });
+                useLoadUserInfo();
             },
             maskClosable: false,
             onMaskClick: () => {
-                message.warning('请点击确定关闭此弹窗')
+                message.warning('请点击确定关闭此弹窗');
             },
             onEsc: () => {
-                router.replace({ path: route.path, query: {} })
-                useLoadUserInfo()
-            }
-        })
+                router.replace({ path: route.path, query: {} });
+                useLoadUserInfo();
+            },
+        });
     }
-}
+};
 
 onMounted(() => {
-    checkTradeStatus()
-})
-
+    checkTradeStatus();
+});
 
 const ljgm = (vipType: string) => {
-    selectedMembership.value = vipType
-    show.value = true
-}
+    selectedMembership.value = vipType;
+    show.value = true;
+};
 
 function getPrice(group: string): number {
-    if (group === '普通会员') return 80
-    if (group === '高级会员') return 120
-    return 160
+    if (group === '普通会员') return 80;
+    if (group === '高级会员') return 120;
+    return 160;
 }
 
 function getPerkMessage(target: string): string {
-    const current = userInfo?.usergroup || '免费用户'
-    const currentTerm = userInfo?.term || ''
-    const groups = ['免费用户', '普通会员', '高级会员', '超级会员', '封禁', '定制会员', '管理员']
-    const currentIdx = groups.indexOf(current)
-    const targetIdx = groups.indexOf(target)
+    const current = userInfo?.usergroup || '免费用户';
+    const currentTerm = userInfo?.term || '';
+    const groups = ['免费用户', '普通会员', '高级会员', '超级会员', '封禁', '定制会员', '管理员'];
+    const currentIdx = groups.indexOf(current);
+    const targetIdx = groups.indexOf(target);
 
     if (current === target && currentTerm === '9999-09-09') {
-        return '您已购买此永久会员，感谢您的支持。'
+        return '您已购买此永久会员，感谢您的支持。';
     }
     if (currentIdx > targetIdx && currentTerm === '9999-09-09') {
-        return '您已购买更高等级永久会员，感谢您的支持。'
+        return '您已购买更高等级永久会员，感谢您的支持。';
     }
     if (userInfo?.usergroup === '封禁') {
-        return '您的账户已被封禁，无法购买或升级会员。'
+        return '您的账户已被封禁，无法购买或升级会员。';
     }
     return isFreeUser.value
         ? `永久会员仅需${getPrice(target)}元。一次性付费终生使用。`
-        : `升级到此永久会员仅需${getPrice(target) - getPrice(userInfo?.usergroup ?? '普通会员')}元。一次性付费终生使用。`
+        : `升级到此永久会员仅需${getPrice(target) - getPrice(userInfo?.usergroup ?? '普通会员')}元。一次性付费终生使用。`;
 }
 
 function canPurchase(target: string): boolean {
-    const current = userInfo?.usergroup || '免费用户'
-    const currentTerm = userInfo?.term || ''
-    const groups = ['免费用户', '普通会员', '高级会员', '超级会员', '封禁', '管理员', '定制会员']
-    const currentIdx = groups.indexOf(current)
-    const targetIdx = groups.indexOf(target)
-    return !(currentTerm === '9999-09-09' && currentIdx >= targetIdx)
+    const current = userInfo?.usergroup || '免费用户';
+    const currentTerm = userInfo?.term || '';
+    const groups = ['免费用户', '普通会员', '高级会员', '超级会员', '封禁', '管理员', '定制会员'];
+    const currentIdx = groups.indexOf(current);
+    const targetIdx = groups.indexOf(target);
+    return !(currentTerm === '9999-09-09' && currentIdx >= targetIdx);
 }
 
-const targetGroup = ref('')
-const payAmount = ref(0)
+const targetGroup = ref('');
+const payAmount = ref(0);
 
 // 判断是否为临时会员（非免费用户但 term 不是永久）
 const isTemporaryUser = computed(() => {
-    return userInfo?.usergroup !== '免费用户' && userInfo?.term !== '9999-09-09'
-})
+    return userInfo?.usergroup !== '免费用户' && userInfo?.term !== '9999-09-09';
+});
 
 // 当前用户视为“免费用户”进行价格计算
 const isFreeUser = computed(() => {
-    return userInfo?.usergroup === '免费用户' || isTemporaryUser.value
-})
+    return userInfo?.usergroup === '免费用户' || isTemporaryUser.value;
+});
 
 function openUpgradeModal(group: string) {
-    targetGroup.value = group
+    targetGroup.value = group;
 
     // 计算金额
     if (isFreeUser.value) {
-        payAmount.value = group === '普通会员' ? 80 : group === '高级会员' ? 120 : 160
+        payAmount.value = group === '普通会员' ? 80 : group === '高级会员' ? 120 : 160;
     } else if (userInfo?.usergroup === '普通会员') {
-        payAmount.value = group === '高级会员' ? 40 : group === '超级会员' ? 80 : 0
+        payAmount.value = group === '高级会员' ? 40 : group === '超级会员' ? 80 : 0;
     } else if (userInfo?.usergroup === '高级会员') {
-        payAmount.value = group === '超级会员' ? 40 : 0
+        payAmount.value = group === '超级会员' ? 40 : 0;
     } else {
-        payAmount.value = 0 // 其他情况不支持
+        payAmount.value = 0; // 其他情况不支持
     }
 
     if (payAmount.value === 0) {
-        message.error('您当前会员无法升级为该会员或已是该会员')
-        return
+        message.error('您当前会员无法升级为该会员或已是该会员');
+        return;
     }
 
-    showModal.value = true
+    showModal.value = true;
 }
 
 async function handlePay(ttype: string) {
-    const currentFullUrl = window.location.href
+    const currentFullUrl = window.location.href;
     loadingzf.value = true;
     try {
         const response = await axios.get('https://cf-v1.uapis.cn/api/pay.php', {
@@ -529,14 +576,14 @@ async function handlePay(ttype: string) {
                 name: '永久会员购买',
                 type: ttype,
                 money: payAmount.value,
-                return: currentFullUrl
-            }
+                return: currentFullUrl,
+            },
         });
         const data = response.data;
         if (data?.success === true) {
             // 跳转到支付API
             message.success('获取付款链接成功，正在跳转至支付页面，请稍等。');
-            window.location.href = data.url
+            window.location.href = data.url;
         } else {
             message.error(data?.message);
         }
@@ -550,16 +597,16 @@ async function handlePay(ttype: string) {
 // 定义基础月费类型
 interface MembershipCost {
     [key: string]: number;
-    '普通会员': number;
-    '高级会员': number;
-    '超级会员': number;
+    普通会员: number;
+    高级会员: number;
+    超级会员: number;
 }
 
 // 定义基础月费
 const baseMonthlyCost: MembershipCost = {
-    '普通会员': 8000,
-    '高级会员': 12000,
-    '超级会员': 18000
+    普通会员: 8000,
+    高级会员: 12000,
+    超级会员: 18000,
 };
 
 // 计算本次消费积分
@@ -602,9 +649,9 @@ const upgradeCost = computed(() => {
 
     // 定义每日费用（每月固定30天）
     const dailyCost: MembershipCost = {
-        '普通会员': baseMonthlyCost['普通会员'] / 30,
-        '高级会员': baseMonthlyCost['高级会员'] / 30,
-        '超级会员': baseMonthlyCost['超级会员'] / 30
+        普通会员: baseMonthlyCost['普通会员'] / 30,
+        高级会员: baseMonthlyCost['高级会员'] / 30,
+        超级会员: baseMonthlyCost['超级会员'] / 30,
     };
 
     // 当前会员的剩余价值
@@ -634,8 +681,8 @@ const handlePurchase = async () => {
             params: {
                 usertoken: userInfo?.usertoken,
                 package: selectedMembership.value,
-                term: selectedDuration.value
-            }
+                term: selectedDuration.value,
+            },
         });
         const data = response.data;
         if (data?.status === 'success') {
@@ -646,12 +693,19 @@ const handlePurchase = async () => {
             userStore.setUser({ bandwidth: data.bandwidth });
             dialog.success({
                 title: '会员购买成功',
-                content: '您购买了' + data.package + '，到期日期为' + data.daoqi + '，消耗了' + data.points + '点积分，感谢您的支持！',
+                content:
+                    '您购买了' +
+                    data.package +
+                    '，到期日期为' +
+                    data.daoqi +
+                    '，消耗了' +
+                    data.points +
+                    '点积分，感谢您的支持！',
                 positiveText: '确认',
                 onPositiveClick: () => {
-                    message.success('再次感谢您对ChmlFrp的支持！')
-                }
-            })
+                    message.success('再次感谢您对ChmlFrp的支持！');
+                },
+            });
         } else {
             message.error(data?.message);
         }
@@ -669,8 +723,8 @@ const handleUpgrade = async () => {
         const response = await axios.get('https://cf-v1.uapis.cn/api/tcsj.php', {
             params: {
                 usertoken: userInfo?.usertoken,
-                package: upgradeOption.value
-            }
+                package: upgradeOption.value,
+            },
         });
         const data = response.data;
         if (data?.success === true) {
@@ -683,9 +737,9 @@ const handleUpgrade = async () => {
                 content: '您升级到了' + data.package + '，消耗了' + data.xhjf + '点积分，感谢您的支持！',
                 positiveText: '确认',
                 onPositiveClick: () => {
-                    message.success('再次感谢您对ChmlFrp的支持！')
-                }
-            })
+                    message.success('再次感谢您对ChmlFrp的支持！');
+                },
+            });
         } else {
             message.error(data?.message);
         }
@@ -693,7 +747,7 @@ const handleUpgrade = async () => {
         console.error('购买请求失败:', error);
         message.error('购买请求异常，请检查网络或稍后再试');
     }
-    loading.value = false
+    loading.value = false;
 };
 </script>
 

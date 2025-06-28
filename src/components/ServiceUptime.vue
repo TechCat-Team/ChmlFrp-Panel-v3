@@ -1,14 +1,20 @@
 <template>
     <n-flex justify="space-between">
         <div>
-            <n-tag v-if="group === 'vip'" style="margin-right: 8px; width: 53.68px;" round :bordered="false"
-                type="warning" size="small">
+            <n-tag
+                v-if="group === 'vip'"
+                style="margin-right: 8px; width: 53.68px"
+                round
+                :bordered="false"
+                type="warning"
+                size="small"
+            >
                 VIP
                 <template #icon>
                     <n-icon :component="DiamondOutline" />
                 </template>
             </n-tag>
-            <n-tag v-else style="margin-right: 8px; width: 53.68px;" round :bordered="false" type="info" size="small">
+            <n-tag v-else style="margin-right: 8px; width: 53.68px" round :bordered="false" type="info" size="small">
                 Free
                 <template #icon>
                     <n-icon :component="DiceOutline" />
@@ -17,14 +23,16 @@
             <span style="font-size: 16px">{{ serverName }}</span>
         </div>
         <div class="container">
-            <span :style="{ color: getDynamicColor(averageUptime) }" style="font-size: 16px; margin-right: 18px"
-                v-if="screenWidth >= 700">
+            <span
+                :style="{ color: getDynamicColor(averageUptime) }"
+                style="font-size: 16px; margin-right: 18px"
+                v-if="screenWidth >= 700"
+            >
                 {{ averageUptime }}%
             </span>
             <n-popover trigger="hover" v-for="(uptime, index) in displayedUptimeHistory" :key="index">
                 <template #trigger>
-                    <div class="bar" :style="{ backgroundColor: getDynamicColor(uptime) }">
-                    </div>
+                    <div class="bar" :style="{ backgroundColor: getDynamicColor(uptime) }"></div>
                 </template>
                 <span>
                     <span style="color: gray; font-size: 12px">{{ formattedDate(index) }}</span>
@@ -41,7 +49,10 @@
         </div>
         <div v-if="screenWidth <= 700">
             <n-flex justify="space-between">
-                <span style="font-size: 16px; margin-right: 18px; width: 76px;" :style="{ color: getDynamicColor(averageUptime) }">
+                <span
+                    style="font-size: 16px; margin-right: 18px; width: 76px"
+                    :style="{ color: getDynamicColor(averageUptime) }"
+                >
                     {{ averageUptime }}%
                 </span>
                 <div class="upContainer">
@@ -56,7 +67,7 @@
 </template>
 
 <script setup lang="ts">
-import { DiamondOutline, DiceOutline } from '@vicons/ionicons5'
+import { DiamondOutline, DiceOutline } from '@vicons/ionicons5';
 import { useScreenStore } from '@/stores/useScreen';
 import { storeToRefs } from 'pinia';
 import { format, subDays } from 'date-fns';
@@ -64,28 +75,28 @@ import { format, subDays } from 'date-fns';
 const props = defineProps({
     uptime: {
         type: Number,
-        default: 100
+        default: 100,
     },
     group: {
         type: String,
-        default: 'VIP'
+        default: 'VIP',
     },
     serverName: {
         type: String,
-        default: '月球CN2-1'
+        default: '月球CN2-1',
     },
     uptimeHistory: {
         type: Array as () => (number | null)[],
-        default: () => Array(90).fill(null)
+        default: () => Array(90).fill(null),
     },
     daysToShow: {
         type: Number,
-        default: 90
+        default: 90,
     },
     state: {
         type: String,
-        default: 'online'
-    }
+        default: 'online',
+    },
 });
 
 const screenStore = useScreenStore();
@@ -99,7 +110,7 @@ const formattedDate = (index: number) => {
 };
 
 const averageUptime = computed(() => {
-    const validUptime = props.uptimeHistory.filter(uptime => uptime !== null);
+    const validUptime = props.uptimeHistory.filter((uptime) => uptime !== null);
     if (validUptime.length === 0) return 0;
 
     const totalUptime = validUptime.reduce((sum, uptime) => sum + (uptime as number), 0);
@@ -204,7 +215,9 @@ const getDynamicColor = (uptime: number | null) => {
     width: 4px;
     height: 15px;
     border-radius: 2px;
-    transition: transform 0.3s ease, background-color 0.3s ease;
+    transition:
+        transform 0.3s ease,
+        background-color 0.3s ease;
 }
 
 .bar:hover {

@@ -14,5 +14,8 @@ interface GeetestResult {
 }
 
 interface Window {
-    initGeetest4: (options: { product: string; captchaId: string; width: string }, callback: (captchaObj: CaptchaObj) => void) => void;
+    initGeetest4: (
+        options: { product: string; captchaId: string; width: string },
+        callback: (captchaObj: CaptchaObj) => void
+    ) => void;
 }

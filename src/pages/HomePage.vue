@@ -440,15 +440,15 @@ onMounted(() => {
         if (!userInfo?.regtime) return false;
         const today = new Date();
         const todayStr = today.toISOString().split('T')[0];
-    
+
         const yesterday = new Date();
         yesterday.setDate(yesterday.getDate() - 1);
         const yesterdayStr = yesterday.toISOString().split('T')[0];
-    
+
         return userInfo.regtime === todayStr || userInfo.regtime === yesterdayStr;
     };
 
-    if (!hasVisited && (userInfo?.regtime && isRecentRegistration())) {
+    if (!hasVisited && userInfo?.regtime && isRecentRegistration()) {
         // 弹出使用教程
         showDialog.value = true;
         // 设置访问状态

@@ -1,6 +1,6 @@
 <template>
     <n-back-top :right="100" />
-    <n-card style="margin-bottom: 20px;" title="免费SSL">
+    <n-card style="margin-bottom: 20px" title="免费SSL">
         <template #header-extra>
             <n-button round quaternary>
                 <template #icon>
@@ -20,17 +20,11 @@
         <n-grid-item>
             <n-card size="small" title="chmlfrp.cn">
                 <template #header-extra>
-                    <n-tag round :bordered="false" type="success">
-                        完成
-                    </n-tag>
+                    <n-tag round :bordered="false" type="success"> 完成 </n-tag>
                 </template>
                 <n-flex>
-                    <n-tag round :bordered="false" type="primary" size="small">
-                        泛域名
-                    </n-tag>
-                    <n-tag round :bordered="false" type="primary" size="small">
-                        包含根域
-                    </n-tag>
+                    <n-tag round :bordered="false" type="primary" size="small"> 泛域名 </n-tag>
+                    <n-tag round :bordered="false" type="primary" size="small"> 包含根域 </n-tag>
                 </n-flex>
                 <template #footer>
                     渠道：ZeroSSL
@@ -42,13 +36,9 @@
         <n-grid-item>
             <n-card size="small" title="chcat.cn">
                 <template #header-extra>
-                    <n-tag round :bordered="false" type="warning">
-                        验证
-                    </n-tag>
+                    <n-tag round :bordered="false" type="warning"> 验证 </n-tag>
                 </template>
-                <n-tag round :bordered="false" type="primary" size="small">
-                    单域名
-                </n-tag>
+                <n-tag round :bordered="false" type="primary" size="small"> 单域名 </n-tag>
                 <template #footer>
                     渠道：Let's Encrypt
                     <br />
@@ -59,13 +49,9 @@
         <n-grid-item>
             <n-card size="small" title="hosthub.cc">
                 <template #header-extra>
-                    <n-tag round :bordered="false" type="error">
-                        失效
-                    </n-tag>
+                    <n-tag round :bordered="false" type="error"> 失效 </n-tag>
                 </template>
-                <n-tag round :bordered="false" type="primary" size="small">
-                    泛域名
-                </n-tag>
+                <n-tag round :bordered="false" type="primary" size="small"> 泛域名 </n-tag>
                 <template #footer>
                     渠道：Google
                     <br />
@@ -77,7 +63,7 @@
 </template>
 
 <script lang="ts" setup>
-import { RefreshOutline, AddOutline } from '@vicons/ionicons5'
+import { RefreshOutline, AddOutline } from '@vicons/ionicons5';
 
-const createDomainNameModal = ref(false)
+const createDomainNameModal = ref(false);
 </script>

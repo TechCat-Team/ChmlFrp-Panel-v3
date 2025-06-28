@@ -4,12 +4,8 @@
             <div class="not-found-card">
                 <h1 class="not-found-title">404</h1>
                 <p class="not-found-subtitle">页面未找到</p>
-                <p class="not-found-description">
-                    对不起，您访问的页面不存在。可能是URL输入错误，或页面已被移除。
-                </p>
-                <n-button type="primary" class="not-found-button" @click="goHome">
-                    返回主页
-                </n-button>
+                <p class="not-found-description">对不起，您访问的页面不存在。可能是URL输入错误，或页面已被移除。</p>
+                <n-button type="primary" class="not-found-button" @click="goHome"> 返回主页 </n-button>
             </div>
             <div class="not-found-footer">
                 <p>Copyright © 2021 - 2025 TechCat All rights reserved.</p>

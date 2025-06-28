@@ -115,12 +115,7 @@
         <n-card style="width: 600px" size="small" :bordered="false" role="dialog" aria-modal="true">
             <n-tabs type="line" size="large" @update:value="handleTabChange">
                 <n-tab-pane name="自定义解析">
-                    <n-form
-                        style="margin-top: 10px"
-                        ref="formRef"
-                        :model="model"
-                        :rules="rules"
-                    >
+                    <n-form style="margin-top: 10px" ref="formRef" :model="model" :rules="rules">
                         <n-grid cols="1 s:2" x-gap="12" responsive="screen">
                             <n-grid-item>
                                 <n-form-item
@@ -175,7 +170,13 @@
                                 type="primary"
                                 :loading="determineLoading"
                                 @click="handleSubmit"
-                                :disabled="!model.selectedDomain || !model.selectedRecordType || !model.recordValue || !model.TTLValue || !model.target"
+                                :disabled="
+                                    !model.selectedDomain ||
+                                    !model.selectedRecordType ||
+                                    !model.recordValue ||
+                                    !model.TTLValue ||
+                                    !model.target
+                                "
                             >
                                 确定
                             </n-button>
@@ -251,7 +252,12 @@
                                 type="primary"
                                 :loading="determineLoading"
                                 @click="handleFastSubmit"
-                                :disabled="!fastModel.selectedDomain || !fastModel.selectedRecordType || !fastModel.recordValue || !fastModel.selectedTunnel"
+                                :disabled="
+                                    !fastModel.selectedDomain ||
+                                    !fastModel.selectedRecordType ||
+                                    !fastModel.recordValue ||
+                                    !fastModel.selectedTunnel
+                                "
                             >
                                 确定
                             </n-button>
@@ -320,7 +326,13 @@
                         type="primary"
                         :loading="determineLoading"
                         @click="resetDomainName"
-                        :disabled="!model.selectedDomain || !model.selectedRecordType || !model.recordValue || !model.TTLValue || !model.target"
+                        :disabled="
+                            !model.selectedDomain ||
+                            !model.selectedRecordType ||
+                            !model.recordValue ||
+                            !model.TTLValue ||
+                            !model.target
+                        "
                     >
                         确定
                     </n-button>

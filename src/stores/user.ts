@@ -29,9 +29,7 @@ export const useUserStore = defineStore('user', () => {
             throw new Error('初次设置用户信息必须提供完整数据！');
         }
 
-        const newUserInfo = userInfo.value
-            ? { ...userInfo.value, ...info }
-            : (info as UserInfo);
+        const newUserInfo = userInfo.value ? { ...userInfo.value, ...info } : (info as UserInfo);
 
         const expiry = duration === '1d' ? new Date().getTime() + 86400000 : null;
         const dataToStore = JSON.stringify({ ...newUserInfo, expiry });

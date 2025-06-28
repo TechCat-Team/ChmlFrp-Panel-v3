@@ -10,9 +10,7 @@
         </div>
 
         <!-- 左侧 LOGO -->
-        <span class="logo" :style="{ color: themeStore.primaryColor }" v-if="!isHidden">
-            ChmlFrp
-        </span>
+        <span class="logo" :style="{ color: themeStore.primaryColor }" v-if="!isHidden"> ChmlFrp </span>
         <div class="right-section">
             <!-- <n-popover trigger="click" style="border-radius: 8px; max-height: 60vh; width: 350px">
                 <template #trigger>
@@ -41,22 +39,25 @@
     <n-empty v-else size="large" description="暂时没有新消息" style="margin: 20px 0" />
 </n-spin>
 </n-popover> -->
-            <n-popover trigger="hover" style="border-radius: 8px;">
+            <n-popover trigger="hover" style="border-radius: 8px">
                 <template #trigger>
-                    <n-button quaternary style="font-size: 18px;" @click="ThemeSwitcherDrawer('right')">
-                        <n-icon :component="SettingsOutline" style="cursor: pointer;"></n-icon>
+                    <n-button quaternary style="font-size: 18px" @click="ThemeSwitcherDrawer('right')">
+                        <n-icon :component="SettingsOutline" style="cursor: pointer"></n-icon>
                     </n-button>
                 </template>
                 <span>面板设置</span>
             </n-popover>
             <n-dropdown trigger="hover" :options="userDropdownOptions">
                 <n-button quaternary size="large">
-                    <n-avatar v-if="userInfo?.userimg" round size="large" :src="userInfo?.userimg"
-                        style="cursor: pointer;">
+                    <n-avatar
+                        v-if="userInfo?.userimg"
+                        round
+                        size="large"
+                        :src="userInfo?.userimg"
+                        style="cursor: pointer"
+                    >
                     </n-avatar>
-                    <n-avatar v-else round>
-                        CF
-                    </n-avatar>
+                    <n-avatar v-else round> CF </n-avatar>
                     <div class="text-container">
                         <n-performant-ellipsis style="max-width: 90px">
                             <div class="text-top">{{ userInfo?.username || '尚未登陆' }}</div>
@@ -75,18 +76,19 @@
 </template>
 
 <script lang="ts" setup>
-import { SettingsOutline } from '@vicons/ionicons5'
+import { SettingsOutline } from '@vicons/ionicons5';
 import { useThemeStore } from '@/stores/theme';
 import { useScreenStore } from '@/stores/useScreen';
 import { storeToRefs } from 'pinia';
-import { NAvatar, NText, NIcon, DropdownOption, type DrawerPlacement } from 'naive-ui'
+import { NAvatar, NText, NIcon, DropdownOption, type DrawerPlacement } from 'naive-ui';
 import { useRouter } from 'vue-router';
-import { computedMenuOptions } from './Options/Menu'
+import { computedMenuOptions } from './Options/Menu';
 import {
     PersonCircleOutline as UserIcon,
     LogOutOutline as LogoutIcon,
-    MenuOutline, LogInOutline
-} from '@vicons/ionicons5'
+    MenuOutline,
+    LogInOutline,
+} from '@vicons/ionicons5';
 // 获取登录信息
 import { useUserStore } from '@/stores/user';
 // import dayjs from 'dayjs'
@@ -143,43 +145,39 @@ function renderCustomHeader() {
     return h(
         'div',
         {
-            style: 'display: flex; align-items: center; padding: 8px 12px;'
+            style: 'display: flex; align-items: center; padding: 8px 12px;',
         },
         [
             h(NAvatar, {
                 round: true,
                 style: 'margin-right: 12px;',
-                src: userInfo?.userimg || undefined
+                src: userInfo?.userimg || undefined,
             }),
             h('div', null, [
                 h('div', null, [h(NText, { depth: 2 }, { default: () => userInfo?.username || '您尚未登录' })]),
                 h('div', { style: 'font-size: 12px;' }, [
-                    h(
-                        NText,
-                        { depth: 3 },
-                        { default: () => userInfo?.email || 'example@chcat.cn' }
-                    )
-                ])
-            ])
+                    h(NText, { depth: 3 }, { default: () => userInfo?.email || 'example@chcat.cn' }),
+                ]),
+            ]),
         ]
-    )
+    );
 }
 // Router
 const router = useRouter();
 // 顶部消息
-const message = useMessage()
+const message = useMessage();
 
 // 基础的手机端适配
 const screenStore = useScreenStore();
 const { isHidden } = storeToRefs(screenStore);
 
-const themeSwitcherDrawer = ref(false)
-const placement = ref<DrawerPlacement>('right')
+const themeSwitcherDrawer = ref(false);
+const placement = ref<DrawerPlacement>('right');
 const themeStore = useThemeStore(); // 使用useThemeStore获取主题色
 const ThemeSwitcherDrawer = (place: DrawerPlacement) => {
-    themeSwitcherDrawer.value = true
-    placement.value = place
-}
+    themeSwitcherDrawer.value = true;
+    placement.value = place;
+};
 
 const userDropdownOptions = ref<DropdownOption[]>([]);
 
@@ -189,7 +187,7 @@ const updateUserDropdownOptions = () => {
             {
                 key: 'header',
                 type: 'render',
-                render: renderCustomHeader
+                render: renderCustomHeader,
             },
             {
                 label: '用户资料',
@@ -198,8 +196,8 @@ const updateUserDropdownOptions = () => {
                 props: {
                     onClick: () => {
                         router.push('/user');
-                    }
-                }
+                    },
+                },
             },
             {
                 label: '退出登录',
@@ -212,14 +210,14 @@ const updateUserDropdownOptions = () => {
                         router.push('/sign');
                     },
                 },
-            }
+            },
         ];
     } else {
         userDropdownOptions.value = [
             {
                 key: 'header',
                 type: 'render',
-                render: renderCustomHeader
+                render: renderCustomHeader,
             },
             {
                 label: '登录',
@@ -230,7 +228,7 @@ const updateUserDropdownOptions = () => {
                         router.push('/sign');
                     },
                 },
-            }
+            },
         ];
     }
 };

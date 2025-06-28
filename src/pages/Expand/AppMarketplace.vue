@@ -4,8 +4,11 @@
         <div class="carousel-slide" :class="{ 'dark-mode-overlay': isDarkTheme }">
             <img class="carousel-img" src="https://www.chmlfrp.cn/image/1.png" />
             <div class="carousel-caption">
-                <img class="carousel-favicon" :class="{ 'dark-favicon': isDarkTheme }"
-                    src="https://www.mslmc.cn/logo.png" />
+                <img
+                    class="carousel-favicon"
+                    :class="{ 'dark-favicon': isDarkTheme }"
+                    src="https://www.mslmc.cn/logo.png"
+                />
                 <h3>MSL开服器</h3>
                 <p>新一代服务器管理/联机工具</p>
             </div>
@@ -13,22 +16,33 @@
         <div class="carousel-slide" :class="{ 'dark-mode-overlay': isDarkTheme }">
             <img class="carousel-img" src="https://www.chmlfrp.cn/image/2.png" />
             <div class="carousel-caption">
-                <img class="carousel-favicon" :class="{ 'dark-favicon': isDarkTheme }"
-                    src="https://chmlfrp.cn/favicon.ico" />
+                <img
+                    class="carousel-favicon"
+                    :class="{ 'dark-favicon': isDarkTheme }"
+                    src="https://chmlfrp.cn/favicon.ico"
+                />
                 <h3>ChmlFrp_WinUi启动器</h3>
                 <p>来自ChmlFrp官方开发组，简洁美观，专为Win10以上设计</p>
             </div>
         </div>
         <template #arrow="{ prev, next }">
             <div class="custom-arrow">
-                <button type="button" class="custom-arrow--left" @click="prev"
-                    :class="{ 'dark-arrow': isDarkTheme, 'light-arrow': !isDarkTheme }">
+                <button
+                    type="button"
+                    class="custom-arrow--left"
+                    @click="prev"
+                    :class="{ 'dark-arrow': isDarkTheme, 'light-arrow': !isDarkTheme }"
+                >
                     <n-icon :style="{ color: isDarkTheme ? '#fff' : '#000' }">
                         <ArrowBack />
                     </n-icon>
                 </button>
-                <button type="button" class="custom-arrow--right" @click="next"
-                    :class="{ 'dark-arrow': isDarkTheme, 'light-arrow': !isDarkTheme }">
+                <button
+                    type="button"
+                    class="custom-arrow--right"
+                    @click="next"
+                    :class="{ 'dark-arrow': isDarkTheme, 'light-arrow': !isDarkTheme }"
+                >
                     <n-icon :style="{ color: isDarkTheme ? '#fff' : '#000' }">
                         <ArrowForward />
                     </n-icon>
@@ -37,74 +51,97 @@
         </template>
         <template #dots="{ total, currentIndex, to }">
             <ul class="custom-dots">
-                <li v-for="index of total" :key="index"
-                    :class="{ ['is-active']: currentIndex === index - 1, 'dark-dot': isDarkTheme, 'light-dot': !isDarkTheme }"
-                    @click="to(index - 1)" :style="dotStyle(index, currentIndex)" />
+                <li
+                    v-for="index of total"
+                    :key="index"
+                    :class="{
+                        ['is-active']: currentIndex === index - 1,
+                        'dark-dot': isDarkTheme,
+                        'light-dot': !isDarkTheme,
+                    }"
+                    @click="to(index - 1)"
+                    :style="dotStyle(index, currentIndex)"
+                />
             </ul>
         </template>
     </n-carousel>
     <n-grid cols="6" item-responsive responsive="screen" class="softwareModule">
         <!-- ChmlFrp官方应用 -->
         <n-grid-item span="6">
-            <n-h3 style="margin-top: 32px;">
-                ChmlFrp官方应用
-            </n-h3>
-            <n-grid x-gap="12" y-gap="12" cols="1 s:3 m:4 l:5 xl:5" responsive="screen" :collapsed-rows="1"
-                :collapsed="true">
+            <n-h3 style="margin-top: 32px"> ChmlFrp官方应用 </n-h3>
+            <n-grid
+                x-gap="12"
+                y-gap="12"
+                cols="1 s:3 m:4 l:5 xl:5"
+                responsive="screen"
+                :collapsed-rows="1"
+                :collapsed="true"
+            >
                 <n-gi v-for="app in apps" :key="app.id">
                     <n-card size="small" hoverable @click="$router.push(app.router)">
                         <template #cover>
-                            <img :src="app.coverImage" alt="cover"
-                                style="width: 100%; height: 120px; filter: brightness(0.9);" />
+                            <img
+                                :src="app.coverImage"
+                                alt="cover"
+                                style="width: 100%; height: 120px; filter: brightness(0.9)"
+                            />
                         </template>
-                        <div style="margin-top: 16px;">
-                            <img :src="app.favicon" alt="favicon"
-                                style="width: 24px; height: 24px; margin-right: 8px;" />
+                        <div style="margin-top: 16px">
+                            <img
+                                :src="app.favicon"
+                                alt="favicon"
+                                style="width: 24px; height: 24px; margin-right: 8px"
+                            />
                             <span>{{ app.name }}</span>
-                            <p style="font-size: 12px; color: #666;">{{ app.description }}</p>
+                            <p style="font-size: 12px; color: #666">{{ app.description }}</p>
                         </div>
                     </n-card>
                 </n-gi>
             </n-grid>
         </n-grid-item>
     </n-grid>
-    <n-h3 style="margin-top: 32px;">
-        第三方软件
-    </n-h3>
+    <n-h3 style="margin-top: 32px"> 第三方软件 </n-h3>
     <n-grid x-gap="12" y-gap="12" cols="1 s:3 m:4 l:5 xl:5" responsive="screen">
         <n-gi>
             <n-card size="small" hoverable>
                 <template #cover>
                     <img src="https://via.placeholder.com/320x120" />
                 </template>
-                <div style="padding: 8px;">
+                <div style="padding: 8px">
                     <span>示例第三方软件</span>
-                    <p style="font-size: 12px; color: #666;">功能强大，欢迎体验</p>
+                    <p style="font-size: 12px; color: #666">功能强大，欢迎体验</p>
                 </div>
             </n-card>
         </n-gi>
     </n-grid>
-    <n-card style="margin-top: 32px;">
+    <n-card style="margin-top: 32px">
         如果您也想让您的软件出现在这里，请邮件联系 <a href="mailto:chaoji@chcat.cn">chaoji@chcat.cn</a>
     </n-card>
 </template>
 
 <script lang="ts" setup>
-import { ArrowBack, ArrowForward } from '@vicons/ionicons5'
-import { computed } from 'vue'
-import { useThemeStore } from '@/stores/theme'
+import { ArrowBack, ArrowForward } from '@vicons/ionicons5';
+import { computed } from 'vue';
+import { useThemeStore } from '@/stores/theme';
 
 // 获取主题状态
-const themeStore = useThemeStore()
-const isDarkTheme = computed(() => themeStore.theme === 'dark')
+const themeStore = useThemeStore();
+const isDarkTheme = computed(() => themeStore.theme === 'dark');
 
 // 自定义 dots 样式
 const dotStyle = (index: number, currentIndex: number) => {
     return {
-        backgroundColor: currentIndex === index - 1 ? (isDarkTheme.value ? '#fff' : '#000') : (isDarkTheme.value ? 'rgba(255, 255, 255, 0.4)' : 'rgba(0, 0, 0, 0.4)'),
-        width: currentIndex === index - 1 ? '40px' : '12px'
-    }
-}
+        backgroundColor:
+            currentIndex === index - 1
+                ? isDarkTheme.value
+                    ? '#fff'
+                    : '#000'
+                : isDarkTheme.value
+                  ? 'rgba(255, 255, 255, 0.4)'
+                  : 'rgba(0, 0, 0, 0.4)',
+        width: currentIndex === index - 1 ? '40px' : '12px',
+    };
+};
 
 // 示例应用数据
 const apps = ref([
@@ -114,7 +151,7 @@ const apps = ref([
         description: 'win10以上的图形客户端',
         coverImage: 'https://www.chmlfrp.cn/image/2.png',
         favicon: 'https://chmlfrp.cn/favicon.ico',
-        router: '/app_details/1'
+        router: '/app_details/1',
     },
     {
         id: 2,
@@ -122,7 +159,7 @@ const apps = ref([
         description: 'win7以上的图形客户端',
         coverImage: 'https://www.chmlfrp.cn/image/3.png',
         favicon: 'https://chmlfrp.cn/favicon.ico',
-        router: '/app_details/2'
+        router: '/app_details/2',
     },
     {
         id: 3,
@@ -130,7 +167,7 @@ const apps = ref([
         description: '适用于MC插件服务器',
         coverImage: 'https://via.placeholder.com/320x120',
         favicon: 'https://static.spigotmc.org/img/spigot.png',
-        router: '/app_details/3'
+        router: '/app_details/3',
     },
     {
         id: 4,
@@ -138,9 +175,9 @@ const apps = ref([
         description: '提供MC游戏内的隧道操控',
         coverImage: 'https://via.placeholder.com/320x120',
         favicon: 'https://wiki.fabricmc.net/_media/wiki:logo.png',
-        router: '/app_details/4'
-    }
-])
+        router: '/app_details/4',
+    },
+]);
 </script>
 
 <style lang="scss">
@@ -157,7 +194,6 @@ const apps = ref([
         border-radius: 8px;
     }
 }
-
 
 .carousel-img {
     width: 100%;

@@ -10,7 +10,7 @@ declare global {
         TMAP_SATELLITE_MAP: any;
         TMAP_NORMAL_MAP: any;
     }
-    
+
     interface TMap {
         centerAndZoom: (lngLat: LngLat, zoom: number) => void;
         enableScrollWheelZoom: (enable: boolean) => void;

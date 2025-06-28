@@ -1,4 +1,4 @@
-import v2 from "./v2";
+import v2 from './v2';
 
 // import v1 from "./v1";
 

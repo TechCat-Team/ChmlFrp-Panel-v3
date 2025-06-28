@@ -35,10 +35,7 @@ interface LoginResponse extends BaseResponse {
  * @param {string} password - 密码
  * @returns {Promise<LoginResponse>} 登录响应
  */
-export const login = async (
-    username: string,
-    password: string
-): Promise<LoginResponse> => {
+export const login = async (username: string, password: string): Promise<LoginResponse> => {
     return axiosInstance.get('/login', {
         params: { username, password },
     });
@@ -191,10 +188,7 @@ export const resetPassword = async (
  * @param {string} new_username - 新用户名
  * @returns {Promise<BaseResponse>} 修改用户名响应
  */
-export const updateUserName = async (
-    token: string,
-    new_username: string
-): Promise<BaseResponse> => {
+export const updateUserName = async (token: string, new_username: string): Promise<BaseResponse> => {
     return axiosInstance.get('/update_username', {
         params: { token, new_username },
     });
@@ -206,10 +200,7 @@ export const updateUserName = async (
  * @param {string} new_qq - 新QQ号
  * @returns {Promise<BaseResponse>} 修改QQ响应
  */
-export const updateQQ = async (
-    token: string,
-    new_qq: string
-): Promise<BaseResponse> => {
+export const updateQQ = async (token: string, new_qq: string): Promise<BaseResponse> => {
     return axiosInstance.get('/update_qq', {
         params: { token, new_qq },
     });
@@ -221,10 +212,7 @@ export const updateQQ = async (
  * @param {string} new_userimg - 新头像URL
  * @returns {Promise<BaseResponse>} 重置头像响应
  */
-export const updateUserImage = async (
-    token: string,
-    new_userimg: string
-): Promise<BaseResponse> => {
+export const updateUserImage = async (token: string, new_userimg: string): Promise<BaseResponse> => {
     return axiosInstance.get('/update_userimg', {
         params: { token, new_userimg },
     });
@@ -246,9 +234,7 @@ interface GetMessageResponse extends BaseResponse {
  * @param {string} token - 用户令牌
  * @returns {Promise<GetMessageResponse>} 消息响应
  */
-export const getMessages = async (
-    token: string
-): Promise<GetMessageResponse> => {
+export const getMessages = async (token: string): Promise<GetMessageResponse> => {
     return axiosInstance.get('/messages', {
         params: { token },
     });
@@ -279,10 +265,7 @@ export const resetEmail = async (
  * @param email_code 邮箱验证码
  * @returns {Promise<BaseResponse>} 删除账户响应
  */
-export const deleteAccount = async (
-    token: string,
-    email_code: string
-): Promise<BaseResponse> => {
+export const deleteAccount = async (token: string, email_code: string): Promise<BaseResponse> => {
     return axiosInstance.get('/delete_account', {
         params: { token, email_code },
     });

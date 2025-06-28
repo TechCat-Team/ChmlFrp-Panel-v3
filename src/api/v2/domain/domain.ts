@@ -16,10 +16,9 @@ interface AvailableDomainsResponse extends BaseResponse {
  * 获取可用域名列表
  * @returns {Promise<AvailableDomainsResponse>} 包含可用域名列表的响应数据
  */
-export const listAvailableDomains =
-    async (): Promise<AvailableDomainsResponse> => {
-        return axiosInstance.get('/list_available_domains');
-    };
+export const listAvailableDomains = async (): Promise<AvailableDomainsResponse> => {
+    return axiosInstance.get('/list_available_domains');
+};
 
 /**
  * 创建免费二级域名
@@ -39,18 +38,7 @@ export const createFreeSubdomain = async (param: {
     record: string; // 记录
     type: string; // 类型，仅允许A' | 'AAAA' | 'CNAME' | 'SRV
     target: string; // 解析的最终目标
-    ttl:
-        | '1分钟'
-        | '2分钟'
-        | '5分钟'
-        | '10分钟'
-        | '15分钟'
-        | '30分钟'
-        | '1小时'
-        | '2小时'
-        | '5小时'
-        | '12小时'
-        | '1天'; //TTL
+    ttl: '1分钟' | '2分钟' | '5分钟' | '10分钟' | '15分钟' | '30分钟' | '1小时' | '2小时' | '5小时' | '12小时' | '1天'; //TTL
     remarks: string; // 介绍
 }): Promise<BaseResponse> => {
     return axiosInstance.post('/create_free_subdomain', param);
@@ -87,18 +75,7 @@ export const updateFreeSubdomain = async (param: {
     domain: string; // 主域名
     record: string; // 记录
     target: string; // 目标
-    ttl:
-        | '1分钟'
-        | '2分钟'
-        | '5分钟'
-        | '10分钟'
-        | '15分钟'
-        | '30分钟'
-        | '1小时'
-        | '2小时'
-        | '5小时'
-        | '12小时'
-        | '1天'; // TTL
+    ttl: '1分钟' | '2分钟' | '5分钟' | '10分钟' | '15分钟' | '30分钟' | '1小时' | '2小时' | '5小时' | '12小时' | '1天'; // TTL
     remarks: string; // 介绍
 }): Promise<BaseResponse> => {
     return axiosInstance.post('/update_free_subdomain', param);
@@ -111,18 +88,7 @@ interface UserFreeSubdomain {
     record: string; // 记录
     type: string; // 类型
     target: string; // 目标
-    ttl:
-        | '1分钟'
-        | '2分钟'
-        | '5分钟'
-        | '10分钟'
-        | '15分钟'
-        | '30分钟'
-        | '1小时'
-        | '2小时'
-        | '5小时'
-        | '12小时'
-        | '1天'; // TTL
+    ttl: '1分钟' | '2分钟' | '5分钟' | '10分钟' | '15分钟' | '30分钟' | '1小时' | '2小时' | '5小时' | '12小时' | '1天'; // TTL
     remarks: string; // 介绍
 }
 
@@ -135,9 +101,7 @@ interface GetUserFreeSubdomainsResponse extends BaseResponse {
  * @param {string} token 用户Token
  * @returns {Promise<GetUserFreeSubdomainsResponse>} 包含用户免费二级域名列表的响应数据
  */
-export const getUserFreeSubdomains = async (
-    token: string
-): Promise<GetUserFreeSubdomainsResponse> => {
+export const getUserFreeSubdomains = async (token: string): Promise<GetUserFreeSubdomainsResponse> => {
     return axiosInstance.get('/get_user_free_subdomains', {
         params: { token },
     });

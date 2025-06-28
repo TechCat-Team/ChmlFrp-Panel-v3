@@ -8,8 +8,14 @@
                 </n-icon>
                 <div class="title">
                     <div class="repo-name">
-                        <n-button class="repo-name" text tag="a" href="https://github.com/TechCat-Team/ChmlFrp-Panel-v3" target="_blank">
-                            TechCat-Team/ChmlFrp-Panel-v3 
+                        <n-button
+                            class="repo-name"
+                            text
+                            tag="a"
+                            href="https://github.com/TechCat-Team/ChmlFrp-Panel-v3"
+                            target="_blank"
+                        >
+                            TechCat-Team/ChmlFrp-Panel-v3
                         </n-button>
                         基于
                     </div>
@@ -24,45 +30,57 @@
             <div class="column">
                 <div class="column-title">权限</div>
                 <ul class="items">
-                    <li><n-icon class="check-icon"><check-circle /></n-icon> 商业使用</li>
-                    <li><n-icon class="check-icon"><check-circle /></n-icon> 修改</li>
-                    <li><n-icon class="check-icon"><check-circle /></n-icon> 分发</li>
-                    <li><n-icon class="check-icon"><check-circle /></n-icon> 专利使用</li>
-                    <li><n-icon class="check-icon"><check-circle /></n-icon> 私人使用</li>
+                    <li>
+                        <n-icon class="check-icon"><check-circle /></n-icon> 商业使用
+                    </li>
+                    <li>
+                        <n-icon class="check-icon"><check-circle /></n-icon> 修改
+                    </li>
+                    <li>
+                        <n-icon class="check-icon"><check-circle /></n-icon> 分发
+                    </li>
+                    <li>
+                        <n-icon class="check-icon"><check-circle /></n-icon> 专利使用
+                    </li>
+                    <li>
+                        <n-icon class="check-icon"><check-circle /></n-icon> 私人使用
+                    </li>
                 </ul>
             </div>
             <div class="column">
                 <div class="column-title">限制</div>
                 <ul class="items">
-                    <li><n-icon class="cross-icon"><times-circle /></n-icon> 商标使用</li>
-                    <li><n-icon class="cross-icon"><times-circle /></n-icon> 责任</li>
-                    <li><n-icon class="cross-icon"><times-circle /></n-icon> 保证</li>
+                    <li>
+                        <n-icon class="cross-icon"><times-circle /></n-icon> 商标使用
+                    </li>
+                    <li>
+                        <n-icon class="cross-icon"><times-circle /></n-icon> 责任
+                    </li>
+                    <li>
+                        <n-icon class="cross-icon"><times-circle /></n-icon> 保证
+                    </li>
                 </ul>
             </div>
             <div class="column">
                 <div class="column-title">条件</div>
                 <ul class="items">
-                    <li><n-icon class="info-icon"><info-circle /></n-icon> 许可和版权声明</li>
-                    <li><n-icon class="info-icon"><info-circle /></n-icon> 状态更改</li>
+                    <li>
+                        <n-icon class="info-icon"><info-circle /></n-icon> 许可和版权声明
+                    </li>
+                    <li>
+                        <n-icon class="info-icon"><info-circle /></n-icon> 状态更改
+                    </li>
                 </ul>
             </div>
         </div>
         <n-flex style="margin-top: 12px">
             <n-skeleton v-if="loading" :width="91" round :sharp="false" size="small" />
-            <n-tag v-else round type="primary">
-                版本：{{ version }}
-            </n-tag>
+            <n-tag v-else round type="primary"> 版本：{{ version }} </n-tag>
             <n-skeleton v-if="loading" :width="247" round :sharp="false" size="small" />
-            <n-tag round type="primary" v-else>
-                最后构建时间：{{ buildTime }}
-            </n-tag>
+            <n-tag round type="primary" v-else> 最后构建时间：{{ buildTime }} </n-tag>
         </n-flex>
-        <n-p style="opacity: 0.6;">
-            Copyright © 2021 - {{ currentYear }} TechCat All rights reserved.
-        </n-p>
-        <n-p style="opacity: 0.6;">
-            此网站由 PH_CDN 提供 CDN 加速与防御支持。
-        </n-p>
+        <n-p style="opacity: 0.6"> Copyright © 2021 - {{ currentYear }} TechCat All rights reserved. </n-p>
+        <n-p style="opacity: 0.6"> 此网站由 PH_CDN 提供 CDN 加速与防御支持。 </n-p>
     </n-card>
     <n-card title="开发环境依赖" style="margin-top: 15px">
         <n-skeleton v-if="loading" text :repeat="8" :sharp="false" />
@@ -89,7 +107,7 @@ import { useScreenStore } from '@/stores/useScreen';
 import { storeToRefs } from 'pinia';
 
 // 加载状态，默认true
-const loading = ref(true)
+const loading = ref(true);
 
 // 基础的手机端适配
 const screenStore = useScreenStore();
