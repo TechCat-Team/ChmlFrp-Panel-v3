@@ -486,7 +486,7 @@
                             />
                         </n-form-item>
                         <n-form-item v-else label="外网端口" path="dorp">
-                            <n-input v-model:value="formData.dorp" clearable @update:value="updatePortTrig" />
+                            <n-input placeholder="请选择域名类型" v-model:value="formData.dorp" clearable @update:value="updatePortTrig" />
                         </n-form-item>
                     </n-col>
                     <n-col

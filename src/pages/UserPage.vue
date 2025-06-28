@@ -68,10 +68,10 @@
                     <n-form ref="realNameFormRef" :model="realNameModel" :rules="realNameRules" label-placement="left"
                         label-width="auto">
                         <n-form-item path="name" label="姓名" :show-require-mark="true">
-                            <n-input v-model:value="realNameModel.name" round />
+                            <n-input v-model:value="realNameModel.name" round placeholder="请输入真实姓名" />
                         </n-form-item>
                         <n-form-item path="idCard" label="身份证" :show-require-mark="true">
-                            <n-input v-model:value="realNameModel.idCard" round />
+                            <n-input v-model:value="realNameModel.idCard" round placeholder="请输入身份证号" />
                         </n-form-item>
                         <n-row :gutter="[0, 24]">
                             <n-col :span="24">
@@ -90,7 +90,7 @@
                     <n-form ref="exchangeCodeFormRef" :model="exchangeCodeModel" :rules="exchangeCodeRules"
                         label-placement="left" label-width="auto">
                         <n-form-item path="exchangeCode" label="兑换码" :show-require-mark="true">
-                            <n-input placeholder="XXXX-XXXX-XXXX-XXXX" v-model:value="exchangeCodeModel.exchangeCode"
+                            <n-input placeholder="请输入兑换码，如：XXXX-XXXX-XXXX-XXXX" v-model:value="exchangeCodeModel.exchangeCode"
                                 round />
                         </n-form-item>
                         <n-row :gutter="[0, 24]">
@@ -167,12 +167,12 @@
     </n-flex>
     <n-modal v-model:show="changeTheUsernameModal">
         <n-card style="width: 400px">
-            <n-form>
-                <n-form-item-row label="更改后的用户名">
-                    <n-input round v-model:value="newUserName" />
+            <n-form ref="userNameFormRef" :model="userNameModel" :rules="updateUserNameRules">
+                <n-form-item-row label="更改后的用户名" path="newUserName">
+                    <n-input round v-model:value="userNameModel.newUserName" placeholder="请输入新的用户名" />
                 </n-form-item-row>
             </n-form>
-            <n-button round type="primary" @click="resetUserName" :disabled="newUserName === null"
+            <n-button round type="primary" @click="resetUserName" :disabled="userNameModel.newUserName === null"
                 :loading="loadingUpdateUserName" block secondary strong>
                 确定
             </n-button>
@@ -186,11 +186,14 @@
                     <n-alert title="提示" type="info" style="margin-bottom: 16px">
                         图片链接仅支持直链，且无反盗链的链接
                     </n-alert>
-                    <n-input round v-model:value="newUserImg" />
-                    <n-button round type="primary" block :loading="loadingUpdateImg" @click="resetUserImg(newUserImg)"
-                        secondary strong style="margin-top: 16px">
-                        提交
-                    </n-button>
+                    <n-form ref="userImageFormRef" :model="userImageModel" :rules="updateUserImageRules">
+                        <n-form-item-row label="图片直链" path="newUserImage">
+                            <n-input round v-model:value="userImageModel.newUserImage" placeholder="请输入图片直链" />
+                        </n-form-item-row>
+                        <n-button round type="primary" block :loading="loadingUpdateImg" @click="resetUserImg" secondary strong style="margin-top: 16px">
+                            提交
+                        </n-button>
+                    </n-form>
                 </n-tab-pane>
                 <n-tab-pane name="QQ" tab="根据QQ">
                     <n-alert title="提示" type="info" style="margin-bottom: 16px">
@@ -200,7 +203,7 @@
                         <n-avatar round :size="48" :src="QQImg" />
                         <n-p>{{ userInfo?.qq }}</n-p>
                     </n-flex>
-                    <n-button round type="primary" block :loading="loadingUpdateImg" @click="resetUserImg(QQImg)"
+                    <n-button round type="primary" block :loading="loadingUpdateImg" @click="setQQAvatar"
                         secondary strong style="margin-top: 16px">
                         提交
                     </n-button>
@@ -213,7 +216,7 @@
                         <n-avatar round :size="48" :src="CravatarImg" />
                         <n-p>{{ userInfo?.email }}</n-p>
                     </n-flex>
-                    <n-button round type="primary" block :loading="loadingUpdateImg" @click="resetUserImg(CravatarImg)"
+                    <n-button round type="primary" block :loading="loadingUpdateImg" @click="setCravatarAvatar"
                         secondary strong style="margin-top: 16px">
                         提交
                     </n-button>
@@ -226,15 +229,15 @@
             <n-form :model="resetPasswordValue" :rules="resetPasswordRules">
                 <n-form-item-row label="原密码" path="original_password">
                     <n-input round type="password" v-model:value="resetPasswordValue.original_password"
-                        :show-password-on="isTouchDevice ? 'click' : 'mousedown'" />
+                        :show-password-on="isTouchDevice ? 'click' : 'mousedown'" placeholder="请输入原密码" />
                 </n-form-item-row>
                 <n-form-item-row label="新密码" path="new_password">
                     <n-input round type="password" v-model:value="resetPasswordValue.new_password" maxlength="48"
-                        :show-password-on="isTouchDevice ? 'click' : 'mousedown'" />
+                        :show-password-on="isTouchDevice ? 'click' : 'mousedown'" placeholder="请输入新密码" />
                 </n-form-item-row>
                 <n-form-item-row label="重复新密码" path="reentered_new_password">
                     <n-input round type="password" v-model:value="resetPasswordValue.reentered_new_password"
-                        maxlength="48" show-count clearable />
+                        maxlength="48" show-count clearable placeholder="请再次输入新密码" />
                 </n-form-item-row>
             </n-form>
             <n-button round type="primary" @click="resetPassword" block secondary strong
@@ -246,11 +249,11 @@
     </n-modal>
     <n-modal v-model:show="changeTheMailboxModal">
         <n-card style="width: 400px">
-            <n-form>
+            <n-form :model="{ old_code, newEmail, new_code }" :rules="resetEmailRules">
                 <n-form-item-row label="旧邮箱验证码">
                     <n-grid cols="5" :x-gap="12" item-responsive responsive="screen">
                         <n-grid-item span="3">
-                            <n-input round maxlength="6" v-model:value="old_code" />
+                            <n-input round maxlength="6" v-model:value="old_code" placeholder="请输入6位验证码" />
                         </n-grid-item>
                         <n-grid-item span="2">
                             <n-popover trigger="hover" raw :show-arrow="false">
@@ -265,12 +268,12 @@
                     </n-grid>
                 </n-form-item-row>
                 <n-form-item-row label="新邮箱">
-                    <n-input round maxlength="32" v-model:value="newEmail" show-count clearable />
+                    <n-input round maxlength="32" v-model:value="newEmail" show-count clearable placeholder="请输入新的邮箱" />
                 </n-form-item-row>
                 <n-form-item-row label="新邮箱验证码">
                     <n-grid cols="5" :x-gap="12" item-responsive responsive="screen">
                         <n-grid-item span="3">
-                            <n-input round maxlength="6" v-model:value="new_code" />
+                            <n-input round maxlength="6" v-model:value="new_code" placeholder="请输入6位验证码" />
                         </n-grid-item>
                         <n-grid-item span="2">
                             <n-popover trigger="hover" raw :show-arrow="false">
@@ -293,12 +296,12 @@
     </n-modal>
     <n-modal v-model:show="changeQQModal">
         <n-card style="width: 400px">
-            <n-form>
-                <n-form-item-row label="新QQ号">
-                    <n-input round maxlength="20" v-model:value="newQQ" show-count clearable />
+            <n-form ref="qqFormRef" :model="qqModel" :rules="updateQQRules">
+                <n-form-item-row label="新QQ号" path="newQQ">
+                    <n-input round maxlength="20" v-model:value="qqModel.newQQ" show-count clearable placeholder="请输入新的QQ号" />
                 </n-form-item-row>
             </n-form>
-            <n-button round type="primary" :disabled="newQQ === null" :loading="loadingUpdateQQ" @click="resetQQ" block
+            <n-button round type="primary" :disabled="qqModel.newQQ === null" :loading="loadingUpdateQQ" @click="resetQQ" block
                 secondary strong>
                 确定
             </n-button>
@@ -313,7 +316,7 @@
                 <n-form-item-row label="旧邮箱验证码">
                     <n-grid cols="5" :x-gap="12" item-responsive responsive="screen">
                         <n-grid-item span="3">
-                            <n-input round maxlength="6" v-model:value="deleteAccountCode" />
+                            <n-input round maxlength="6" v-model:value="deleteAccountCode" placeholder="请输入6位验证码" />
                         </n-grid-item>
                         <n-grid-item span="2">
                             <n-popover trigger="hover" raw :show-arrow="false">
@@ -347,7 +350,7 @@
 
 <script setup lang="ts">
 import { KeyOutline, PersonOutline, ImageOutline, MailOutline, LockClosedOutline, ChatboxEllipsesOutline, TrashBinOutline, CodeDownloadOutline } from '@vicons/ionicons5'
-import { ref, computed } from 'vue';
+import { ref, computed, reactive } from 'vue';
 import { FormInst, FormRules } from 'naive-ui';
 import { useStyleStore } from '@/stores/style';
 import { useScreenStore } from '@/stores/useScreen';
@@ -362,6 +365,13 @@ import { useLoadUserInfo } from '@/components/useLoadUser';
 import { inject } from 'vue';
 
 import api from '@/api'
+import { realNameRules, 
+    exchangeCodeRules, 
+    resetEmailRules, 
+    updateQQRules, 
+    updateUserNameRules, 
+    updateUserImageRules 
+} from '@/utils/authRules'
 
 const isTouchDevice = inject('isTouchDevice')
 
@@ -409,14 +419,34 @@ const new_code = ref()
 const deleteAccountCode = ref()
 
 const QianDaoTest = ref('签到') // 签到按钮默认文字
-const newUserImg = ref('') // 新头像链接
-const newUserName = ref(`${userInfo?.username}`) // 新用户名
-const newQQ = ref(`${userInfo?.qq}`) // 新QQ号
-const resetPasswordValue = ref({
+const resetPasswordValue = reactive({
     original_password: '',
     new_password: '',
-    reentered_new_password: null
+    reentered_new_password: ''
 })
+
+const resetPasswordRules: FormRules = {
+    original_password: [
+        { required: true, message: '原密码不能为空', trigger: 'blur' },
+        { pattern: /^(?![a-zA-Z]+$)(?!\d+$)(?![^\da-zA-Z\s]+$).{6,48}$/, message: '密码且至少包含字母、数字、特殊符号中任意两种', trigger: ['blur', 'input'] }
+    ],
+    new_password: [
+        { required: true, message: '新密码不能为空', trigger: 'blur' },
+        { pattern: /^(?![a-zA-Z]+$)(?!\d+$)(?![^\da-zA-Z\s]+$).{6,48}$/, message: '密码且至少包含字母、数字、特殊符号中任意两种', trigger: ['blur', 'input'] }
+    ],
+    reentered_new_password: [
+        { required: true, message: '请再次输入新密码', trigger: 'blur' },
+        {
+            validator: (_rule, value) => {
+                if (value !== resetPasswordValue.new_password) {
+                    return new Error('两次输入的新密码不一致');
+                }
+                return true;
+            },
+            trigger: ['blur', 'input']
+        }
+    ]
+}
 
 const QQImg = `https://q.qlogo.cn/headimg_dl?dst_uin=${userInfo?.qq}&spec=640&img_type=jpg` // 根据QQ获取头像
 const emailHash = CryptoJS.MD5(userInfo?.email || "chaoji@chcat.cn").toString(); // md5加密邮箱
@@ -428,6 +458,14 @@ const changePasswordModal = ref(false) // 更改 密码 模态框状态
 const changeTheMailboxModal = ref(false) // 更改 邮箱 模态框状态
 const changeQQModal = ref(false) // 更改 QQ 模态框状态
 const deleteAccountVerificationModal = ref(false)
+
+const userNameFormRef = ref<FormInst | null>(null)
+const qqFormRef = ref<FormInst | null>(null)
+const userImageFormRef = ref<FormInst | null>(null)
+
+const userNameModel = reactive({ newUserName: '' })
+const qqModel = reactive({ newQQ: '' })
+const userImageModel = reactive({ newUserImage: '' })
 
 onMounted(() => {
     qiandaoinfo(); //加载签到信息
@@ -661,22 +699,26 @@ const signIn = async (geetestResult: GeetestResult) => {
     }, 3000);
 };
 
-const resetUserImg = async (userImg: string) => {
-    loadingUpdateImg.value = true;
+const resetUserImg = async () => {
+    try {
+        await userImageFormRef.value?.validate()
+    } catch (e) {
+        message.warning('请输入图片链接')
+        return
+    }
+    loadingUpdateImg.value = true
     try {
         const response = await api.v2.user.updateUserImage(
             userInfo?.usertoken || '',
-            userImg
-        );
-
-        message.success(response.msg);
-        modifyAvatarModal.value = false;
-        userStore.setUser({ userimg: userImg });
-
+            userImageModel.newUserImage
+        )
+        message.success(response.msg)
+        modifyAvatarModal.value = false
+        userStore.setUser({ userimg: userImageModel.newUserImage })
     } catch (error) {
-        message.error('修改头像失败: ' + (error as Error).message);
+        message.error('修改头像失败: ' + (error as Error).message)
     } finally {
-        loadingUpdateImg.value = false;
+        loadingUpdateImg.value = false
     }
 };
 
@@ -694,92 +736,58 @@ const resetTokenAPI = async () => {
 };
 
 const resetQQ = async () => {
-    loadingUpdateQQ.value = true
+    try {
+        await qqFormRef.value?.validate();
+    } catch (errors) {
+        message.warning('QQ号不能为空');
+        return;
+    }
+    loadingUpdateQQ.value = true;
     try {
         const response = await api.v2.user.updateQQ(
             userInfo?.usertoken || '',
-            newQQ.value
+            qqModel.newQQ
         );
-
-        message.success(response.msg)
-        changeQQModal.value = false
-        userStore.setUser({ qq: newQQ.value });
-
+        message.success(response.msg);
+        changeQQModal.value = false;
+        userStore.setUser({ qq: qqModel.newQQ });
     } catch (error) {
-        message.error('修改QQ失败: ' + (error as Error).message)
+        message.error('修改QQ失败: ' + (error as Error).message);
     }
-    loadingUpdateQQ.value = false
+    loadingUpdateQQ.value = false;
 };
 
 const resetUserName = async () => {
+    try {
+        await userNameFormRef.value?.validate()
+    } catch (e: any) {
+        // e 是一个对象，结构为 { newUserName: [{ message: 'xxx', ... }] }
+        // 取第一个错误的 message
+        const msg = e?.newUserName?.[0]?.message || '用户名校验未通过'
+        message.warning(msg)
+        return
+    }
     loadingUpdateUserName.value = true
     try {
         const response = await api.v2.user.updateUserName(
             userInfo?.usertoken || '',
-            newUserName.value
-        );
-
+            userNameModel.newUserName
+        )
         message.success(response.msg)
         changeTheUsernameModal.value = false
-        userStore.setUser({ username: newUserName.value });
-
+        userStore.setUser({ username: userNameModel.newUserName })
     } catch (error) {
         message.error('修改用户名失败: ' + (error as Error).message)
     }
     loadingUpdateUserName.value = false
 };
 
-const resetPasswordRules = {
-    original_password: [
-        {
-            required: true,
-            message: '原密码不能为空',
-            trigger: 'blur'
-        },
-        {
-            pattern: /^(?![a-zA-Z]+$)(?!\d+$)(?![^\da-zA-Z\s]+$).{6,48}$/,
-            message: '密码且至少包含字母、数字、特殊符号中任意两种',
-            trigger: ['blur', 'input']
-        }
-    ],
-    new_password: [
-        {
-            required: true,
-            message: '新密码不能为空',
-            trigger: 'blur'
-        },
-        {
-            pattern: /^(?![a-zA-Z]+$)(?!\d+$)(?![^\da-zA-Z\s]+$).{6,48}$/,
-            message: '密码且至少包含字母、数字、特殊符号中任意两种',
-            trigger: ['blur', 'input']
-        }
-    ],
-    reentered_new_password: [
-        {
-            required: true,
-            message: '请再次输入新密码',
-            trigger: 'blur'
-        },
-        {
-            validator: (rule: string, value: string) => {
-                void rule;
-                
-                if (value !== resetPasswordValue.value.new_password) {
-                    return new Error('两次输入的新密码不一致');
-                }
-                return true;
-            },
-            trigger: ['blur', 'input']
-        }
-    ]
-};
-
 const resetPassword = async () => {
     loadingUpdatePassword.value = true
     try {
         const response = await api.v2.user.resetPassword(
-            resetPasswordValue.value.original_password,
-            resetPasswordValue.value.new_password,
+            resetPasswordValue.original_password,
+            resetPasswordValue.new_password,
             userInfo?.usertoken || '',
         )
 
@@ -935,22 +943,10 @@ const realNameModel = ref<RealNameModelType>({
     idCard: null,
 });
 
-const realNameRules: FormRules = {
-    name: [
-        {
-            required: true,
-            message: '请输入真实姓名',
-        },
-    ],
-    idCard: [
-        {
-            required: true,
-            message: '请输入身份证号',
-        },
-    ],
-};
-
 const realNameHandleValidateButtonClick = async () => {
+    if (!realNameFormRef.value?.validate()) {
+        return;
+    }
     loadingRealName.value = true;
     try {
         const formData = new FormData();
@@ -986,15 +982,6 @@ const exchangeCodeFormRef = ref<FormInst | null>(null);
 const exchangeCodeModel = ref<ExchangeCodeType>({
     exchangeCode: null,
 });
-
-const exchangeCodeRules: FormRules = {
-    exchangeCode: [
-        {
-            required: true,
-            message: '请输入兑换码',
-        },
-    ],
-};
 
 // 显示token
 const showNewContent = ref(false);
@@ -1083,4 +1070,14 @@ const settingCard = ref([
         click: deleteAccountTips,
     }
 ])
+
+const setQQAvatar = () => {
+    userImageModel.newUserImage = QQImg
+    resetUserImg()
+}
+
+const setCravatarAvatar = () => {
+    userImageModel.newUserImage = CravatarImg
+    resetUserImg()
+}
 </script>

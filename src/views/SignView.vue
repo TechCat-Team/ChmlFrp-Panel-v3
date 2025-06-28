@@ -63,7 +63,7 @@
                                         </n-flex>
                                         <div style="display: flex; justify-content: flex-end; margin-top: 24px">
                                             <n-button :loading="loginLoading"
-                                                :disabled="model.email === null || model.password === null || loginLoading"
+                                                :disabled="!model.email || !model.password || loginLoading"
                                                 round type="primary" style="width: 100%;" size="large"
                                                 @click="handleValidateButtonClick">
                                                 登录
@@ -219,7 +219,7 @@ import { useUserStore } from '@/stores/user';
 import {
     FormInst
 } from 'naive-ui'
-import { loginRules, registerRules } from '@/utils/authRules'
+import { loginRules, registerRules, resetRules } from '@/utils/authRules'
 
 import { inject } from 'vue';
 
@@ -353,7 +353,7 @@ const isNextStepDisabled = computed(() => {
         return !formModel.value.email || !formModel.value.confirmPassword;
     }
     if (currentStep.value === 3) {
-        return !formModel.value.verificationCode || !clause.value || RegLoading.value === true
+        return !formModel.value.verificationCode || !clause.value || RegLoading.value === true || !formModel.value.username
     }
     return false;
 });
@@ -391,10 +391,39 @@ const handleValidateButtonClick = async () => {
             : `登录成功，欢迎您，尊贵的会员用户${data.username}！`;
 
         router.push('/home');
-    } catch (error) {
+    } catch (error : any) {
+        let firstErrorMsg = '';
+
+        if (Array.isArray(error) && error.length > 0) {
+            // 可能是嵌套数组
+            if (Array.isArray(error[0]) && error[0][0]?.message) {
+                firstErrorMsg = error[0][0].message;
+            } else if (error[0]?.message) {
+                firstErrorMsg = error[0].message;
+            }
+        }
+
+        // 2. 兼容 errors 字段的对象
+        if (!firstErrorMsg && error && typeof error === 'object' && error.hasOwnProperty('errors')) {
+            const errorsObj = error.errors;
+            if (errorsObj && typeof errorsObj === 'object') {
+                for (const key in errorsObj) {
+                    if (Array.isArray(errorsObj[key]) && errorsObj[key][0]?.message) {
+                        firstErrorMsg = errorsObj[key][0].message;
+                        break;
+                    }
+                }
+            }
+        }
+
+        if (firstErrorMsg) {
+            loadingMessage.type = 'error';
+            loadingMessage.content = firstErrorMsg;
+        } else {
+            loadingMessage.type = 'error';
+            loadingMessage.content = '登陆失败: ' + (error && error.message ? error.message : '表单校验失败');
+        }
         console.error('表单验证或登录失败', error);
-        loadingMessage.type = 'error';
-        loadingMessage.content = '登陆失败: ' + (error as Error).message;
     } finally {
         // 在完成操作后，4秒后自动关闭
         setTimeout(() => {
@@ -444,43 +473,6 @@ const toLogin = () => { isRegister.value = false; isReset.value = false }
 const toReset = () => { isReset.value = true; isRegister.value = false }
 
 const resetModel = ref({ email: '', verificationCode: '', newPassword: '', confirmPassword: '' })
-
-const resetRules = {
-    email: [
-        { required: true, message: '请输入邮箱地址', trigger: 'blur' },
-        { type: 'email', message: '请输入有效的邮箱格式', trigger: ['blur', 'input'] }
-    ],
-    verificationCode: [
-        { required: true, message: '请输入验证码', trigger: 'blur' },
-        {
-            pattern: /^[0-9]{6}$/,
-            message: '验证码必须为6位数字',
-            trigger: ['blur', 'input']
-        }
-    ],
-    newPassword: [
-        { required: true, message: '请输入新密码', trigger: 'blur' },
-        {
-            pattern: /^(?![a-zA-Z]+$)(?!\d+$)(?![^\da-zA-Z\s]+$).{6,48}$/,
-            message: '密码6~48位，且至少包含字母、数字、特殊符号中任意两种',
-            trigger: ['blur', 'input']
-        }
-    ],
-    confirmPassword: [
-        { required: true, message: '请再次输入新密码', trigger: 'blur' },
-        {
-            validator: (rule: any, value: string) => {
-                void rule;
-                
-                if (value !== resetModel.value.newPassword) {
-                    return new Error('两次输入的密码不一致')
-                }
-                return true
-            },
-            trigger: 'blur'
-        }
-    ]
-}
 
 const handleResetPassword = async () => {
     loginLoading.value = true;

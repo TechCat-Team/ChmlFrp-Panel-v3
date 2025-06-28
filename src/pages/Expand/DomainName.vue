@@ -117,19 +117,15 @@
                 <n-tab-pane name="自定义解析">
                     <n-form
                         style="margin-top: 10px"
-                        :model="model"
                         ref="formRef"
-                        label-placement="left"
-                        label-width="auto"
-                        require-mark-placement="right-hanging"
-                        :size="size"
+                        :model="model"
                         :rules="rules"
                     >
                         <n-grid cols="1 s:2" x-gap="12" responsive="screen">
                             <n-grid-item>
                                 <n-form-item
                                     label="域名"
-                                    path="selectValue"
+                                    path="selectedDomain"
                                     :required="true"
                                     required-message="请选择域名"
                                 >
@@ -151,7 +147,7 @@
                             </n-grid-item>
                             <n-grid-item>
                                 <n-form-item label="记录" :required="true" required-message="请输入记录">
-                                    <n-input v-model:value="model.recordValue">
+                                    <n-input v-model:value="model.recordValue" placeholder="请输入记录">
                                         <template #suffix v-if="model.selectedRecordType !== 'SRV'">
                                             .{{ model.selectedDomain }}
                                         </template>
@@ -179,7 +175,7 @@
                                 type="primary"
                                 :loading="determineLoading"
                                 @click="handleSubmit"
-                                :disabled="model.target === null"
+                                :disabled="!model.selectedDomain || !model.selectedRecordType || !model.recordValue || !model.TTLValue || !model.target"
                             >
                                 确定
                             </n-button>
@@ -226,7 +222,7 @@
                             </n-grid-item>
                             <n-grid-item>
                                 <n-form-item label="记录" :required="true" required-message="请输入记录">
-                                    <n-input v-model:value="fastModel.recordValue">
+                                    <n-input v-model:value="fastModel.recordValue" placeholder="请输入记录">
                                         <template #suffix> .{{ fastModel.selectedDomain }} </template>
                                     </n-input>
                                 </n-form-item>
@@ -250,7 +246,13 @@
                             </n-grid-item>
                         </n-grid>
                         <div style="display: flex; justify-content: flex-end">
-                            <n-button round type="primary" :loading="determineLoading" @click="handleFastSubmit">
+                            <n-button
+                                round
+                                type="primary"
+                                :loading="determineLoading"
+                                @click="handleFastSubmit"
+                                :disabled="!fastModel.selectedDomain || !fastModel.selectedRecordType || !fastModel.recordValue || !fastModel.selectedTunnel"
+                            >
                                 确定
                             </n-button>
                         </div>
@@ -294,7 +296,7 @@
                     </n-grid-item>
                     <n-grid-item>
                         <n-form-item label="记录" :required="true" required-message="请输入记录">
-                            <n-input v-model:value="model.recordValue" disabled>
+                            <n-input v-model:value="model.recordValue" disabled placeholder="请输入记录">
                                 <template #suffix v-if="model.selectedRecordType !== 'SRV'">
                                     .{{ model.selectedDomain }}
                                 </template>
@@ -318,7 +320,7 @@
                         type="primary"
                         :loading="determineLoading"
                         @click="resetDomainName"
-                        :disabled="model.target === null"
+                        :disabled="!model.selectedDomain || !model.selectedRecordType || !model.recordValue || !model.TTLValue || !model.target"
                     >
                         确定
                     </n-button>
@@ -337,7 +339,7 @@ import {
     EyeOutline,
     InformationCircleOutline,
 } from '@vicons/ionicons5';
-import { NIcon } from 'naive-ui';
+import { FormInst, NIcon } from 'naive-ui';
 // 获取登录信息
 import { useUserStore } from '@/stores/user';
 
@@ -556,7 +558,19 @@ const targetPlaceholder = computed(() => {
     }
 });
 
+// 表单ref
+const formRef = ref<FormInst | null>(null);
+const formRefFast = ref();
+
 const handleSubmit = async () => {
+    if (formRef.value) {
+        try {
+            await formRef.value.validate();
+        } catch (e) {
+            console.log('校验失败', e);
+            return;
+        }
+    }
     determineLoading.value = true;
     try {
         await api.v2.domain.createFreeSubdomain({
@@ -586,21 +600,31 @@ const handleSubmit = async () => {
     determineLoading.value = false;
 };
 
-const handleFastSubmit = async () => {
-    determineLoading.value = true;
-    let fastRecord = fastModel.value.recordValue;
-    let fastTarget = selectedTunnelInfo.value?.ip;
-    let fastType = fastModel.value.selectedRecordType;
-    const fastTunnelInfo = selectedTunnelInfo.value?.label;
-
-    if (fastModel.value.selectedRecordType === 'CNAME') {
+const handleFastSubmit = async (isConfirmed = false) => {
+    if (formRefFast.value) {
+        try {
+            await formRefFast.value.validate();
+        } catch (e) {
+            console.log('校验失败', e);
+            return;
+        }
+    }
+    // CNAME 类型，未确认时先弹窗
+    if (fastModel.value.selectedRecordType === 'CNAME' && !isConfirmed) {
         dialog.warning({
             title: '注意',
             content:
                 '免费域名无备案，如需在境内节点提供HTTP/HTTPS/其它法定范围内的公开服务，请使用您自行备案过的域名，免费域名无效',
             positiveText: '我真的明白了',
+            onPositiveClick: () => handleFastSubmit(true),
         });
+        return;
     }
+    determineLoading.value = true;
+    let fastRecord = fastModel.value.recordValue;
+    let fastTarget = selectedTunnelInfo.value?.ip;
+    let fastType = fastModel.value.selectedRecordType;
+    const fastTunnelInfo = selectedTunnelInfo.value?.label;
 
     if (fastModel.value.selectedRecordType === 'Java版MC') {
         fastType = 'SRV';
@@ -636,6 +660,14 @@ const handleFastSubmit = async () => {
 };
 
 const resetDomainName = async () => {
+    if (formRef.value) {
+        try {
+            await formRef.value.validate();
+        } catch (e) {
+            console.log('校验失败', e);
+            return;
+        }
+    }
     determineLoading.value = true;
     try {
         await api.v2.domain.updateFreeSubdomain({
