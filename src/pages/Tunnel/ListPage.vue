@@ -976,10 +976,10 @@ const initChart = (trafficIn: number[], trafficOut: number[]) => {
     // 生成日期标签
     const dates = [];
     const now = new Date();
-    for (let i = 0; i < 7; i++) {
+    for (let i = 6; i >= 0; i--) {
         const date = new Date(now);
-        date.setDate(date.getDate() - i);
-        dates.unshift(`${date.getMonth() + 1}/${date.getDate()}`);
+        date.setDate(now.getDate() - i);
+        dates.push(`${date.getMonth() + 1}/${date.getDate()}`);
     }
 
     const option = {

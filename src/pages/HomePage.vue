@@ -640,6 +640,14 @@ const trafficInfo = async () => {
         const apiData = response.data;
 
         if (apiData.status === 'success') {
+            // 对 data 按日期排序
+            apiData.data.sort((a: any, b: any) => {
+                const year = new Date().getFullYear();
+                const dateA = new Date(`${year}-${a.time}`);
+                const dateB = new Date(`${year}-${b.time}`);
+                return dateA.getTime() - dateB.getTime();
+            });
+
             loadingTrafficInfo.value = false;
             await nextTick();
             updateChart(apiData);
@@ -692,6 +700,11 @@ const getChartOption = (apiData: ApiData, reverse: boolean) => {
             textStyle: {
                 color: textColor,
             },
+        },
+        grid: {
+            left: '2%',
+            bottom: '2%',
+            containLabel: true,
         },
         xAxis: {
             type: 'category',
