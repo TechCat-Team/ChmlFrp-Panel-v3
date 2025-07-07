@@ -701,6 +701,11 @@ const getChartOption = (apiData: ApiData, reverse: boolean) => {
                 color: textColor,
             },
         },
+        grid: {
+            left: '2%',
+            bottom: '2%',
+            containLabel: true,
+        },
         xAxis: {
             type: 'category',
             boundaryGap: false,
