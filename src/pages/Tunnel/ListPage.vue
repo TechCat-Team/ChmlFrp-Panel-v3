@@ -971,10 +971,10 @@ const initChart = (trafficIn: number[], trafficOut: number[]) => {
     // 生成日期标签
     const dates = [];
     const now = new Date();
-    for (let i = 0; i < 7; i++) {
+    for (let i = 6; i >= 0; i--) {
         const date = new Date(now);
-        date.setDate(date.getDate() - i);
-        dates.unshift(`${date.getMonth() + 1}/${date.getDate()}`);
+        date.setDate(now.getDate() - i);
+        dates.push(`${date.getMonth() + 1}/${date.getDate()}`);
     }
 
     const option = {
@@ -1366,7 +1366,7 @@ const checkFormData = (formData: any) => {
             const domain = formData.domain.trim();
             const isIp = /^(?:\d{1,3}\.){3}\d{1,3}$/.test(domain);
             const isFrpOne = domain.endsWith('.frp.one');
-            const isValidDomain = /^(?:\*\.)?(?!-)(?:[a-z0-9-]{1,63}\.)+[a-z]{2,}$/.test(domain);
+            const isValidDomain = /^(?:\*\.)?(?!-)(?:[a-z0-9-]{1,63}\.)+(?:xn--)?[a-z0-9]{2,63}$/.test(domain);
 
             if (!domain) {
                 message.error('请输入域名');
@@ -2234,7 +2234,7 @@ const forceCheck = () => {
             if (card.type === 'http' || card.type === 'https') {
                 const isIp = /^(?:\d{1,3}\.){3}\d{1,3}$/.test(card.dorp);
                 const isFrpOne = card.dorp.endsWith('.frp.one');
-                const isValidDomain = /^(?:\*\.)?(?!-)(?:[a-z0-9-]{1,63}\.)+[a-z]{2,}$/.test(card.dorp);
+                const isValidDomain = /^(?:\*\.)?(?!-)(?:[a-z0-9-]{1,63}\.)+(?:xn--)?[a-z0-9]{2,63}$/.test(card.dorp);
 
                 if (isIp || isFrpOne || !isValidDomain) {
                     editTunnel(card);
