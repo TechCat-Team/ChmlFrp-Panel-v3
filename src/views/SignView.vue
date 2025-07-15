@@ -338,7 +338,7 @@
 import { useRouter } from 'vue-router';
 import { useUserStore } from '@/stores/user';
 import { FormInst } from 'naive-ui';
-import { loginRules, registerRules, resetRules } from '@/utils/authRules';
+import { loginRules, registerRules } from '@/utils/authRules';
 
 import { inject } from 'vue';
 
@@ -613,6 +613,44 @@ const toReset = () => {
 
 const resetModel = ref({ email: '', verificationCode: '', newPassword: '', confirmPassword: '' });
 
+// 这个表单校验必须放在这里，否则校验不了两次密码的一致性
+const resetRules = {
+    email: [
+        { required: true, message: '请输入邮箱地址', trigger: 'blur' },
+        { type: 'email', message: '请输入有效的邮箱格式', trigger: ['blur', 'input'] }
+    ],
+    verificationCode: [
+        { required: true, message: '请输入验证码', trigger: 'blur' },
+        {
+            pattern: /^[0-9]{6}$/,
+            message: '验证码必须为6位数字',
+            trigger: ['blur', 'input']
+        }
+    ],
+    newPassword: [
+        { required: true, message: '请输入新密码', trigger: 'blur' },
+        {
+            pattern: /^(?![a-zA-Z]+$)(?!\d+$)(?![^\da-zA-Z\s]+$).{6,48}$/,
+            message: '密码6~48位，且至少包含字母、数字、特殊符号中任意两种',
+            trigger: ['blur', 'input']
+        }
+    ],
+    confirmPassword: [
+        { required: true, message: '请再次输入新密码', trigger: 'blur' },
+        {
+            validator: (rule: any, value: string) => {
+                void rule;
+                
+                if (value !== resetModel.value.newPassword) {
+                    return new Error('两次输入的密码不一致')
+                }
+                return true
+            },
+            trigger: 'blur'
+        }
+    ]
+}
+
 const handleResetPassword = async () => {
     loginLoading.value = true;
     try {
@@ -623,12 +661,12 @@ const handleResetPassword = async () => {
         );
 
         message.success(response.msg);
+        toLogin();
     } catch (error) {
         message.error('重置密码失败: ' + (error as Error).message);
     } finally {
         loginLoading.value = false;
     }
-    toLogin();
 };
 
 const toggleRegister = () => {

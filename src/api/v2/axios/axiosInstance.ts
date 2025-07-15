@@ -34,7 +34,7 @@ axiosInstance.interceptors.request.use(
         return config;
     },
     (error) => {
-        return Promise.reject(new ApiError('network', '请求发送失败', error));
+        return Promise.reject(new ApiError('network', '向API发送请求失败', error));
     }
 );
 
@@ -53,7 +53,7 @@ axiosInstance.interceptors.response.use(
     (error) => {
         if (!error.response) {
             // 网络错误
-            return Promise.reject(new ApiError('network', '网络连接失败，请检查您的网络设置', error));
+            return Promise.reject(new ApiError('network', '连接到API网络失败，请稍候再试', error));
         }
 
         // 其他未知错误

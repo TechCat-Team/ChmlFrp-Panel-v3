@@ -283,7 +283,7 @@ export const resetPasswordByEmail = async (
     new_password: string,
     code: string
 ): Promise<BaseResponse> => {
-    return axiosInstance.get('/email_reset_password', {
-        params: { email, new_password, code },
+    return axiosInstance.post('/email_reset_password', {
+        email, new_password, code,
     });
 };

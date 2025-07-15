@@ -92,41 +92,6 @@ export const registerRules: FormRules = {
     ],
 };
 
-export const resetRules: FormRules = {
-    email: [
-        { required: true, message: '请输入邮箱地址', trigger: 'blur' },
-        { type: 'email', message: '请输入有效的邮箱格式', trigger: ['blur', 'input'] },
-    ],
-    verificationCode: [
-        { required: true, message: '请输入验证码', trigger: 'blur' },
-        {
-            pattern: /^[0-9]{6}$/,
-            message: '验证码必须为6位数字',
-            trigger: ['blur', 'input'],
-        },
-    ],
-    newPassword: [
-        { required: true, message: '请输入新密码', trigger: 'blur' },
-        {
-            pattern: /^(?![a-zA-Z]+$)(?!\d+$)(?![^\da-zA-Z\s]+$).{6,48}$/,
-            message: '密码6~48位，且至少包含字母、数字、特殊符号中任意两种',
-            trigger: ['blur', 'input'],
-        },
-    ],
-    confirmPassword: [
-        { required: true, message: '请再次输入新密码', trigger: 'blur' },
-        {
-            validator: (_rule: any, value: string, values: any) => {
-                if (value !== values.newPassword) {
-                    return new Error('两次输入的密码不一致');
-                }
-                return true;
-            },
-            trigger: 'blur',
-        },
-    ],
-};
-
 // 实名认证规则
 export const realNameRules: FormRules = {
     name: [
