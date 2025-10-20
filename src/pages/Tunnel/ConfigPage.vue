@@ -25,6 +25,7 @@
                         >生成</n-button
                     >
                     <n-button type="primary" @click="copyToClipboard" :disabled="tunnelConfig === ''">复制</n-button>
+                    <n-button type="primary" @click="downloadConfig" :disabled="tunnelConfig === ''">下载</n-button>
                 </n-flex>
             </n-grid-item>
         </n-grid>
@@ -33,9 +34,14 @@
                 <n-grid-item span="1 m:2">
                     <n-card title="Frpc.ini" style="min-height: 334px">
                         <template #header-extra>
-                            <n-button text @click="handleCopy('tunnelConfig')">
-                                <n-icon :component="CopyOutline" />
-                            </n-button>
+                            <n-space>
+                                <n-button text @click="handleCopy('tunnelConfig')">
+                                    <n-icon :component="CopyOutline" />
+                                </n-button>
+                                <n-button text @click="downloadConfig" :disabled="tunnelConfig === ''">
+                                    <n-icon :component="DownloadOutline" />
+                                </n-button>
+                            </n-space>
                         </template>
                         <n-code :code="tunnelConfig" language="ini" word-wrap v-if="tunnelConfig !== ''" />
                         <div v-else-if="loadingGenerate">
@@ -103,7 +109,7 @@
         <n-grid-item :span="3">
             <n-card title="常见教程">
                 <template #header-extra>
-                    <n-button text tag="a" href="https://docs.chcat.cn" target="_blank" type="primary">
+                    <n-button text tag="a" href="https://docs.chmlfrp.cn" target="_blank" type="primary">
                         更多教程
                     </n-button>
                 </template>
@@ -139,7 +145,7 @@
                     <n-button
                         text
                         tag="a"
-                        href="https://docs.chcat.cn/docs/chmlfrp/%E4%BD%BF%E7%94%A8%E6%96%87%E6%A1%A3/tutorial"
+                        href="https://docs.chmlfrp.cn/docs/use/mapping.html"
                         target="_blank"
                         type="primary"
                     >
@@ -163,7 +169,7 @@
 
 <script lang="ts" setup>
 import { ref } from 'vue';
-import { CopyOutline, ShuffleOutline } from '@vicons/ionicons5';
+import { CopyOutline, ShuffleOutline, DownloadOutline } from '@vicons/ionicons5';
 // 获取登录信息
 import { useUserStore } from '@/stores/user';
 
@@ -188,6 +194,38 @@ const copyToClipboard = () => {
             console.error('复制配置文件失败:', err);
             message.error('配置文件复制失败');
         });
+};
+
+// 下载配置文件
+const downloadConfig = () => {
+    if (!tunnelConfig.value) {
+        message.warning('请先生成配置文件');
+        return;
+    }
+    
+    try {
+        // 创建 Blob 对象
+        const blob = new Blob([tunnelConfig.value], { type: 'text/plain;charset=utf-8' });
+        
+        // 创建下载链接
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = 'frpc.ini';
+        
+        // 触发下载
+        document.body.appendChild(link);
+        link.click();
+        
+        // 清理
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+        
+        message.success('配置文件下载成功');
+    } catch (err) {
+        console.error('下载配置文件失败:', err);
+        message.error('配置文件下载失败');
+    }
 };
 
 interface Tunnel {

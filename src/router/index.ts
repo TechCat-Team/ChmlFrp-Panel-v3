@@ -266,16 +266,7 @@ const routes: Array<RouteRecordRaw> = [
                     title: '免费域名管理 - 管理员控制台 - ChmlFrp',
                     requiresAuth: true,
                 },
-            },
-            {
-                path: '/admin/free-ssl',
-                name: '免费SSL管理',
-                component: () => import('@/pages/Admin/SSLManagement.vue'),
-                meta: {
-                    title: '兑换码管理 - 管理员控制台 - ChmlFrp',
-                    requiresAuth: true,
-                },
-            },
+            }
         ],
     },
     {

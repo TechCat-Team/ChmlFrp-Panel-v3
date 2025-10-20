@@ -11,7 +11,7 @@ export default defineConfig({
     base: '/', // 确保基础路径正确
     server: {
         host: '0.0.0.0', // 允许外部访问
-        port: 5173, // 明确端口
+        port: 5174, // 明确端口
         strictPort: true, // 禁止端口自动切换
         open: true, // 自动打开浏览器
     },

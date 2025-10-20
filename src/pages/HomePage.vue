@@ -139,20 +139,12 @@
                     </n-alert>
                     <n-alert title="提示" type="info" style="margin-bottom: 10px">
                         如果这里没有您想了解的，可以前往
-                        <n-button text tag="a" href="https://docs.chcat.cn" target="_blank" type="primary">
+                        <n-button text tag="a" href="https://docs.chmlfrp.cn" target="_blank" type="primary">
                             TechCat Docs
                         </n-button>
                         或TechCatQQ交流群询问。
                     </n-alert>
                     <n-flex style="margin-top: 20px">
-                        <n-button
-                            style="border-radius: 5px"
-                            tertiary
-                            type="primary"
-                            @click="GoToQqGroup('https://qm.qq.com/q/MJ0aeYCi8S', 592908249)"
-                        >
-                            QQ二群
-                        </n-button>
                         <n-button
                             style="border-radius: 5px"
                             tertiary
@@ -275,7 +267,7 @@
                                 <br />
                                 友链的期限不固定，如发现违规，我们有权直接删除友链。需要注意的是友链的期限不是永久，我们可能会在不通知您的情况下直接删除。
                                 <br />
-                                友链申请详情规则请前往：https://docs.chcat.cn/docs/chmlfrp/yl
+                                友链申请详情规则请前往：https://docs.chmlfrp.cn/docs/guide/friends.html
                             </div>
                         </n-collapse-item>
                     </n-collapse>
@@ -478,7 +470,7 @@ const closeDialog = () => {
 };
 
 const WatchTutorial = () => {
-    window.open('https://docs.chcat.cn/docs/chmlfrp/%E4%BD%BF%E7%94%A8%E6%96%87%E6%A1%A3/tutorial', '_blank');
+    window.open('https://docs.chmlfrp.cn/docs/use/mapping.html', '_blank');
 };
 
 // 一言

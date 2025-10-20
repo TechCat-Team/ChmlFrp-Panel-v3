@@ -82,7 +82,7 @@ import { useScreenStore } from '@/stores/useScreen';
 import { storeToRefs } from 'pinia';
 import { NAvatar, NText, NIcon, DropdownOption, type DrawerPlacement } from 'naive-ui';
 import { useRouter } from 'vue-router';
-import { computedMenuOptions } from './Options/Menu';
+import { computedMenuOptions } from '../Options/Menu';
 import {
     PersonCircleOutline as UserIcon,
     LogOutOutline as LogoutIcon,

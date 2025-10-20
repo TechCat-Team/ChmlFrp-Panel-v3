@@ -18,7 +18,6 @@ import {
     PrismOutline,
     PricetagOutline,
     PlanetOutline,
-    KeyOutline,
     PieChartOutline,
     BrowsersOutline,
     GiftOutline,
@@ -195,7 +194,7 @@ export const computedMenuOptionsUser = computed(() => [
                     h(
                         'a',
                         {
-                            href: 'https://docs.chcat.cn',
+                            href: 'https://docs.chmlfrp.cn',
                             target: '_blank',
                             rel: 'noopenner noreferrer',
                         },
@@ -323,19 +322,7 @@ export const computedMenuOptionsAdmin = computed(() => [
                             ),
                         key: '免费域名管理',
                         icon: renderIcon(LinkOutline),
-                    },
-                    {
-                        label: () =>
-                            h(
-                                RouterLink,
-                                {
-                                    to: { name: '免费SSL管理' },
-                                },
-                                { default: () => '免费SSL管理' }
-                            ),
-                        key: '免费SSL管理',
-                        icon: renderIcon(KeyOutline),
-                    },
+                    }
                 ],
             },
         ],
@@ -415,7 +402,7 @@ export const computedMenuOptionsGuest = computed(() => [
                     h(
                         'a',
                         {
-                            href: 'https://docs.chcat.cn',
+                            href: 'https://docs.chmlfrp.cn',
                             target: '_blank',
                             rel: 'noopenner noreferrer',
                         },

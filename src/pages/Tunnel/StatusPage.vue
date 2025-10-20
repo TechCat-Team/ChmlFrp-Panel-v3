@@ -47,7 +47,7 @@
                 </n-statistic>
             </n-grid-item>
             <n-grid-item span="2 s:1">
-                <n-statistic label="统计粒度" tabular-nums> 20s </n-statistic>
+                <n-statistic label="统计粒度" tabular-nums> 30s </n-statistic>
             </n-grid-item>
         </n-grid>
         <div v-else style="font-size: 32px; font-weight: bold; display: flex; align-items: center">

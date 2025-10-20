@@ -1,7 +1,7 @@
 <template>
     <n-back-top :right="100" />
     <n-modal v-model:show="nodeListModal">
-        <n-card :style="widthStyle" title="选择节点" :bordered="false" role="dialog" aria-modal="true">
+        <n-card :style="widthStyle" title="选择节点" closable :bordered="false" role="dialog" aria-modal="true">
             <n-alert type="info" style="bottom: 12px"> 为确保您的体验，请尽量选择负载低，距离近的节点。 </n-alert>
             <n-flex justify="space-between" align="center">
                 <n-flex>
@@ -749,7 +749,7 @@
                                     </n-button>
                                 </template>
                                 <n-card size="small">
-                                    <n-code :code="linuxdaima" word-wrap />
+                                    <n-code :code="linuxdaima" word-wrap language="bash" />
                                 </n-card>
                             </n-collapse-item>
                         </n-space>
@@ -761,12 +761,20 @@
                     <n-card size="small">
                         <n-code :code="frpcIniConfig" language="ini" word-wrap />
                         <template #action>
+                            <n-space>
                             <n-button secondary type="primary" size="small" @click="copyToClipboard(frpcIniConfig)">
                                 <template #icon>
                                     <n-icon :component="CopyOutline" />
                                 </template>
                                 复制配置
                             </n-button>
+                            <n-button tertiary size="small" @click="downloadConfig">
+                                <template #icon>
+                                    <n-icon :component="DownloadOutline" />
+                                </template>
+                                下载配置
+                            </n-button>
+                            </n-space>
                         </template>
                     </n-card>
                 </n-collapse-item>
@@ -794,6 +802,7 @@ import {
     StatsChartOutline,
     CopyOutline,
     CodeDownloadOutline,
+    DownloadOutline
 } from '@vicons/ionicons5';
 import { useScreenStore } from '@/stores/useScreen';
 import { storeToRefs } from 'pinia';
@@ -1626,7 +1635,7 @@ const subDomainData = async () => {
             dialog.error({
                 title: '此节点没有可选的免费域名',
                 content: '当前节点为中国境内节点，禁止使用免费域名，请更换为中国境外节点（允许港澳台节点，无需备案）',
-                positiveText: '好的马上改',
+                positiveText: '确定',
                 onPositiveClick: () => {
                     if (editTunnelModal.value) {
                         formData.node = formData.nodeOld;
@@ -2225,6 +2234,33 @@ const copyToClipboard = (text: string) => {
             console.error('[隧道列表]复制连接地址失败:', err);
             message.error('连接地址复制失败');
         });
+};
+
+// 下载配置文件
+const downloadConfig = () => {
+    try {
+        // 创建 Blob 对象
+        const blob = new Blob([frpcIniConfig.value], { type: 'text/plain;charset=utf-8' });
+        
+        // 创建下载链接
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = 'frpc.ini';
+        
+        // 触发下载
+        document.body.appendChild(link);
+        link.click();
+        
+        // 清理
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+        
+        message.success('配置文件下载成功');
+    } catch (err) {
+        console.error('[隧道列表]下载配置文件失败:', err);
+        message.error('配置文件下载失败');
+    }
 };
 
 // remove in future

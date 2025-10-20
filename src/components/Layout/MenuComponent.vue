@@ -25,7 +25,7 @@ const activeKey = ref(route.name as string);
 
 const handleUpdateValue = (key: string) => {
     if (key === '帮助文档') {
-        window.open('https://docs.chcat.cn', '_blank', 'noopener noreferrer');
+        window.open('https://docs.chmlfrp.cn', '_blank', 'noopener noreferrer');
         return;
     }
     activeKey.value = key;
