@@ -17,14 +17,13 @@
                         >
                             TechCat-Team/ChmlFrp-Panel-v3
                         </n-button>
-                        基于
                     </div>
                     <div class="license-name">Apache License 2.0</div>
                 </div>
             </div>
         </div>
         <div class="license-description">
-            一种宽松的许可证，其主要条件要求保留版权和许可证声明。贡献者明确授予专利权。被许可人可以根据不同条款分发作品、修改后的作品以及较大的作品，且无需提供源代码。
+            一种宽松的许可证，其主要条件要求保留版权和许可证声明。贡献者明确授予专利权。被许可人可以根据不同条款分发作品、修改后的作品以及较大的作品，且无需提供源代码。修改后的文件必须包含变更说明。
         </div>
         <div class="license-details">
             <div class="column">
@@ -113,8 +112,7 @@ const screenStore = useScreenStore();
 const { screenWidth } = storeToRefs(screenStore);
 
 // 获取当前年份
-const currentDate = new Date();
-const currentYear = currentDate.getFullYear();
+const currentYear = new Date().getUTCFullYear();
 
 // 定义响应式状态
 const buildTime = ref<string>('');
@@ -181,6 +179,12 @@ onMounted(async () => {
 .license-details {
     display: flex;
     gap: 20px;
+}
+
+@media (max-width: 768px) {
+    .license-details {
+        flex-direction: column;
+    }
 }
 
 .column {
