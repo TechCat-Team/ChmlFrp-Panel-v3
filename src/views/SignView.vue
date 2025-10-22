@@ -203,19 +203,27 @@
                                                             我同意CHMLFRP的<n-button
                                                                 text
                                                                 tag="a"
-                                                                href="https://docs.chcat.cn/docs/Term_of_service"
+                                                                href="https://docs.chmlfrp.cn/terms/terms-of-service.html"
                                                                 target="_blank"
                                                                 type="primary"
                                                             >
-                                                                服务条款 </n-button
-                                                            >和<n-button
+                                                                服务条款
+                                                                </n-button>和<n-button
                                                                 text
                                                                 tag="a"
-                                                                href="https://docs.chcat.cn/docs/The_Privacy"
+                                                                href="https://docs.chmlfrp.cn/terms/privacy-policy.html"
                                                                 target="_blank"
                                                                 type="primary"
                                                             >
                                                                 隐私策略
+                                                            </n-button>及<n-button
+                                                                text
+                                                                tag="a"
+                                                                href="https://docs.chmlfrp.cn/terms/disclaimer.html"
+                                                                target="_blank"
+                                                                type="primary"
+                                                            >
+                                                                免责声明
                                                             </n-button>
                                                         </n-checkbox>
                                                     </n-form-item>
