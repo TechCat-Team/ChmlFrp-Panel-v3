@@ -786,7 +786,7 @@ const getConfigCode = async (card: TunnelCard) => {
 const handleOfflineTunnel = (card: TunnelCard) => {
     const d = dialog.warning({
         title: '警告',
-        content: `您正在强制下线隧道：${card.name}(${card.id})，此操作将立即断开隧道连接，请确认是否继续。`,
+        content: `您正在强制下线隧道：${card.name}(${card.id})，此操作将立即断开隧道连接，请确认是否继续。(只有frp核心版本为0.51.2_251023版本才支持此功能)`,
         positiveText: '确定下线',
         negativeText: '取消',
         onPositiveClick: async () => {

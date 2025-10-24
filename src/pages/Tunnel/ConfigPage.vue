@@ -6,24 +6,13 @@
                 <n-select v-model:value="nodeValue" :options="nodeOptions" placeholder="请选择节点" />
             </n-grid-item>
             <n-grid-item span="10 m:5">
-                <n-select
-                    placeholder="请选择隧道，不选则该节点全部隧道"
-                    v-model:value="multipleSelectValue"
-                    filterable
-                    multiple
-                    tag
-                    :options="tunnelOptions"
-                />
+                <n-select placeholder="请选择隧道，不选则该节点全部隧道" v-model:value="multipleSelectValue" filterable multiple tag
+                    :options="tunnelOptions" />
             </n-grid-item>
             <n-grid-item span="10 m:2">
                 <n-flex justify="end">
-                    <n-button
-                        type="primary"
-                        @click="getConfigFile"
-                        :disabled="nodeValue === null"
-                        :loading="loadingGenerate"
-                        >生成</n-button
-                    >
+                    <n-button type="primary" @click="getConfigFile" :disabled="nodeValue === null"
+                        :loading="loadingGenerate">生成</n-button>
                     <n-button type="primary" @click="copyToClipboard" :disabled="tunnelConfig === ''">复制</n-button>
                     <n-button type="primary" @click="downloadConfig" :disabled="tunnelConfig === ''">下载</n-button>
                 </n-flex>
@@ -74,11 +63,16 @@
                 <n-grid-item>
                     <n-card title="启动代码">
                         <template #header-extra>
-                            <n-button text>
-                                <n-icon :component="ShuffleOutline" />
-                            </n-button>
+                            <n-tooltip trigger="hover">
+                                <template #trigger>
+                                    <n-button text @click="handleCopy('startupCode')">
+                                        <n-icon :component="CopyOutline" />
+                                    </n-button>
+                                </template>
+                                仅支持frp核心版本为0.51.2_251023才支持此功能
+                            </n-tooltip>
                         </template>
-                        <n-code :code="LinuxScript" language="powershell" word-wrap v-if="LinuxScript !== ''" />
+                        <n-code :code="startupCode" language="powershell" word-wrap v-if="startupCode !== ''" />
                         <div v-else-if="loadingGenerate">
                             <n-skeleton text :repeat="3" /> <n-skeleton text style="width: 60%" />
                         </div>
@@ -142,23 +136,15 @@
         <n-grid-item :span="2">
             <n-card title="映射启动">
                 <template #header-extra>
-                    <n-button
-                        text
-                        tag="a"
-                        href="https://docs.chmlfrp.cn/docs/use/mapping.html"
-                        target="_blank"
-                        type="primary"
-                    >
+                    <n-button text tag="a" href="https://docs.chmlfrp.cn/docs/use/mapping.html" target="_blank"
+                        type="primary">
                         详细教程
                     </n-button>
                 </template>
                 <n-steps vertical :current="3">
                     <n-step title="步骤1" description="在隧道页面创建隧道" />
                     <n-step title="步骤2" description="在网站下载页面下载对应的软件版本(一般为amd64)" />
-                    <n-step
-                        title="步骤3"
-                        description="解压好下载的软件后，打开frpc.ini，在里面粘贴此页面生成的配置文件，然后保存"
-                    />
+                    <n-step title="步骤3" description="解压好下载的软件后，打开frpc.ini，在里面粘贴此页面生成的配置文件，然后保存" />
                     <n-step title="步骤4" description="在frp的windows路径栏输入cmd然后回车，启动cmd软件" />
                     <n-step title="步骤4" description="在打开的cmd内输入frpc启动映射" />
                 </n-steps>
@@ -169,7 +155,7 @@
 
 <script lang="ts" setup>
 import { ref } from 'vue';
-import { CopyOutline, ShuffleOutline, DownloadOutline } from '@vicons/ionicons5';
+import { CopyOutline, DownloadOutline } from '@vicons/ionicons5';
 // 获取登录信息
 import { useUserStore } from '@/stores/user';
 
@@ -202,25 +188,25 @@ const downloadConfig = () => {
         message.warning('请先生成配置文件');
         return;
     }
-    
+
     try {
         // 创建 Blob 对象
         const blob = new Blob([tunnelConfig.value], { type: 'text/plain;charset=utf-8' });
-        
+
         // 创建下载链接
         const url = window.URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
         link.download = 'frpc.ini';
-        
+
         // 触发下载
         document.body.appendChild(link);
         link.click();
-        
+
         // 清理
         document.body.removeChild(link);
         window.URL.revokeObjectURL(url);
-        
+
         message.success('配置文件下载成功');
     } catch (err) {
         console.error('下载配置文件失败:', err);
@@ -229,6 +215,7 @@ const downloadConfig = () => {
 };
 
 interface Tunnel {
+    id: number;
     name: string;
     node: string;
 }
@@ -238,9 +225,10 @@ const nodeValue = ref<string | null>(null);
 const multipleSelectValue = ref<string[]>([]);
 const nodeOptions = ref<{ label: string; value: string }[]>([]);
 const tunnelOptions = ref<{ label: string; value: string }[]>([]);
-const allTunnels = ref<{ name: string; node: string }[]>([]); // 用于存储所有隧道
+const allTunnels = ref<{ id: number; name: string; node: string }[]>([]); // 用于存储所有隧道
 const tunnelConfig = ref<string>('');
 const LinuxScript = ref<string>('');
+const startupCode = ref<string>('');
 const loadingGenerate = ref(false);
 
 // 获取隧道列表 API
@@ -252,6 +240,7 @@ const getTunnelList = async () => {
 
         // 保存所有隧道数据
         allTunnels.value = tunnels.map((t: Tunnel) => ({
+            id: t.id,
             name: t.name,
             node: t.node,
         }));
@@ -278,7 +267,7 @@ watch(nodeValue, (newNode: string | null) => {
             .filter((tunnel) => tunnel.node === newNode)
             .map((tunnel) => ({
                 label: tunnel.name,
-                value: tunnel.name,
+                value: tunnel.id.toString(),
             }));
     } else {
         tunnelOptions.value = []; // 没有选择节点时，清空隧道选项
@@ -289,6 +278,7 @@ watch(nodeValue, (newNode: string | null) => {
 const getConfigFile = async () => {
     tunnelConfig.value = '';
     LinuxScript.value = '';
+    startupCode.value = '';
     loadingGenerate.value = true;
     try {
         const params: {
@@ -300,11 +290,23 @@ const getConfigFile = async () => {
             node: nodeValue.value,
         };
 
-        // 如果选择了隧道才传递 tunnel_names 参数
+        // 生成启动代码
         if (multipleSelectValue.value.length > 0) {
-            params.tunnel_names = multipleSelectValue.value.join(',');
-            LinuxScript.value = `curl -O https://www.chmlfrp.cn/script/linux/frpc_install.sh && chmod +x frpc_install.sh && sudo ./frpc_install.sh "${userInfo?.usertoken}" "${nodeValue.value}" "${(params.tunnel_names = multipleSelectValue.value.join(','))}"`;
+            // 使用选中的隧道ID生成启动代码
+            startupCode.value = `frpc.exe -u ${userInfo?.usertoken} -p ${multipleSelectValue.value.join(',')}`;
+
+            // 获取选中隧道的名称用于API调用
+            const selectedTunnelNames = allTunnels.value
+                .filter(tunnel => multipleSelectValue.value.includes(tunnel.id.toString()))
+                .map(tunnel => tunnel.name);
+            params.tunnel_names = selectedTunnelNames.join(',');
+            LinuxScript.value = `curl -O https://www.chmlfrp.cn/script/linux/frpc_install.sh && chmod +x frpc_install.sh && sudo ./frpc_install.sh "${userInfo?.usertoken}" "${nodeValue.value}" "${params.tunnel_names}"`;
         } else {
+            // 如果没有选择特定隧道，使用该节点所有隧道的ID
+            const nodeTunnelIds = allTunnels.value
+                .filter(tunnel => tunnel.node === nodeValue.value)
+                .map(tunnel => tunnel.id.toString());
+            startupCode.value = `frpc.exe -u ${userInfo?.usertoken} -p ${nodeTunnelIds.join(',')}`;
             LinuxScript.value = `curl -O https://www.chmlfrp.cn/script/linux/frpc_install.sh && chmod +x frpc_install.sh && sudo ./frpc_install.sh "${userInfo?.usertoken}" "${nodeValue.value}"`;
         }
 
@@ -319,12 +321,21 @@ const getConfigFile = async () => {
         message.error('获取配置文件失败: ' + (error as Error).message);
         tunnelConfig.value = (error as Error).message;
         LinuxScript.value = (error as Error).message;
+        startupCode.value = (error as Error).message;
     }
     loadingGenerate.value = false;
 };
 
 const handleCopy = (type: string) => {
-    const content = type === 'tunnelConfig' ? tunnelConfig.value : LinuxScript.value;
+    let content = '';
+    if (type === 'tunnelConfig') {
+        content = tunnelConfig.value;
+    } else if (type === 'LinuxScript') {
+        content = LinuxScript.value;
+    } else if (type === 'startupCode') {
+        content = startupCode.value;
+    }
+
     if (!content) {
         message.warning('请先生成配置文件');
         return;
