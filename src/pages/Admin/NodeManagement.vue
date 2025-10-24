@@ -859,7 +859,7 @@ const handleOpenCreateModal = () => {
 const fetchNodes = async () => {
     loading.value = true;
     try {
-        const response = await axios.get('http://localhost:8111/admin/nodes', {
+        const response = await axios.get('https://cf-v2.uapis.cn/admin/nodes', {
             params: {
                 admin_token: userInfoStore?.usertoken || 'YOUR_ADMIN_TOKEN'
             }
@@ -908,7 +908,7 @@ const handleCreate = async () => {
             ipv6: createForm.ipv6
         };
 
-        const response = await axios.post('http://localhost:8111/admin/nodes', requestData, {
+        const response = await axios.post('https://cf-v2.uapis.cn/admin/nodes', requestData, {
             params: {
                 admin_token: userInfoStore?.usertoken || 'YOUR_ADMIN_TOKEN'
             }
@@ -1008,7 +1008,7 @@ const handleEdit = async () => {
             ipv6: editForm.ipv6
         };
 
-        const response = await axios.put(`http://localhost:8111/admin/nodes/${currentEditNode.value.id}`, requestData, {
+        const response = await axios.put(`https://cf-v2.uapis.cn/admin/nodes/${currentEditNode.value.id}`, requestData, {
             params: {
                 admin_token: userInfoStore?.usertoken || 'YOUR_ADMIN_TOKEN'
             }
@@ -1128,7 +1128,7 @@ const handleDelete = async (node: Node) => {
     const loadingMessage = message.loading('正在删除节点...', { duration: 0 });
     
     try {
-        const response = await axios.delete(`http://localhost:8111/admin/nodes/${node.id}`, {
+        const response = await axios.delete(`https://cf-v2.uapis.cn/admin/nodes/${node.id}`, {
             params: {
                 admin_token: userInfoStore?.usertoken || 'YOUR_ADMIN_TOKEN'
             }

@@ -153,7 +153,7 @@ const fetchUsers = async () => {
 
         if (isSearchMode.value && searchForm.value.trim()) {
             // 搜索模式
-            response = await axios.get('http://localhost:8111/admin/search/users', {
+            response = await axios.get('https://cf-v2.uapis.cn/admin/search/users', {
                 params: {
                     type: searchForm.type,
                     value: searchForm.value.trim(),
@@ -164,7 +164,7 @@ const fetchUsers = async () => {
             });
         } else {
             // 普通获取用户列表
-            response = await axios.get('http://localhost:8111/admin/users', {
+            response = await axios.get('https://cf-v2.uapis.cn/admin/users', {
                 params: {
                     page: pagination.page,
                     size: pagination.pageSize,
@@ -242,7 +242,7 @@ const handleSave = () => {
                     delete requestBody.password;
                 }
 
-                const response = await axios.put(`http://localhost:8111/admin/users/${userId}`, requestBody, {
+                const response = await axios.put(`https://cf-v2.uapis.cn/admin/users/${userId}`, requestBody, {
                     params: { admin_token: adminToken },
                 });
 

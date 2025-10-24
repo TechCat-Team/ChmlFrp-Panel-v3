@@ -287,3 +287,24 @@ export const resetPasswordByEmail = async (
         email, new_password, code,
     });
 };
+
+// 下线用户所有节点响应接口
+interface OfflineUserNodesResponse extends BaseResponse {
+    data: {
+        totalNodes: number;
+        successCount: number;
+        failCount: number;
+        results: Record<string, string>;
+    };
+}
+
+/**
+ * 下线用户所有节点
+ * @param {string} token - 用户认证token
+ * @returns {Promise<OfflineUserNodesResponse>} 下线用户所有节点响应
+ */
+export const offlineUserNodes = async (token: string): Promise<OfflineUserNodesResponse> => {
+    return axiosInstance.get('/offline_user_nodes', {
+        params: { token },
+    });
+};

@@ -35,6 +35,6 @@
     "unplugin-vue-components": "^28.5.0",
     "vite": "^6.3.5"
   },
-  "version": "1.4.3",
-  "buildTime": "2025/09/14 19:51:27"
+  "version": "0.4.3",
+  "buildTime": "2025/10/24 16:37:14"
 }

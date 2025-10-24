@@ -176,3 +176,57 @@ export const getTunnelLast7days = (token: string, tunnel_id: number): Promise<Ge
         params: { token, tunnel_id },
     });
 };
+
+interface OfflineTunnelResponse extends BaseResponse {
+    ip?: string;
+    request_type?: string;
+}
+
+/**
+ * 强制下线隧道
+ * @param {string} token 用户认证token
+ * @param {string} tunnel_name 隧道名称
+ * @returns {Promise<OfflineTunnelResponse>} 下线隧道响应
+ */
+export const offlineTunnel = (token: string, tunnel_name: string): Promise<OfflineTunnelResponse> => {
+    const formData = new URLSearchParams();
+    formData.append('token', token);
+    formData.append('tunnel_name', tunnel_name);
+    
+    return axiosInstance.post('/offline_tunnel', formData, {
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+    });
+};
+
+interface RefreshTunnelResponse extends BaseResponse {
+    data?: {
+        today_traffic_in: number;
+        today_traffic_out: number;
+        cur_conns: number;
+        last_start_time: string;
+        last_close_time: string;
+        status: string;
+    };
+    ip?: string;
+    request_type?: string;
+}
+
+/**
+ * 刷新隧道数据
+ * @param {string} token 用户认证token
+ * @param {string} tunnel_name 隧道名称
+ * @returns {Promise<RefreshTunnelResponse>} 刷新隧道数据响应
+ */
+export const refreshTunnel = (token: string, tunnel_name: string): Promise<RefreshTunnelResponse> => {
+    const formData = new URLSearchParams();
+    formData.append('token', token);
+    formData.append('tunnel_name', tunnel_name);
+    
+    return axiosInstance.post('/refresh_tunnel', formData, {
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+    });
+};

@@ -10,52 +10,30 @@
                 </n-flex>
                 <n-flex>
                     <n-button-group>
-                        <n-button
-                            round
-                            size="small"
-                            :type="filters.web === 'all' ? 'primary' : 'default'"
-                            @click="filterWeb('all')"
-                        >
+                        <n-button round size="small" :type="filters.web === 'all' ? 'primary' : 'default'"
+                            @click="filterWeb('all')">
                             全部
                         </n-button>
-                        <n-button
-                            size="small"
-                            :type="filters.web === 'yes' ? 'primary' : 'default'"
-                            @click="filterWeb('yes')"
-                        >
+                        <n-button size="small" :type="filters.web === 'yes' ? 'primary' : 'default'"
+                            @click="filterWeb('yes')">
                             可建站
                         </n-button>
-                        <n-button
-                            round
-                            size="small"
-                            :type="filters.web === 'no' ? 'primary' : 'default'"
-                            @click="filterWeb('no')"
-                        >
+                        <n-button round size="small" :type="filters.web === 'no' ? 'primary' : 'default'"
+                            @click="filterWeb('no')">
                             不可建站
                         </n-button>
                     </n-button-group>
                     <n-button-group>
-                        <n-button
-                            round
-                            size="small"
-                            :type="filters.region === 'all' ? 'primary' : 'default'"
-                            @click="filterRegion('all')"
-                        >
+                        <n-button round size="small" :type="filters.region === 'all' ? 'primary' : 'default'"
+                            @click="filterRegion('all')">
                             全部
                         </n-button>
-                        <n-button
-                            size="small"
-                            :type="filters.region === 'china' ? 'primary' : 'default'"
-                            @click="filterRegion('china')"
-                        >
+                        <n-button size="small" :type="filters.region === 'china' ? 'primary' : 'default'"
+                            @click="filterRegion('china')">
                             国内
                         </n-button>
-                        <n-button
-                            round
-                            size="small"
-                            :type="filters.region === 'overseas' ? 'primary' : 'default'"
-                            @click="filterRegion('overseas')"
-                        >
+                        <n-button round size="small" :type="filters.region === 'overseas' ? 'primary' : 'default'"
+                            @click="filterRegion('overseas')">
                             境外
                         </n-button>
                     </n-button-group>
@@ -77,37 +55,22 @@
                                     <n-tag size="small" round type="warning"> VIP </n-tag>
                                 </template>
                                 <n-space>
-                                    <n-tag
-                                        :bordered="false"
-                                        round
-                                        size="small"
-                                        type="success"
-                                        v-if="nodeCard.web === 'yes'"
-                                    >
+                                    <n-tag :bordered="false" round size="small" type="success"
+                                        v-if="nodeCard.web === 'yes'">
                                         <template #icon>
                                             <n-icon :component="EarthOutline" />
                                         </template>
                                         建站
                                     </n-tag>
-                                    <n-tag
-                                        :bordered="false"
-                                        round
-                                        size="small"
-                                        type="error"
-                                        v-if="nodeCard.udp === 'false'"
-                                    >
+                                    <n-tag :bordered="false" round size="small" type="error"
+                                        v-if="nodeCard.udp === 'false'">
                                         <template #icon>
                                             <n-icon :component="BanOutline" />
                                         </template>
                                         UDP
                                     </n-tag>
-                                    <n-tag
-                                        :bordered="false"
-                                        round
-                                        size="small"
-                                        type="info"
-                                        v-if="nodeCard.fangyu === 'true'"
-                                    >
+                                    <n-tag :bordered="false" round size="small" type="info"
+                                        v-if="nodeCard.fangyu === 'true'">
                                         <template #icon>
                                             <n-icon :component="ShieldCheckmarkOutline" />
                                         </template>
@@ -123,22 +86,13 @@
         </n-card>
     </n-modal>
     <n-modal v-model:show="nodeInfoModal">
-        <n-card
-            :style="widthStyle"
-            size="small"
-            :bordered="false"
-            transform-origin="center"
-            role="dialog"
-            aria-modal="true"
-        >
+        <n-card :style="widthStyle" size="small" :bordered="false" transform-origin="center" role="dialog"
+            aria-modal="true">
             <n-tabs type="line" size="large" :tabs-padding="20" @update:value="handleTabChange">
                 <n-tab-pane name="节点详情">
                     <n-p>节点负载</n-p>
-                    <n-progress
-                        type="line"
-                        :percentage="NodeInfo.bandwidth_usage_percent"
-                        :indicator-placement="'inside'"
-                    />
+                    <n-progress type="line" :percentage="NodeInfo.bandwidth_usage_percent"
+                        :indicator-placement="'inside'" />
                     <n-p style="margin-top: 12px">节点详情</n-p>
                     <n-descriptions label-placement="left" size="medium" :column="screenWidth >= 600 ? 3 : 1" bordered>
                         <n-descriptions-item label="节点名">
@@ -231,13 +185,8 @@
                         地图来自中国地理信息公共服务平台，"我的位置"信息通过IP获取，有较大误差。另外请不要使用代理软件，否则您可能会被定位到月球。
                     </n-alert>
                     <n-skeleton v-if="loadingNodeMap" text style="width: 100%; margin-top: 16px" height="500px" />
-                    <MapComponent
-                        v-else
-                        style="margin-top: 16px"
-                        :width="'100%'"
-                        :height="'500px'"
-                        :markers="markers"
-                    />
+                    <MapComponent v-else style="margin-top: 16px" :width="'100%'" :height="'500px'"
+                        :markers="markers" />
                 </n-tab-pane>
             </n-tabs>
             <template #footer>
@@ -251,24 +200,15 @@
     </n-modal>
     <n-modal v-model:show="tunnelInfoModal">
         <n-card style="width: 800px" title="创建隧道" :bordered="false" size="huge" role="dialog" aria-modal="true">
-            <n-alert
-                title="注意"
-                type="info"
-                style="margin-bottom: 8px"
-                v-if="
-                    formData.domainNameLabel === '自定义' &&
-                    (formData.type === 'HTTP' || formData.type === 'HTTPS') &&
-                    NodeInfo.china !== 'no'
-                "
-            >
+            <n-alert title="注意" type="info" style="margin-bottom: 8px" v-if="
+                formData.domainNameLabel === '自定义' &&
+                (formData.type === 'HTTP' || formData.type === 'HTTPS') &&
+                NodeInfo.china !== 'no'
+            ">
                 自定义域名解析到中国境内节点(中国特别行政区除外)建站，您的域名必须在工信部备案，不备案将被拦截导致无法访问。
             </n-alert>
-            <n-alert
-                title="注意"
-                style="margin-bottom: 32px"
-                type="warning"
-                v-if="formData.domainNameLabel === '自定义' && (formData.type === 'HTTP' || formData.type === 'HTTPS')"
-            >
+            <n-alert title="注意" style="margin-bottom: 32px" type="warning"
+                v-if="formData.domainNameLabel === '自定义' && (formData.type === 'HTTP' || formData.type === 'HTTPS')">
                 请使用自定义域名需要将您的 {{ formData.domain }} 域名通过CNAME解析至 {{ NodeInfo.ip }} 才能正常访问。
             </n-alert>
             <n-row :gutter="15" style="margin-top: 15px">
@@ -290,12 +230,8 @@
                     </n-col>
                     <n-col :span="12">
                         <n-form-item label="端口类型" path="type">
-                            <n-select
-                                v-model:value="formData.type"
-                                :options="typeOptions"
-                                placeholder="请选择端口类型"
-                                clearable
-                            />
+                            <n-select v-model:value="formData.type" :options="typeOptions" placeholder="请选择端口类型"
+                                clearable />
                         </n-form-item>
                     </n-col>
                     <n-col :span="12">
@@ -304,51 +240,35 @@
                         </n-form-item>
                     </n-col>
                     <n-col :span="12">
-                        <n-form-item
-                            v-if="formData.type === 'HTTP' || formData.type === 'HTTPS'"
-                            label="域名类型"
-                            path="domainNameLabel"
-                        >
-                            <n-select
-                                v-model:value="formData.domainNameLabel"
-                                :options="domainTypeOptions"
-                                placeholder="请选择域名类型"
-                                @update:value="updateDomainTypeTrig"
-                            />
+                        <n-form-item v-if="formData.type === 'HTTP' || formData.type === 'HTTPS'" label="域名类型"
+                            path="domainNameLabel">
+                            <n-select v-model:value="formData.domainNameLabel" :options="domainTypeOptions"
+                                placeholder="请选择域名类型" @update:value="updateDomainTypeTrig" />
                         </n-form-item>
                         <n-form-item v-else label="外网端口" path="dorp">
                             <n-input v-model:value="formData.dorp" clearable @update:value="updatePortTrig" />
                         </n-form-item>
                     </n-col>
-                    <n-col
-                        :span="24"
-                        v-if="
-                            formData.domainNameLabel === '自定义' &&
-                            (formData.type === 'HTTP' || formData.type === 'HTTPS')
-                        "
-                    >
+                    <n-col :span="24" v-if="
+                        formData.domainNameLabel === '自定义' &&
+                        (formData.type === 'HTTP' || formData.type === 'HTTPS')
+                    ">
                         <n-form-item label="域名" path="dorp">
                             <n-input v-model:value="formData.domain" placeholder="请输入您的域名" clearable />
                         </n-form-item>
                     </n-col>
-                    <n-col
-                        v-if="
-                            formData.domainNameLabel === '免费域名' &&
-                            (formData.type === 'HTTP' || formData.type === 'HTTPS')
-                        "
-                        :span="12"
-                    >
+                    <n-col v-if="
+                        formData.domainNameLabel === '免费域名' &&
+                        (formData.type === 'HTTP' || formData.type === 'HTTPS')
+                    " :span="12">
                         <n-form-item label="请选择免费域名" path="choose">
                             <n-select v-model:value="formData.choose" :options="domainNameOptions" />
                         </n-form-item>
                     </n-col>
-                    <n-col
-                        v-if="
-                            formData.domainNameLabel === '免费域名' &&
-                            (formData.type === 'HTTP' || formData.type === 'HTTPS')
-                        "
-                        :span="12"
-                    >
+                    <n-col v-if="
+                        formData.domainNameLabel === '免费域名' &&
+                        (formData.type === 'HTTP' || formData.type === 'HTTPS')
+                    " :span="12">
                         <n-form-item label="新建域名" path="dorp">
                             <n-input v-model:value="formData.recordValue" placeholder="请输入域名前缀">
                                 <template #suffix> .{{ formData.choose }} </template>
@@ -381,9 +301,8 @@
             </n-row>
             <template #footer>
                 <n-flex justify="end">
-                    <n-button v-if="formData.type === 'TCP' || formData.type === 'UDP'" @click="generateRandomPort"
-                        >随机外网端口</n-button
-                    >
+                    <n-button v-if="formData.type === 'TCP' || formData.type === 'UDP'"
+                        @click="generateRandomPort">随机外网端口</n-button>
                     <n-button @click="generateRandomTunnelName">随机隧道名</n-button>
                     <n-button @click="tunnelInfoModal = false">取消</n-button>
                     <n-button @click="createATunnelUp">上一步</n-button>
@@ -394,30 +313,17 @@
     </n-modal>
     <n-modal v-model:show="editTunnelModal">
         <n-card style="width: 800px" title="编辑隧道" :bordered="false" size="huge" role="dialog" aria-modal="true">
-            <n-alert
-                title="注意"
-                type="info"
-                style="margin-bottom: 32px"
-                v-if="
-                    formData.domainNameLabel === '免费域名' && (formData.type === 'HTTP' || formData.type === 'HTTPS')
-                "
-            >
+            <n-alert title="注意" type="info" style="margin-bottom: 32px" v-if="
+                formData.domainNameLabel === '免费域名' && (formData.type === 'HTTP' || formData.type === 'HTTPS')
+            ">
                 免费域名禁止用于中国境内节点(中国特别行政区除外)建站，如果您给国内节点解析免费域名并建站，会被备案拦截导致无法访问。此外，更改节点后免费域名解析会自动更改。
             </n-alert>
-            <n-alert
-                title="注意"
-                type="info"
-                style="margin-bottom: 32px"
-                v-if="formData.domainNameLabel === '自定义' && (formData.type === 'HTTP' || formData.type === 'HTTPS')"
-            >
+            <n-alert title="注意" type="info" style="margin-bottom: 32px"
+                v-if="formData.domainNameLabel === '自定义' && (formData.type === 'HTTP' || formData.type === 'HTTPS')">
                 自定义域名解析到中国境内节点(中国特别行政区除外)建站，您的域名必须在工信部备案，不备案将被拦截导致无法访问。
             </n-alert>
-            <n-alert
-                title="注意"
-                style="margin-bottom: 32px"
-                type="warning"
-                v-if="formData.domainNameLabel === '自定义' && (formData.type === 'HTTP' || formData.type === 'HTTPS')"
-            >
+            <n-alert title="注意" style="margin-bottom: 32px" type="warning"
+                v-if="formData.domainNameLabel === '自定义' && (formData.type === 'HTTP' || formData.type === 'HTTPS')">
                 请使用自定义域名需要将您的 {{ formData.domain }} 域名通过CNAME解析至 {{ NodeInfo.ip }} 才能正常访问。
             </n-alert>
             <n-row :gutter="15" style="margin-top: 15px">
@@ -434,36 +340,18 @@
                     </n-col>
                     <n-col :span="12">
                         <n-form-item label="节点选择" path="node">
-                            <n-select
-                                v-model:value="formData.node"
-                                :options="updateNodeOptions"
-                                placeholder="请选择节点"
-                                @update:value="updateNodeTrig"
-                            />
+                            <n-select v-model:value="formData.node" :options="updateNodeOptions" placeholder="请选择节点"
+                                @update:value="updateNodeTrig" />
                         </n-form-item>
                     </n-col>
                     <n-col :span="12">
-                        <n-form-item
-                            v-if="formData.type === 'TCP' || formData.type === 'UDP'"
-                            label="端口类型"
-                            path="type"
-                        >
-                            <n-select
-                                v-model:value="formData.type"
-                                :options="typeOptionsTCPUDP"
-                                placeholder="请选择端口类型"
-                                clearable
-                                @update:value="updateTypeTrig"
-                            />
+                        <n-form-item v-if="formData.type === 'TCP' || formData.type === 'UDP'" label="端口类型" path="type">
+                            <n-select v-model:value="formData.type" :options="typeOptionsTCPUDP" placeholder="请选择端口类型"
+                                clearable @update:value="updateTypeTrig" />
                         </n-form-item>
                         <n-form-item v-else label="端口类型" path="type">
-                            <n-select
-                                v-model:value="formData.type"
-                                :options="typeOptionsHTTPHTTPS"
-                                placeholder="请选择端口类型"
-                                clearable
-                                @update:value="updateTypeTrig"
-                            />
+                            <n-select v-model:value="formData.type" :options="typeOptionsHTTPHTTPS"
+                                placeholder="请选择端口类型" clearable @update:value="updateTypeTrig" />
                         </n-form-item>
                     </n-col>
                     <n-col :span="12">
@@ -472,57 +360,36 @@
                         </n-form-item>
                     </n-col>
                     <n-col :span="12">
-                        <n-form-item
-                            v-if="formData.type === 'HTTP' || formData.type === 'HTTPS'"
-                            label="域名类型"
-                            path="domainNameLabel"
-                        >
-                            <n-select
-                                disabled
-                                v-model:value="formData.domainNameLabel"
-                                :options="domainTypeOptions"
-                                placeholder="请选择域名类型"
-                                @update:value="updateDomainTypeTrig"
-                            />
+                        <n-form-item v-if="formData.type === 'HTTP' || formData.type === 'HTTPS'" label="域名类型"
+                            path="domainNameLabel">
+                            <n-select disabled v-model:value="formData.domainNameLabel" :options="domainTypeOptions"
+                                placeholder="请选择域名类型" @update:value="updateDomainTypeTrig" />
                         </n-form-item>
                         <n-form-item v-else label="外网端口" path="dorp">
-                            <n-input
-                                placeholder="请选择域名类型"
-                                v-model:value="formData.dorp"
-                                clearable
-                                @update:value="updatePortTrig"
-                            />
+                            <n-input placeholder="请选择域名类型" v-model:value="formData.dorp" clearable
+                                @update:value="updatePortTrig" />
                         </n-form-item>
                     </n-col>
-                    <n-col
-                        :span="24"
-                        v-if="
-                            formData.domainNameLabel === '自定义' &&
-                            (formData.type === 'HTTP' || formData.type === 'HTTPS')
-                        "
-                    >
+                    <n-col :span="24" v-if="
+                        formData.domainNameLabel === '自定义' &&
+                        (formData.type === 'HTTP' || formData.type === 'HTTPS')
+                    ">
                         <n-form-item label="域名" path="dorp">
                             <n-input v-model:value="formData.domain" placeholder="请输入您的域名" clearable />
                         </n-form-item>
                     </n-col>
-                    <n-col
-                        v-if="
-                            formData.domainNameLabel === '免费域名' &&
-                            (formData.type === 'HTTP' || formData.type === 'HTTPS')
-                        "
-                        :span="12"
-                    >
+                    <n-col v-if="
+                        formData.domainNameLabel === '免费域名' &&
+                        (formData.type === 'HTTP' || formData.type === 'HTTPS')
+                    " :span="12">
                         <n-form-item label="免费域名选择" path="choose">
                             <n-select v-model:value="formData.choose" :options="domainNameOptions" />
                         </n-form-item>
                     </n-col>
-                    <n-col
-                        v-if="
-                            formData.domainNameLabel === '免费域名' &&
-                            (formData.type === 'HTTP' || formData.type === 'HTTPS')
-                        "
-                        :span="12"
-                    >
+                    <n-col v-if="
+                        formData.domainNameLabel === '免费域名' &&
+                        (formData.type === 'HTTP' || formData.type === 'HTTPS')
+                    " :span="12">
                         <n-form-item label="域名前缀" path="dorp">
                             <n-input v-model:value="formData.recordValue" placeholder="请输入域名前缀">
                                 <template #suffix> .{{ formData.choose }} </template>
@@ -555,14 +422,12 @@
             </n-row>
             <template #footer>
                 <n-flex justify="end">
-                    <n-button v-if="formData.type === 'TCP' || formData.type === 'UDP'" @click="generateRandomPort"
-                        >随机外网端口</n-button
-                    >
+                    <n-button v-if="formData.type === 'TCP' || formData.type === 'UDP'"
+                        @click="generateRandomPort">随机外网端口</n-button>
                     <n-button @click="generateRandomTunnelName">随机隧道名</n-button>
                     <n-button @click="editTunnelModal = false">取消</n-button>
-                    <n-button type="primary" @click="determineTheChangeOfTheTunnel" :loading="loadingEditTunnel"
-                        >确定</n-button
-                    >
+                    <n-button type="primary" @click="determineTheChangeOfTheTunnel"
+                        :loading="loadingEditTunnel">确定</n-button>
                 </n-flex>
             </template>
         </n-card>
@@ -575,14 +440,8 @@
                 </template>
                 刷新
             </n-button>
-            <n-button
-                @click="createNodes"
-                :loading="addTheTunnelButtonShow"
-                type="primary"
-                round
-                quaternary
-                :disabled="addTheTunnelButtonShow"
-            >
+            <n-button @click="createNodes" :loading="addTheTunnelButtonShow" type="primary" round quaternary
+                :disabled="addTheTunnelButtonShow">
                 <template #icon>
                     <n-icon v-if="!addTheTunnelButtonShow" :component="AddOutline" />
                 </template>
@@ -610,23 +469,14 @@
                 <n-thing content-style="margin-top: 10px;">
                     <template #description>
                         <n-space size="small" style="margin-top: 4px">
-                            <n-tag
-                                round
-                                v-for="(tag, tagIndex) in card.tags"
-                                :key="tagIndex"
-                                :bordered="false"
-                                type="primary"
-                                size="small"
-                            >
+                            <n-tag round v-for="(tag, tagIndex) in card.tags" :key="tagIndex" :bordered="false"
+                                type="primary" size="small">
                                 {{ tag }}
                             </n-tag>
                         </n-space>
                     </template>
-                    <a
-                        v-if="card.type === 'tcp' || card.type === 'udp'"
-                        @click="copyToClipboard(card.ip + ':' + card.dorp)"
-                        style="cursor: pointer; color: inherit"
-                    >
+                    <a v-if="card.type === 'tcp' || card.type === 'udp'"
+                        @click="copyToClipboard(card.ip + ':' + card.dorp)" style="cursor: pointer; color: inherit">
                         连接地址：{{ card.ip }}:{{ card.dorp }}
                     </a>
                     <a v-else @click="copyToClipboard(card.dorp)" style="cursor: pointer; color: inherit">
@@ -645,22 +495,16 @@
                                 <n-col :span="8">
                                     <div style="display: flex; align-items: center">
                                         <n-icon :component="ArrowUpOutline" />
-                                        <n-number-animation
-                                            show-separator
-                                            :from="0"
-                                            :to="formatBytes(card.today_traffic_in).value"
-                                        />
+                                        <n-number-animation show-separator :from="0"
+                                            :to="formatBytes(card.today_traffic_in).value" />
                                         {{ formatBytes(card.today_traffic_in).suffix }}
                                     </div>
                                 </n-col>
                                 <n-col :span="8">
                                     <div style="display: flex; align-items: center">
                                         <n-icon :component="ArrowDownOutline" />
-                                        <n-number-animation
-                                            show-separator
-                                            :from="0"
-                                            :to="formatBytes(card.today_traffic_out).value"
-                                        />
+                                        <n-number-animation show-separator :from="0"
+                                            :to="formatBytes(card.today_traffic_out).value" />
                                         {{ formatBytes(card.today_traffic_out).suffix }}
                                     </div>
                                 </n-col>
@@ -673,15 +517,13 @@
                             </n-row>
                         </n-grid-item>
                         <n-grid-item :span="1" style="display: flex; justify-content: flex-end">
-                            <n-dropdown
-                                trigger="click"
-                                :options="getDropdownOptions()"
-                                @select="(key: any) => handleDropdownSelect(key, card)"
-                                placement="bottom-end"
-                            >
+                            <n-dropdown trigger="click" :options="getDropdownOptions()"
+                                @select="(key: any) => handleDropdownSelect(key, card)" placement="bottom-end">
                                 <n-button quaternary circle size="medium" style="--n-padding: 8px">
                                     <template #icon>
-                                        <n-icon size="16"><BuildOutline /></n-icon>
+                                        <n-icon size="16">
+                                            <BuildOutline />
+                                        </n-icon>
                                     </template>
                                 </n-button>
                             </n-dropdown>
@@ -701,12 +543,8 @@
     <n-card v-if="tunnelCards === null">
         <n-empty description="您似乎还没创建隧道">
             <template #extra>
-                <n-button
-                    size="small"
-                    :loading="addTheTunnelButtonShow"
-                    @click="createNodes"
-                    :disabled="addTheTunnelButtonShow"
-                >
+                <n-button size="small" :loading="addTheTunnelButtonShow" @click="createNodes"
+                    :disabled="addTheTunnelButtonShow">
                     <template #icon>
                         <n-icon v-if="!addTheTunnelButtonShow" :component="AddOutline" />
                     </template>
@@ -716,16 +554,8 @@
         </n-empty>
     </n-card>
     <n-modal v-model:show="ConfigModal">
-        <n-card
-            style="max-width: 600px"
-            title="配置代码"
-            :bordered="false"
-            size="medium"
-            role="dialog"
-            aria-modal="true"
-            closable
-            @close="CloseConfigModal"
-        >
+        <n-card style="max-width: 600px" title="配置代码" :bordered="false" size="medium" role="dialog" aria-modal="true"
+            closable @close="CloseConfigModal">
             <n-collapse :default-expanded-names="['1', '3']">
                 <n-collapse-item title="快捷启动代码" name="1">
                     <div style="margin-bottom: 16px">
@@ -762,18 +592,18 @@
                         <n-code :code="frpcIniConfig" language="ini" word-wrap />
                         <template #action>
                             <n-space>
-                            <n-button secondary type="primary" size="small" @click="copyToClipboard(frpcIniConfig)">
-                                <template #icon>
-                                    <n-icon :component="CopyOutline" />
-                                </template>
-                                复制配置
-                            </n-button>
-                            <n-button tertiary size="small" @click="downloadConfig">
-                                <template #icon>
-                                    <n-icon :component="DownloadOutline" />
-                                </template>
-                                下载配置
-                            </n-button>
+                                <n-button secondary type="primary" size="small" @click="copyToClipboard(frpcIniConfig)">
+                                    <template #icon>
+                                        <n-icon :component="CopyOutline" />
+                                    </template>
+                                    复制配置
+                                </n-button>
+                                <n-button tertiary size="small" @click="downloadConfig">
+                                    <template #icon>
+                                        <n-icon :component="DownloadOutline" />
+                                    </template>
+                                    下载配置
+                                </n-button>
                             </n-space>
                         </template>
                     </n-card>
@@ -919,8 +749,22 @@ const handleDropdownSelect = (key: any, card: TunnelCard) => {
         case 'config':
             getConfigCode(card);
             break;
+        case 'refresh':
+            if (card.state === 'true') {
+                refreshTunnelData(card);
+            } else {
+                message.warning('隧道不在线，无法刷新数据')
+            }
+            break;
         case 'stats':
             getTunnelLast7days(card.id, card.state); // 传入隧道ID
+            break;
+        case 'offtunnel':
+            if (card.state === 'true') {
+                handleOfflineTunnel(card);
+            } else {
+                message.warning('隧道不在线，无法强制下线')
+            }
             break;
         case 'delete':
             handleConfirm(card.name, card.id, card.type, card.dorp);
@@ -938,13 +782,63 @@ const getConfigCode = async (card: TunnelCard) => {
     ConfigModal.value = true;
 };
 
+// 强制下线隧道
+const handleOfflineTunnel = (card: TunnelCard) => {
+    const d = dialog.warning({
+        title: '警告',
+        content: `您正在强制下线隧道：${card.name}(${card.id})，此操作将立即断开隧道连接，请确认是否继续。`,
+        positiveText: '确定下线',
+        negativeText: '取消',
+        onPositiveClick: async () => {
+            try {
+                d.loading = true
+                const response = await api.v2.tunnel.offlineTunnel(userInfo?.usertoken || '', card.name);
+                if (response.code === 200) {
+                    message.success('隧道强制下线成功');
+                    // 刷新隧道列表以更新状态
+                    fetchTunnelCards();
+                } else {
+                    message.error(response.msg || '隧道下线失败');
+                }
+            } catch (error) {
+                message.error('隧道下线失败: ' + (error as Error).message);
+            }
+        },
+    });
+};
+
+// 刷新隧道数据
+const refreshTunnelData = async (card: TunnelCard) => {
+    try {
+        const response = await api.v2.tunnel.refreshTunnel(userInfo?.usertoken || '', card.name);
+        if (response.code === 200) {
+            message.success('隧道数据刷新成功');
+            // 更新本地数据
+            if (tunnelCards.value) {
+                const tunnelIndex = tunnelCards.value.findIndex(t => t.id === card.id);
+                if (tunnelIndex !== -1 && response.data) {
+                    tunnelCards.value[tunnelIndex].today_traffic_in = response.data.today_traffic_in;
+                    tunnelCards.value[tunnelIndex].today_traffic_out = response.data.today_traffic_out;
+                    tunnelCards.value[tunnelIndex].cur_conns = response.data.cur_conns;
+                    tunnelCards.value[tunnelIndex].state = response.data.status === 'online' ? 'true' : 'false';
+                    tunnelCards.value[tunnelIndex].uptime = response.data.last_start_time;
+                }
+            }
+        } else {
+            message.error(response.msg || '隧道数据刷新失败');
+        }
+    } catch (error) {
+        message.error('隧道数据刷新失败: ' + (error as Error).message);
+    }
+};
+
 const chartRef = ref<HTMLElement | null>(null);
 let chartInstance: echarts.ECharts | null = null;
 
 // 获取近七日流量数据
 const getTunnelLast7days = async (tunnelId: number, state: string) => {
     if (state === 'false') {
-        message.error('隧道不在线，无法获取数据');
+        message.warning('隧道不在线，无法获取数据');
     } else {
         try {
             loading.value = true;
@@ -1994,11 +1888,11 @@ const filters = ref(
     storedFilters
         ? JSON.parse(storedFilters)
         : {
-              udp: false,
-              noPermission: true,
-              web: 'all',
-              region: 'all',
-          }
+            udp: false,
+            noPermission: true,
+            web: 'all',
+            region: 'all',
+        }
 );
 
 const filterWeb = (web: string) => {
@@ -2241,21 +2135,21 @@ const downloadConfig = () => {
     try {
         // 创建 Blob 对象
         const blob = new Blob([frpcIniConfig.value], { type: 'text/plain;charset=utf-8' });
-        
+
         // 创建下载链接
         const url = window.URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
         link.download = 'frpc.ini';
-        
+
         // 触发下载
         document.body.appendChild(link);
         link.click();
-        
+
         // 清理
         document.body.removeChild(link);
         window.URL.revokeObjectURL(url);
-        
+
         message.success('配置文件下载成功');
     } catch (err) {
         console.error('[隧道列表]下载配置文件失败:', err);
@@ -2293,7 +2187,7 @@ setInterval(() => {
     text-align: center;
 }
 
-.center-content > * {
+.center-content>* {
     display: flex;
     justify-content: center;
     align-items: center;

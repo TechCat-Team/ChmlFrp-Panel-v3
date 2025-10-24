@@ -4,20 +4,12 @@
         <n-grid cols="1 s:5" responsive="screen" :x-gap="15" :y-gap="20">
             <n-gi :span="3">
                 <n-card title="消息">
-                    <n-alert
-                        v-if="userInfo?.usergroup === '封禁'"
-                        title="您的账户已被封禁"
-                        type="error"
-                        style="margin-bottom: 10px"
-                    >
+                    <n-alert v-if="userInfo?.usergroup === '封禁'" title="您的账户已被封禁" type="error"
+                        style="margin-bottom: 10px">
                         理由：理由信息正在开发中，如果想知道具体原因请联系QQ：242247494
                     </n-alert>
-                    <n-alert
-                        v-if="userInfo?.realname === '未实名'"
-                        title="未实名通知"
-                        type="warning"
-                        style="margin-bottom: 10px"
-                    >
+                    <n-alert v-if="userInfo?.realname === '未实名'" title="未实名通知" type="warning"
+                        style="margin-bottom: 10px">
                         您尚未实名，请前往右侧实名认证填写处进行实名，每位用户提供3次免费实名，次数耗尽后请联系QQ242247494进行重置。我们允许未成年实名，但请不要使用非本人身份证实名。
                     </n-alert>
                     <n-alert v-if="isTermExpiringSoon" title="您的会员即将到期" type="info" style="margin-bottom: 10px">
@@ -29,14 +21,8 @@
                     <template #header-extra>
                         <n-skeleton v-if="loadingQianDao" :width="56" round :sharp="false" size="medium" />
                         <div v-else>
-                            <n-button
-                                v-if="!is_signed_in_today"
-                                round
-                                :loading="loadingQianDaoButton"
-                                type="primary"
-                                quaternary
-                                @click="onSignButtonClick"
-                            >
+                            <n-button v-if="!is_signed_in_today" round :loading="loadingQianDaoButton" type="primary"
+                                quaternary @click="onSignButtonClick">
                                 {{ QianDaoTest }}
                             </n-button>
                             <n-tooltip v-else>
@@ -78,13 +64,8 @@
             </n-gi>
             <n-gi :span="2">
                 <n-card title="实名认证" style="margin-bottom: 15px" v-if="userInfo?.realname === '未实名'">
-                    <n-form
-                        ref="realNameFormRef"
-                        :model="realNameModel"
-                        :rules="realNameRules"
-                        label-placement="left"
-                        label-width="auto"
-                    >
+                    <n-form ref="realNameFormRef" :model="realNameModel" :rules="realNameRules" label-placement="left"
+                        label-width="auto">
                         <n-form-item path="name" label="姓名" :show-require-mark="true">
                             <n-input v-model:value="realNameModel.name" round placeholder="请输入真实姓名" />
                         </n-form-item>
@@ -94,17 +75,10 @@
                         <n-row :gutter="[0, 24]">
                             <n-col :span="24">
                                 <div style="display: flex; justify-content: flex-end">
-                                    <n-button
-                                        :loading="loadingRealName"
-                                        :disabled="
-                                            realNameModel.name === null ||
-                                            realNameModel.idCard === null ||
-                                            loadingRealName
-                                        "
-                                        round
-                                        type="primary"
-                                        @click="realNameHandleValidateButtonClick"
-                                    >
+                                    <n-button :loading="loadingRealName" :disabled="realNameModel.name === null ||
+                                        realNameModel.idCard === null ||
+                                        loadingRealName
+                                        " round type="primary" @click="realNameHandleValidateButtonClick">
                                         验证
                                     </n-button>
                                 </div>
@@ -113,30 +87,18 @@
                     </n-form>
                 </n-card>
                 <n-card title="使用兑换码">
-                    <n-form
-                        ref="exchangeCodeFormRef"
-                        :model="exchangeCodeModel"
-                        :rules="exchangeCodeRules"
-                        label-placement="left"
-                        label-width="auto"
-                    >
+                    <n-form ref="exchangeCodeFormRef" :model="exchangeCodeModel" :rules="exchangeCodeRules"
+                        label-placement="left" label-width="auto">
                         <n-form-item path="exchangeCode" label="兑换码" :show-require-mark="true">
-                            <n-input
-                                placeholder="请输入兑换码，如：XXXX-XXXX-XXXX-XXXX"
-                                v-model:value="exchangeCodeModel.exchangeCode"
-                                round
-                            />
+                            <n-input placeholder="请输入兑换码，如：XXXX-XXXX-XXXX-XXXX"
+                                v-model:value="exchangeCodeModel.exchangeCode" round />
                         </n-form-item>
                         <n-row :gutter="[0, 24]">
                             <n-col :span="24">
                                 <div style="display: flex; justify-content: flex-end">
-                                    <n-button
-                                        :loading="loadingGiftCode"
-                                        :disabled="exchangeCodeModel.exchangeCode === null || loadingGiftCode"
-                                        round
-                                        type="primary"
-                                        @click="giftcode"
-                                    >
+                                    <n-button :loading="loadingGiftCode"
+                                        :disabled="exchangeCodeModel.exchangeCode === null || loadingGiftCode" round
+                                        type="primary" @click="giftcode">
                                         验证
                                     </n-button>
                                 </div>
@@ -147,8 +109,7 @@
                 <n-card style="display: flex; justify-content: center; margin-top: 15px">
                     <n-space justify="center">
                         <div
-                            style="display: flex; align-items: center; justify-content: center; flex-direction: column"
-                        >
+                            style="display: flex; align-items: center; justify-content: center; flex-direction: column">
                             <n-avatar :size="72" round :src="userInfo?.userimg" />
                             <div style="text-align: center">
                                 <h3 style="margin: 0">
@@ -160,12 +121,8 @@
                         </div>
                     </n-space>
                     <n-card :style="cardStyle" style="margin-top: 15px; text-align: center">
-                        <n-descriptions
-                            label-placement="top"
-                            :column="screenWidth >= 600 ? 3 : 2"
-                            label-align="center"
-                            size="large"
-                        >
+                        <n-descriptions label-placement="top" :column="screenWidth >= 600 ? 3 : 2" label-align="center"
+                            size="large">
                             <n-descriptions-item label="注册时间">
                                 {{ userInfo?.regtime }}
                             </n-descriptions-item>
@@ -195,27 +152,15 @@
                         </n-descriptions>
                     </n-card>
                     <div style="display: flex; justify-content: center">
-                        <n-tag
-                            v-if="!showNewContent"
-                            round
-                            :bordered="false"
-                            type="primary"
-                            style="margin-top: 15px"
-                            @click="toggleContent"
-                        >
+                        <n-tag v-if="!showNewContent" round :bordered="false" type="primary" style="margin-top: 15px"
+                            @click="toggleContent">
                             点击显示Token
                             <template #icon>
                                 <n-icon :component="KeyOutline" />
                             </template>
                         </n-tag>
-                        <n-tag
-                            round
-                            v-if="showNewContent"
-                            @click="copyAndToggleContent"
-                            :bordered="false"
-                            type="primary"
-                            style="margin-top: 15px"
-                        >
+                        <n-tag round v-if="showNewContent" @click="copyAndToggleContent" :bordered="false"
+                            type="primary" style="margin-top: 15px">
                             {{ userInfo?.usertoken }}
                         </n-tag>
                     </div>
@@ -230,30 +175,16 @@
                     <n-input round v-model:value="userNameModel.newUserName" placeholder="请输入新的用户名" />
                 </n-form-item-row>
             </n-form>
-            <n-button
-                round
-                type="primary"
-                @click="resetUserName"
-                :disabled="userNameModel.newUserName === null"
-                :loading="loadingUpdateUserName"
-                block
-                secondary
-                strong
-            >
+            <n-button round type="primary" @click="resetUserName" :disabled="userNameModel.newUserName === null"
+                :loading="loadingUpdateUserName" block secondary strong>
                 确定
             </n-button>
         </n-card>
     </n-modal>
     <n-modal v-model:show="modifyAvatarModal">
         <n-card style="width: 400px">
-            <n-tabs
-                class="card-tabs"
-                default-value="Link"
-                size="large"
-                animated
-                pane-wrapper-style="margin: 0 -4px"
-                pane-style="padding-left: 4px; padding-right: 4px; box-sizing: border-box;"
-            >
+            <n-tabs class="card-tabs" default-value="Link" size="large" animated pane-wrapper-style="margin: 0 -4px"
+                pane-style="padding-left: 4px; padding-right: 4px; box-sizing: border-box;">
                 <n-tab-pane name="Link" tab="图片链接">
                     <n-alert title="提示" type="info" style="margin-bottom: 16px">
                         图片链接仅支持直链，且无反盗链的链接
@@ -262,16 +193,8 @@
                         <n-form-item-row label="图片直链" path="newUserImage">
                             <n-input round v-model:value="userImageModel.newUserImage" placeholder="请输入图片直链" />
                         </n-form-item-row>
-                        <n-button
-                            round
-                            type="primary"
-                            block
-                            :loading="loadingUpdateImg"
-                            @click="resetUserImg"
-                            secondary
-                            strong
-                            style="margin-top: 16px"
-                        >
+                        <n-button round type="primary" block :loading="loadingUpdateImg" @click="resetUserImg" secondary
+                            strong style="margin-top: 16px">
                             提交
                         </n-button>
                     </n-form>
@@ -284,16 +207,8 @@
                         <n-avatar round :size="48" :src="QQImg" />
                         <n-p>{{ userInfo?.qq }}</n-p>
                     </n-flex>
-                    <n-button
-                        round
-                        type="primary"
-                        block
-                        :loading="loadingUpdateImg"
-                        @click="setQQAvatar"
-                        secondary
-                        strong
-                        style="margin-top: 16px"
-                    >
+                    <n-button round type="primary" block :loading="loadingUpdateImg" @click="setQQAvatar" secondary
+                        strong style="margin-top: 16px">
                         提交
                     </n-button>
                 </n-tab-pane>
@@ -305,16 +220,8 @@
                         <n-avatar round :size="48" :src="CravatarImg" />
                         <n-p>{{ userInfo?.email }}</n-p>
                     </n-flex>
-                    <n-button
-                        round
-                        type="primary"
-                        block
-                        :loading="loadingUpdateImg"
-                        @click="setCravatarAvatar"
-                        secondary
-                        strong
-                        style="margin-top: 16px"
-                    >
+                    <n-button round type="primary" block :loading="loadingUpdateImg" @click="setCravatarAvatar"
+                        secondary strong style="margin-top: 16px">
                         提交
                     </n-button>
                 </n-tab-pane>
@@ -325,51 +232,24 @@
         <n-card style="width: 400px">
             <n-form :model="resetPasswordValue" :rules="resetPasswordRules">
                 <n-form-item-row label="原密码" path="original_password">
-                    <n-input
-                        round
-                        type="password"
-                        v-model:value="resetPasswordValue.original_password"
-                        :show-password-on="isTouchDevice ? 'click' : 'mousedown'"
-                        placeholder="请输入原密码"
-                    />
+                    <n-input round type="password" v-model:value="resetPasswordValue.original_password"
+                        :show-password-on="isTouchDevice ? 'click' : 'mousedown'" placeholder="请输入原密码" />
                 </n-form-item-row>
                 <n-form-item-row label="新密码" path="new_password">
-                    <n-input
-                        round
-                        type="password"
-                        v-model:value="resetPasswordValue.new_password"
-                        maxlength="48"
-                        :show-password-on="isTouchDevice ? 'click' : 'mousedown'"
-                        placeholder="请输入新密码"
-                    />
+                    <n-input round type="password" v-model:value="resetPasswordValue.new_password" maxlength="48"
+                        :show-password-on="isTouchDevice ? 'click' : 'mousedown'" placeholder="请输入新密码" />
                 </n-form-item-row>
                 <n-form-item-row label="重复新密码" path="reentered_new_password">
-                    <n-input
-                        round
-                        type="password"
-                        v-model:value="resetPasswordValue.reentered_new_password"
-                        maxlength="48"
-                        show-count
-                        clearable
-                        placeholder="请再次输入新密码"
-                    />
+                    <n-input round type="password" v-model:value="resetPasswordValue.reentered_new_password"
+                        maxlength="48" show-count clearable placeholder="请再次输入新密码" />
                 </n-form-item-row>
             </n-form>
-            <n-button
-                round
-                type="primary"
-                @click="resetPassword"
-                block
-                secondary
-                strong
-                :loading="loadingUpdatePassword"
-                :disabled="
-                    !resetPasswordValue.original_password ||
+            <n-button round type="primary" @click="resetPassword" block secondary strong
+                :loading="loadingUpdatePassword" :disabled="!resetPasswordValue.original_password ||
                     !resetPasswordValue.new_password ||
                     !resetPasswordValue.reentered_new_password ||
                     loadingUpdatePassword
-                "
-            >
+                    ">
                 确定
             </n-button>
         </n-card>
@@ -385,14 +265,8 @@
                         <n-grid-item span="2">
                             <n-popover trigger="hover" raw :show-arrow="false">
                                 <template #trigger>
-                                    <n-button
-                                        round
-                                        :loading="oldLoadingCaptcha"
-                                        @click="handleGeeTest('old')"
-                                        :disabled="oldButtonDisabled"
-                                        style="width: 100%"
-                                        >{{ oldButtonText }}</n-button
-                                    >
+                                    <n-button round :loading="oldLoadingCaptcha" @click="handleGeeTest('old')"
+                                        :disabled="oldButtonDisabled" style="width: 100%">{{ oldButtonText }}</n-button>
                                 </template>
                                 <n-card size="small"></n-card>
                             </n-popover>
@@ -400,14 +274,7 @@
                     </n-grid>
                 </n-form-item-row>
                 <n-form-item-row label="新邮箱">
-                    <n-input
-                        round
-                        maxlength="32"
-                        v-model:value="newEmail"
-                        show-count
-                        clearable
-                        placeholder="请输入新的邮箱"
-                    />
+                    <n-input round maxlength="32" v-model:value="newEmail" show-count clearable placeholder="请输入新的邮箱" />
                 </n-form-item-row>
                 <n-form-item-row label="新邮箱验证码">
                     <n-grid cols="5" :x-gap="12" item-responsive responsive="screen">
@@ -417,14 +284,9 @@
                         <n-grid-item span="2">
                             <n-popover trigger="hover" raw :show-arrow="false">
                                 <template #trigger>
-                                    <n-button
-                                        round
-                                        :loading="newLoadingCaptcha"
-                                        @click="handleGeeTest('new')"
-                                        :disabled="newButtonDisabled || !newEmail"
-                                        style="width: 100%"
-                                        >{{ newButtonText }}</n-button
-                                    >
+                                    <n-button round :loading="newLoadingCaptcha" @click="handleGeeTest('new')"
+                                        :disabled="newButtonDisabled || !newEmail" style="width: 100%">{{ newButtonText
+                                        }}</n-button>
                                 </template>
                                 <n-card size="small"></n-card>
                             </n-popover>
@@ -432,16 +294,8 @@
                     </n-grid>
                 </n-form-item-row>
             </n-form>
-            <n-button
-                round
-                type="primary"
-                @click="resetEmail"
-                :loading="LoadingResetEmail"
-                block
-                secondary
-                strong
-                :disabled="!newEmail || !old_code || !new_code"
-            >
+            <n-button round type="primary" @click="resetEmail" :loading="LoadingResetEmail" block secondary strong
+                :disabled="!newEmail || !old_code || !new_code">
                 确定
             </n-button>
         </n-card>
@@ -450,26 +304,12 @@
         <n-card style="width: 400px">
             <n-form ref="qqFormRef" :model="qqModel" :rules="updateQQRules">
                 <n-form-item-row label="新QQ号" path="newQQ">
-                    <n-input
-                        round
-                        maxlength="20"
-                        v-model:value="qqModel.newQQ"
-                        show-count
-                        clearable
-                        placeholder="请输入新的QQ号"
-                    />
+                    <n-input round maxlength="20" v-model:value="qqModel.newQQ" show-count clearable
+                        placeholder="请输入新的QQ号" />
                 </n-form-item-row>
             </n-form>
-            <n-button
-                round
-                type="primary"
-                :disabled="qqModel.newQQ === null"
-                :loading="loadingUpdateQQ"
-                @click="resetQQ"
-                block
-                secondary
-                strong
-            >
+            <n-button round type="primary" :disabled="qqModel.newQQ === null" :loading="loadingUpdateQQ"
+                @click="resetQQ" block secondary strong>
                 确定
             </n-button>
         </n-card>
@@ -481,24 +321,14 @@
                 <n-form-item-row label="旧邮箱验证码">
                     <n-grid cols="5" :x-gap="12" item-responsive responsive="screen">
                         <n-grid-item span="3">
-                            <n-input
-                                round
-                                maxlength="6"
-                                v-model:value="deleteAccountCode"
-                                placeholder="请输入6位验证码"
-                            />
+                            <n-input round maxlength="6" v-model:value="deleteAccountCode" placeholder="请输入6位验证码" />
                         </n-grid-item>
                         <n-grid-item span="2">
                             <n-popover trigger="hover" raw :show-arrow="false">
                                 <template #trigger>
-                                    <n-button
-                                        round
-                                        :loading="deleteAccountLoadingCaptcha"
-                                        @click="deleteAccountGeeTest"
-                                        :disabled="deleteAccountButtonDisabled"
-                                        style="width: 100%"
-                                        >{{ deleteAccountButtonText }}</n-button
-                                    >
+                                    <n-button round :loading="deleteAccountLoadingCaptcha" @click="deleteAccountGeeTest"
+                                        :disabled="deleteAccountButtonDisabled" style="width: 100%">{{
+                                        deleteAccountButtonText }}</n-button>
                                 </template>
                                 <n-card size="small"></n-card>
                             </n-popover>
@@ -509,24 +339,15 @@
             <template #footer>
                 <n-flex justify="end">
                     <n-button round @click="deleteAccountTips">上一步</n-button>
-                    <n-button
-                        round
-                        type="primary"
-                        strong
-                        secondary
-                        @click="deleteAccountAtLastTips"
-                        :loading="deleteAccountLoading"
-                        >执行注销</n-button
-                    >
+                    <n-button round type="primary" strong secondary @click="deleteAccountAtLastTips"
+                        :loading="deleteAccountLoading">执行注销</n-button>
                 </n-flex>
             </template>
         </n-card>
     </n-modal>
 
     <!-- 模糊遮罩 -->
-    <div
-        v-show="showBlurOverlay"
-        style="
+    <div v-show="showBlurOverlay" style="
             position: fixed;
             top: 0;
             left: 0;
@@ -535,8 +356,7 @@
             backdrop-filter: blur(var(--modal-filter));
             z-index: 9998;
             pointer-events: all;
-        "
-    ></div>
+        "></div>
 </template>
 
 <script setup lang="ts">
@@ -599,6 +419,7 @@ const loadingUpdateQQ = ref(false); // QQ确定按钮加载状态
 const loadingUpdatePassword = ref(false);
 const loadingRealName = ref(false);
 const loadingGiftCode = ref(false);
+const loadingOfflineAllTunnels = ref(false);
 
 const newEmail = ref('');
 const oldButtonText = ref('发送验证码');
@@ -800,13 +621,41 @@ const startDeleteAccountCountdown = () => {
 };
 
 const OfflineAllTunnels = () => {
-    deleteAccountVerificationModal.value = false;
-    dialog.warning({
+    const d = dialog.warning({
         title: '警告',
-        content: '此操作将会停止运行所有您正在运行中的隧道，且frp进程将会自动关闭。请确定此操作是您预期内的。',
+        content: '此操作将会停止运行所有您正在运行中的隧道，且frp进程将会自动关闭。请确定此操作是您预期内的。（注意！仅FRP核心版本0.51.2_251023版本才支持此功能）',
         positiveText: '确定',
         negativeText: '取消',
-        onPositiveClick: () => {},
+        onPositiveClick: async () => {
+            d.loading = true
+            loadingOfflineAllTunnels.value = true;
+            try {
+                const response = await api.v2.user.offlineUserNodes(userInfo?.usertoken || '');
+
+                // 显示成功消息
+                const { totalNodes, successCount, failCount, results } = response.data;
+                let messageText = `下线完成！总计: ${totalNodes} 个节点，成功: ${successCount} 个，失败: ${failCount} 个`;
+
+                if (Object.keys(results).length > 0) {
+                    const resultDetails = Object.entries(results)
+                        .map(([node, status]) => `${node}: ${status}`)
+                        .join('\n');
+                    messageText += `\n\n详细结果:\n${resultDetails}`;
+                }
+
+                dialog.success({
+                    title: '下线完成',
+                    content: messageText,
+                    positiveText: '好的',
+                });
+
+            } catch (error) {
+                console.error('下线所有隧道失败:', error);
+                message.error('下线所有隧道失败: ' + (error as Error).message);
+            } finally {
+                loadingOfflineAllTunnels.value = false;
+            }
+        },
     });
 };
 
@@ -1259,6 +1108,7 @@ const settingCard = ref([
         subtitle: '一键下线所有运行中的隧道',
         icon: markRaw(CodeDownloadOutline),
         click: OfflineAllTunnels,
+        loading: loadingOfflineAllTunnels,
     },
     {
         title: '注销账户',
