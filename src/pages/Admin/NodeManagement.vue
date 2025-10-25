@@ -361,7 +361,8 @@ import {
     Create,
     EllipsisVertical,
     TrashOutline,
-    Search as SearchIcon
+    Search as SearchIcon,
+    OpenOutline
 } from '@vicons/ionicons5';
 import type { DataTableColumns, FormInst, FormRules } from 'naive-ui';
 import { useUserStore } from '@/stores/user';
@@ -814,6 +815,14 @@ const columns: DataTableColumns<Node> = [
                     }
                 },
                 {
+                    label: '访问面板',
+                    key: 'panel',
+                    icon: () => h(NIcon, { component: OpenOutline }),
+                    props: {
+                        onClick: () => handlePanelAccess(row)
+                    }
+                },
+                {
                     type: 'divider',
                     key: 'd1'
                 },
@@ -1108,6 +1117,31 @@ const handleCodeClick = (node: Node) => {
 const handleConfigModalClose = () => {
     ConfigModal.value = false;
     currentCodeNode.value = null;
+};
+
+// 处理访问面板
+const handlePanelAccess = (node: Node) => {
+    try {
+        // 解码auth获取用户名和密码
+        const decodedAuth = atob(node.auth);
+        const [username, password] = decodedAuth.split(':');
+        
+        if (!username || !password) {
+            message.error('节点认证信息不完整，无法访问面板');
+            return;
+        }
+        
+        // 创建Basic Auth URL
+        const authUrl = `http://${username}:${password}@${node.realIp}:${node.adminPort}`;
+        
+        // 在新标签页打开面板
+        window.open(authUrl, '_blank');
+        
+        message.success(`正在打开节点 "${node.name}" 的管理面板`);
+    } catch (error) {
+        console.error('访问面板失败:', error);
+        message.error('访问面板失败，请检查节点认证信息');
+    }
 };
 
 // 处理删除节点
