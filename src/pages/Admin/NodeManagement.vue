@@ -23,7 +23,7 @@
             <n-space vertical :size="16" style="margin-bottom: 16px;">
                 <n-input
                     v-model:value="searchQuery"
-                    placeholder="搜索节点名、域名或真实IP..."
+                    placeholder="搜索节点名、域名或真实IP...（支持拼音搜索）"
                     clearable
                     @input="handleSearch"
                 >
@@ -367,6 +367,7 @@ import {
 import type { DataTableColumns, FormInst, FormRules } from 'naive-ui';
 import { useUserStore } from '@/stores/user';
 import axios from 'axios';
+import { matchPinyinSearch } from '@/utils/pinyinSearch';
 
 const ConfigModal = ref(false);
 const currentCodeNode = ref<Node | null>(null);
@@ -548,16 +549,15 @@ const filteredNodes = computed(() => {
         return nodes.value;
     }
     
-    const query = searchQuery.value.toLowerCase().trim();
+    const query = searchQuery.value.trim();
     return nodes.value.filter(node => {
-        // 搜索节点名
-        const matchName = node.name.toLowerCase().includes(query);
-        // 搜索域名
-        const matchDomain = node.ip.toLowerCase().includes(query);
-        // 搜索真实IP
-        const matchRealIp = node.realIp.toLowerCase().includes(query);
+        // 使用拼音搜索功能
+        const matchName = matchPinyinSearch(node.name, query);
+        const matchDomain = matchPinyinSearch(node.ip, query);
+        const matchRealIp = matchPinyinSearch(node.realIp, query);
+        const matchArea = matchPinyinSearch(node.area, query);
         
-        return matchName || matchDomain || matchRealIp;
+        return matchName || matchDomain || matchRealIp || matchArea;
     });
 });
 
