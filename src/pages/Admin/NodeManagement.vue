@@ -366,7 +366,7 @@ import {
 } from '@vicons/ionicons5';
 import type { DataTableColumns, FormInst, FormRules } from 'naive-ui';
 import { useUserStore } from '@/stores/user';
-import axios from 'axios';
+import api from '@/api';
 import { matchPinyinSearch } from '@/utils/pinyinSearch';
 
 const ConfigModal = ref(false);
@@ -868,17 +868,12 @@ const handleOpenCreateModal = () => {
 const fetchNodes = async () => {
     loading.value = true;
     try {
-        const response = await axios.get('https://cf-v2.uapis.cn/admin/nodes', {
-            params: {
-                admin_token: userInfoStore?.usertoken || 'YOUR_ADMIN_TOKEN'
-            }
-        });
-
-        if (response.data.code === 200) {
-            nodes.value = response.data.data.nodes || [];
-        }
-    } catch (error) {
-        message.error('请求失败，请检查网络或联系管理员');
+        const adminToken = userInfoStore?.usertoken || '';
+        const res = await api.v2.admin.getNodes(adminToken);
+        nodes.value = (res.data?.nodes as any[]) || [];
+    } catch (error: any) {
+        const msg = error?.message || '请求失败，请检查网络或联系管理员';
+        message.error(msg);
         console.error(error);
     } finally {
         loading.value = false;
@@ -917,25 +912,17 @@ const handleCreate = async () => {
             ipv6: createForm.ipv6
         };
 
-        const response = await axios.post('https://cf-v2.uapis.cn/admin/nodes', requestData, {
-            params: {
-                admin_token: userInfoStore?.usertoken || 'YOUR_ADMIN_TOKEN'
-            }
-        });
-
-        if (response.data.code === 200) {
-            message.success('节点创建成功');
-            showCreateModal.value = false;
-            resetCreateForm();
-            await fetchNodes();
-        } else {
-            message.error(`节点创建失败: ${response.data.message}`);
-        }
+        const adminToken = userInfoStore?.usertoken || '';
+        await api.v2.admin.createNode(adminToken, requestData as unknown as Record<string, unknown>);
+        message.success('节点创建成功');
+        showCreateModal.value = false;
+        resetCreateForm();
+        await fetchNodes();
     } catch (error: any) {
         if (error?.message) {
             return; // 表单验证错误
         }
-        message.error('创建节点失败，请检查网络或联系管理员');
+        message.error(`节点创建失败: ${error?.message || '请检查网络或联系管理员'}`);
         console.error(error);
     } finally {
         createLoading.value = false;
@@ -1017,24 +1004,16 @@ const handleEdit = async () => {
             ipv6: editForm.ipv6
         };
 
-        const response = await axios.put(`https://cf-v2.uapis.cn/admin/nodes/${currentEditNode.value.id}`, requestData, {
-            params: {
-                admin_token: userInfoStore?.usertoken || 'YOUR_ADMIN_TOKEN'
-            }
-        });
-
-        if (response.data.code === 200) {
-            message.success('节点信息更新成功');
-            showEditModal.value = false;
-            await fetchNodes();
-        } else {
-            message.error(`节点信息更新失败: ${response.data.message}`);
-        }
+        const adminToken = userInfoStore?.usertoken || '';
+        await api.v2.admin.updateNode(adminToken, currentEditNode.value.id, requestData as unknown as Record<string, unknown>);
+        message.success('节点信息更新成功');
+        showEditModal.value = false;
+        await fetchNodes();
     } catch (error: any) {
         if (error?.message) {
             return; // 表单验证错误
         }
-        message.error('更新节点信息失败，请检查网络或联系管理员');
+        message.error(`节点信息更新失败: ${error?.message || '请检查网络或联系管理员'}`);
         console.error(error);
     } finally {
         editLoading.value = false;
@@ -1162,49 +1141,27 @@ const handleDelete = async (node: Node) => {
     const loadingMessage = message.loading('正在删除节点...', { duration: 0 });
     
     try {
-        const response = await axios.delete(`https://cf-v2.uapis.cn/admin/nodes/${node.id}`, {
-            params: {
-                admin_token: userInfoStore?.usertoken || 'YOUR_ADMIN_TOKEN'
-            }
-        });
-
+        const adminToken = userInfoStore?.usertoken || '';
+        const res = await api.v2.admin.deleteNode(adminToken, node.id);
         loadingMessage.destroy();
-
-        if (response.data.code === 200) {
-            const data = response.data.data;
-            
-            // 根据DNS删除结果显示不同的消息
+        const data: any = (res as any).data;
+        if (data && typeof data === 'object') {
             if (data.dnsDeleted) {
                 message.success(`节点 "${data.nodeName}" 删除成功，DNS记录已自动删除`);
-            } else {
+            } else if (data.nodeName) {
                 message.warning(`节点 "${data.nodeName}" 删除成功，但DNS记录删除失败（可能不存在或已被删除）`);
+            } else {
+                message.success('节点删除成功');
             }
-            
-            // 刷新节点列表
-            await fetchNodes();
         } else {
-            message.error(`删除失败: ${response.data.message}`);
+            message.success('节点删除成功');
         }
+        await fetchNodes();
     } catch (error: any) {
         loadingMessage.destroy();
-        
-        if (error.response) {
-            const status = error.response.status;
-            const errorMsg = error.response.data?.message || '未知错误';
-            
-            if (status === 404) {
-                message.error('节点不存在，可能已被删除');
-                // 刷新列表以更新状态
-                await fetchNodes();
-            } else if (status === 401) {
-                message.error('权限验证失败，请重新登录');
-            } else {
-                message.error(`删除节点失败: ${errorMsg}`);
-            }
-        } else {
-            message.error('删除节点失败，请检查网络连接');
-            console.error(error);
-        }
+        const msg = error?.message || '删除节点失败，请检查网络连接';
+        message.error(msg);
+        console.error(error);
     }
 };
 

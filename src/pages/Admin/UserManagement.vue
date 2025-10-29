@@ -88,7 +88,7 @@
 import { ref, onMounted, h, reactive } from 'vue';
 import { NDataTable, NButton, NCard, NModal, NForm, NFormItem, NInput, NInputNumber, NRow, NCol, useMessage, NBackTop, NSpace, NSelect, NAlert, NAvatar } from 'naive-ui';
 import type { DataTableColumns, FormInst, FormRules } from 'naive-ui';
-import axios from 'axios';
+import api from '@/api';
 import { useUserStore } from '@/stores/user';
 
 const userStore = useUserStore();
@@ -148,39 +148,32 @@ const rules: FormRules = {
 const fetchUsers = async () => {
     loading.value = true;
     try {
-        const adminToken = userInfoStore?.usertoken || 'YOUR_ADMIN_TOKEN';
-        let response;
+        const adminToken = userInfoStore?.usertoken || '';
+        let data;
 
         if (isSearchMode.value && searchForm.value.trim()) {
-            // 搜索模式
-            response = await axios.get('https://cf-v2.uapis.cn/admin/search/users', {
-                params: {
-                    type: searchForm.type,
-                    value: searchForm.value.trim(),
-                    page: pagination.page,
-                    size: pagination.pageSize,
-                    admin_token: adminToken,
-                },
-            });
+            const res = await api.v2.admin.searchUsers(
+                adminToken,
+                searchForm.type as 'username' | 'email',
+                searchForm.value.trim(),
+                pagination.page,
+                pagination.pageSize
+            );
+            data = res.data;
         } else {
-            // 普通获取用户列表
-            response = await axios.get('https://cf-v2.uapis.cn/admin/users', {
-                params: {
-                    page: pagination.page,
-                    size: pagination.pageSize,
-                    admin_token: adminToken,
-                },
-            });
+            const res = await api.v2.admin.getUsers(
+                adminToken,
+                pagination.page,
+                pagination.pageSize
+            );
+            data = res.data;
         }
 
-        if (response.data.code === 200) {
-            users.value = response.data.data.users;
-            pagination.itemCount = response.data.data.total;
-        } else {
-            message.error(`${isSearchMode.value ? '搜索用户' : '获取用户列表'}失败: ${response.data.message}`);
-        }
-    } catch (error) {
-        message.error('请求失败，请检查网络或联系管理员');
+        users.value = data.users;
+        pagination.itemCount = data.total;
+    } catch (error: any) {
+        const msg = error?.message || '请求失败，请检查网络或联系管理员';
+        message.error(msg);
         console.error(error);
     } finally {
         loading.value = false;
@@ -231,7 +224,7 @@ const handleSave = () => {
     formRef.value?.validate(async (errors) => {
         if (!errors) {
             try {
-                const adminToken = userInfoStore?.usertoken || 'YOUR_ADMIN_TOKEN';
+                const adminToken = userInfoStore?.usertoken || '';
                 const userId = currentUser.value.id;
 
                 // 构造请求体，只包含需要更新的字段
@@ -242,23 +235,13 @@ const handleSave = () => {
                     delete requestBody.password;
                 }
 
-                const response = await axios.put(`https://cf-v2.uapis.cn/admin/users/${userId}`, requestBody, {
-                    params: { admin_token: adminToken },
-                });
-
-                if (response.data.code === 200) {
-                    message.success('用户信息更新成功');
-                    showEditModal.value = false;
-                    fetchUsers(); // 刷新列表
-                } else {
-                    message.error(`更新失败: ${response.data.message}`);
-                }
+                await api.v2.admin.updateUser(adminToken, userId as number, requestBody as Record<string, unknown>);
+                message.success('用户信息更新成功');
+                showEditModal.value = false;
+                fetchUsers();
             } catch (error: any) {
-                if (error.response) {
-                     message.error(`更新失败: ${error.response.data.message || '服务器错误'}`);
-                } else {
-                    message.error('请求失败，请检查网络或联系管理员');
-                }
+                const msg = error?.message || '请求失败，请检查网络或联系管理员';
+                message.error(`更新失败: ${msg}`);
                 console.error(error);
             }
         }

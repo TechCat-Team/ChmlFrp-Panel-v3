@@ -171,7 +171,7 @@
                             <div>
                                 实名认证接口对接聚美智数二要素接口。允许未成年认证，但是请不要使用非本人身份证。
                                 <br />
-                                如果实名认证接口出现实名认证失败等问题请加入交流群反馈。或发送邮件至chaoji@chcat.cn
+                                如果实名认证接口出现实名认证失败等问题请加入交流群反馈。或发送邮件至support@chcat.cn
                             </div>
                         </n-collapse-item>
                         <n-collapse-item title="延迟问题" name="3">
@@ -232,7 +232,7 @@
                                 <br /><br />
                                 <p>
                                     您有权：<br />
-                                    • 通过 <a href="mailto:chaoji@chcat.cn">chaoji@chcat.cn</a> 申请数据访问<br />
+                                    • 通过 <a href="mailto:support@chcat.cn">support@chcat.cn</a> 申请数据访问<br />
                                     • 在账户设置中直接注销账号<br />
                                     • 随时撤回第三方共享授权
                                 </p>
@@ -258,7 +258,7 @@
                                     另一种是您将您的家宽公网或vps服务器无偿捐赠给我们作为节点使用，但是您每个月均可获得不固定积分报酬，且无偿捐赠的节点均为免费节点，提供给所有用户免费使用。
                                 </n-p>
                                 <n-h3> 联系方式 </n-h3>
-                                <n-p> 您可以通过QQ：242247494或邮箱：chaoji@chcat.cn联系我们。 </n-p>
+                                <n-p> 您可以通过QQ：242247494或邮箱：support@chcat.cn联系我们。 </n-p>
                             </div>
                         </n-collapse-item>
                         <n-collapse-item title="友链申请" name="10">

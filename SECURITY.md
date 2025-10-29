@@ -13,7 +13,7 @@
 ## 报告漏洞
 
 报告漏洞请联系
-mail：chaoji@chcat.cn
+mail：support@chcat.cn
 QQ：242247494
 或者QQ群：
 992067118

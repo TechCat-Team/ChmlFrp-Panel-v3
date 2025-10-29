@@ -115,7 +115,7 @@
         </n-gi>
     </n-grid>
     <n-card style="margin-top: 32px">
-        如果您也想让您的软件出现在这里，请邮件联系 <a href="mailto:chaoji@chcat.cn">chaoji@chcat.cn</a>
+        如果您也想让您的软件出现在这里，请邮件联系 <a href="mailto:support@chcat.cn">support@chcat.cn</a>
     </n-card>
 </template>
 
