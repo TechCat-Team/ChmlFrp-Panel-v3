@@ -32,7 +32,19 @@
                     </template>
                 </n-input>
             </n-space>
-
+            <n-watermark
+    :content="`禁止截图\n${userInfoStore?.username}`"
+    cross
+    selectable
+    :font-size="16"
+    :line-height="16"
+    :width="192"
+    :height="128"
+    :x-offset="12"
+    :y-offset="28"
+    :rotate="-15"
+    :font-color="'rgba(128, 128, 128, 0.1)'"
+  >
             <n-data-table
                 :columns="columns"
                 :data="filteredNodes"
@@ -44,6 +56,7 @@
                 size="medium"
                 :row-props="rowProps"
             />
+            </n-watermark>
         </n-card>
 
         <!-- 新增节点模态框 -->
