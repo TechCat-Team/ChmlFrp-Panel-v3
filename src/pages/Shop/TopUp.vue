@@ -87,30 +87,12 @@
                     </n-tooltip>
                 </n-spin>
             </n-grid-item>
-            <n-grid-item>
-                <n-spin :show="loading">
-                    <n-tooltip trigger="hover">
-                        <template #trigger>
-                            <n-card size="small" hoverable @click="pay('qqpay')" :disabled="!isAmountValid">
-                                <n-space align="center">
-                                    <n-icon size="40" color="#12B7F5">
-                                        <Qq />
-                                    </n-icon>
-                                    <span style="font-size: 24px">QQ支付</span>
-                                </n-space>
-                            </n-card>
-                        </template>
-                        点击后会直接跳转至付款页面
-                    </n-tooltip>
-                </n-spin>
-            </n-grid-item>
         </n-grid>
     </n-card>
 </template>
 
 <script lang="ts" setup>
 import { LogoAlipay, LogoWechat } from '@vicons/ionicons5';
-import { Qq } from '@vicons/fa';
 import { ref, computed, onMounted, watch } from 'vue';
 import { useMessage, useThemeVars } from 'naive-ui';
 import { useLoadUserInfo } from '@/components/useLoadUser';

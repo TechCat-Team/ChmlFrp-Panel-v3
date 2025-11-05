@@ -2,7 +2,7 @@
     <n-back-top :right="100" />
     <n-card size="small">
         <n-alert title="购买须知" type="warning">
-            购买后积分不退还。多次购买同一套餐则增加对应会员时长，如果要升级会员请选择升级会员。会员购买失败或无法支付，请联系客服QQ：242247494为您开通临时支付渠道
+            购买后积分无法退还。多次购买同一套餐则增加对应会员时长，如果要升级会员请选择升级会员。支付遇到问题请联系support@chcat.cn咨询
         </n-alert>
     </n-card>
     <n-grid style="margin-top: 12px" :x-gap="12" :y-gap="12" cols="1 s:2 m:3 l:4" responsive="screen">
@@ -109,7 +109,7 @@
                         class="perk-btn"
                         @click="openUpgradeModal('普通会员')"
                     >
-                        购买永久会员
+                        购买终身会员
                     </n-button>
                 </n-flex>
             </n-card>
@@ -171,7 +171,7 @@
                         class="perk-btn"
                         @click="openUpgradeModal('高级会员')"
                     >
-                        购买永久会员
+                        购买终身会员
                     </n-button>
                 </n-flex>
             </n-card>
@@ -233,31 +233,23 @@
                         class="perk-btn"
                         @click="openUpgradeModal('超级会员')"
                     >
-                        购买永久会员
+                        购买终身会员
                     </n-button>
                 </n-flex>
             </n-card>
         </n-grid-item>
     </n-grid>
     <n-modal v-model:show="showModal">
-        <n-card style="max-width: 420px" title="永久会员购买" :bordered="false" role="dialog" aria-modal="true">
+        <n-card style="max-width: 420px" title="终身会员购买" :bordered="false" role="dialog" aria-modal="true">
             <n-text
-                >您正在请求购买 永久{{ targetGroup }}，您当前为
-                <n-text v-if="userInfo?.term === '9999-09-09' && userInfo?.usergroup !== '免费用户'">永久</n-text
-                >{{ userInfo?.usergroup }}，升级到 永久{{ targetGroup }} 需要支付 {{ payAmount }} 元。
+                >您正在请求购买 终身{{ targetGroup }}，您当前为
+                <n-text v-if="userInfo?.term === '9999-09-09' && userInfo?.usergroup !== '免费用户'">终身</n-text
+                >{{ userInfo?.usergroup }}，升级到 终身{{ targetGroup }} 需要支付 {{ payAmount }} 元。
                 <br />请选择支付方式。</n-text
             >
             <template #footer>
                 <n-flex justify="end">
                     <n-button strong secondary size="small" @click="showModal = false">取消</n-button>
-                    <n-button
-                        :loading="loadingzf"
-                        :disabled="loadingzf"
-                        type="warning"
-                        size="small"
-                        @click="handlePay('qq')"
-                        >QQ</n-button
-                    >
                     <n-button
                         :loading="loadingzf"
                         :disabled="loadingzf"
@@ -371,7 +363,7 @@
                                     <n-text>您当前为免费用户，无法升级，如需会员请先购买</n-text>
                                 </template>
                                 <template v-else-if="userInfo?.term === '9999-09-09'">
-                                    <n-text>您当前为永久会员，无法进行常规升级</n-text>
+                                    <n-text>您当前为终身会员，无法进行常规升级</n-text>
                                 </template>
                                 <template v-else-if="userInfo?.usergroup === '普通会员'">
                                     <n-radio-group v-model:value="upgradeOption">
@@ -509,17 +501,17 @@ function getPerkMessage(target: string): string {
     const targetIdx = groups.indexOf(target);
 
     if (current === target && currentTerm === '9999-09-09') {
-        return '您已购买此永久会员，感谢您的支持。';
+        return '您已购买此终身会员，感谢您的支持。';
     }
     if (currentIdx > targetIdx && currentTerm === '9999-09-09') {
-        return '您已购买更高等级永久会员，感谢您的支持。';
+        return '您已购买更高等级终身会员，感谢您的支持。';
     }
     if (userInfo?.usergroup === '封禁') {
         return '您的账户已被封禁，无法购买或升级会员。';
     }
     return isFreeUser.value
-        ? `永久会员仅需${getPrice(target)}元。一次性付费终生使用。`
-        : `升级到此永久会员仅需${getPrice(target) - getPrice(userInfo?.usergroup ?? '普通会员')}元。一次性付费终生使用。`;
+        ? `终身会员仅需${getPrice(target)}元。一次性付费终生使用。`
+        : `升级到此终身会员仅需${getPrice(target) - getPrice(userInfo?.usergroup ?? '普通会员')}元。一次性付费终生使用。`;
 }
 
 function canPurchase(target: string): boolean {
@@ -534,7 +526,7 @@ function canPurchase(target: string): boolean {
 const targetGroup = ref('');
 const payAmount = ref(0);
 
-// 判断是否为临时会员（非免费用户但 term 不是永久）
+// 判断是否为临时会员（非免费用户但 term 不是终身）
 const isTemporaryUser = computed(() => {
     return userInfo?.usergroup !== '免费用户' && userInfo?.term !== '9999-09-09';
 });
@@ -573,7 +565,7 @@ async function handlePay(ttype: string) {
         const response = await axios.get('https://cf-v1.uapis.cn/api/pay.php', {
             params: {
                 usertoken: userInfo?.usertoken,
-                name: '永久会员购买',
+                name: '终身会员购买',
                 type: ttype,
                 money: payAmount.value,
                 return: currentFullUrl,
@@ -624,7 +616,7 @@ const remainingPoints = computed(() => {
 
 // 计算剩余天数
 const calculateRemainingDays = () => {
-    if (userInfo?.term === '9999-09-09') return Infinity; // 永久会员
+    if (userInfo?.term === '9999-09-09') return Infinity; // 终身会员
     if (!userInfo?.term) return 0; // term 为 undefined
     const today = new Date();
     const termDate = new Date(userInfo.term);

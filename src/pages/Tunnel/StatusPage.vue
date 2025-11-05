@@ -110,7 +110,7 @@
                             {{ nodeStatusCard.tunnel_counts }}
                         </n-descriptions-item>
                         <n-descriptions-item label="CPU占用">
-                            {{ nodeStatusCard.cpu_usage.toFixed(2) }}%
+                            {{ nodeStatusCard.cpu_usage != null ? nodeStatusCard.cpu_usage.toFixed(2) : '0.00' }}%
                         </n-descriptions-item>
                     </n-descriptions>
                 </n-flex>
@@ -295,11 +295,18 @@ const nodeStatus = async () => {
         const response = await api.v2.node.getNodeStats();
         if (response.code === 200) {
             nodeStatusCards.value = response.data;
-            // 节点排序
+            // 节点排序：在线免费在前、在线VIP其后、所有离线在最下方
             nodeStatusCards.value.sort((a, b) => {
-                if (a.state === 'offline' && b.state !== 'offline') return 1;
-                if (a.nodegroup === 'vip' && b.nodegroup !== 'vip') return 1;
-                return -1;
+                const aOffline = a.state === 'offline';
+                const bOffline = b.state === 'offline';
+                if (aOffline !== bOffline) return Number(aOffline) - Number(bOffline); // 离线在后
+
+                // 都在线时：免费优先（非 VIP 认为是免费）
+                const aVip = a.nodegroup === 'vip';
+                const bVip = b.nodegroup === 'vip';
+                if (aVip !== bVip) return Number(aVip) - Number(bVip); // VIP 在后
+
+                return 0; // 其他保持相对顺序
             });
             // 计算总流量、连接数和在线隧道数
             totalTrafficIn.value = nodeStatusCards.value.reduce((sum, card) => sum + card.total_traffic_in, 0);
@@ -318,17 +325,24 @@ const nodeStatus = async () => {
     }
 };
 
-// 流量单位换算
-function formatBytes(bytes: string | number): { value: number; suffix: string } {
-    let num: number;
-    if (typeof bytes === 'string') {
-        num = parseFloat(bytes);
+// 流量单位换算（容错 null/undefined/NaN）
+function formatBytes(bytes: unknown): { value: number; suffix: string } {
+    let parsed: number;
+    if (typeof bytes === 'number') {
+        parsed = bytes;
+    } else if (typeof bytes === 'string') {
+        parsed = parseFloat(bytes);
     } else {
-        num = bytes;
+        parsed = 0;
     }
+
+    if (!Number.isFinite(parsed) || parsed <= 0) {
+        return { value: 0, suffix: 'Bytes' };
+    }
+
     const units = ['Bytes', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB'];
-    if (num === 0) return { value: 0, suffix: 'Bytes' };
     let index = 0;
+    let num = parsed;
     while (num >= 1024 && index < units.length - 1) {
         num /= 1024;
         index++;

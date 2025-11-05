@@ -4,13 +4,8 @@
         <n-card>
             <n-space justify="space-between">
                 <div style="display: flex; align-items: center">
-                    <n-avatar
-                        :size="72"
-                        round
-                        :style="{ display: isHidden ? 'none' : 'flex' }"
-                        style="flex-shrink: 0"
-                        :src="userInfo?.userimg"
-                    />
+                    <n-avatar :size="72" round :style="{ display: isHidden ? 'none' : 'flex' }" style="flex-shrink: 0"
+                        :src="userInfo?.userimg" />
                     <div :style="textStyle">
                         <h3 style="margin: 0">{{ greeting }}</h3>
                         <n-skeleton v-if="loadingTest" width="100%" style="margin-top: 8px" :sharp="false" text />
@@ -20,14 +15,8 @@
                 <n-space justify="end" style="margin-top: 15px">
                     <n-skeleton v-if="loadingQianDao" :width="56" :sharp="false" size="medium" />
                     <div v-else>
-                        <n-button
-                            v-if="!is_signed_in_today"
-                            :loading="loadingQianDaoButton && !signedInSuccess"
-                            type="primary"
-                            strong
-                            secondary
-                            @click="onSignButtonClick"
-                        >
+                        <n-button v-if="!is_signed_in_today" :loading="loadingQianDaoButton && !signedInSuccess"
+                            type="primary" strong secondary @click="onSignButtonClick">
                             <template v-if="signedInSuccess">
                                 <n-icon>
                                     <CheckmarkCircle />
@@ -119,39 +108,28 @@
             </n-gi>
             <n-gi :span="2">
                 <n-card>
-                    <n-alert
-                        v-if="userInfo?.usergroup === '封禁'"
-                        title="您的账户已被封禁"
-                        type="error"
-                        @click="goToUserPage"
-                        style="margin-bottom: 10px"
-                    >
+                    <n-alert v-if="userInfo?.usergroup === '封禁'" title="您的账户已被封禁" type="error" @click="goToUserPage"
+                        style="margin-bottom: 10px">
                         您的账号因为违规被封禁，具体原因可以点击此提示前往个人主页查看消息，如有异议可前往交流群申述。
                     </n-alert>
-                    <n-alert
-                        v-if="userInfo?.realname === '未实名'"
-                        title="您尚未实名"
-                        style="margin-bottom: 10px"
-                        type="warning"
-                        @click="goToUserPage"
-                    >
+                    <n-alert v-if="userInfo?.realname === '未实名'" title="您尚未实名" style="margin-bottom: 10px"
+                        type="warning" @click="goToUserPage">
                         根据相关法律规定，不实名则无法使用ChmlFrp提供的服务，点击此提示可前往个人中心免费实名，我们允许未成年实名。
                     </n-alert>
                     <n-alert title="提示" type="info" style="margin-bottom: 10px">
                         如果这里没有您想了解的，可以前往
                         <n-button text tag="a" href="https://docs.chmlfrp.cn" target="_blank" type="primary">
-                            TechCat Docs
+                            ChmlFrp文档
                         </n-button>
-                        或TechCatQQ交流群询问。
+                        或ChmlFrpQQ交流群询问。
                     </n-alert>
                     <n-flex style="margin-top: 20px">
-                        <n-button
-                            style="border-radius: 5px"
-                            tertiary
-                            type="primary"
-                            @click="GoToQqGroup('https://qm.qq.com/q/l5LAQEDAVq', 838521529)"
-                        >
+                        <n-button style="border-radius: 5px" tertiary type="primary"
+                            @click="GoToQqGroup('https://qm.qq.com/q/l5LAQEDAVq', 838521529)">
                             QQ三群
+                        </n-button>
+                        <n-button style="border-radius: 5px" tertiary type="primary" @click="GOToWxGroup = true">
+                            微信群
                         </n-button>
                     </n-flex>
                 </n-card>
@@ -275,21 +253,14 @@
             </n-gi>
         </n-grid>
     </n-flex>
-    <n-modal
-        v-model:show="showDialog"
-        preset="dialog"
-        title="第一次使用？"
-        content="那不妨来看看ChmlFrp使用教程！"
-        positive-text="确认"
-        negative-text="算了"
-        @positive-click="WatchTutorial"
-        @negative-click="closeDialog"
-    />
+    <n-modal v-model:show="showDialog" preset="dialog" title="第一次使用？" content="那不妨来看看ChmlFrp使用教程！" positive-text="确认"
+        negative-text="算了" @positive-click="WatchTutorial" @negative-click="closeDialog" />
+    <n-modal v-model:show="GOToWxGroup" preset="dialog" title="请扫描二维码加入微信群">
+        <n-image :src=wxImage />
+    </n-modal>
 
     <!-- 模糊遮罩 -->
-    <div
-        v-show="showBlurOverlay"
-        style="
+    <div v-show="showBlurOverlay" style="
             position: fixed;
             top: 0;
             left: 0;
@@ -298,8 +269,7 @@
             backdrop-filter: blur(var(--modal-filter));
             z-index: 9998;
             pointer-events: all;
-        "
-    ></div>
+        "></div>
 </template>
 
 <script lang="ts" setup>
@@ -310,6 +280,7 @@ import * as echarts from 'echarts/core';
 import { LineChart } from 'echarts/charts';
 import { TooltipComponent, LegendComponent, TitleComponent, GridComponent } from 'echarts/components';
 import { CanvasRenderer } from 'echarts/renderers';
+import wxImage from '../assets/wx.jpg'
 echarts.use([LineChart, TooltipComponent, LegendComponent, TitleComponent, GridComponent, CanvasRenderer]);
 
 import {
@@ -340,6 +311,7 @@ const QianDaoTest = ref('签到');
 const signedInSuccess = ref(false);
 const showDialog = ref(false);
 const showBlurOverlay = ref(false);
+const GOToWxGroup = ref(false)
 
 const countdown = ref(10);
 

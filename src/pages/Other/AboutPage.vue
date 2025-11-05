@@ -78,7 +78,7 @@
             <n-skeleton v-if="loading" :width="247" round :sharp="false" size="small" />
             <n-tag round type="primary" v-else> 最后构建时间：{{ buildTime }} </n-tag>
         </n-flex>
-        <n-p style="opacity: 0.6"> Copyright © 2021 - {{ currentYear }} TechCat All rights reserved. </n-p>
+        <n-p style="opacity: 0.6"> Copyright © {{ currentYear }} 南充市轻爪网络科技有限公司 All rights reserved. </n-p>
     </n-card>
     <n-card title="开发环境依赖" style="margin-top: 15px">
         <n-skeleton v-if="loading" text :repeat="8" :sharp="false" />
