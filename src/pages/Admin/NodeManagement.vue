@@ -543,7 +543,7 @@ const createRules: FormRules = {
     ],
     domain_prefix: [
         { required: true, message: '请输入域名前缀', trigger: 'blur' },
-        { pattern: /^[a-z0-9-]+$/, message: '域名前缀只能包含小写字母、数字和短横线', trigger: 'blur' }
+        { pattern: /^[a-z0-9-.]+$/, message: '域名前缀只能包含小写字母、数字和短横线、点', trigger: 'blur' }
     ]
 };
 

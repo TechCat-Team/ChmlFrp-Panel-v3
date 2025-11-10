@@ -13,6 +13,7 @@ interface UsersListData {
         bandwidth: number;
         tunnel: number;
         userimg: string;
+        term: string;
     }>;
     total: number;
 }
