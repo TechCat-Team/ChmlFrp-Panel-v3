@@ -1,6 +1,5 @@
 {
   "dependencies": {
-    "@vicons/fa": "^0.13.0",
     "@vicons/ionicons5": "^0.13.0",
     "@vueuse/core": "^13.1.0",
     "axios": "^1.9.0",
@@ -12,6 +11,7 @@
     "highlight.js": "^11.11.1",
     "naive-ui": "^2.41.0",
     "pinia": "^3.0.2",
+    "pinyin-pro": "^3.27.0",
     "skinview3d": "^3.4.1",
     "vfonts": "^0.0.3",
     "vue": "^3.5.13",
@@ -35,6 +35,6 @@
     "unplugin-vue-components": "^28.5.0",
     "vite": "^6.3.5"
   },
-  "version": "0.4.3",
-  "buildTime": "2025/10/24 17:00:24"
+  "version": "0.4.5",
+  "buildTime": "2025/11/10 23:55:20"
 }
