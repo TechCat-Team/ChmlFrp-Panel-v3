@@ -6,7 +6,6 @@
             <n-flex justify="space-between" align="center">
                 <n-flex>
                     <n-checkbox v-model:checked="filters.udp"> UDP </n-checkbox>
-                    <n-checkbox v-model:checked="filters.noPermission"> VIP </n-checkbox>
                 </n-flex>
                 <n-flex>
                     <n-button-group>
@@ -41,48 +40,101 @@
             </n-flex>
             <n-empty v-if="nodeCards.length === 0" description="当前没有节点在线" />
             <n-empty v-else-if="filteredNodeCards.length === 0" description="您选择的分类没有任何节点" />
-            <n-grid v-else style="margin-top: 12px" cols="1 m:3 xl:4 2xl:5" :x-gap="12" :y-gap="12" responsive="screen">
-                <n-grid-item v-for="(nodeCard, index) in filteredNodeCards" :key="index">
-                    <n-tooltip trigger="hover">
-                        <template #trigger>
-                            <n-card size="small" style="height: 90px" hoverable @click="handleNodeCardClick(nodeCard)">
-                                <template #header>
-                                    <span style="color: gray"> #{{ nodeCard.id }} </span>
-                                    <n-divider vertical />
-                                    {{ nodeCard.name }}
+            <n-collapse v-else style="margin-top: 12px" v-model:expanded-names="expandedPanels">
+                <!-- 会员节点面板 -->
+                <n-collapse-item v-if="vipNodeCards.length > 0" name="vip" title="会员节点">
+                    <template #header-extra>
+                        <n-tag size="small" round type="warning"> {{ vipNodeCards.length }} 个节点 </n-tag>
+                    </template>
+                    <n-grid cols="1 m:3 xl:4 2xl:5" :x-gap="12" :y-gap="12" responsive="screen">
+                        <n-grid-item v-for="(nodeCard, index) in vipNodeCards" :key="`vip-${index}`">
+                            <n-tooltip trigger="hover">
+                                <template #trigger>
+                                    <n-card size="small" style="height: 90px" hoverable @click="handleNodeCardClick(nodeCard)">
+                                        <template #header>
+                                            <span style="color: gray"> #{{ nodeCard.id }} </span>
+                                            <n-divider vertical />
+                                            {{ nodeCard.name }}
+                                        </template>
+                                        <template #header-extra>
+                                            <n-tag size="small" round type="warning"> VIP </n-tag>
+                                        </template>
+                                        <n-space>
+                                            <n-tag :bordered="false" round size="small" type="success"
+                                                v-if="nodeCard.web === 'yes'">
+                                                <template #icon>
+                                                    <n-icon :component="EarthOutline" />
+                                                </template>
+                                                建站
+                                            </n-tag>
+                                            <n-tag :bordered="false" round size="small" type="error"
+                                                v-if="nodeCard.udp === 'false'">
+                                                <template #icon>
+                                                    <n-icon :component="BanOutline" />
+                                                </template>
+                                                UDP
+                                            </n-tag>
+                                            <n-tag :bordered="false" round size="small" type="info"
+                                                v-if="nodeCard.fangyu === 'true'">
+                                                <template #icon>
+                                                    <n-icon :component="ShieldCheckmarkOutline" />
+                                                </template>
+                                                防御
+                                            </n-tag>
+                                        </n-space>
+                                    </n-card>
                                 </template>
-                                <template #header-extra v-if="nodeCard.nodegroup === 'vip'">
-                                    <n-tag size="small" round type="warning"> VIP </n-tag>
+                                {{ nodeCard.notes }}
+                            </n-tooltip>
+                        </n-grid-item>
+                    </n-grid>
+                </n-collapse-item>
+                <!-- 非会员节点面板 -->
+                <n-collapse-item v-if="normalNodeCards.length > 0" name="normal" title="非会员节点">
+                    <template #header-extra>
+                        <n-tag size="small" round type="info"> {{ normalNodeCards.length }} 个节点 </n-tag>
+                    </template>
+                    <n-grid cols="1 m:3 xl:4 2xl:5" :x-gap="12" :y-gap="12" responsive="screen">
+                        <n-grid-item v-for="(nodeCard, index) in normalNodeCards" :key="`normal-${index}`">
+                            <n-tooltip trigger="hover">
+                                <template #trigger>
+                                    <n-card size="small" style="height: 90px" hoverable @click="handleNodeCardClick(nodeCard)">
+                                        <template #header>
+                                            <span style="color: gray"> #{{ nodeCard.id }} </span>
+                                            <n-divider vertical />
+                                            {{ nodeCard.name }}
+                                        </template>
+                                        <n-space>
+                                            <n-tag :bordered="false" round size="small" type="success"
+                                                v-if="nodeCard.web === 'yes'">
+                                                <template #icon>
+                                                    <n-icon :component="EarthOutline" />
+                                                </template>
+                                                建站
+                                            </n-tag>
+                                            <n-tag :bordered="false" round size="small" type="error"
+                                                v-if="nodeCard.udp === 'false'">
+                                                <template #icon>
+                                                    <n-icon :component="BanOutline" />
+                                                </template>
+                                                UDP
+                                            </n-tag>
+                                            <n-tag :bordered="false" round size="small" type="info"
+                                                v-if="nodeCard.fangyu === 'true'">
+                                                <template #icon>
+                                                    <n-icon :component="ShieldCheckmarkOutline" />
+                                                </template>
+                                                防御
+                                            </n-tag>
+                                        </n-space>
+                                    </n-card>
                                 </template>
-                                <n-space>
-                                    <n-tag :bordered="false" round size="small" type="success"
-                                        v-if="nodeCard.web === 'yes'">
-                                        <template #icon>
-                                            <n-icon :component="EarthOutline" />
-                                        </template>
-                                        建站
-                                    </n-tag>
-                                    <n-tag :bordered="false" round size="small" type="error"
-                                        v-if="nodeCard.udp === 'false'">
-                                        <template #icon>
-                                            <n-icon :component="BanOutline" />
-                                        </template>
-                                        UDP
-                                    </n-tag>
-                                    <n-tag :bordered="false" round size="small" type="info"
-                                        v-if="nodeCard.fangyu === 'true'">
-                                        <template #icon>
-                                            <n-icon :component="ShieldCheckmarkOutline" />
-                                        </template>
-                                        防御
-                                    </n-tag>
-                                </n-space>
-                            </n-card>
-                        </template>
-                        {{ nodeCard.notes }}
-                    </n-tooltip>
-                </n-grid-item>
-            </n-grid>
+                                {{ nodeCard.notes }}
+                            </n-tooltip>
+                        </n-grid-item>
+                    </n-grid>
+                </n-collapse-item>
+            </n-collapse>
         </n-card>
     </n-modal>
     <n-modal v-model:show="nodeInfoModal">
@@ -278,7 +330,7 @@
                     <n-collapse style="margin-top: 10px">
                         <n-collapse-item title="高级设置">
                             <n-alert type="info" style="margin-bottom: 16px">
-                                不懂请不要设置，否则可能会导致无法启动隧道
+                                不懂请不要设置，否则可能会导致无法使用隧道
                             </n-alert>
                             <n-col :span="12">
                                 <n-flex>
@@ -1823,6 +1875,7 @@ const deletetTunnel = async (title: string, id: number, ttype: string, dorp: str
 
 onMounted(() => {
     fetchTunnelCards();
+    initExpandedPanels();
 });
 
 // 流量单位换算
@@ -1889,7 +1942,6 @@ const filters = ref(
         ? JSON.parse(storedFilters)
         : {
             udp: false,
-            noPermission: true,
             web: 'all',
             region: 'all',
         }
@@ -1903,37 +1955,64 @@ const filterRegion = (region: string) => {
     filters.value.region = region;
 };
 
-// 节点分类
+// 基础过滤函数
+const baseFilter = (node: NodeCard) => {
+    const matchUdp = filters.value.udp ? node.udp === 'true' : true;
+    const matchWeb = filters.value.web === 'all' || node.web === filters.value.web;
+    const matchRegion =
+        filters.value.region === 'all' ||
+        (filters.value.region === 'china' && node.china === 'yes') ||
+        (filters.value.region === 'overseas' &&
+            (node.china === 'no' ||
+                node.area.includes('香港') ||
+                node.area.includes('澳门') ||
+                node.area.includes('台湾')));
+
+    return matchUdp && matchWeb && matchRegion;
+};
+
+// 节点分类 - 用于判断是否有节点
 const filteredNodeCards = computed(() => {
-    const filteredNodes = nodeCards.value.filter((node) => {
-        const matchUdp = filters.value.udp ? node.udp === 'true' : true;
+    return nodeCards.value.filter(baseFilter);
+});
 
-        let matchNoPermission = true;
-        if (userInfo?.usergroup) {
-            matchNoPermission = filters.value.noPermission ? true : node.nodegroup === 'user';
-        } else {
-            matchNoPermission = filters.value.noPermission ? true : true;
+// 会员节点列表
+const vipNodeCards = computed(() => {
+    return filteredNodeCards.value.filter((node) => node.nodegroup === 'vip');
+});
+
+// 非会员节点列表
+const normalNodeCards = computed(() => {
+    return filteredNodeCards.value.filter((node) => node.nodegroup === 'user');
+});
+
+// 展开的面板 - 根据用户是否是会员决定
+const expandedPanels = ref<string[]>([]);
+
+// 初始化展开的面板
+const initExpandedPanels = () => {
+    const panels: string[] = ['normal']; // 非会员节点始终展开
+    // 如果用户是会员，默认展开会员节点
+    if (userInfo?.usergroup && userInfo.usergroup !== '免费用户') {
+        panels.push('vip');
+    }
+    expandedPanels.value = panels;
+};
+
+// 监听 expandedPanels 变化，确保非会员节点始终展开
+watch(expandedPanels, (newPanels, oldPanels) => {
+    // 只有当非会员节点存在且当前不包含 'normal' 时才添加
+    if (normalNodeCards.value.length > 0 && !newPanels.includes('normal')) {
+        // 避免无限循环：只有当 oldPanels 存在且不包含 'normal' 时才更新
+        if (!oldPanels || !oldPanels.includes('normal')) {
+            expandedPanels.value = [...newPanels, 'normal'];
         }
+    }
+}, { deep: true });
 
-        const matchWeb = filters.value.web === 'all' || node.web === filters.value.web;
-        const matchRegion =
-            filters.value.region === 'all' ||
-            (filters.value.region === 'china' && node.china === 'yes') ||
-            (filters.value.region === 'overseas' &&
-                (node.china === 'no' ||
-                    node.area.includes('香港') ||
-                    node.area.includes('澳门') ||
-                    node.area.includes('台湾')));
-
-        return matchUdp && matchNoPermission && matchWeb && matchRegion;
-    });
-
-    // 对节点进行排序，VIP 节点在前，免费节点在后
-    return filteredNodes.sort((a, b) => {
-        if (a.nodegroup === 'vip' && b.nodegroup !== 'vip') return -1;
-        if (a.nodegroup !== 'vip' && b.nodegroup === 'vip') return 1;
-        return 0;
-    });
+// 监听用户信息变化，更新展开状态
+watch(() => userInfo?.usergroup, () => {
+    initExpandedPanels();
 });
 
 const NodeInfo = ref({

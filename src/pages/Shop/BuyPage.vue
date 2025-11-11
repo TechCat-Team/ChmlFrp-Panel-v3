@@ -2,7 +2,7 @@
     <n-back-top :right="100" />
     <n-card size="small">
         <n-alert title="购买须知" type="warning">
-            购买后积分无法退还。多次购买同一套餐则增加对应会员时长，如果要升级会员请选择升级会员。支付遇到问题请联系support@chcat.cn咨询
+            购买后积分无法退还。多次购买同一套餐则增加对应会员时长，如果要升级会员请选择升级会员。如果无法支付或支付后未到账，请联系客服QQ：242247494开通临时支付渠道或进行补发。
         </n-alert>
     </n-card>
     <n-grid style="margin-top: 12px" :x-gap="12" :y-gap="12" cols="1 s:2 m:3 l:4" responsive="screen">
@@ -333,11 +333,11 @@
                         <n-button
                             type="primary"
                             block
-                            @click="handlePurchase"
+                            @click="costPoints > currentPoints ? goToTopUp('purchase') : handlePurchase()"
                             :loading="loading"
-                            :disabled="!selectedMembership || !selectedDuration || costPoints > currentPoints"
+                            :disabled="!selectedMembership || !selectedDuration"
                         >
-                            确认购买
+                            {{ costPoints > currentPoints ? '前往充值积分' : '确认购买' }}
                         </n-button>
                     </n-space>
                 </n-tab-pane>
@@ -419,11 +419,11 @@
                         <n-button
                             type="primary"
                             block
-                            :disabled="!upgradeOption || upgradeCost > currentPoints"
-                            @click="handleUpgrade"
+                            :disabled="!upgradeOption"
+                            @click="upgradeCost > currentPoints ? goToTopUp('upgrade') : handleUpgrade()"
                             :loading="loading"
                         >
-                            确认升级
+                            {{ upgradeCost > currentPoints ? '前往充值积分' : '确认升级' }}
                         </n-button>
                     </n-space>
                 </n-tab-pane>
@@ -740,6 +740,26 @@ const handleUpgrade = async () => {
         message.error('购买请求异常，请检查网络或稍后再试');
     }
     loading.value = false;
+};
+
+// 前往充值积分
+const goToTopUp = (type: 'purchase' | 'upgrade') => {
+    // 计算缺失的积分
+    const missingPoints = type === 'purchase' 
+        ? costPoints.value - currentPoints 
+        : upgradeCost.value - currentPoints;
+    
+    // 转换为金额（1元=1000积分，向上取整，至少3元）
+    const requiredAmount = Math.max(Math.ceil(missingPoints / 1000), 3);
+    
+    message.warning('积分不足，正在跳转到充值页面...(已自动填入缺失金额)');
+    router.push({
+        path: '/shop/top-up',
+        query: {
+            points: missingPoints.toString(),
+            amount: requiredAmount.toString()
+        }
+    });
 };
 </script>
 

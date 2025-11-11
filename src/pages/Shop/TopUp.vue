@@ -138,6 +138,38 @@ const showDialog = (money: number) => {
 
 onMounted(() => {
     checkTradeStatus();
+    // 检查是否有传入的积分或金额参数
+    const pointsParam = route.query.points as string;
+    const amountParam = route.query.amount as string;
+    
+    if (amountParam) {
+        // 如果传入了金额，直接使用（确保至少3元）
+        const amount = Math.max(parseInt(amountParam) || 0, 3);
+        customAmount.value = Math.min(amount, 9999).toString();
+        // 清除查询参数，但保留 trade_status 和 money（用于支付回调）
+        const newQuery: Record<string, string> = {};
+        if (route.query.trade_status) {
+            newQuery.trade_status = route.query.trade_status as string;
+        }
+        if (route.query.money) {
+            newQuery.money = route.query.money as string;
+        }
+        router.replace({ path: route.path, query: newQuery });
+    } else if (pointsParam) {
+        // 如果传入了积分，转换为金额（1元=1000积分，向上取整，至少3元）
+        const points = parseInt(pointsParam) || 0;
+        const amount = Math.max(Math.ceil(points / 1000), 3);
+        customAmount.value = Math.min(amount, 9999).toString();
+        // 清除查询参数，但保留 trade_status 和 money（用于支付回调）
+        const newQuery: Record<string, string> = {};
+        if (route.query.trade_status) {
+            newQuery.trade_status = route.query.trade_status as string;
+        }
+        if (route.query.money) {
+            newQuery.money = route.query.money as string;
+        }
+        router.replace({ path: route.path, query: newQuery });
+    }
 });
 
 const userStore = useUserStore();
