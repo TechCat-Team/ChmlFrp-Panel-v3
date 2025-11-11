@@ -9,6 +9,8 @@ interface ThemeState {
     backgroundImage: string;
     backgroundBlur: number;
     backgroundOpacity: number;
+    colorBlindMode: boolean;
+    highContrastMode: boolean;
 }
 
 const THEME_KEY = 'app-theme';
@@ -19,6 +21,8 @@ const DBH_MODE_KEY = 'app-dialog-box-hair-glass';
 const BACKGROUND_IMAGE_KEY = 'app-background-image';
 const BACKGROUND_BLUR_KEY = 'app-background-blur';
 const BACKGROUND_OPACITY_KEY = 'app-background-opacity';
+const COLOR_BLIND_MODE_KEY = 'app-color-blind-mode';
+const HIGH_CONTRAST_MODE_KEY = 'app-high-contrast-mode';
 
 export const useThemeStore = defineStore('theme', {
     state: (): ThemeState => ({
@@ -34,6 +38,8 @@ export const useThemeStore = defineStore('theme', {
             const num = stored ? Number(stored) : 100;
             return isNaN(num) ? 100 : num;
         })(),
+        colorBlindMode: localStorage.getItem(COLOR_BLIND_MODE_KEY) === 'true' || false,
+        highContrastMode: localStorage.getItem(HIGH_CONTRAST_MODE_KEY) === 'true' || false,
     }),
     actions: {
         setTheme(theme: string) {
@@ -67,6 +73,14 @@ export const useThemeStore = defineStore('theme', {
         setBackgroundOpacity(opacity: number) {
             this.backgroundOpacity = opacity;
             localStorage.setItem(BACKGROUND_OPACITY_KEY, opacity.toString());
+        },
+        setColorBlindMode(enabled: boolean) {
+            this.colorBlindMode = enabled;
+            localStorage.setItem(COLOR_BLIND_MODE_KEY, enabled.toString());
+        },
+        setHighContrastMode(enabled: boolean) {
+            this.highContrastMode = enabled;
+            localStorage.setItem(HIGH_CONTRAST_MODE_KEY, enabled.toString());
         },
     },
 });

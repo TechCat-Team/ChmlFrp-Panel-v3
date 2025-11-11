@@ -55,6 +55,27 @@
                 />
             </n-flex>
         </n-flex>
+        <n-divider>无障碍</n-divider>
+        <n-flex vertical style="margin-top: 24px">
+            <n-flex justify="space-between" style="width: 200px">
+                <span>色弱模式</span>
+                <n-switch
+                    size="large"
+                    v-model:value="colorBlindMode"
+                    :checked-value="true"
+                    :unchecked-value="false"
+                />
+            </n-flex>
+            <n-flex justify="space-between">
+                <span>高对比度模式</span>
+                <n-switch
+                    size="large"
+                    v-model:value="highContrastMode"
+                    :checked-value="true"
+                    :unchecked-value="false"
+                />
+            </n-flex>
+        </n-flex>
         <n-divider>背景图</n-divider>
         <div class="background-settings" style="width: 100%; max-width: 300px">
             <n-upload
@@ -133,6 +154,8 @@ const backgroundImage = ref(themeStore.backgroundImage);
 const backgroundImageUrl = ref(themeStore.backgroundImage);
 const backgroundBlur = ref(themeStore.backgroundBlur);
 const backgroundOpacity = ref(themeStore.backgroundOpacity || 100);
+const colorBlindMode = ref(themeStore.colorBlindMode);
+const highContrastMode = ref(themeStore.highContrastMode);
 
 const presetColors = [
     '#18a058',
@@ -213,6 +236,44 @@ watch(isRGBMode, (newVal) => {
     setRGBMode(newVal);
 });
 
+const setColorBlindMode = (enabled: boolean) => {
+    colorBlindMode.value = enabled;
+    themeStore.setColorBlindMode(enabled);
+    updateAccessibilityStyles();
+};
+
+const setHighContrastMode = (enabled: boolean) => {
+    highContrastMode.value = enabled;
+    themeStore.setHighContrastMode(enabled);
+    updateAccessibilityStyles();
+};
+
+const updateAccessibilityStyles = () => {
+    const root = document.documentElement;
+    if (colorBlindMode.value) {
+        // 应用色弱模式滤镜（红绿色盲辅助）
+        root.style.setProperty('--color-blind-filter', 'url(#colorblind)');
+        root.classList.add('color-blind-mode');
+    } else {
+        root.style.removeProperty('--color-blind-filter');
+        root.classList.remove('color-blind-mode');
+    }
+    
+    if (highContrastMode.value) {
+        root.classList.add('high-contrast-mode');
+    } else {
+        root.classList.remove('high-contrast-mode');
+    }
+};
+
+watch(colorBlindMode, (newVal) => {
+    setColorBlindMode(newVal);
+});
+
+watch(highContrastMode, (newVal) => {
+    setHighContrastMode(newVal);
+});
+
 const railStyle = ({ focused, checked }: { focused: boolean; checked: boolean }) => {
     const style: CSSProperties = {};
     if (checked) {
@@ -229,18 +290,86 @@ const handleSystemThemeChange = (e: MediaQueryListEvent) => {
     changeTheme(isDarkTheme.value);
 };
 
-const handleFileChange = (options: { fileList: any[] }) => {
-    const file = options.fileList[0]?.file;
-    if (file && file.type.startsWith('image/')) {
+// 压缩图片函数
+const compressImage = (file: File, maxWidth: number = 1920, maxHeight: number = 1080, quality: number = 0.8): Promise<string> => {
+    return new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.onload = (e) => {
-            const result = e.target?.result as string;
-            backgroundImageUrl.value = result;
-            backgroundImage.value = result;
-            themeStore.setBackgroundImage(result);
-            updateBackgroundStyle();
+            const img = new Image();
+            img.onload = () => {
+                // 计算压缩后的尺寸
+                let width = img.width;
+                let height = img.height;
+                
+                if (width > maxWidth || height > maxHeight) {
+                    const ratio = Math.min(maxWidth / width, maxHeight / height);
+                    width = width * ratio;
+                    height = height * ratio;
+                }
+                
+                // 创建 canvas 进行压缩
+                const canvas = document.createElement('canvas');
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                
+                if (!ctx) {
+                    reject(new Error('无法创建 canvas 上下文'));
+                    return;
+                }
+                
+                // 绘制图片
+                ctx.drawImage(img, 0, 0, width, height);
+                
+                // 转换为 base64
+                const compressedBase64 = canvas.toDataURL(file.type, quality);
+                resolve(compressedBase64);
+            };
+            img.onerror = () => reject(new Error('图片加载失败'));
+            img.src = e.target?.result as string;
         };
+        reader.onerror = () => reject(new Error('文件读取失败'));
         reader.readAsDataURL(file);
+    });
+};
+
+const handleFileChange = async (options: { fileList: any[] }) => {
+    const file = options.fileList[0]?.file;
+    if (file && file.type.startsWith('image/')) {
+        try {
+            // 压缩图片（最大 1920x1080，质量 0.8）
+            const compressedBase64 = await compressImage(file, 1920, 1080, 0.8);
+            
+            // 检查 base64 字符串长度（localStorage 限制约 5-10MB，但为了安全我们限制在 2MB）
+            if (compressedBase64.length > 2 * 1024 * 1024) {
+                // 如果还是太大，进一步压缩
+                const furtherCompressed = await compressImage(file, 1280, 720, 0.7);
+                backgroundImageUrl.value = furtherCompressed;
+                backgroundImage.value = furtherCompressed;
+                themeStore.setBackgroundImage(furtherCompressed);
+            } else {
+                backgroundImageUrl.value = compressedBase64;
+                backgroundImage.value = compressedBase64;
+                themeStore.setBackgroundImage(compressedBase64);
+            }
+            
+            updateBackgroundStyle();
+        } catch (error) {
+            console.error('图片处理失败:', error);
+            // 如果压缩失败，尝试直接使用原图（但可能不工作）
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const result = e.target?.result as string;
+                if (result.length > 5 * 1024 * 1024) {
+                    console.warn('图片太大，可能无法正常显示。建议使用较小的图片。');
+                }
+                backgroundImageUrl.value = result;
+                backgroundImage.value = result;
+                themeStore.setBackgroundImage(result);
+                updateBackgroundStyle();
+            };
+            reader.readAsDataURL(file);
+        }
     }
 };
 
@@ -278,13 +407,30 @@ const clearBackgroundImage = () => {
 const updateBackgroundStyle = () => {
     const root = document.documentElement;
     if (backgroundImage.value) {
-        const imageUrl = `url(${backgroundImage.value})`;
-        root.style.setProperty('--background-image', imageUrl);
-        root.style.setProperty('--background-blur', `${backgroundBlur.value}px`);
-        const opacity = backgroundOpacity.value || 100;
-        root.style.setProperty('--background-opacity', `${opacity / 100}`);
-        // 调试信息
-        console.log('背景图已设置:', imageUrl, '模糊:', backgroundBlur.value, '不透明度:', opacity);
+        try {
+            const imageUrl = `url(${backgroundImage.value})`;
+            const opacity = backgroundOpacity.value || 100;
+            
+            // 设置 CSS 变量
+            root.style.setProperty('--background-image', imageUrl);
+            root.style.setProperty('--background-blur', `${backgroundBlur.value}px`);
+            root.style.setProperty('--background-opacity', `${opacity / 100}`);
+            
+            // 验证是否设置成功
+            const setValue = root.style.getPropertyValue('--background-image');
+            if (!setValue || setValue === 'none') {
+                console.warn('背景图 CSS 变量设置可能失败，图片可能太大');
+            }
+            
+            // 调试信息
+            console.log('背景图已设置:', {
+                length: backgroundImage.value.length,
+                blur: backgroundBlur.value,
+                opacity: opacity
+            });
+        } catch (error) {
+            console.error('设置背景图失败:', error);
+        }
     } else {
         // 移除 CSS 变量以恢复默认样式
         root.style.removeProperty('--background-image');
@@ -334,6 +480,7 @@ onMounted(() => {
         themeStore.setBackgroundOpacity(100);
     }
     updateBackgroundStyle();
+    updateAccessibilityStyles();
 });
 </script>
 

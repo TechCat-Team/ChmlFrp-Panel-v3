@@ -11,6 +11,18 @@
             </n-message-provider>
         </n-loading-bar-provider>
     </n-config-provider>
+    <!-- SVG 滤镜定义用于色弱模式 -->
+    <svg class="defs-only" aria-hidden="true">
+        <defs>
+            <!-- 红绿色盲辅助滤镜 -->
+            <filter id="colorblind" color-interpolation-filters="sRGB">
+                <feColorMatrix
+                    type="matrix"
+                    values="0.567 0.433 0 0 0 0.558 0.442 0 0 0 0 0.242 0.758 0 0 0 0 0 1 0"
+                />
+            </filter>
+        </defs>
+    </svg>
 </template>
 
 <script setup lang="ts">
@@ -206,6 +218,14 @@ onMounted(() => {
         document.documentElement.style.removeProperty('--background-blur');
         document.documentElement.style.removeProperty('--background-opacity');
     }
+    // 初始化无障碍模式
+    if (themeStore.colorBlindMode) {
+        document.documentElement.classList.add('color-blind-mode');
+        document.documentElement.style.setProperty('--color-blind-filter', 'url(#colorblind)');
+    }
+    if (themeStore.highContrastMode) {
+        document.documentElement.classList.add('high-contrast-mode');
+    }
     // 更新目前的指针方式
     window.addEventListener('pointerdown', detectInputMethod);
 });
@@ -295,18 +315,206 @@ html[data-theme='light'] .n-layout-sider {
 
 html[data-theme='dark'] .n-layout-header,
 html[data-theme='dark'] .n-layout-sider {
-    background-color: rgba(16, 16, 20, 0.6) !important;
+    // 使用不透明背景，确保菜单清晰可见
+    background-color: #1a1a1f !important;
+    opacity: 1 !important;
+}
+
+// 确保在高对比度模式下菜单背景被正确覆盖
+// 非高对比度模式下，菜单保持不透明背景
+html[data-theme='dark']:not(.high-contrast-mode) .n-layout-header,
+html[data-theme='dark']:not(.high-contrast-mode) .n-layout-sider {
+    background-color: #1a1a1f !important;
+    opacity: 1 !important;
 }
 
 // 当有背景图时，所有元素应用不透明度
 // 只在 #app 上设置不透明度，子元素会继承
+// 但菜单和顶部菜单应该保持完全不透明
 #app {
     opacity: var(--background-opacity, 1);
     transition: opacity 0.3s ease;
 }
 
+// 确保菜单不受全局不透明度影响
+.n-layout-header,
+.n-layout-sider {
+    opacity: 1 !important;
+}
+
 // 但是背景图本身不应该受不透明度影响（背景图在 html::before 上）
 html::before {
     opacity: 1 !important;
+}
+
+// 色弱模式样式
+.color-blind-mode {
+    // 增强整体对比度，帮助色弱用户区分元素
+    filter: contrast(1.15) brightness(1.05);
+    
+    // 确保所有按钮、链接都有明显的视觉区分（不依赖颜色）
+    .n-button {
+        border-width: 2px !important;
+        font-weight: 500 !important;
+    }
+    
+    // 确保状态指示器有图标或文字，不只用颜色
+    .n-badge {
+        border: 2px solid currentColor !important;
+    }
+    
+    // 增强输入框的边框可见性
+    .n-input,
+    .n-select,
+    .n-date-picker {
+        border-width: 2px !important;
+    }
+    
+    // 确保链接有下划线
+    a:not(.n-button) {
+        text-decoration: underline !important;
+    }
+}
+
+// 高对比度模式样式
+// 遵循 WCAG AAA 标准：对比度至少 7:1
+.high-contrast-mode {
+    // 亮色主题：黑色文字 + 白色背景（对比度 21:1，远超标准）
+    --n-text-color: #000000 !important;
+    --n-text-color-1: #000000 !important;
+    --n-text-color-2: #000000 !important;
+    --n-text-color-3: #000000 !important;
+    --n-card-color: #ffffff !important;
+    --n-modal-color: #ffffff !important;
+    --n-popover-color: #ffffff !important;
+    
+    // 确保主要文字元素是黑色（高对比度）
+    p, span, div, h1, h2, h3, h4, h5, h6, li, td, th, label {
+        color: #000000 !important;
+    }
+    
+    // 确保所有背景都是白色
+    .n-card,
+    .n-modal,
+    .n-drawer,
+    .n-popover,
+    .n-dropdown {
+        background-color: #ffffff !important;
+        border: 2px solid #000000 !important;
+    }
+    
+    // 按钮样式：黑色边框，白色背景，黑色文字
+    .n-button {
+        border: 2px solid #000000 !important;
+        background-color: #ffffff !important;
+        color: #000000 !important;
+        font-weight: bold !important;
+        
+        &:hover {
+            background-color: #000000 !important;
+            color: #ffffff !important;
+        }
+    }
+    
+    // 输入框：黑色边框，白色背景
+    .n-input,
+    .n-select,
+    .n-date-picker,
+    .n-input-number {
+        border: 2px solid #000000 !important;
+        background-color: #ffffff !important;
+        color: #000000 !important;
+    }
+    
+    // 链接：黑色，加粗，下划线
+    a {
+        color: #000000 !important;
+        text-decoration: underline !important;
+        font-weight: bold !important;
+        
+        &:hover {
+            background-color: #000000 !important;
+            color: #ffffff !important;
+        }
+    }
+    
+    // 菜单和侧边栏
+    .n-layout-header,
+    .n-layout-sider {
+        background-color: #ffffff !important;
+        border: 2px solid #000000 !important;
+    }
+}
+
+// 暗色主题下的高对比度模式
+// 白色文字 + 黑色背景（对比度 21:1）
+html[data-theme='dark'].high-contrast-mode {
+    --n-text-color: #ffffff !important;
+    --n-text-color-1: #ffffff !important;
+    --n-text-color-2: #ffffff !important;
+    --n-text-color-3: #ffffff !important;
+    --n-card-color: #000000 !important;
+    --n-modal-color: #000000 !important;
+    --n-popover-color: #000000 !important;
+    
+    // 确保主要文字元素是白色（高对比度）
+    p, span, div, h1, h2, h3, h4, h5, h6, li, td, th, label {
+        color: #ffffff !important;
+    }
+    
+    .n-card,
+    .n-modal,
+    .n-drawer,
+    .n-popover,
+    .n-dropdown {
+        background-color: #000000 !important;
+        border: 2px solid #ffffff !important;
+    }
+    
+    .n-button {
+        border: 2px solid #ffffff !important;
+        background-color: #000000 !important;
+        color: #ffffff !important;
+        font-weight: bold !important;
+        
+        &:hover {
+            background-color: #ffffff !important;
+            color: #000000 !important;
+        }
+    }
+    
+    .n-input,
+    .n-select,
+    .n-date-picker,
+    .n-input-number {
+        border: 2px solid #ffffff !important;
+        background-color: #000000 !important;
+        color: #ffffff !important;
+    }
+    
+    a {
+        color: #ffffff !important;
+        text-decoration: underline !important;
+        font-weight: bold !important;
+        
+        &:hover {
+            background-color: #ffffff !important;
+            color: #000000 !important;
+        }
+    }
+    
+    .n-layout-header,
+    .n-layout-sider {
+        background-color: #000000 !important;
+        border: 2px solid #ffffff !important;
+    }
+}
+
+// SVG 滤镜定义（色弱模式）
+svg.defs-only {
+    position: absolute;
+    width: 0;
+    height: 0;
+    pointer-events: none;
 }
 </style>
