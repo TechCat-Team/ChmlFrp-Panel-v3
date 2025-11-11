@@ -226,6 +226,10 @@ onMounted(() => {
     if (themeStore.highContrastMode) {
         document.documentElement.classList.add('high-contrast-mode');
     }
+    // 初始化毛玻璃模式
+    if (themeStore.frostedGlassMode && themeStore.backgroundImage) {
+        document.documentElement.classList.add('frosted-glass-mode');
+    }
     // 更新目前的指针方式
     window.addEventListener('pointerdown', detectInputMethod);
 });
@@ -516,5 +520,130 @@ svg.defs-only {
     width: 0;
     height: 0;
     pointer-events: none;
+}
+
+// 毛玻璃模式样式
+// 当启用毛玻璃模式时，所有元素都应用毛玻璃效果
+.frosted-glass-mode {
+    // 确保不透明度为100%
+    #app {
+        opacity: 1 !important;
+    }
+    
+    // 为所有主要容器元素应用毛玻璃效果
+    .n-card,
+    .n-card .n-card__action,
+    .n-modal,
+    .n-drawer,
+    .n-popover,
+    .n-dropdown,
+    .n-layout-header,
+    .n-layout-sider,
+    .n-layout-content {
+        background: rgba(255, 255, 255, 0.1) !important;
+        backdrop-filter: blur(10px) saturate(180%) !important;
+        -webkit-backdrop-filter: blur(10px) saturate(180%) !important;
+        border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    }
+    
+    // 警告信息和消息提示
+    .n-alert,
+    .n-message,
+    .n-notification {
+        background: rgba(255, 255, 255, 0.1) !important;
+        backdrop-filter: blur(10px) saturate(180%) !important;
+        -webkit-backdrop-filter: blur(10px) saturate(180%) !important;
+        border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    }
+    
+    // 选择器及其下拉菜单
+    .n-select,
+    .n-base-select,
+    .n-base-select-menu,
+    .n-base-select-option,
+    .n-select-menu,
+    .n-base-select-menu__option,
+    .n-base-select-menu__empty {
+        background: rgba(255, 255, 255, 0.1) !important;
+        backdrop-filter: blur(10px) saturate(180%) !important;
+        -webkit-backdrop-filter: blur(10px) saturate(180%) !important;
+    }
+    
+    // 选择器下拉菜单容器
+    .n-base-select-menu__wrapper,
+    .n-select-menu__wrapper {
+        background: rgba(255, 255, 255, 0.1) !important;
+        backdrop-filter: blur(10px) saturate(180%) !important;
+        -webkit-backdrop-filter: blur(10px) saturate(180%) !important;
+        border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    }
+    
+    // 暗色主题下的毛玻璃效果
+    html[data-theme='dark'] & {
+        .n-card,
+        .n-card .n-card__action,
+        .n-modal,
+        .n-drawer,
+        .n-popover,
+        .n-dropdown,
+        .n-layout-header,
+        .n-layout-sider,
+        .n-layout-content {
+            background: rgba(0, 0, 0, 0.3) !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        }
+        
+        .n-alert,
+        .n-message,
+        .n-notification {
+            background: rgba(0, 0, 0, 0.3) !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        }
+        
+        .n-select,
+        .n-base-select,
+        .n-base-select-menu,
+        .n-base-select-option,
+        .n-select-menu,
+        .n-base-select-menu__option,
+        .n-base-select-menu__empty {
+            background: rgba(0, 0, 0, 0.3) !important;
+        }
+        
+        .n-base-select-menu__wrapper,
+        .n-select-menu__wrapper {
+            background: rgba(0, 0, 0, 0.3) !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        }
+    }
+    
+    // 输入框和按钮也应用毛玻璃效果
+    .n-input,
+    .n-date-picker,
+    .n-input-number {
+        background: rgba(255, 255, 255, 0.1) !important;
+        backdrop-filter: blur(10px) saturate(180%) !important;
+        -webkit-backdrop-filter: blur(10px) saturate(180%) !important;
+    }
+    
+    html[data-theme='dark'] & {
+        .n-input,
+        .n-date-picker,
+        .n-input-number {
+            background: rgba(0, 0, 0, 0.3) !important;
+        }
+    }
+    
+    // 在毛玻璃模式下隐藏所有分割线
+    .n-divider {
+        display: none !important;
+    }
+    
+    // 隐藏其他可能的分割线元素
+    hr,
+    .divider,
+    [class*="divider"] {
+        display: none !important;
+    }
 }
 </style>

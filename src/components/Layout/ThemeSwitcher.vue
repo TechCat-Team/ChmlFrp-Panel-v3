@@ -226,7 +226,7 @@
                                 @update:value="handleBlurChange"
                             />
                         </div>
-                        <div class="slider-control">
+                        <div class="slider-control" v-if="!frostedGlassMode">
                             <div class="slider-label">
                                 <n-icon :component="WaterOutline" :size="16" />
                                 <span>元素不透明度: {{ backgroundOpacity || 100 }}%</span>
@@ -237,6 +237,19 @@
                                 :max="100"
                                 :step="1"
                                 @update:value="handleOpacityChange"
+                            />
+                        </div>
+                        <div class="setting-item" style="margin-top: 12px">
+                            <div class="setting-label">
+                                <n-icon :component="LayersOutline" :size="18" />
+                                <span>毛玻璃模式</span>
+                            </div>
+                            <n-switch
+                                size="large"
+                                v-model:value="frostedGlassMode"
+                                :checked-value="true"
+                                :unchecked-value="false"
+                                @update:value="handleFrostedGlassChange"
                             />
                         </div>
                     </div>
@@ -281,6 +294,7 @@ const backgroundBlur = ref(themeStore.backgroundBlur);
 const backgroundOpacity = ref(themeStore.backgroundOpacity || 100);
 const colorBlindMode = ref(themeStore.colorBlindMode);
 const highContrastMode = ref(themeStore.highContrastMode);
+const frostedGlassMode = ref(themeStore.frostedGlassMode);
 
 const presetColors = [
     '#18a058',
@@ -388,6 +402,15 @@ const updateAccessibilityStyles = () => {
         root.classList.add('high-contrast-mode');
     } else {
         root.classList.remove('high-contrast-mode');
+    }
+};
+
+const updateFrostedGlassStyle = () => {
+    const root = document.documentElement;
+    if (frostedGlassMode.value && backgroundImage.value) {
+        root.classList.add('frosted-glass-mode');
+    } else {
+        root.classList.remove('frosted-glass-mode');
     }
 };
 
@@ -517,16 +540,39 @@ const handleBlurChange = (blur: number) => {
 };
 
 const handleOpacityChange = (opacity: number) => {
+    // 如果启用了毛玻璃模式，不允许修改不透明度
+    if (frostedGlassMode.value) {
+        backgroundOpacity.value = 100;
+        return;
+    }
     backgroundOpacity.value = opacity;
     themeStore.setBackgroundOpacity(opacity);
     updateBackgroundStyle();
+};
+
+const handleFrostedGlassChange = (enabled: boolean) => {
+    frostedGlassMode.value = enabled;
+    themeStore.setFrostedGlassMode(enabled);
+    // 启用毛玻璃模式时，强制不透明度为100%
+    if (enabled) {
+        backgroundOpacity.value = 100;
+        themeStore.setBackgroundOpacity(100);
+    }
+    updateBackgroundStyle();
+    updateFrostedGlassStyle();
 };
 
 const clearBackgroundImage = () => {
     backgroundImageUrl.value = '';
     backgroundImage.value = '';
     themeStore.setBackgroundImage('');
+    // 清除背景图时，如果启用了毛玻璃模式，也要禁用
+    if (frostedGlassMode.value) {
+        frostedGlassMode.value = false;
+        themeStore.setFrostedGlassMode(false);
+    }
     updateBackgroundStyle();
+    updateFrostedGlassStyle();
 };
 
 const updateBackgroundStyle = () => {
@@ -597,6 +643,24 @@ watch(
     }
 );
 
+watch(
+    () => themeStore.frostedGlassMode,
+    (newMode) => {
+        if (newMode !== frostedGlassMode.value) {
+            frostedGlassMode.value = newMode;
+            updateFrostedGlassStyle();
+        }
+    }
+);
+
+watch(
+    () => backgroundImage.value,
+    () => {
+        // 当背景图变化时，更新毛玻璃样式
+        updateFrostedGlassStyle();
+    }
+);
+
 // 初始化背景样式
 onMounted(() => {
     // 确保 backgroundOpacity 有默认值
@@ -604,8 +668,14 @@ onMounted(() => {
         backgroundOpacity.value = 100;
         themeStore.setBackgroundOpacity(100);
     }
+    // 如果启用了毛玻璃模式，确保不透明度为100%
+    if (frostedGlassMode.value) {
+        backgroundOpacity.value = 100;
+        themeStore.setBackgroundOpacity(100);
+    }
     updateBackgroundStyle();
     updateAccessibilityStyles();
+    updateFrostedGlassStyle();
 });
 </script>
 

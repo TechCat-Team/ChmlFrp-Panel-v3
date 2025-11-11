@@ -11,6 +11,7 @@ interface ThemeState {
     backgroundOpacity: number;
     colorBlindMode: boolean;
     highContrastMode: boolean;
+    frostedGlassMode: boolean;
 }
 
 const THEME_KEY = 'app-theme';
@@ -23,6 +24,7 @@ const BACKGROUND_BLUR_KEY = 'app-background-blur';
 const BACKGROUND_OPACITY_KEY = 'app-background-opacity';
 const COLOR_BLIND_MODE_KEY = 'app-color-blind-mode';
 const HIGH_CONTRAST_MODE_KEY = 'app-high-contrast-mode';
+const FROSTED_GLASS_MODE_KEY = 'app-frosted-glass-mode';
 
 export const useThemeStore = defineStore('theme', {
     state: (): ThemeState => ({
@@ -40,6 +42,7 @@ export const useThemeStore = defineStore('theme', {
         })(),
         colorBlindMode: localStorage.getItem(COLOR_BLIND_MODE_KEY) === 'true' || false,
         highContrastMode: localStorage.getItem(HIGH_CONTRAST_MODE_KEY) === 'true' || false,
+        frostedGlassMode: localStorage.getItem(FROSTED_GLASS_MODE_KEY) === 'true' || false,
     }),
     actions: {
         setTheme(theme: string) {
@@ -81,6 +84,15 @@ export const useThemeStore = defineStore('theme', {
         setHighContrastMode(enabled: boolean) {
             this.highContrastMode = enabled;
             localStorage.setItem(HIGH_CONTRAST_MODE_KEY, enabled.toString());
+        },
+        setFrostedGlassMode(enabled: boolean) {
+            this.frostedGlassMode = enabled;
+            localStorage.setItem(FROSTED_GLASS_MODE_KEY, enabled.toString());
+            // 启用毛玻璃模式时，强制不透明度为100%
+            if (enabled) {
+                this.backgroundOpacity = 100;
+                localStorage.setItem(BACKGROUND_OPACITY_KEY, '100');
+            }
         },
     },
 });

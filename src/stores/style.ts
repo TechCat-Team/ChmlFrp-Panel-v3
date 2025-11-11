@@ -5,6 +5,10 @@ export const useStyleStore = defineStore('style', {
     actions: {
         getCardStyle() {
             const themeStore = useThemeStore();
+            // 如果设置了背景图，则不设置卡片背景色，使用默认样式
+            if (themeStore.backgroundImage) {
+                return {};
+            }
             const primaryColor = themeStore.primaryColor;
             const rgbaColor = this.colorToRgba(primaryColor, 0.15);
             return {
