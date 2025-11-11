@@ -7,13 +7,13 @@ import AutoImport from 'unplugin-auto-import/vite';
 import path from 'path';
 
 export default defineConfig({
-    root: process.cwd(), // 明确设置项目根目录
-    base: '/', // 确保基础路径正确
+    root: process.cwd(),
+    base: '/',
     server: {
-        host: '0.0.0.0', // 允许外部访问
-        port: 5174, // 明确端口
-        strictPort: true, // 禁止端口自动切换
-        open: true, // 自动打开浏览器
+        host: '0.0.0.0',
+        port: 5174,
+        strictPort: true,
+        open: true,
     },
     plugins: [
         vue(),
@@ -44,12 +44,12 @@ export default defineConfig({
     ],
     resolve: {
         alias: {
-            '@': path.resolve(__dirname, 'src'), // 添加这行
+            '@': path.resolve(__dirname, 'src'),
         },
     },
     build: {
-        sourcemap: false, // 等效于 productionSourceMap: false
-        minify: 'terser', // 默认使用 esbuild，显式声明使用 terser
+        sourcemap: false,
+        minify: 'terser',
         terserOptions: {
             format: {
                 comments: false,
@@ -59,7 +59,7 @@ export default defineConfig({
                 drop_debugger: true,
             },
         },
-        chunkSizeWarningLimit: 800, // 单位 KB
+        chunkSizeWarningLimit: 800,
         rollupOptions: {
             output: {
                 manualChunks: (id) => {
@@ -74,10 +74,19 @@ export default defineConfig({
                         if (id.includes('three')) {
                             return 'vendor-three';
                         }
+                        if (id.includes('vue')) {
+                            return 'vendor-vue';
+                        }
+                        if (id.includes('lodash') || id.includes('axios') || id.includes('dayjs')) {
+                            return 'vendor-utils';
+                        }
                         return 'vendors';
                     }
                     return 'shared';
                 },
+                chunkFileNames: 'assets/[name]-[hash].js',
+                entryFileNames: 'assets/[name]-[hash].js',
+                assetFileNames: 'assets/[name]-[hash].[ext]'
             },
         },
     },
