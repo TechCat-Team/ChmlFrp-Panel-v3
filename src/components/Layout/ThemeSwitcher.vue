@@ -55,6 +55,66 @@
                 />
             </n-flex>
         </n-flex>
+        <n-divider>背景图</n-divider>
+        <div class="background-settings" style="width: 100%; max-width: 300px">
+            <n-upload
+                :file-list="[]"
+                :show-file-list="false"
+                accept="image/*"
+                @change="handleFileChange"
+                :max="1"
+            >
+                <n-button block>选择本地图片</n-button>
+            </n-upload>
+            <n-input
+                v-model:value="backgroundImageUrl"
+                placeholder="输入网络图片链接"
+                style="margin-top: 10px"
+                @update:value="handleImageUrlChange"
+                clearable
+            />
+            <div v-if="backgroundImageUrl || backgroundImage" class="image-preview" style="margin-top: 10px">
+                <img
+                    :src="backgroundImageUrl || backgroundImage"
+                    alt="背景预览"
+                    style="max-width: 100%; max-height: 150px; border-radius: 8px"
+                />
+                <n-button
+                    size="small"
+                    type="error"
+                    style="margin-top: 8px"
+                    @click="clearBackgroundImage"
+                >
+                    清除背景图
+                </n-button>
+            </div>
+            <div v-if="backgroundImageUrl || backgroundImage" style="margin-top: 16px; width: 100%">
+                <n-flex justify="space-between" align="center">
+                    <span>模糊深度: {{ backgroundBlur }}px</span>
+                </n-flex>
+                <n-slider
+                    v-model:value="backgroundBlur"
+                    :min="0"
+                    :max="20"
+                    :step="1"
+                    style="margin-top: 8px"
+                    @update:value="handleBlurChange"
+                />
+            </div>
+            <div v-if="backgroundImageUrl || backgroundImage" style="margin-top: 16px; width: 100%">
+                <n-flex justify="space-between" align="center">
+                    <span>元素不透明度: {{ backgroundOpacity || 100 }}%</span>
+                </n-flex>
+                <n-slider
+                    v-model:value="backgroundOpacity"
+                    :min="0"
+                    :max="100"
+                    :step="1"
+                    style="margin-top: 8px"
+                    @update:value="handleOpacityChange"
+                />
+            </div>
+        </div>
     </div>
 </template>
 
@@ -69,6 +129,10 @@ const primaryColor = ref(themeStore.primaryColor);
 const isAutoTheme = ref(themeStore.isAutoTheme);
 const isRGBMode = ref(themeStore.isRGBMode);
 const isDialogBoxHairGlass = ref(themeStore.isDialogBoxHairGlass);
+const backgroundImage = ref(themeStore.backgroundImage);
+const backgroundImageUrl = ref(themeStore.backgroundImage);
+const backgroundBlur = ref(themeStore.backgroundBlur);
+const backgroundOpacity = ref(themeStore.backgroundOpacity || 100);
 
 const presetColors = [
     '#18a058',
@@ -164,6 +228,113 @@ const handleSystemThemeChange = (e: MediaQueryListEvent) => {
     isDarkTheme.value = e.matches;
     changeTheme(isDarkTheme.value);
 };
+
+const handleFileChange = (options: { fileList: any[] }) => {
+    const file = options.fileList[0]?.file;
+    if (file && file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const result = e.target?.result as string;
+            backgroundImageUrl.value = result;
+            backgroundImage.value = result;
+            themeStore.setBackgroundImage(result);
+            updateBackgroundStyle();
+        };
+        reader.readAsDataURL(file);
+    }
+};
+
+const handleImageUrlChange = (url: string) => {
+    backgroundImageUrl.value = url;
+    if (url && url.trim()) {
+        backgroundImage.value = url.trim();
+        themeStore.setBackgroundImage(url.trim());
+    } else {
+        backgroundImage.value = '';
+        themeStore.setBackgroundImage('');
+    }
+    updateBackgroundStyle();
+};
+
+const handleBlurChange = (blur: number) => {
+    backgroundBlur.value = blur;
+    themeStore.setBackgroundBlur(blur);
+    updateBackgroundStyle();
+};
+
+const handleOpacityChange = (opacity: number) => {
+    backgroundOpacity.value = opacity;
+    themeStore.setBackgroundOpacity(opacity);
+    updateBackgroundStyle();
+};
+
+const clearBackgroundImage = () => {
+    backgroundImageUrl.value = '';
+    backgroundImage.value = '';
+    themeStore.setBackgroundImage('');
+    updateBackgroundStyle();
+};
+
+const updateBackgroundStyle = () => {
+    const root = document.documentElement;
+    if (backgroundImage.value) {
+        const imageUrl = `url(${backgroundImage.value})`;
+        root.style.setProperty('--background-image', imageUrl);
+        root.style.setProperty('--background-blur', `${backgroundBlur.value}px`);
+        const opacity = backgroundOpacity.value || 100;
+        root.style.setProperty('--background-opacity', `${opacity / 100}`);
+        // 调试信息
+        console.log('背景图已设置:', imageUrl, '模糊:', backgroundBlur.value, '不透明度:', opacity);
+    } else {
+        // 移除 CSS 变量以恢复默认样式
+        root.style.removeProperty('--background-image');
+        root.style.removeProperty('--background-blur');
+        root.style.removeProperty('--background-opacity');
+        console.log('背景图已清除');
+    }
+};
+
+// 监听 themeStore 的变化
+watch(
+    () => themeStore.backgroundImage,
+    (newImage) => {
+        if (newImage !== backgroundImage.value) {
+            backgroundImage.value = newImage;
+            backgroundImageUrl.value = newImage;
+            updateBackgroundStyle();
+        }
+    }
+);
+
+watch(
+    () => themeStore.backgroundBlur,
+    (newBlur) => {
+        if (newBlur !== backgroundBlur.value) {
+            backgroundBlur.value = newBlur;
+            updateBackgroundStyle();
+        }
+    }
+);
+
+watch(
+    () => themeStore.backgroundOpacity,
+    (newOpacity) => {
+        if (newOpacity !== backgroundOpacity.value) {
+            backgroundOpacity.value = newOpacity;
+            updateBackgroundStyle();
+        }
+    }
+);
+
+// 初始化背景样式
+onMounted(() => {
+    // 确保 backgroundOpacity 有默认值
+    if (!backgroundOpacity.value || isNaN(backgroundOpacity.value)) {
+        backgroundOpacity.value = 100;
+        themeStore.setBackgroundOpacity(100);
+    }
+    updateBackgroundStyle();
+});
 </script>
 
 <style lang="scss">
@@ -197,5 +368,19 @@ const handleSystemThemeChange = (e: MediaQueryListEvent) => {
 
 .preset-color:hover {
     transform: scale(1.1);
+}
+
+.background-settings {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
+
+.image-preview {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
 }
 </style>
