@@ -1,148 +1,273 @@
 <template>
     <div class="container">
-        <n-divider>主题</n-divider>
-        <div class="theme-switch">
-            <span style="margin-right: 10px">手动</span>
-            <n-switch size="large" v-model:value="isAutoTheme" :checked-value="true" :unchecked-value="false">
-                <template #checked>自动切换</template>
-                <template #unchecked>手动切换</template>
-            </n-switch>
-            <span style="margin-left: 10px">自动</span>
-        </div>
-        <div class="theme-switch" style="margin-top: 10px" v-if="!isAutoTheme">
-            <span style="margin-right: 10px">亮色</span>
-            <n-switch
-                size="large"
-                v-model:value="isDarkTheme"
-                :rail-style="railStyle"
-                :checked-value="true"
-                :unchecked-value="false"
-            >
-                <template #checked-icon>
-                    <n-icon :component="Sparkles" color="#9f9f9c" />
-                </template>
-                <template #unchecked-icon>
-                    <n-icon :component="Sunny" color="#E6A23C" />
-                </template>
-                <template #checked>月映万川</template>
-                <template #unchecked>日照千里</template>
-            </n-switch>
-            <span style="margin-left: 10px">暗色</span>
-        </div>
-        <n-divider>主题色</n-divider>
-        <n-color-picker v-model:value="primaryColor" :show-preview="true" />
-        <div class="preset-colors">
-            <div
-                v-for="color in presetColors"
-                :key="color"
-                :style="{ backgroundColor: color }"
-                class="preset-color"
-                @click="setPresetColor(color)"
-            ></div>
-        </div>
-        <n-flex vertical style="margin-top: 24px">
-            <n-flex justify="space-between" style="width: 200px">
-                <span>RGB模式</span>
-                <n-switch size="large" v-model:value="isRGBMode" :checked-value="true" :unchecked-value="false" />
-            </n-flex>
-            <n-flex justify="space-between">
-                <span>对话框模糊</span>
-                <n-switch
-                    size="large"
-                    v-model:value="isDialogBoxHairGlass"
-                    :checked-value="true"
-                    :unchecked-value="false"
-                />
-            </n-flex>
-        </n-flex>
-        <n-divider>无障碍</n-divider>
-        <n-flex vertical style="margin-top: 24px">
-            <n-flex justify="space-between" style="width: 200px">
-                <span>色弱模式</span>
-                <n-switch
-                    size="large"
-                    v-model:value="colorBlindMode"
-                    :checked-value="true"
-                    :unchecked-value="false"
-                />
-            </n-flex>
-            <n-flex justify="space-between">
-                <span>高对比度模式</span>
-                <n-switch
-                    size="large"
-                    v-model:value="highContrastMode"
-                    :checked-value="true"
-                    :unchecked-value="false"
-                />
-            </n-flex>
-        </n-flex>
-        <n-divider>背景图</n-divider>
-        <div class="background-settings" style="width: 100%; max-width: 300px">
-            <n-upload
-                :file-list="[]"
-                :show-file-list="false"
-                accept="image/*"
-                @change="handleFileChange"
-                :max="1"
-            >
-                <n-button block>选择本地图片</n-button>
-            </n-upload>
-            <n-input
-                v-model:value="backgroundImageUrl"
-                placeholder="输入网络图片链接"
-                style="margin-top: 10px"
-                @update:value="handleImageUrlChange"
-                clearable
-            />
-            <div v-if="backgroundImageUrl || backgroundImage" class="image-preview" style="margin-top: 10px">
-                <img
-                    :src="backgroundImageUrl || backgroundImage"
-                    alt="背景预览"
-                    style="max-width: 100%; max-height: 150px; border-radius: 8px"
-                />
-                <n-button
-                    size="small"
-                    type="error"
-                    style="margin-top: 8px"
-                    @click="clearBackgroundImage"
-                >
-                    清除背景图
-                </n-button>
+        <!-- 主题设置卡片 -->
+        <n-card class="setting-card" size="small">
+            <template #header>
+                <div class="card-header">
+                    <n-icon :component="ColorPaletteOutline" :size="20" />
+                    <span>主题设置</span>
+                </div>
+            </template>
+            <div class="setting-content">
+                <div class="setting-item">
+                    <div class="setting-label">
+                        <n-icon :component="SyncOutline" :size="18" />
+                        <span>自动切换主题</span>
+                    </div>
+                    <n-switch 
+                        size="large" 
+                        v-model:value="isAutoTheme" 
+                        :checked-value="true" 
+                        :unchecked-value="false"
+                    >
+                        <template #checked>自动切换</template>
+                        <template #unchecked>手动切换</template>
+                    </n-switch>
+                </div>
+                <div class="setting-item" v-if="!isAutoTheme">
+                    <div class="setting-label">
+                        <n-icon :component="isDarkTheme ? Sparkles : Sunny" :size="18" />
+                        <span>主题模式</span>
+                    </div>
+                    <n-switch
+                        size="large"
+                        v-model:value="isDarkTheme"
+                        :rail-style="railStyle"
+                        :checked-value="true"
+                        :unchecked-value="false"
+                    >
+                        <template #checked-icon>
+                            <n-icon :component="Sparkles" color="#9f9f9c" />
+                        </template>
+                        <template #unchecked-icon>
+                            <n-icon :component="Sunny" color="#E6A23C" />
+                        </template>
+                        <template #checked>月映万川</template>
+                        <template #unchecked>日照千里</template>
+                    </n-switch>
+                </div>
             </div>
-            <div v-if="backgroundImageUrl || backgroundImage" style="margin-top: 16px; width: 100%">
-                <n-flex justify="space-between" align="center">
-                    <span>模糊深度: {{ backgroundBlur }}px</span>
-                </n-flex>
-                <n-slider
-                    v-model:value="backgroundBlur"
-                    :min="0"
-                    :max="20"
-                    :step="1"
-                    style="margin-top: 8px"
-                    @update:value="handleBlurChange"
-                />
+        </n-card>
+
+        <!-- 主题色设置卡片 -->
+        <n-card class="setting-card" size="small">
+            <template #header>
+                <div class="card-header">
+                    <n-icon :component="BrushOutline" :size="20" />
+                    <span>主题色</span>
+                </div>
+            </template>
+            <div class="setting-content">
+                <div class="color-picker-wrapper">
+                    <n-color-picker 
+                        v-model:value="primaryColor" 
+                        :show-preview="true"
+                        :modes="['hex']"
+                        size="large"
+                    />
+                </div>
+                <div class="preset-colors">
+                    <div
+                        v-for="color in presetColors"
+                        :key="color"
+                        :style="{ backgroundColor: color }"
+                        class="preset-color"
+                        :class="{ active: primaryColor === color }"
+                        @click="setPresetColor(color)"
+                    >
+                        <n-icon 
+                            v-if="primaryColor === color" 
+                            :component="CheckmarkCircleOutline" 
+                            :size="16"
+                            color="#fff"
+                        />
+                    </div>
+                </div>
             </div>
-            <div v-if="backgroundImageUrl || backgroundImage" style="margin-top: 16px; width: 100%">
-                <n-flex justify="space-between" align="center">
-                    <span>元素不透明度: {{ backgroundOpacity || 100 }}%</span>
-                </n-flex>
-                <n-slider
-                    v-model:value="backgroundOpacity"
-                    :min="0"
-                    :max="100"
-                    :step="1"
-                    style="margin-top: 8px"
-                    @update:value="handleOpacityChange"
-                />
+        </n-card>
+
+        <!-- 视觉效果设置卡片 -->
+        <n-card class="setting-card" size="small">
+            <template #header>
+                <div class="card-header">
+                    <n-icon :component="EyeOutline" :size="20" />
+                    <span>视觉效果</span>
+                </div>
+            </template>
+            <div class="setting-content">
+                <div class="setting-item">
+                    <div class="setting-label">
+                        <n-icon :component="ColorFilterOutline" :size="18" />
+                        <span>RGB模式</span>
+                    </div>
+                    <n-switch 
+                        size="large" 
+                        v-model:value="isRGBMode" 
+                        :checked-value="true" 
+                        :unchecked-value="false"
+                    />
+                </div>
+                <div class="setting-item">
+                    <div class="setting-label">
+                        <n-icon :component="LayersOutline" :size="18" />
+                        <span>对话框模糊</span>
+                    </div>
+                    <n-switch
+                        size="large"
+                        v-model:value="isDialogBoxHairGlass"
+                        :checked-value="true"
+                        :unchecked-value="false"
+                    />
+                </div>
             </div>
-        </div>
+        </n-card>
+
+        <!-- 无障碍设置卡片 -->
+        <n-card class="setting-card" size="small">
+            <template #header>
+                <div class="card-header">
+                    <n-icon :component="AccessibilityOutline" :size="20" />
+                    <span>无障碍</span>
+                </div>
+            </template>
+            <div class="setting-content">
+                <div class="setting-item">
+                    <div class="setting-label">
+                        <n-icon :component="ColorWandOutline" :size="18" />
+                        <span>色弱模式</span>
+                    </div>
+                    <n-switch
+                        size="large"
+                        v-model:value="colorBlindMode"
+                        :checked-value="true"
+                        :unchecked-value="false"
+                    />
+                </div>
+                <div class="setting-item">
+                    <div class="setting-label">
+                        <n-icon :component="ContrastOutline" :size="18" />
+                        <span>高对比度模式</span>
+                    </div>
+                    <n-switch
+                        size="large"
+                        v-model:value="highContrastMode"
+                        :checked-value="true"
+                        :unchecked-value="false"
+                    />
+                </div>
+            </div>
+        </n-card>
+
+        <!-- 背景图设置卡片 -->
+        <n-card class="setting-card" size="small">
+            <template #header>
+                <div class="card-header">
+                    <n-icon :component="ImageOutline" :size="20" />
+                    <span>背景图</span>
+                </div>
+            </template>
+            <div class="setting-content">
+                <div class="background-settings">
+                    <n-upload
+                        :file-list="[]"
+                        :show-file-list="false"
+                        accept="image/*"
+                        @change="handleFileChange"
+                        :max="1"
+                    >
+                        <n-button block type="primary" ghost>
+                            <template #icon>
+                                <n-icon :component="CloudUploadOutline" />
+                            </template>
+                            选择本地图片
+                        </n-button>
+                    </n-upload>
+                    <n-input
+                        v-model:value="backgroundImageUrl"
+                        placeholder="输入网络图片链接"
+                        class="background-input"
+                        @update:value="handleImageUrlChange"
+                        clearable
+                    >
+                        <template #prefix>
+                            <n-icon :component="LinkOutline" />
+                        </template>
+                    </n-input>
+                    <div v-if="backgroundImageUrl || backgroundImage" class="image-preview">
+                        <div class="preview-wrapper">
+                            <img
+                                :src="backgroundImageUrl || backgroundImage"
+                                alt="背景预览"
+                                class="preview-image"
+                            />
+                            <div class="preview-overlay">
+                                <n-button
+                                    size="small"
+                                    type="error"
+                                    @click="clearBackgroundImage"
+                                >
+                                    <template #icon>
+                                        <n-icon :component="TrashOutline" />
+                                    </template>
+                                    清除
+                                </n-button>
+                            </div>
+                        </div>
+                        <div class="slider-control">
+                            <div class="slider-label">
+                                <n-icon :component="LayersOutline" :size="16" />
+                                <span>模糊深度: {{ backgroundBlur }}px</span>
+                            </div>
+                            <n-slider
+                                v-model:value="backgroundBlur"
+                                :min="0"
+                                :max="20"
+                                :step="1"
+                                @update:value="handleBlurChange"
+                            />
+                        </div>
+                        <div class="slider-control">
+                            <div class="slider-label">
+                                <n-icon :component="WaterOutline" :size="16" />
+                                <span>元素不透明度: {{ backgroundOpacity || 100 }}%</span>
+                            </div>
+                            <n-slider
+                                v-model:value="backgroundOpacity"
+                                :min="0"
+                                :max="100"
+                                :step="1"
+                                @update:value="handleOpacityChange"
+                            />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </n-card>
     </div>
 </template>
 
 <script lang="ts" setup>
 import { CSSProperties } from 'vue';
 import { useThemeStore } from '@/stores/theme';
-import { Sparkles, Sunny } from '@vicons/ionicons5';
+import { 
+    Sparkles, 
+    Sunny,
+    ColorPaletteOutline,
+    SyncOutline,
+    BrushOutline,
+    EyeOutline,
+    ColorFilterOutline,
+    LayersOutline,
+    AccessibilityOutline,
+    ColorWandOutline,
+    ContrastOutline,
+    ImageOutline,
+    CloudUploadOutline,
+    LinkOutline,
+    TrashOutline,
+    WaterOutline,
+    CheckmarkCircleOutline
+} from '@vicons/ionicons5';
 
 const themeStore = useThemeStore();
 const isDarkTheme = ref(themeStore.theme === 'dark');
@@ -484,50 +609,207 @@ onMounted(() => {
 });
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .container {
     display: flex;
     flex-direction: column;
+    gap: 16px;
+    padding: 8px 0;
+}
+
+.setting-card {
+    transition: all 0.3s ease;
+    
+    &:hover {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+}
+
+.card-header {
+    display: flex;
     align-items: center;
-    /* 水平居中对齐 */
+    gap: 8px;
+    font-weight: 600;
+    font-size: 15px;
+}
+
+.setting-content {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 4px 0;
+}
+
+.setting-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    transition: all 0.2s ease;
+    
+    &:hover {
+        padding-left: 4px;
+    }
+}
+
+.setting-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: var(--text-color-1);
+}
+
+.color-picker-wrapper {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 12px;
 }
 
 .preset-colors {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
-    /* 固定列数 */
-    gap: 10px;
-    margin-top: 10px;
+    gap: 12px;
     justify-content: center;
-    /* 水平居中对齐网格 */
-    max-width: 250px;
+    max-width: 100%;
+    padding: 8px 0;
 }
 
 .preset-color {
-    width: 30px;
-    height: 30px;
+    width: 25px;
+    height: 25px;
     border-radius: 50%;
     cursor: pointer;
-    border: 2px solid #fff;
-    box-shadow: 0 0 3px rgba(0, 0, 0, 0.3);
-    transition: transform 0.2s;
-}
-
-.preset-color:hover {
-    transform: scale(1.1);
+    border: 3px solid transparent;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    
+    &::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        border-radius: 50%;
+        padding: 2px;
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.3), rgba(0, 0, 0, 0.1));
+        -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+        -webkit-mask-composite: xor;
+        mask-composite: exclude;
+        mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+        mask-composite: exclude;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+    
+    &:hover {
+        transform: scale(1.15);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+        
+        &::before {
+            opacity: 1;
+        }
+    }
+    
+    &.active {
+        border-color: var(--primary-color, #18a058);
+        box-shadow: 0 0 0 2px var(--primary-color, #18a058), 0 4px 12px rgba(0, 0, 0, 0.25);
+        transform: scale(1.1);
+    }
 }
 
 .background-settings {
     display: flex;
     flex-direction: column;
-    align-items: center;
+    gap: 12px;
     width: 100%;
+}
+
+.background-input {
+    margin-top: 0;
 }
 
 .image-preview {
     display: flex;
     flex-direction: column;
-    align-items: center;
+    gap: 16px;
     width: 100%;
+    margin-top: 8px;
+}
+
+.preview-wrapper {
+    position: relative;
+    width: 100%;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    
+    &:hover {
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+        
+        .preview-overlay {
+            opacity: 1;
+        }
+    }
+}
+
+.preview-image {
+    width: 100%;
+    max-height: 180px;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.3s ease;
+    
+    .preview-wrapper:hover & {
+        transform: scale(1.02);
+    }
+}
+
+.preview-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.4), transparent);
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-end;
+    padding: 12px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.slider-control {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+}
+
+.slider-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: var(--text-color-2);
+    font-weight: 500;
+}
+
+// 响应式设计
+@media (max-width: 768px) {
+    .preset-colors {
+        grid-template-columns: repeat(5, 1fr);
+        gap: 10px;
+    }
+    
+    .preset-color {
+        width: 32px;
+        height: 32px;
+    }
 }
 </style>

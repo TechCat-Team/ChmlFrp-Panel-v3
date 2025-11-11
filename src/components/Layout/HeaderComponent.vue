@@ -68,7 +68,7 @@
             </n-dropdown>
         </div>
     </div>
-    <n-drawer v-model:show="themeSwitcherDrawer" :placement="placement" :default-width="251" resizable>
+    <n-drawer v-model:show="themeSwitcherDrawer" :placement="placement" :default-width="320" resizable>
         <n-drawer-content title="面板配置">
             <ThemeSwitcher />
         </n-drawer-content>
