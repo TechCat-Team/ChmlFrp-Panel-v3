@@ -74,9 +74,6 @@ export default defineConfig({
                         if (id.includes('three')) {
                             return 'vendor-three';
                         }
-                        if (id.includes('vue')) {
-                            return 'vendor-vue';
-                        }
                         if (id.includes('lodash') || id.includes('axios') || id.includes('dayjs')) {
                             return 'vendor-utils';
                         }
