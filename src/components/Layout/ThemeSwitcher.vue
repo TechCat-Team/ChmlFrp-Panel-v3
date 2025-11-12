@@ -20,31 +20,31 @@
                         :checked-value="true" 
                         :unchecked-value="false"
                     >
-                        <template #checked>自动切换</template>
-                        <template #unchecked>手动切换</template>
-                    </n-switch>
+                <template #checked>自动切换</template>
+                <template #unchecked>手动切换</template>
+            </n-switch>
                 </div>
                 <div class="setting-item" v-if="!isAutoTheme">
                     <div class="setting-label">
                         <n-icon :component="isDarkTheme ? Sparkles : Sunny" :size="18" />
                         <span>主题模式</span>
-                    </div>
-                    <n-switch
-                        size="large"
-                        v-model:value="isDarkTheme"
-                        :rail-style="railStyle"
-                        :checked-value="true"
-                        :unchecked-value="false"
-                    >
-                        <template #checked-icon>
-                            <n-icon :component="Sparkles" color="#9f9f9c" />
-                        </template>
-                        <template #unchecked-icon>
-                            <n-icon :component="Sunny" color="#E6A23C" />
-                        </template>
-                        <template #checked>月映万川</template>
-                        <template #unchecked>日照千里</template>
-                    </n-switch>
+        </div>
+            <n-switch
+                size="large"
+                v-model:value="isDarkTheme"
+                :rail-style="railStyle"
+                :checked-value="true"
+                :unchecked-value="false"
+            >
+                <template #checked-icon>
+                    <n-icon :component="Sparkles" color="#9f9f9c" />
+                </template>
+                <template #unchecked-icon>
+                    <n-icon :component="Sunny" color="#E6A23C" />
+                </template>
+                <template #checked>月映万川</template>
+                <template #unchecked>日照千里</template>
+            </n-switch>
                 </div>
             </div>
         </n-card>
@@ -65,15 +65,15 @@
                         :modes="['hex']"
                         size="large"
                     />
-                </div>
-                <div class="preset-colors">
-                    <div
-                        v-for="color in presetColors"
-                        :key="color"
-                        :style="{ backgroundColor: color }"
-                        class="preset-color"
+        </div>
+        <div class="preset-colors">
+            <div
+                v-for="color in presetColors"
+                :key="color"
+                :style="{ backgroundColor: color }"
+                class="preset-color"
                         :class="{ active: primaryColor === color }"
-                        @click="setPresetColor(color)"
+                @click="setPresetColor(color)"
                     >
                         <n-icon 
                             v-if="primaryColor === color" 
@@ -92,13 +92,13 @@
                 <div class="card-header">
                     <n-icon :component="EyeOutline" :size="20" />
                     <span>视觉效果</span>
-                </div>
+        </div>
             </template>
             <div class="setting-content">
                 <div class="setting-item">
                     <div class="setting-label">
                         <n-icon :component="ColorFilterOutline" :size="18" />
-                        <span>RGB模式</span>
+                <span>RGB模式</span>
                     </div>
                     <n-switch 
                         size="large" 
@@ -110,14 +110,14 @@
                 <div class="setting-item">
                     <div class="setting-label">
                         <n-icon :component="LayersOutline" :size="18" />
-                        <span>对话框模糊</span>
+                <span>对话框模糊</span>
                     </div>
-                    <n-switch
-                        size="large"
-                        v-model:value="isDialogBoxHairGlass"
-                        :checked-value="true"
-                        :unchecked-value="false"
-                    />
+                <n-switch
+                    size="large"
+                    v-model:value="isDialogBoxHairGlass"
+                    :checked-value="true"
+                    :unchecked-value="false"
+                />
                 </div>
             </div>
         </n-card>
@@ -233,7 +233,7 @@
                             </div>
                             <n-slider
                                 v-model:value="backgroundOpacity"
-                                :min="0"
+                                :min="20"
                                 :max="100"
                                 :step="1"
                                 @update:value="handleOpacityChange"
@@ -545,8 +545,10 @@ const handleOpacityChange = (opacity: number) => {
         backgroundOpacity.value = 100;
         return;
     }
-    backgroundOpacity.value = opacity;
-    themeStore.setBackgroundOpacity(opacity);
+    // 确保不透明度不低于20%
+    const clampedOpacity = Math.max(20, opacity);
+    backgroundOpacity.value = clampedOpacity;
+    themeStore.setBackgroundOpacity(clampedOpacity);
     updateBackgroundStyle();
 };
 
@@ -580,7 +582,8 @@ const updateBackgroundStyle = () => {
     if (backgroundImage.value) {
         try {
             const imageUrl = `url(${backgroundImage.value})`;
-            const opacity = backgroundOpacity.value || 100;
+            // 确保不透明度不低于20%
+            const opacity = Math.max(20, backgroundOpacity.value || 100);
             
             // 设置 CSS 变量
             root.style.setProperty('--background-image', imageUrl);
@@ -637,7 +640,12 @@ watch(
     () => themeStore.backgroundOpacity,
     (newOpacity) => {
         if (newOpacity !== backgroundOpacity.value) {
-            backgroundOpacity.value = newOpacity;
+            // 确保不透明度不低于20%
+            const clampedOpacity = Math.max(20, newOpacity);
+            backgroundOpacity.value = clampedOpacity;
+            if (clampedOpacity !== newOpacity) {
+                themeStore.setBackgroundOpacity(clampedOpacity);
+            }
             updateBackgroundStyle();
         }
     }
@@ -663,10 +671,14 @@ watch(
 
 // 初始化背景样式
 onMounted(() => {
-    // 确保 backgroundOpacity 有默认值
+    // 确保 backgroundOpacity 有默认值，且不低于20%
     if (!backgroundOpacity.value || isNaN(backgroundOpacity.value)) {
         backgroundOpacity.value = 100;
         themeStore.setBackgroundOpacity(100);
+    } else if (backgroundOpacity.value < 20) {
+        // 如果值小于20%，自动调整为20%
+        backgroundOpacity.value = 20;
+        themeStore.setBackgroundOpacity(20);
     }
     // 如果启用了毛玻璃模式，确保不透明度为100%
     if (frostedGlassMode.value) {
@@ -787,7 +799,7 @@ onMounted(() => {
     &.active {
         border-color: var(--primary-color, #18a058);
         box-shadow: 0 0 0 2px var(--primary-color, #18a058), 0 4px 12px rgba(0, 0, 0, 0.25);
-        transform: scale(1.1);
+    transform: scale(1.1);
     }
 }
 

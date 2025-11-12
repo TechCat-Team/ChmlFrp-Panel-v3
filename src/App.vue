@@ -208,7 +208,8 @@ onMounted(() => {
     }
     // 初始化背景图
     if (themeStore.backgroundImage) {
-        const opacity = themeStore.backgroundOpacity || 100;
+        // 确保不透明度不低于20%
+        const opacity = Math.max(20, themeStore.backgroundOpacity || 100);
         document.documentElement.style.setProperty('--background-image', `url(${themeStore.backgroundImage})`);
         document.documentElement.style.setProperty('--background-blur', `${themeStore.backgroundBlur}px`);
         document.documentElement.style.setProperty('--background-opacity', `${opacity / 100}`);
