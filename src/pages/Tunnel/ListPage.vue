@@ -259,6 +259,12 @@
             ">
                 自定义域名解析到中国境内节点(中国特别行政区除外)建站，您的域名必须在工信部备案，不备案将被拦截导致无法访问。
             </n-alert>
+            <n-alert title="注意" type="info" style="margin-bottom: 8px" v-if="
+                (formData.type === 'TCP') &&
+                NodeInfo.china !== 'no'
+            ">
+                中国境内节点禁止使用TCP隧道建站，如果您是用于网站用途，请使用中国境外节点或解析自己的已备案域名至{{ NodeInfo.ip }}，通过 您解析的域名:外网端口 访问
+            </n-alert>
             <n-alert title="注意" style="margin-bottom: 32px" type="warning"
                 v-if="formData.domainNameLabel === '自定义' && (formData.type === 'HTTP' || formData.type === 'HTTPS')">
                 请使用自定义域名需要将您的 {{ formData.domain }} 域名通过CNAME解析至 {{ NodeInfo.ip }} 才能正常访问。
