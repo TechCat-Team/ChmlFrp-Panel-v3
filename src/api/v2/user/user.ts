@@ -339,6 +339,7 @@ export interface LogItem {
     action: string;
     category: string;
     ip_address: string;
+    address?: string;
     user_agent: string;
     status: string;
     resource_name: string | null;

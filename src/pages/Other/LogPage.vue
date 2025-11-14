@@ -52,7 +52,7 @@
 
 <script lang="ts" setup>
 import { ref, reactive, onMounted, h, computed, watch } from 'vue';
-import { NDataTable, NDatePicker, NSelect, NButton, NSpace, NCard, NTag, NBackTop, useMessage } from 'naive-ui';
+import { NDataTable, NDatePicker, NSelect, NButton, NSpace, NCard, NTag, NBackTop, useMessage, NTooltip } from 'naive-ui';
 import type { DataTableColumns, PaginationProps } from 'naive-ui';
 import api from '@/api';
 import { useUserStore } from '@/stores/user';
@@ -216,7 +216,22 @@ const columns: DataTableColumns<LogItem> = [
     {
         title: 'IP地址',
         key: 'ip_address',
-        width: 150,
+        width: 200,
+        render(row) {
+            const address = row.address || '-';
+            const ipAddress = row.ip_address || '-';
+            const tooltipContent = `地址: ${address}\nIP: ${ipAddress}`;
+            return h(
+                NTooltip,
+                {
+                    trigger: 'hover',
+                },
+                {
+                    trigger: () => h('span', { style: { cursor: 'default' } }, address),
+                    default: () => h('div', { style: { whiteSpace: 'pre-line' } }, tooltipContent),
+                }
+            );
+        },
         ellipsis: {
             tooltip: true,
         },
