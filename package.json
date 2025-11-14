@@ -1,7 +1,7 @@
 {
   "name": "chmlfrp-panel-v3",
   "nameme": "ChmlFrp",
-  "version": "0.5.2",
+  "version": "0.5.3",
   "private": true,
   "type": "module",
   "scripts": {
@@ -17,6 +17,7 @@
     "pnpm": ">=10.11.0"
   },
   "dependencies": {
+    "@vicons/fa": "^0.13.0",
     "@vicons/ionicons5": "^0.13.0",
     "@vueuse/core": "^13.1.0",
     "axios": "^1.9.0",

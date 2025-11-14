@@ -296,6 +296,7 @@ import { useStyleStore } from '@/stores/style';
 import { useRouter } from 'vue-router';
 // 获取登录信息
 import { useUserStore } from '@/stores/user';
+import { loadGeetestScript } from '@/utils/loadGeetest';
 
 import api from '@/api';
 
@@ -509,39 +510,49 @@ const qiandaoinfo = async () => {
     loadingQianDao.value = false;
 };
 
-const onSignButtonClick = () => {
+const onSignButtonClick = async () => {
     loadingQianDaoButton.value = true;
     QianDaoTest.value = '初始化验证[1/3]';
-    window.initGeetest4(
-        {
-            product: 'bind',
-            captchaId: '3891b578aa85e4866c5f8205b02b165a',
-            width: '100%',
-        },
-        (captchaObj: CaptchaObj) => {
-            captchaObj.onNextReady(function () {
-                QianDaoTest.value = '验证码验证[2/3]';
-            });
-            captchaObj.showCaptcha();
+    
+    try {
+        // 动态加载 geetest 脚本
+        await loadGeetestScript();
+        
+        window.initGeetest4(
+            {
+                product: 'bind',
+                captchaId: '3891b578aa85e4866c5f8205b02b165a',
+                width: '100%',
+            },
+            (captchaObj: CaptchaObj) => {
+                captchaObj.onNextReady(function () {
+                    QianDaoTest.value = '验证码验证[2/3]';
+                });
+                captchaObj.showCaptcha();
 
-            showBlurOverlay.value = true;
+                showBlurOverlay.value = true;
 
-            captchaObj.onClose(function () {
-                message.warning('签到验证关闭，此次签到未成功');
-                showBlurOverlay.value = false;
-                loadingQianDaoButton.value = false;
-                QianDaoTest.value = '签到';
-            });
-            captchaObj.onSuccess(() => {
-                const result = captchaObj.getValidate();
-                if (result) {
-                    console.log('Geetest 验证成功:', result);
-                    // 调用签到API
-                    signIn(result);
-                }
-            });
-        }
-    );
+                captchaObj.onClose(function () {
+                    message.warning('签到验证关闭，此次签到未成功');
+                    showBlurOverlay.value = false;
+                    loadingQianDaoButton.value = false;
+                    QianDaoTest.value = '签到';
+                });
+                captchaObj.onSuccess(() => {
+                    const result = captchaObj.getValidate();
+                    if (result) {
+                        console.log('Geetest 验证成功:', result);
+                        // 调用签到API
+                        signIn(result);
+                    }
+                });
+            }
+        );
+    } catch (error) {
+        message.error('加载验证码失败: ' + (error as Error).message);
+        loadingQianDaoButton.value = false;
+        QianDaoTest.value = '签到';
+    }
 };
 
 const signIn = async (geetestResult: GeetestResult) => {

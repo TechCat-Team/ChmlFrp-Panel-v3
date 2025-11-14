@@ -426,6 +426,7 @@ import { useRouter } from 'vue-router';
 import { useUserStore } from '@/stores/user';
 import { FormInst } from 'naive-ui';
 import { loginRules, registerRules } from '@/utils/authRules';
+import { loadGeetestScript } from '@/utils/loadGeetest';
 
 import { inject } from 'vue';
 
@@ -451,30 +452,39 @@ const emaill = ref('');
 
 const userInfo = userStore.userInfo;
 
-const GeeTest = (Type: string, email: string) => {
+const GeeTest = async (Type: string, email: string) => {
     type.value = Type;
     emaill.value = email;
     loadingCaptcha.value = true;
-    window.initGeetest4(
-        {
-            product: 'bind',
-            captchaId: '8253677cc86aae19e1b760f01d78ef27',
-            width: '100%',
-        },
-        (captchaObj: CaptchaObj) => {
-            captchaObj.showCaptcha();
-            captchaObj.onClose(function () {
-                message.warning('人机验证关闭');
-                loadingCaptcha.value = false;
-            });
-            captchaObj.onSuccess(() => {
-                const result = captchaObj.getValidate();
-                if (result) {
-                    sendMailboxVerificationCode(result);
-                }
-            });
-        }
-    );
+    
+    try {
+        // 动态加载 geetest 脚本
+        await loadGeetestScript();
+        
+        window.initGeetest4(
+            {
+                product: 'bind',
+                captchaId: '8253677cc86aae19e1b760f01d78ef27',
+                width: '100%',
+            },
+            (captchaObj: CaptchaObj) => {
+                captchaObj.showCaptcha();
+                captchaObj.onClose(function () {
+                    message.warning('人机验证关闭');
+                    loadingCaptcha.value = false;
+                });
+                captchaObj.onSuccess(() => {
+                    const result = captchaObj.getValidate();
+                    if (result) {
+                        sendMailboxVerificationCode(result);
+                    }
+                });
+            }
+        );
+    } catch (error) {
+        message.error('加载验证码失败: ' + (error as Error).message);
+        loadingCaptcha.value = false;
+    }
 };
 
 const sendMailboxVerificationCode = async (geetestResult: GeetestResult) => {
