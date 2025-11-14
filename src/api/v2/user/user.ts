@@ -70,6 +70,18 @@ export const sendMailCode = async (
 };
 
 /**
+ * 邮箱验证码登录
+ * @param {string} mail - 邮箱地址
+ * @param {number} code - 6位数字验证码
+ * @returns {Promise<LoginResponse>} 登录响应
+ */
+export const loginByEmailCode = async (mail: string, code: number): Promise<LoginResponse> => {
+    return axiosInstance.get('/login_by_email_code', {
+        params: { mail, code },
+    });
+};
+
+/**
  * 注册
  * @param {string} username - 用户名
  * @param {string} password - 密码

@@ -46,64 +46,143 @@
                         <transition :name="formTransitionName" mode="out-in">
                             <div :key="mode" class="center-form">
                                 <template v-if="mode === 'login'">
-                                    <n-form ref="formRef" :model="model" :rules="loginRules" class="center-form">
-                                        <n-flex justify="center">
-                                            <n-image
-                                                width="48"
-                                                style="margin-bottom: 24px"
-                                                v-if="isMobile"
-                                                src="https://www.chmlfrp.cn/favicon.ico"
-                                                preview-disabled
-                                            />
-                                        </n-flex>
-                                        <!-- <n-alert title="隐私策略&服务条款有更新" type="info">
-                                    登录即代表您同意更新后的条款。点我查看隐私策略&服务条款。
-                                </n-alert> -->
-                                        <n-form-item path="email">
-                                            <n-input
-                                                v-model:value="model.email"
-                                                size="large"
-                                                round
-                                                placeholder="用户名或邮箱"
-                                                maxlength="30"
-                                                clearable
-                                            />
-                                        </n-form-item>
-                                        <n-form-item path="password">
-                                            <n-input
-                                                v-model:value="model.password"
-                                                size="large"
-                                                round
-                                                placeholder="密码"
-                                                type="password"
-                                                maxlength="64"
-                                                :show-password-on="isTouchDevice ? 'click' : 'mousedown'"
-                                            />
-                                        </n-form-item>
-                                        <n-flex justify="space-between">
-                                            <n-checkbox size="small" v-model:checked="keepLoggedIn" label="保持登录" />
-                                            <n-button text color="#9398b3" @click="toReset">重置密码</n-button>
-                                        </n-flex>
-                                        <div style="display: flex; justify-content: flex-end; margin-top: 24px">
-                                            <n-button
-                                                :loading="loginLoading"
-                                                :disabled="!model.email || !model.password || loginLoading"
-                                                round
-                                                type="primary"
-                                                style="width: 100%"
-                                                size="large"
-                                                @click="handleValidateButtonClick"
-                                            >
-                                                登录
-                                            </n-button>
-                                        </div>
-                                        <n-flex justify="space-between" style="margin-top: 32px">
-                                            <n-button text color="#9398b3" @click="touristPanel"> 游客面板 </n-button>
-                                            <n-button v-if="isMobile" text color="#9398b3" @click="toggleRegister">
-                                                注册账号
-                                            </n-button>
-                                        </n-flex>
-                                    </n-form>
+                                    <template v-if="!isEmailCodeLoginMode">
+                                        <n-form ref="formRef" :model="model" :rules="loginRules" class="center-form">
+                                            <n-flex justify="center">
+                                                <n-image
+                                                    width="48"
+                                                    style="margin-bottom: 24px"
+                                                    v-if="isMobile"
+                                                    src="https://www.chmlfrp.cn/favicon.ico"
+                                                    preview-disabled
+                                                />
+                                            </n-flex>
+                                            <!-- <n-alert title="隐私策略&服务条款有更新" type="info">
+                                        登录即代表您同意更新后的条款。点我查看隐私策略&服务条款。
+                                    </n-alert> -->
+                                            <n-form-item path="email">
+                                                <n-input
+                                                    v-model:value="model.email"
+                                                    size="large"
+                                                    round
+                                                    placeholder="用户名或邮箱"
+                                                    maxlength="30"
+                                                    clearable
+                                                />
+                                            </n-form-item>
+                                            <n-form-item path="password">
+                                                <n-input
+                                                    v-model:value="model.password"
+                                                    size="large"
+                                                    round
+                                                    placeholder="密码"
+                                                    type="password"
+                                                    maxlength="64"
+                                                    :show-password-on="isTouchDevice ? 'click' : 'mousedown'"
+                                                />
+                                            </n-form-item>
+                                            <n-flex justify="space-between">
+                                                <n-checkbox size="small" v-model:checked="keepLoggedIn" label="保持登录" />
+                                                <n-button text color="#9398b3" @click="toReset">重置密码</n-button>
+                                            </n-flex>
+                                            <div style="display: flex; justify-content: flex-end; margin-top: 24px">
+                                                <n-button
+                                                    :loading="loginLoading"
+                                                    :disabled="!model.email || !model.password || loginLoading"
+                                                    round
+                                                    type="primary"
+                                                    style="width: 100%"
+                                                    size="large"
+                                                    @click="handleValidateButtonClick"
+                                                >
+                                                    登录
+                                                </n-button>
+                                            </div>
+                                            <n-flex justify="space-between" style="margin-top: 32px">
+                                                <n-button text color="#9398b3" @click="touristPanel"> 游客面板 </n-button>
+                                                <n-button v-if="isMobile" text color="#9398b3" @click="toggleRegister">
+                                                    注册账号
+                                                </n-button>
+                                            </n-flex>
+                                        </n-form>
+                                    </template>
+                                    <template v-else>
+                                        <n-form ref="emailCodeFormRef" :model="emailCodeModel" :rules="emailCodeLoginRules" class="center-form">
+                                            <n-flex justify="center">
+                                                <n-image
+                                                    width="48"
+                                                    style="margin-bottom: 24px"
+                                                    v-if="isMobile"
+                                                    src="https://www.chmlfrp.cn/favicon.ico"
+                                                    preview-disabled
+                                                />
+                                            </n-flex>
+                                            <n-alert type="warning" style="margin-bottom: 24px">
+                                                您的账户或IP已被临时限制登录，请使用邮箱验证码登录
+                                                <template v-if="banRemainingTime">
+                                                    <br />剩余时间: {{ banRemainingTime }}
+                                                </template>
+                                            </n-alert>
+                                            <n-form-item label="邮箱" path="email">
+                                                <n-input
+                                                    v-model:value="emailCodeModel.email"
+                                                    size="large"
+                                                    round
+                                                    placeholder="请输入注册邮箱"
+                                                    type="email"
+                                                    maxlength="255"
+                                                    clearable
+                                                />
+                                            </n-form-item>
+                                            <n-form-item label="验证码" path="code">
+                                                <n-grid x-gap="12" :cols="5">
+                                                    <n-gi :span="3">
+                                                        <n-input
+                                                            v-model:value="emailCodeModel.code"
+                                                            size="large"
+                                                            round
+                                                            placeholder="6位数字验证码"
+                                                            maxlength="6"
+                                                            clearable
+                                                            @input="(value: string) => emailCodeModel.code = value.replace(/\D/g, '')"
+                                                        />
+                                                    </n-gi>
+                                                    <n-gi :span="2">
+                                                        <n-button
+                                                            :loading="loadingCaptcha"
+                                                            @click="GeeTest('login', emailCodeModel.email)"
+                                                            style="width: 100%"
+                                                            strong
+                                                            secondary
+                                                            type="primary"
+                                                            round
+                                                            size="large"
+                                                            :disabled="buttonDisabled || !emailCodeModel.email"
+                                                        >
+                                                            {{ buttonText }}
+                                                        </n-button>
+                                                    </n-gi>
+                                                </n-grid>
+                                            </n-form-item>
+                                            <div style="display: flex; justify-content: flex-end; margin-top: 24px">
+                                                <n-button
+                                                    :loading="loginLoading"
+                                                    :disabled="!emailCodeModel.email || !emailCodeModel.code || loginLoading"
+                                                    round
+                                                    type="primary"
+                                                    style="width: 100%"
+                                                    size="large"
+                                                    @click="handleEmailCodeLogin"
+                                                >
+                                                    登录
+                                                </n-button>
+                                            </div>
+                                            <n-flex justify="space-between" style="margin-top: 32px">
+                                                <n-button text color="#9398b3" @click="backToNormalLogin">返回普通登录</n-button>
+                                                <n-button text color="#9398b3" @click="touristPanel"> 游客面板 </n-button>
+                                            </n-flex>
+                                        </n-form>
+                                    </template>
                                 </template>
                                 <template v-else-if="mode === 'register'">
                                     <n-form ref="formRef" :model="formModel" :rules="registerRules" class="center-form">
@@ -497,10 +576,119 @@ const isNextStepDisabled = computed(() => {
 
 const router = useRouter();
 const formRef = ref<FormInst | null>(null);
+const emailCodeFormRef = ref<FormInst | null>(null);
 const model = ref<ModelType>({
     email: null,
     password: null,
 });
+
+// 邮箱验证码登录相关状态
+const isEmailCodeLoginMode = ref(false);
+const banRemainingTime = ref<string>(''); // 封禁剩余时间（显示用）
+const banRemainingSeconds = ref<number>(0); // 封禁剩余秒数
+let banCountdownTimer: ReturnType<typeof setInterval> | null = null; // 倒计时定时器
+const emailCodeModel = ref({
+    email: '',
+    code: '',
+});
+
+// 邮箱验证码登录表单验证规则
+const emailCodeLoginRules = {
+    email: [
+        { required: true, message: '请输入邮箱地址', trigger: 'blur' },
+        { type: 'email', message: '请输入有效的邮箱格式', trigger: ['blur', 'input'] }
+    ],
+    code: [
+        { required: true, message: '请输入验证码', trigger: 'blur' },
+        {
+            pattern: /^[0-9]{6}$/,
+            message: '验证码必须为6位数字',
+            trigger: ['blur', 'input']
+        }
+    ]
+};
+
+// 解析时间字符串为秒数
+const parseTimeToSeconds = (timeStr: string): number => {
+    let totalSeconds = 0;
+    
+    // 匹配分钟
+    const minuteMatch = timeStr.match(/(\d+)\s*分钟/);
+    if (minuteMatch) {
+        totalSeconds += parseInt(minuteMatch[1]) * 60;
+    }
+    
+    // 匹配秒
+    const secondMatch = timeStr.match(/(\d+)\s*秒/);
+    if (secondMatch) {
+        totalSeconds += parseInt(secondMatch[1]);
+    }
+    
+    return totalSeconds;
+};
+
+// 格式化秒数为可读的时间字符串
+const formatSecondsToTime = (seconds: number): string => {
+    if (seconds <= 0) {
+        return '0秒';
+    }
+    
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    
+    if (mins > 0 && secs > 0) {
+        return `${mins}分钟${secs}秒`;
+    } else if (mins > 0) {
+        return `${mins}分钟`;
+    } else {
+        return `${secs}秒`;
+    }
+};
+
+// 启动封禁倒计时
+const startBanCountdown = (timeStr: string) => {
+    // 清除之前的定时器
+    if (banCountdownTimer) {
+        clearInterval(banCountdownTimer);
+        banCountdownTimer = null;
+    }
+    
+    // 解析时间字符串为秒数
+    banRemainingSeconds.value = parseTimeToSeconds(timeStr);
+    
+    // 立即更新一次显示
+    banRemainingTime.value = formatSecondsToTime(banRemainingSeconds.value);
+    
+    // 如果时间为0，不启动定时器
+    if (banRemainingSeconds.value <= 0) {
+        return;
+    }
+    
+    // 启动倒计时
+    banCountdownTimer = setInterval(() => {
+        banRemainingSeconds.value -= 1;
+        banRemainingTime.value = formatSecondsToTime(banRemainingSeconds.value);
+        
+        // 时间到0时停止倒计时
+        if (banRemainingSeconds.value <= 0) {
+            if (banCountdownTimer) {
+                clearInterval(banCountdownTimer);
+                banCountdownTimer = null;
+            }
+            banRemainingTime.value = '0秒';
+        }
+    }, 1000);
+};
+
+// 停止封禁倒计时
+const stopBanCountdown = () => {
+    if (banCountdownTimer) {
+        clearInterval(banCountdownTimer);
+        banCountdownTimer = null;
+    }
+    banRemainingSeconds.value = 0;
+    banRemainingTime.value = '';
+};
 
 import api from '@/api';
 
@@ -557,12 +745,51 @@ const handleValidateButtonClick = async () => {
             }
         }
 
-        if (firstErrorMsg) {
-            loadingMessage.type = 'error';
-            loadingMessage.content = firstErrorMsg;
+        // 检测是否包含封禁信息
+        const errorMessage = firstErrorMsg || (error && error.message ? error.message : '表单校验失败');
+        const isBanned = errorMessage && (
+            errorMessage.includes('该账户已被临时封禁') || 
+            errorMessage.includes('IP地址已被临时封禁')
+        );
+        
+        if (isBanned) {
+            // 提取剩余时间
+            const timeMatch = errorMessage.match(/剩余时间[：:]\s*([^，,]+)/);
+            if (timeMatch && timeMatch[1]) {
+                const timeStr = timeMatch[1].trim();
+                // 启动倒计时
+                startBanCountdown(timeStr);
+            } else {
+                stopBanCountdown();
+            }
+            
+            // 切换到邮箱验证码登录模式
+            isEmailCodeLoginMode.value = true;
+            // 如果用户输入的是邮箱，自动填充到邮箱验证码登录表单
+            if (model.value.email && model.value.email.includes('@')) {
+                emailCodeModel.value.email = model.value.email;
+            }
+            loadingMessage.type = 'warning';
+            // 根据封禁类型显示不同的提示信息
+            let banMessage = '';
+            if (errorMessage.includes('IP地址已被临时封禁')) {
+                banMessage = 'IP地址已被临时限制登录';
+            } else {
+                banMessage = '账户已被临时限制登录';
+            }
+            if (banRemainingTime.value) {
+                loadingMessage.content = `${banMessage}，剩余时间: ${banRemainingTime.value}，请使用邮箱验证码登录`;
+            } else {
+                loadingMessage.content = `${banMessage}，请使用邮箱验证码登录`;
+            }
         } else {
-            loadingMessage.type = 'error';
-            loadingMessage.content = '登陆失败: ' + (error && error.message ? error.message : '表单校验失败');
+            if (firstErrorMsg) {
+                loadingMessage.type = 'error';
+                loadingMessage.content = firstErrorMsg;
+            } else {
+                loadingMessage.type = 'error';
+                loadingMessage.content = '登陆失败: ' + errorMessage;
+            }
         }
         console.error('表单验证或登录失败', error);
     } finally {
@@ -613,6 +840,9 @@ watch(mode, (newMode, oldMode) => {
 const toLogin = () => {
     isRegister.value = false;
     isReset.value = false;
+    isEmailCodeLoginMode.value = false;
+    emailCodeModel.value = { email: '', code: '' };
+    stopBanCountdown();
 };
 const toReset = () => {
     isReset.value = true;
@@ -677,6 +907,86 @@ const handleResetPassword = async () => {
     }
 };
 
+// 邮箱验证码登录处理函数
+const handleEmailCodeLogin = async () => {
+    loginLoading.value = true;
+
+    const loadingMessage = message.create('正在进行登录验证...', {
+        type: 'loading',
+        duration: 0,
+    });
+
+    try {
+        await emailCodeFormRef.value?.validate();
+
+        const code = parseInt(emailCodeModel.value.code);
+        if (isNaN(code) || code < 100000 || code > 999999) {
+            throw new Error('验证码必须是6位数字');
+        }
+
+        const { data } = await api.v2.user.loginByEmailCode(
+            emailCodeModel.value.email,
+            code
+        );
+
+        const userInfo = { ...data };
+
+        const storageDuration = keepLoggedIn.value ? 'permanent' : '1d';
+        userStore.setUser(userInfo, storageDuration);
+
+        loadingMessage.type = 'success';
+        loadingMessage.content =
+            data.usergroup === '免费用户'
+                ? `登录成功，欢迎您，${data.username}！`
+                : `登录成功，欢迎您，尊贵的会员用户${data.username}！`;
+
+        // 重置邮箱验证码登录模式
+        isEmailCodeLoginMode.value = false;
+        emailCodeModel.value = { email: '', code: '' };
+        stopBanCountdown();
+
+        router.push('/home');
+    } catch (error: any) {
+        let errorMsg = '';
+
+        if (Array.isArray(error) && error.length > 0) {
+            if (Array.isArray(error[0]) && error[0][0]?.message) {
+                errorMsg = error[0][0].message;
+            } else if (error[0]?.message) {
+                errorMsg = error[0].message;
+            }
+        }
+
+        if (!errorMsg && error && typeof error === 'object' && error.hasOwnProperty('errors')) {
+            const errorsObj = error.errors;
+            if (errorsObj && typeof errorsObj === 'object') {
+                for (const key in errorsObj) {
+                    if (Array.isArray(errorsObj[key]) && errorsObj[key][0]?.message) {
+                        errorMsg = errorsObj[key][0].message;
+                        break;
+                    }
+                }
+            }
+        }
+
+        loadingMessage.type = 'error';
+        loadingMessage.content = errorMsg || (error && error.message ? error.message : '登录失败');
+        console.error('邮箱验证码登录失败', error);
+    } finally {
+        setTimeout(() => {
+            loadingMessage.destroy();
+        }, 4000);
+        loginLoading.value = false;
+    }
+};
+
+// 返回普通登录模式
+const backToNormalLogin = () => {
+    isEmailCodeLoginMode.value = false;
+    emailCodeModel.value = { email: '', code: '' };
+    stopBanCountdown();
+};
+
 const toggleRegister = () => {
     isRegister.value = !isRegister.value;
 };
@@ -693,6 +1003,8 @@ onMounted(() => {
 
 onUnmounted(() => {
     window.removeEventListener('resize', handleResize);
+    // 清理封禁倒计时定时器
+    stopBanCountdown();
 });
 
 const lastStep = ref(currentStep.value);

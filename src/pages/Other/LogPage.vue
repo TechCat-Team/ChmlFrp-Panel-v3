@@ -93,6 +93,7 @@ const actionOptions = computed(() => {
     const actions: Record<string, Array<{ label: string; value: string }>> = {
         account: [
             { label: '登录', value: 'login' },
+            { label: '邮箱验证码登录', value: 'email_code_login' },
             { label: '重置密码', value: 'reset_password' },
             { label: '重置Token', value: 'reset_token' },
             { label: '修改邮箱', value: 'reset_email' },
