@@ -112,20 +112,20 @@ const cards = computed(() => {
 
     return [
         { title: '连接数', value: userInfo?.totalCurConns || 0, icon: markRaw(LinkOutline), precision: 0 },
-        {
-            title: '总上传',
+    {
+        title: '总上传',
             value: uploadFormatted.value,
-            icon: markRaw(ArrowUpCircleOutline),
-            precision: 2,
+        icon: markRaw(ArrowUpCircleOutline),
+        precision: 2,
             suffix: uploadFormatted.suffix,
-        },
-        {
-            title: '总下载',
+    },
+    {
+        title: '总下载',
             value: downloadFormatted.value,
-            icon: markRaw(ArrowDownCircleOutline),
-            precision: 2,
+        icon: markRaw(ArrowDownCircleOutline),
+        precision: 2,
             suffix: downloadFormatted.suffix,
-        },
+    },
         { title: '积分数', value: userInfo?.integral || 0, icon: markRaw(ServerOutline), precision: 0 },
     ];
 });
