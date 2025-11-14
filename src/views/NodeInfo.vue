@@ -387,27 +387,6 @@ const loadingNodeMap = ref(true);
 const whetherTheNodeExists = ref(false);
 const apiError = ref(false);
 
-// 流量单位换算
-function formatBytes(bytes: string | number | undefined): { value: number; suffix: string } {
-    let num: number;
-    if (bytes === undefined) {
-        return { value: 0, suffix: 'B' };
-    }
-    if (typeof bytes === 'string') {
-        num = parseFloat(bytes);
-    } else {
-        num = bytes;
-    }
-    const units = ['B', 'K', 'M', 'G', 'T', 'P'];
-    if (num === 0) return { value: 0, suffix: 'B' };
-    let index = 0;
-    while (num >= 1024 && index < units.length - 1) {
-        num /= 1024;
-        index++;
-    }
-    return { value: parseFloat(num.toFixed(2)), suffix: units[index] };
-}
-
 function formatTimestamp(timestamp: string): string {
     const date = new Date(timestamp);
     return date.toLocaleTimeString('en-GB', { hour12: false });
@@ -468,6 +447,7 @@ const latestStatus = ref<Status | null>(null); // 初始化为 null
 let sortedStatusList: Status[] = [];
 
 import api from '@/api';
+import { formatBytes } from '@/utils/formatBytes';
 
 // 判断状态是否全为0，即无效统计点
 const isAllZero = (status: Status) => {

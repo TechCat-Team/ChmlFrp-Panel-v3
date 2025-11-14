@@ -289,6 +289,7 @@ const onlineNodes = ref(0); // 当前总在线节点
 const tunnelCounts = ref(0); //当前总在线隧道
 
 import api from '@/api';
+import { formatBytes } from '@/utils/formatBytes';
 
 const nodeStatus = async () => {
     try {
@@ -325,30 +326,6 @@ const nodeStatus = async () => {
     }
 };
 
-// 流量单位换算（容错 null/undefined/NaN）
-function formatBytes(bytes: unknown): { value: number; suffix: string } {
-    let parsed: number;
-    if (typeof bytes === 'number') {
-        parsed = bytes;
-    } else if (typeof bytes === 'string') {
-        parsed = parseFloat(bytes);
-    } else {
-        parsed = 0;
-    }
-
-    if (!Number.isFinite(parsed) || parsed <= 0) {
-        return { value: 0, suffix: 'Bytes' };
-    }
-
-    const units = ['Bytes', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB'];
-    let index = 0;
-    let num = parsed;
-    while (num >= 1024 && index < units.length - 1) {
-        num /= 1024;
-        index++;
-    }
-    return { value: parseFloat(num.toFixed(2)), suffix: units[index] };
-}
 
 // 根据节点负载调整进度条颜色
 const progressColor = (bandwidthOccupation: number) => {

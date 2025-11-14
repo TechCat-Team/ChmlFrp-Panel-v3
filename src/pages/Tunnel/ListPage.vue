@@ -701,6 +701,7 @@ import { useUserStore } from '@/stores/user';
 
 import api from '@/api';
 import { NIcon } from 'naive-ui';
+import { formatBytes } from '@/utils/formatBytes';
 
 import * as echarts from 'echarts/core';
 import { BarChart } from 'echarts/charts';
@@ -1894,23 +1895,6 @@ onMounted(() => {
     initExpandedPanels();
 });
 
-// 流量单位换算
-function formatBytes(bytes: string | number): { value: number; suffix: string } {
-    let num: number;
-    if (typeof bytes === 'string') {
-        num = parseFloat(bytes);
-    } else {
-        num = bytes;
-    }
-    const units = ['Bytes', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB'];
-    if (num === 0) return { value: 0, suffix: 'Bytes' };
-    let index = 0;
-    while (num >= 1024 && index < units.length - 1) {
-        num /= 1024;
-        index++;
-    }
-    return { value: parseFloat(num.toFixed(2)), suffix: units[index] };
-}
 
 interface NodeCard {
     id: number;
