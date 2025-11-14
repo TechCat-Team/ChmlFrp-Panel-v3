@@ -308,3 +308,50 @@ export const offlineUserNodes = async (token: string): Promise<OfflineUserNodesR
         params: { token },
     });
 };
+
+// 日志查询参数接口
+export interface GetUserLogsParams {
+    token: string;
+    page?: number;
+    size?: number;
+    action?: string;
+    category?: string;
+    start_time?: string;
+    end_time?: string;
+}
+
+// 日志项接口
+export interface LogItem {
+    id: number;
+    user_id: number;
+    action: string;
+    category: string;
+    ip_address: string;
+    user_agent: string;
+    status: string;
+    resource_name: string | null;
+    extra_data: any | null;
+    timestamp: string;
+}
+
+// 日志查询响应接口
+interface GetUserLogsResponse extends BaseResponse {
+    data: {
+        logs: LogItem[];
+        total: number;
+        page: number;
+        size: number;
+        totalPages: number;
+    };
+}
+
+/**
+ * 查询用户日志
+ * @param {GetUserLogsParams} params - 查询参数
+ * @returns {Promise<GetUserLogsResponse>} 日志查询响应
+ */
+export const getUserLogs = async (params: GetUserLogsParams): Promise<GetUserLogsResponse> => {
+    return axiosInstance.get('/log/query', {
+        params,
+    });
+};

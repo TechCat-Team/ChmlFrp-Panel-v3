@@ -121,7 +121,7 @@
                         <n-button text tag="a" href="https://docs.chmlfrp.cn" target="_blank" type="primary">
                             ChmlFrp文档
                         </n-button>
-                        或ChmlFrpQQ交流群询问。
+                        或ChmlFrp交流群询问。
                     </n-alert>
                     <n-flex style="margin-top: 20px">
                         <n-button style="border-radius: 5px" tertiary type="primary"

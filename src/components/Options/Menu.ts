@@ -1,4 +1,4 @@
-import { h, Component } from 'vue';
+import { h, Component, computed } from 'vue';
 import { RouterLink } from 'vue-router';
 import { NIcon } from 'naive-ui';
 import { useUserStore } from '@/stores/user';
@@ -188,6 +188,18 @@ export const computedMenuOptionsUser = computed(() => [
                     ),
                 key: '关于面板',
                 icon: renderIcon(InformationCircleOutline),
+            },
+            {
+                label: () =>
+                    h(
+                        RouterLink,
+                        {
+                            to: { name: '用户日志' },
+                        },
+                        { default: () => '用户日志' }
+                    ),
+                key: '用户日志',
+                icon: renderIcon(DocumentTextOutline),
             },
             {
                 label: () =>
@@ -396,6 +408,18 @@ export const computedMenuOptionsGuest = computed(() => [
                     ),
                 key: '关于面板',
                 icon: renderIcon(InformationCircleOutline),
+            },
+            {
+                label: () =>
+                    h(
+                        RouterLink,
+                        {
+                            to: { name: '用户日志' },
+                        },
+                        { default: () => '用户日志' }
+                    ),
+                key: '用户日志',
+                icon: renderIcon(DocumentTextOutline),
             },
             {
                 label: () =>

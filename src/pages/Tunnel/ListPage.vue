@@ -721,7 +721,6 @@ const nodeInfoModal = ref(false); // 节点信息模态框
 const tunnelInfoModal = ref(false); // 隧道信息模态框
 const editTunnelModal = ref(false); // 编辑隧道模态框
 const loadingTunnel = ref(true); // 用户隧道加载
-const deletetButtonLoading = ref(false);
 const loadingTunnelInfo = ref(false);
 const loadingNodeMap = ref(false);
 const loadingCreateTunnel = ref(false);
@@ -1797,34 +1796,41 @@ const createATunnel = async () => {
 
 const deletetTunnelSuccess = ref(true);
 const handleConfirm = (title: string, id: number, ttype: string, dorp: string) => {
-    dialog.warning({
+    const d = dialog.warning({
         title: '警告',
         content: '您正在删除隧道：' + title + '(' + id + ')，请确认是否删除。',
         positiveText: '确定',
         negativeText: '取消',
-        loading: deletetButtonLoading.value,
         onPositiveClick: async () => {
+            d.loading = true;
             deletetTunnelSuccess.value = false;
-            deletetButtonLoading.value = true;
-            deletetTunnel(title, id, ttype, dorp);
-            deletetButtonLoading.value = false;
-            if (tunnelCards.value !== null) {
-                const index = tunnelCards.value.findIndex((tunnel) => tunnel.name === title);
-                if (index !== -1) {
-                    tunnelCards.value.splice(index, 1);
-                } else {
-                    console.warn('未找到 title 为 ' + title + ' 的数据');
+            
+            try {
+                await deletetTunnel(title, id, ttype, dorp);
+                // 删除成功后从列表中移除
+                if (tunnelCards.value !== null) {
+                    const index = tunnelCards.value.findIndex((tunnel) => tunnel.name === title);
+                    if (index !== -1) {
+                        tunnelCards.value.splice(index, 1);
+                    } else {
+                        console.warn('未找到 title 为 ' + title + ' 的数据');
+                    }
                 }
+            } catch (error) {
+                // 错误已在 deletetTunnel 中处理
+                console.error('删除隧道失败', error);
+            } finally {
+                d.loading = false;
+                deletetTunnelSuccess.value = true;
             }
         },
     });
 };
 const deletetTunnel = async (title: string, id: number, ttype: string, dorp: string) => {
     try {
-        const response = await axios.get(
-            `https://cf-v1.uapis.cn/api/deletetl.php?token=${userInfo?.usertoken}&nodeid=${id}&userid=${userInfo?.id}`
-        );
-        if (response.data.code === 200) {
+        const response = await api.v2.tunnel.deleteTunnel(userInfo?.usertoken || '', id);
+        
+        if (response.code === 200) {
             message.success('成功删除隧道：' + title);
             if (ttype === 'http' || ttype === 'https') {
                 // 调用API获取用户的免费二级域名
@@ -1837,14 +1843,14 @@ const deletetTunnel = async (title: string, id: number, ttype: string, dorp: str
                         if (domainRecord) {
                             // 检查remarks中是否包含"网站"
                             if (domainRecord.remarks.includes('网站')) {
-                                dialog.warning({
+                                const domainDialog = dialog.warning({
                                     title: '警告',
                                     content:
                                         '隧道删除成功！但是此隧道绑定了免费域名，请问是否同步删除此隧道的域名解析。',
                                     positiveText: '删除',
                                     negativeText: '不删除',
-                                    loading: deletetButtonLoading.value,
                                     onPositiveClick: async () => {
+                                        domainDialog.loading = true;
                                         try {
                                             await api.v2.domain.deleteFreeSubdomain({
                                                 token: userInfo?.usertoken || '',
@@ -1855,6 +1861,8 @@ const deletetTunnel = async (title: string, id: number, ttype: string, dorp: str
                                             message.success('免费域名同步删除成功');
                                         } catch (error) {
                                             message.error('免费域名失败: ' + (error as Error).message);
+                                        } finally {
+                                            domainDialog.loading = false;
                                         }
                                     },
                                 });
@@ -1869,14 +1877,16 @@ const deletetTunnel = async (title: string, id: number, ttype: string, dorp: str
                     });
             }
         } else {
-            message.error(response.data.error);
+            message.error(response.msg || '删除隧道失败');
             fetchTunnelCards();
+            throw new Error(response.msg || '删除隧道失败');
         }
     } catch (error) {
         console.error('删除隧道API调用失败', error);
-        message.error('删除隧道API调用失败' + error);
+        message.error('删除隧道失败: ' + (error as Error).message);
+        fetchTunnelCards();
+        throw error; // 重新抛出错误，让调用者知道删除失败
     }
-    deletetTunnelSuccess.value = true;
 };
 
 onMounted(() => {

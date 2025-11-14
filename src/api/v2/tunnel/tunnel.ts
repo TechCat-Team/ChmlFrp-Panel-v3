@@ -97,10 +97,11 @@ export const createTunnel = (params: {
  * @param {string} token 用户的身份令牌
  * @param {number} tunnelid 要删除的隧道 ID
  * @returns {Promise<BaseResponse>} 返回删除隧道的响应数据
- * @deprecated 此函数当前不可用，可能会在未来的版本中恢复
  */
 export const deleteTunnel = (token: string, tunnelid: number): Promise<BaseResponse> => {
-    return axiosInstance.post('/delete_tunnel', { token, tunnelid });
+    return axiosInstance.get('/delete_tunnel', {
+        params: { token, tunnelid },
+    });
 };
 
 /**

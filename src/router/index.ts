@@ -166,6 +166,17 @@ const routes: Array<RouteRecordRaw> = [
                     description: '了解更多关于ChmlFrp控制面板的信息。',
                 },
             },
+            {
+                path: '/other/log',
+                name: '用户日志',
+                component: () => import('@/pages/Other/LogPage.vue'),
+                meta: {
+                    title: '用户日志 - ChmlFrp',
+                    keywords: 'ChmlFrp, 用户日志, 操作记录, 内网穿透, 端口映射, frp, 免费frp, 映射',
+                    description: '查看您的ChmlFrp操作日志记录。',
+                    requiresAuth: true,
+                },
+            },
         ],
     },
     {
