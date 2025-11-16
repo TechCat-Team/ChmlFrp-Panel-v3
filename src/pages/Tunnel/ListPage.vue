@@ -1,594 +1,94 @@
 <template>
     <n-back-top :right="100" />
-    <n-modal v-model:show="nodeListModal">
-        <n-card :style="widthStyle" title="选择节点" closable :bordered="false" role="dialog" aria-modal="true">
-            <n-alert type="info" style="bottom: 12px"> 为确保您的体验，请尽量选择负载低，距离近的节点。 </n-alert>
-            <n-flex justify="space-between" align="center">
-                <n-flex>
-                    <n-checkbox v-model:checked="filters.udp"> UDP </n-checkbox>
-                </n-flex>
-                <n-flex>
-                    <n-button-group>
-                        <n-button round size="small" :type="filters.web === 'all' ? 'primary' : 'default'"
-                            @click="filterWeb('all')">
-                            全部
-                        </n-button>
-                        <n-button size="small" :type="filters.web === 'yes' ? 'primary' : 'default'"
-                            @click="filterWeb('yes')">
-                            可建站
-                        </n-button>
-                        <n-button round size="small" :type="filters.web === 'no' ? 'primary' : 'default'"
-                            @click="filterWeb('no')">
-                            不可建站
-                        </n-button>
-                    </n-button-group>
-                    <n-button-group>
-                        <n-button round size="small" :type="filters.region === 'all' ? 'primary' : 'default'"
-                            @click="filterRegion('all')">
-                            全部
-                        </n-button>
-                        <n-button size="small" :type="filters.region === 'china' ? 'primary' : 'default'"
-                            @click="filterRegion('china')">
-                            国内
-                        </n-button>
-                        <n-button round size="small" :type="filters.region === 'overseas' ? 'primary' : 'default'"
-                            @click="filterRegion('overseas')">
-                            境外
-                        </n-button>
-                    </n-button-group>
-                </n-flex>
-            </n-flex>
-            <n-empty v-if="nodeCards.length === 0" description="当前没有节点在线" />
-            <n-empty v-else-if="filteredNodeCards.length === 0" description="您选择的分类没有任何节点" />
-            <n-collapse v-else style="margin-top: 12px" v-model:expanded-names="expandedPanels">
-                <!-- 会员节点面板 -->
-                <n-collapse-item v-if="vipNodeCards.length > 0" name="vip" title="会员节点">
-                    <template #header-extra>
-                        <n-tag size="small" round type="warning"> {{ vipNodeCards.length }} 个节点 </n-tag>
-                    </template>
-                    <n-grid cols="1 m:3 xl:4 2xl:5" :x-gap="12" :y-gap="12" responsive="screen">
-                        <n-grid-item v-for="(nodeCard, index) in vipNodeCards" :key="`vip-${index}`">
-                            <n-tooltip trigger="hover">
-                                <template #trigger>
-                                    <n-card size="small" style="height: 90px" hoverable @click="handleNodeCardClick(nodeCard)">
-                                        <template #header>
-                                            <span style="color: gray"> #{{ nodeCard.id }} </span>
-                                            <n-divider vertical />
-                                            {{ nodeCard.name }}
-                                        </template>
-                                        <template #header-extra>
-                                            <n-tag size="small" round type="warning"> VIP </n-tag>
-                                        </template>
-                                        <n-space>
-                                            <n-tag :bordered="false" round size="small" type="success"
-                                                v-if="nodeCard.web === 'yes'">
-                                                <template #icon>
-                                                    <n-icon :component="EarthOutline" />
-                                                </template>
-                                                建站
-                                            </n-tag>
-                                            <n-tag :bordered="false" round size="small" type="error"
-                                                v-if="nodeCard.udp === 'false'">
-                                                <template #icon>
-                                                    <n-icon :component="BanOutline" />
-                                                </template>
-                                                UDP
-                                            </n-tag>
-                                            <n-tag :bordered="false" round size="small" type="info"
-                                                v-if="nodeCard.fangyu === 'true'">
-                                                <template #icon>
-                                                    <n-icon :component="ShieldCheckmarkOutline" />
-                                                </template>
-                                                防御
-                                            </n-tag>
-                                        </n-space>
-                                    </n-card>
-                                </template>
-                                {{ nodeCard.notes }}
-                            </n-tooltip>
-                        </n-grid-item>
-                    </n-grid>
-                </n-collapse-item>
-                <!-- 非会员节点面板 -->
-                <n-collapse-item v-if="normalNodeCards.length > 0" name="normal" title="非会员节点">
-                    <template #header-extra>
-                        <n-tag size="small" round type="info"> {{ normalNodeCards.length }} 个节点 </n-tag>
-                    </template>
-                    <n-grid cols="1 m:3 xl:4 2xl:5" :x-gap="12" :y-gap="12" responsive="screen">
-                        <n-grid-item v-for="(nodeCard, index) in normalNodeCards" :key="`normal-${index}`">
-                            <n-tooltip trigger="hover">
-                                <template #trigger>
-                                    <n-card size="small" style="height: 90px" hoverable @click="handleNodeCardClick(nodeCard)">
-                                        <template #header>
-                                            <span style="color: gray"> #{{ nodeCard.id }} </span>
-                                            <n-divider vertical />
-                                            {{ nodeCard.name }}
-                                        </template>
-                                        <n-space>
-                                            <n-tag :bordered="false" round size="small" type="success"
-                                                v-if="nodeCard.web === 'yes'">
-                                                <template #icon>
-                                                    <n-icon :component="EarthOutline" />
-                                                </template>
-                                                建站
-                                            </n-tag>
-                                            <n-tag :bordered="false" round size="small" type="error"
-                                                v-if="nodeCard.udp === 'false'">
-                                                <template #icon>
-                                                    <n-icon :component="BanOutline" />
-                                                </template>
-                                                UDP
-                                            </n-tag>
-                                            <n-tag :bordered="false" round size="small" type="info"
-                                                v-if="nodeCard.fangyu === 'true'">
-                                                <template #icon>
-                                                    <n-icon :component="ShieldCheckmarkOutline" />
-                                                </template>
-                                                防御
-                                            </n-tag>
-                                        </n-space>
-                                    </n-card>
-                                </template>
-                                {{ nodeCard.notes }}
-                            </n-tooltip>
-                        </n-grid-item>
-                    </n-grid>
-                </n-collapse-item>
-            </n-collapse>
-        </n-card>
-    </n-modal>
-    <n-modal v-model:show="nodeInfoModal">
-        <n-card :style="widthStyle" size="small" :bordered="false" transform-origin="center" role="dialog"
-            aria-modal="true">
-            <n-tabs type="line" size="large" :tabs-padding="20" @update:value="handleTabChange">
-                <n-tab-pane name="节点详情">
-                    <n-p>节点负载</n-p>
-                    <n-progress type="line" :percentage="NodeInfo.bandwidth_usage_percent"
-                        :indicator-placement="'inside'" />
-                    <n-p style="margin-top: 12px">节点详情</n-p>
-                    <n-descriptions label-placement="left" size="medium" :column="screenWidth >= 600 ? 3 : 1" bordered>
-                        <n-descriptions-item label="节点名">
-                            {{ selectNode }}
-                        </n-descriptions-item>
-                        <n-descriptions-item label="地区">
-                            <n-skeleton v-if="loadingTunnelInfo" text style="width: 100%" />
-                            <n-p v-else>{{ NodeInfo.area }}</n-p>
-                        </n-descriptions-item>
-                        <n-descriptions-item label="权限组">
-                            <n-skeleton v-if="loadingTunnelInfo" width="37.09px" height="28px" round />
-                            <n-tag v-else :type="NodeInfo.nodegroup === 'vip' ? 'warning' : 'info'" round>
-                                {{ NodeInfo.nodegroup }}
-                            </n-tag>
-                        </n-descriptions-item>
-                        <n-descriptions-item label="防御">
-                            <n-skeleton v-if="loadingTunnelInfo" width="60.65px" height="28px" round />
-                            <n-tooltip v-else-if="NodeInfo.fangyu === true" trigger="hover">
-                                <template #trigger>
-                                    <n-tag round type="success"> 有防御 </n-tag>
-                                </template>
-                                此节点有≥5Gbps的DDOS防御
-                            </n-tooltip>
-                            <n-tooltip v-else trigger="hover">
-                                <template #trigger>
-                                    <n-tag round type="error"> 没防御 </n-tag>
-                                </template>
-                                此节点没有防御或DDOS防御带宽小于5Gbps
-                            </n-tooltip>
-                        </n-descriptions-item>
-                        <n-descriptions-item label="建站">
-                            <n-skeleton v-if="loadingTunnelInfo" width="46.65px" height="28px" round />
-                            <n-tag v-else-if="NodeInfo.web === 'yes'" type="success" round> 允许 </n-tag>
-                            <n-tag v-else type="error" round> 不允许 </n-tag>
-                        </n-descriptions-item>
-                        <n-descriptions-item label="UDP">
-                            <n-skeleton v-if="loadingTunnelInfo" width="46.65px" height="28px" round />
-                            <n-tag v-else-if="NodeInfo.udp" type="success" round> 允许 </n-tag>
-                            <n-tag v-else type="error" round> 不允许 </n-tag>
-                        </n-descriptions-item>
-                        <n-descriptions-item label="域名过白">
-                            <n-skeleton v-if="loadingTunnelInfo" text style="width: 100%" />
-                            <n-tooltip v-else-if="!NodeInfo.toowhite" trigger="hover">
-                                <template #trigger> 域名无需备案过白 </template>
-                                此节点为国外或中国特别行政区，也可能自动过白，域名无需手动申请过白
-                            </n-tooltip>
-                            <n-tooltip v-else trigger="hover">
-                                <template #trigger> 域名需过白 </template>
-                                此节点为中国境内节点，并且无法自动过白，需要前往"扩展功能"-"域名过白"进行手动过白
-                            </n-tooltip>
-                        </n-descriptions-item>
-                        <n-descriptions-item label="端口限制">
-                            <n-skeleton v-if="loadingTunnelInfo" text style="width: 100%" />
-                            <n-p v-else>{{ NodeInfo.rport }}</n-p>
-                        </n-descriptions-item>
-                        <n-descriptions-item label="域名">
-                            <n-skeleton v-if="loadingTunnelInfo" text style="width: 100%" />
-                            <n-p v-else>{{ NodeInfo.ip }}</n-p>
-                        </n-descriptions-item>
-                        <n-descriptions-item label="IP">
-                            <n-skeleton v-if="loadingTunnelInfo" text style="width: 100%" />
-                            <n-p v-else>{{ NodeInfo.realIp }}</n-p>
-                        </n-descriptions-item>
-                        <n-descriptions-item label="IPV6">
-                            <n-skeleton v-if="loadingTunnelInfo" text style="width: 100%" />
-                            <n-p v-else-if="NodeInfo.ipv6 !== null">{{ NodeInfo.ipv6 }}</n-p>
-                            <n-p v-else>此节点没有公网IPv6</n-p>
-                        </n-descriptions-item>
-                        <n-descriptions-item label="带宽">
-                            <n-skeleton v-if="loadingTunnelInfo" text style="width: 100%" />
-                            <n-tooltip v-else-if="NodeInfo.china === 'no'" trigger="hover">
-                                <template #trigger> 国外带宽 </template>
-                                此节点走ChmlFrp国外带宽，您的国外带宽上限为{{
-                                    userInfo?.bandwidth ? userInfo.bandwidth * 4 : 32
-                                }}m
-                            </n-tooltip>
-                            <n-tooltip v-else trigger="hover">
-                                <template #trigger> 国内带宽 </template>
-                                此节点走ChmlFrp国内带宽，您的国内带宽上限为{{ userInfo?.bandwidth }}m
-                            </n-tooltip>
-                        </n-descriptions-item>
-                        <n-descriptions-item label="介绍">
-                            <n-skeleton v-if="loadingTunnelInfo" text style="width: 100%" />
-                            <n-p v-else>{{ NodeInfo.notes }}</n-p>
-                        </n-descriptions-item>
-                    </n-descriptions>
-                </n-tab-pane>
-                <n-tab-pane name="节点地图">
-                    <n-alert type="info">
-                        地图来自中国地理信息公共服务平台，"我的位置"信息通过IP获取，有较大误差。另外请不要使用代理软件，否则您可能会被定位到月球。
-                    </n-alert>
-                    <n-skeleton v-if="loadingNodeMap" text style="width: 100%; margin-top: 16px" height="500px" />
-                    <MapComponent v-else style="margin-top: 16px" :width="'100%'" :height="'500px'"
-                        :markers="markers" />
-                </n-tab-pane>
-            </n-tabs>
-            <template #footer>
-                <n-flex justify="end">
-                    <n-button @click="nodeInfoModal = false">取消</n-button>
-                    <n-button @click="nodeDetails">上一步</n-button>
-                    <n-button @click="goToTheTunnelDetails" type="primary">继续</n-button>
-                </n-flex>
-            </template>
-        </n-card>
-    </n-modal>
-    <n-modal v-model:show="tunnelInfoModal">
-        <n-card style="width: 800px" title="创建隧道" :bordered="false" size="huge" role="dialog" aria-modal="true">
-            <n-alert title="注意" type="info" style="margin-bottom: 8px" v-if="
-                formData.domainNameLabel === '自定义' &&
-                (formData.type === 'HTTP' || formData.type === 'HTTPS') &&
-                NodeInfo.china !== 'no'
-            ">
-                自定义域名解析到中国境内节点(中国特别行政区除外)建站，您的域名必须在工信部备案，不备案将被拦截导致无法访问。
-            </n-alert>
-            <n-alert title="注意" type="info" style="margin-bottom: 8px" v-if="
-                (formData.type === 'TCP') &&
-                NodeInfo.china !== 'no'
-            ">
-                中国境内节点禁止使用TCP隧道建站，如果您是用于网站用途，请使用中国境外节点或解析自己的已备案域名至{{ NodeInfo.ip }}，通过 您解析的域名:外网端口 访问
-            </n-alert>
-            <n-alert title="注意" style="margin-bottom: 32px" type="warning"
-                v-if="formData.domainNameLabel === '自定义' && (formData.type === 'HTTP' || formData.type === 'HTTPS')">
-                请使用自定义域名需要将您的 {{ formData.domain }} 域名通过CNAME解析至 {{ NodeInfo.ip }} 才能正常访问。
-            </n-alert>
-            <n-row :gutter="15" style="margin-top: 15px">
-                <n-form ref="tunnelForm" :model="formData" size="medium" label-width="100px">
-                    <n-col :span="12">
-                        <n-form-item label="隧道名称" path="name">
-                            <n-input v-model:value="formData.name" placeholder="请输入隧道名称" clearable />
-                        </n-form-item>
-                    </n-col>
-                    <n-col :span="12">
-                        <n-form-item label="本地IP" path="localip">
-                            <n-input v-model:value="formData.localip" placeholder="请输入本地IP" clearable />
-                        </n-form-item>
-                    </n-col>
-                    <n-col :span="12">
-                        <n-form-item label="节点选择" path="node" @click="nodeDetails">
-                            <n-select v-model:value="formData.node" placeholder="请选择节点" />
-                        </n-form-item>
-                    </n-col>
-                    <n-col :span="12">
-                        <n-form-item label="端口类型" path="type">
-                            <n-select v-model:value="formData.type" :options="typeOptions" placeholder="请选择端口类型"
-                                clearable />
-                        </n-form-item>
-                    </n-col>
-                    <n-col :span="12">
-                        <n-form-item label="内网端口" path="nport">
-                            <n-input v-model:value="formData.nport" clearable placeholder="请输入内网端口" />
-                        </n-form-item>
-                    </n-col>
-                    <n-col :span="12">
-                        <n-form-item v-if="formData.type === 'HTTP' || formData.type === 'HTTPS'" label="域名类型"
-                            path="domainNameLabel">
-                            <n-select v-model:value="formData.domainNameLabel" :options="domainTypeOptions"
-                                placeholder="请选择域名类型" @update:value="updateDomainTypeTrig" />
-                        </n-form-item>
-                        <n-form-item v-else label="外网端口" path="dorp">
-                            <n-input v-model:value="formData.dorp" clearable @update:value="updatePortTrig" />
-                        </n-form-item>
-                    </n-col>
-                    <n-col :span="24" v-if="
-                        formData.domainNameLabel === '自定义' &&
-                        (formData.type === 'HTTP' || formData.type === 'HTTPS')
-                    ">
-                        <n-form-item label="域名" path="dorp">
-                            <n-input v-model:value="formData.domain" placeholder="请输入您的域名" clearable />
-                        </n-form-item>
-                    </n-col>
-                    <n-col v-if="
-                        formData.domainNameLabel === '免费域名' &&
-                        (formData.type === 'HTTP' || formData.type === 'HTTPS')
-                    " :span="12">
-                        <n-form-item label="请选择免费域名" path="choose">
-                            <n-select v-model:value="formData.choose" :options="domainNameOptions" />
-                        </n-form-item>
-                    </n-col>
-                    <n-col v-if="
-                        formData.domainNameLabel === '免费域名' &&
-                        (formData.type === 'HTTP' || formData.type === 'HTTPS')
-                    " :span="12">
-                        <n-form-item label="新建域名" path="dorp">
-                            <n-input v-model:value="formData.recordValue" placeholder="请输入域名前缀">
-                                <template #suffix> .{{ formData.choose }} </template>
-                            </n-input>
-                        </n-form-item>
-                    </n-col>
-                    <n-collapse style="margin-top: 10px">
-                        <n-collapse-item title="高级设置">
-                            <n-alert type="info" style="margin-bottom: 16px">
-                                不懂请不要设置，否则可能会导致无法使用隧道
-                            </n-alert>
-                            <n-col :span="12">
-                                <n-flex>
-                                    <n-p>数据加密</n-p>
-                                    <n-switch v-model:value="formData.encryption" />
-                                </n-flex>
-                            </n-col>
-                            <n-col :span="12">
-                                <n-flex>
-                                    <n-p>数据压缩</n-p>
-                                    <n-switch v-model:value="formData.compression" />
-                                </n-flex>
-                            </n-col>
-                            <n-form-item label="额外参数" path="ap" style="margin-top: 8px">
-                                <n-input v-model:value="formData.ap" type="textarea" />
-                            </n-form-item>
-                        </n-collapse-item>
-                    </n-collapse>
-                </n-form>
-            </n-row>
-            <template #footer>
-                <n-flex justify="end">
-                    <n-button v-if="formData.type === 'TCP' || formData.type === 'UDP'"
-                        @click="generateRandomPort">随机外网端口</n-button>
-                    <n-button @click="generateRandomTunnelName">随机隧道名</n-button>
-                    <n-button @click="tunnelInfoModal = false">取消</n-button>
-                    <n-button @click="createATunnelUp">上一步</n-button>
-                    <n-button type="primary" @click="createATunnel" :loading="loadingCreateTunnel">确定</n-button>
-                </n-flex>
-            </template>
-        </n-card>
-    </n-modal>
-    <n-modal v-model:show="editTunnelModal">
-        <n-card style="width: 800px" title="编辑隧道" :bordered="false" size="huge" role="dialog" aria-modal="true">
-            <n-alert title="注意" type="info" style="margin-bottom: 32px" v-if="
-                formData.domainNameLabel === '免费域名' && (formData.type === 'HTTP' || formData.type === 'HTTPS')
-            ">
-                免费域名禁止用于中国境内节点(中国特别行政区除外)建站，如果您给国内节点解析免费域名并建站，会被备案拦截导致无法访问。此外，更改节点后免费域名解析会自动更改。
-            </n-alert>
-            <n-alert title="注意" type="info" style="margin-bottom: 32px"
-                v-if="formData.domainNameLabel === '自定义' && (formData.type === 'HTTP' || formData.type === 'HTTPS')">
-                自定义域名解析到中国境内节点(中国特别行政区除外)建站，您的域名必须在工信部备案，不备案将被拦截导致无法访问。
-            </n-alert>
-            <n-alert title="注意" style="margin-bottom: 32px" type="warning"
-                v-if="formData.domainNameLabel === '自定义' && (formData.type === 'HTTP' || formData.type === 'HTTPS')">
-                请使用自定义域名需要将您的 {{ formData.domain }} 域名通过CNAME解析至 {{ NodeInfo.ip }} 才能正常访问。
-            </n-alert>
-            <n-row :gutter="15" style="margin-top: 15px">
-                <n-form ref="tunnelForm" :model="formData" size="medium" label-width="100px">
-                    <n-col :span="12">
-                        <n-form-item label="隧道名称" path="name">
-                            <n-input v-model:value="formData.name" placeholder="请输入隧道名称" clearable />
-                        </n-form-item>
-                    </n-col>
-                    <n-col :span="12">
-                        <n-form-item label="本地IP" path="localip">
-                            <n-input v-model:value="formData.localip" placeholder="请输入本地IP" clearable />
-                        </n-form-item>
-                    </n-col>
-                    <n-col :span="12">
-                        <n-form-item label="节点选择" path="node">
-                            <n-select v-model:value="formData.node" :options="updateNodeOptions" placeholder="请选择节点"
-                                @update:value="updateNodeTrig" />
-                        </n-form-item>
-                    </n-col>
-                    <n-col :span="12">
-                        <n-form-item v-if="formData.type === 'TCP' || formData.type === 'UDP'" label="端口类型" path="type">
-                            <n-select v-model:value="formData.type" :options="typeOptionsTCPUDP" placeholder="请选择端口类型"
-                                clearable @update:value="updateTypeTrig" />
-                        </n-form-item>
-                        <n-form-item v-else label="端口类型" path="type">
-                            <n-select v-model:value="formData.type" :options="typeOptionsHTTPHTTPS"
-                                placeholder="请选择端口类型" clearable @update:value="updateTypeTrig" />
-                        </n-form-item>
-                    </n-col>
-                    <n-col :span="12">
-                        <n-form-item label="内网端口" path="nport">
-                            <n-input v-model:value="formData.nport" clearable placeholder="请输入内网端口" />
-                        </n-form-item>
-                    </n-col>
-                    <n-col :span="12">
-                        <n-form-item v-if="formData.type === 'HTTP' || formData.type === 'HTTPS'" label="域名类型"
-                            path="domainNameLabel">
-                            <n-select disabled v-model:value="formData.domainNameLabel" :options="domainTypeOptions"
-                                placeholder="请选择域名类型" @update:value="updateDomainTypeTrig" />
-                        </n-form-item>
-                        <n-form-item v-else label="外网端口" path="dorp">
-                            <n-input placeholder="请选择域名类型" v-model:value="formData.dorp" clearable
-                                @update:value="updatePortTrig" />
-                        </n-form-item>
-                    </n-col>
-                    <n-col :span="24" v-if="
-                        formData.domainNameLabel === '自定义' &&
-                        (formData.type === 'HTTP' || formData.type === 'HTTPS')
-                    ">
-                        <n-form-item label="域名" path="dorp">
-                            <n-input v-model:value="formData.domain" placeholder="请输入您的域名" clearable />
-                        </n-form-item>
-                    </n-col>
-                    <n-col v-if="
-                        formData.domainNameLabel === '免费域名' &&
-                        (formData.type === 'HTTP' || formData.type === 'HTTPS')
-                    " :span="12">
-                        <n-form-item label="免费域名选择" path="choose">
-                            <n-select v-model:value="formData.choose" :options="domainNameOptions" />
-                        </n-form-item>
-                    </n-col>
-                    <n-col v-if="
-                        formData.domainNameLabel === '免费域名' &&
-                        (formData.type === 'HTTP' || formData.type === 'HTTPS')
-                    " :span="12">
-                        <n-form-item label="域名前缀" path="dorp">
-                            <n-input v-model:value="formData.recordValue" placeholder="请输入域名前缀">
-                                <template #suffix> .{{ formData.choose }} </template>
-                            </n-input>
-                        </n-form-item>
-                    </n-col>
-                    <n-collapse style="margin-top: 10px">
-                        <n-collapse-item title="高级设置">
-                            <n-alert type="info" style="margin-bottom: 16px">
-                                不懂请不要设置，否则可能会导致无法启动隧道
-                            </n-alert>
-                            <n-col :span="12">
-                                <n-flex>
-                                    <n-p>数据加密</n-p>
-                                    <n-switch v-model:value="formData.encryption" />
-                                </n-flex>
-                            </n-col>
-                            <n-col :span="12">
-                                <n-flex>
-                                    <n-p>数据压缩</n-p>
-                                    <n-switch v-model:value="formData.compression" />
-                                </n-flex>
-                            </n-col>
-                            <n-form-item label="额外参数" path="ap" style="margin-top: 8px">
-                                <n-input v-model:value="formData.ap" type="textarea" />
-                            </n-form-item>
-                        </n-collapse-item>
-                    </n-collapse>
-                </n-form>
-            </n-row>
-            <template #footer>
-                <n-flex justify="end">
-                    <n-button v-if="formData.type === 'TCP' || formData.type === 'UDP'"
-                        @click="generateRandomPort">随机外网端口</n-button>
-                    <n-button @click="generateRandomTunnelName">随机隧道名</n-button>
-                    <n-button @click="editTunnelModal = false">取消</n-button>
-                    <n-button type="primary" @click="determineTheChangeOfTheTunnel"
-                        :loading="loadingEditTunnel">确定</n-button>
-                </n-flex>
-            </template>
-        </n-card>
-    </n-modal>
-    <n-card style="margin-bottom: 12px" title="隧道列表">
-        <template #header-extra>
-            <n-button round quaternary :loading="loadingTunnel" @click="fetchTunnelCards">
-                <template #icon>
-                    <n-icon :component="RefreshOutline" />
-                </template>
-                刷新
-            </n-button>
-            <n-button @click="createNodes" :loading="addTheTunnelButtonShow" type="primary" round quaternary
-                :disabled="addTheTunnelButtonShow">
-                <template #icon>
-                    <n-icon v-if="!addTheTunnelButtonShow" :component="AddOutline" />
-                </template>
-                添加隧道
-            </n-button>
-        </template>
-    </n-card>
+    <NodeListModal
+        v-model:show="nodeListModal"
+        v-model:filters="filters"
+        v-model:expanded-panels="expandedPanels"
+        :width-style="widthStyle"
+        :node-cards="nodeCards"
+        :filtered-node-cards="filteredNodeCards"
+        :vip-node-cards="vipNodeCards"
+        :normal-node-cards="normalNodeCards"
+        :filter-web="filterWeb"
+        :filter-region="filterRegion"
+        @node-select="handleNodeCardClick"
+    />
+    <NodeInfoModal
+        v-model:show="nodeInfoModal"
+        :width-style="widthStyle"
+        :screen-width="screenWidth"
+        :select-node="selectNode"
+        :node-info="nodeInfoValue"
+        :loading="loadingTunnelInfo"
+        :loading-map="loadingNodeMap"
+        :markers="markers"
+        :user-bandwidth="userInfo?.bandwidth"
+        @tab-change="handleTabChange"
+        @cancel="nodeInfoModal = false"
+        @back="nodeDetails"
+        @continue="goToTheTunnelDetails"
+    />
+    <TunnelFormModal
+        v-model:show="tunnelInfoModal"
+        title="创建隧道"
+        :is-edit="false"
+        :form-data="formData"
+        :node-info="nodeInfoValue"
+        :node-options="[]"
+        :type-options="typeOptions"
+        :typeOptionsTCPUDP="typeOptionsTCPUDP"
+        :typeOptionsHTTPHTTPS="typeOptionsHTTPHTTPS"
+        :domain-type-options="domainTypeOptions"
+        :domain-name-options="domainNameOptions"
+        :loading="loadingCreateTunnel"
+        @select-node="nodeDetails"
+        @node-change="updateNodeTrig"
+        @type-change="updateTypeTrig"
+        @domain-type-change="updateDomainTypeTrig"
+        @port-change="updatePortTrig"
+        @random-port="generateRandomPort"
+        @random-name="generateRandomTunnelName"
+        @cancel="tunnelInfoModal = false"
+        @back="createATunnelUp"
+        @submit="handleCreateTunnel"
+    />
+    <TunnelFormModal
+        v-model:show="editTunnelModal"
+        title="编辑隧道"
+        :is-edit="true"
+        :form-data="formData"
+        :node-info="nodeInfoValue"
+        :node-options="updateNodeOptions"
+        :type-options="typeOptions"
+        :typeOptionsTCPUDP="typeOptionsTCPUDP"
+        :typeOptionsHTTPHTTPS="typeOptionsHTTPHTTPS"
+        :domain-type-options="domainTypeOptions"
+        :domain-name-options="domainNameOptions"
+        :loading="loadingEditTunnel"
+        @node-change="updateNodeTrig"
+        @type-change="updateTypeTrig"
+        @domain-type-change="updateDomainTypeTrig"
+        @port-change="updatePortTrig"
+        @random-port="generateRandomPort"
+        @random-name="generateRandomTunnelName"
+        @cancel="editTunnelModal = false"
+        @submit="handleEditTunnelSubmit"
+    />
+    <TunnelListHeader :loading="loadingTunnel" :adding="addTheTunnelButtonShow" @refresh="fetchTunnelCards"
+        @add="createNodes" />
     <n-grid v-if="!loadingTunnel" cols="1 m:2 l:3 xl:4 2xl:5" :x-gap="12" :y-gap="12" responsive="screen">
         <n-grid-item v-for="(card, index) in tunnelCards" :key="index">
-            <n-card size="small">
-                <template #header>
-                    {{ card.name }}
-                    <span style="color: gray; font-size: 14px">{{ card.id }}</span>
-                </template>
-                <template #header-extra>
-                    <n-tooltip trigger="hover">
-                        <template #trigger>
-                            <n-tag round :bordered="false" :type="card.status?.type">
-                                {{ card.status?.label }}
-                            </n-tag>
-                        </template>
-                        {{ card.status?.description }}
-                    </n-tooltip>
-                </template>
-                <n-thing content-style="margin-top: 10px;">
-                    <template #description>
-                        <n-space size="small" style="margin-top: 4px">
-                            <n-tag round v-for="(tag, tagIndex) in card.tags" :key="tagIndex" :bordered="false"
-                                type="primary" size="small">
-                                {{ tag }}
-                            </n-tag>
-                        </n-space>
-                    </template>
-                    <a v-if="card.type === 'tcp' || card.type === 'udp'"
-                        @click="copyToClipboard(card.ip + ':' + card.dorp)" style="cursor: pointer; color: inherit">
-                        连接地址：{{ card.ip }}:{{ card.dorp }}
-                    </a>
-                    <a v-else @click="copyToClipboard(card.dorp)" style="cursor: pointer; color: inherit">
-                        连接地址：{{ card.dorp }}
-                    </a>
-                    <br />
-                    <span v-if="card.uptime" style="color: gray; font-size: 10px">
-                        {{ card.uptime }}
-                    </span>
-                    <span v-else style="color: gray; font-size: 10px"> 尚未启动过此隧道 </span>
-                </n-thing>
-                <template #action>
-                    <n-grid cols="8" :x-gap="6" align="center">
-                        <n-grid-item :span="7">
-                            <n-row align="center" justify="start" style="margin-top: 6px">
-                                <n-col :span="8">
-                                    <div style="display: flex; align-items: center">
-                                        <n-icon :component="ArrowUpOutline" />
-                                        <n-number-animation show-separator :from="0"
-                                            :to="formatBytes(card.today_traffic_in).value" />
-                                        {{ formatBytes(card.today_traffic_in).suffix }}
-                                    </div>
-                                </n-col>
-                                <n-col :span="8">
-                                    <div style="display: flex; align-items: center">
-                                        <n-icon :component="ArrowDownOutline" />
-                                        <n-number-animation show-separator :from="0"
-                                            :to="formatBytes(card.today_traffic_out).value" />
-                                        {{ formatBytes(card.today_traffic_out).suffix }}
-                                    </div>
-                                </n-col>
-                                <n-col :span="8">
-                                    <div style="display: flex; align-items: center">
-                                        连接数
-                                        <n-number-animation show-separator :from="0" :to="card.cur_conns" />
-                                    </div>
-                                </n-col>
-                            </n-row>
-                        </n-grid-item>
-                        <n-grid-item :span="1" style="display: flex; justify-content: flex-end">
-                            <n-dropdown trigger="click" :options="getDropdownOptions()"
-                                @select="(key: any) => handleDropdownSelect(key, card)" placement="bottom-end">
-                                <n-button quaternary circle size="medium" style="--n-padding: 8px">
-                                    <template #icon>
-                                        <n-icon size="16">
-                                            <BuildOutline />
-                                        </n-icon>
-                                    </template>
-                                </n-button>
-                            </n-dropdown>
-                        </n-grid-item>
-                    </n-grid>
-                </template>
-            </n-card>
+            <TunnelCardComponent
+                :card="card"
+                :deletet-tunnel-success="deletetTunnelSuccess"
+                :on-edit="editTunnel"
+                :on-get-config="getConfigCode"
+                :on-refresh="handleRefreshTunnel"
+                :on-get-stats="handleGetStats"
+                :on-offline="handleOfflineTunnel"
+                :on-delete="handleConfirmDelete"
+                :on-copy-address="handleCopyAddress"
+            />
         </n-grid-item>
     </n-grid>
     <n-grid v-else cols="1 m:2 l:3 xl:4 2xl:5" :x-gap="12" :y-gap="12" responsive="screen">
@@ -598,118 +98,51 @@
             </n-infinite-scroll>
         </n-grid-item>
     </n-grid>
-    <n-card v-if="tunnelCards === null">
-        <n-empty description="您似乎还没创建隧道">
-            <template #extra>
-                <n-button size="small" :loading="addTheTunnelButtonShow" @click="createNodes"
-                    :disabled="addTheTunnelButtonShow">
-                    <template #icon>
-                        <n-icon v-if="!addTheTunnelButtonShow" :component="AddOutline" />
-                    </template>
-                    创建隧道
-                </n-button>
-            </template>
-        </n-empty>
-    </n-card>
-    <n-modal v-model:show="ConfigModal">
-        <n-card style="max-width: 600px" title="配置代码" :bordered="false" size="medium" role="dialog" aria-modal="true"
-            closable @close="CloseConfigModal">
-            <n-collapse :default-expanded-names="['1', '3']">
-                <n-collapse-item title="快捷启动代码" name="1">
-                    <div style="margin-bottom: 16px">
-                        <n-space vertical>
-                            <!-- Windows 启动代码 -->
-                            <n-collapse-item title="Windows" name="3" style="margin-bottom: 8px">
-                                <template #header-extra>
-                                    <n-button text tag="a" @click.stop="copyToClipboard(windowsdaima)">
-                                        <n-icon :component="CopyOutline" />
-                                    </n-button>
-                                </template>
-                                <n-card size="small">
-                                    <n-code :code="windowsdaima" language="powershell" word-wrap />
-                                </n-card>
-                            </n-collapse-item>
-                            <!-- Linux 启动代码 -->
-                            <n-collapse-item title="Linux & MacOS" name="2" style="margin-bottom: 8px">
-                                <template #header-extra>
-                                    <n-button text tag="a" @click="copyToClipboard(linuxdaima)">
-                                        <n-icon :component="CopyOutline" />
-                                    </n-button>
-                                </template>
-                                <n-card size="small">
-                                    <n-code :code="linuxdaima" word-wrap language="bash" />
-                                </n-card>
-                            </n-collapse-item>
-                        </n-space>
-                    </div>
-                </n-collapse-item>
-
-                <!-- Frpc.ini 配置 -->
-                <n-collapse-item title="Frpc.ini 配置" name="5">
-                    <n-card size="small">
-                        <n-code :code="frpcIniConfig" language="ini" word-wrap />
-                        <template #action>
-                            <n-space>
-                                <n-button secondary type="primary" size="small" @click="copyToClipboard(frpcIniConfig)">
-                                    <template #icon>
-                                        <n-icon :component="CopyOutline" />
-                                    </template>
-                                    复制配置
-                                </n-button>
-                                <n-button tertiary size="small" @click="downloadConfig">
-                                    <template #icon>
-                                        <n-icon :component="DownloadOutline" />
-                                    </template>
-                                    下载配置
-                                </n-button>
-                            </n-space>
-                        </template>
-                    </n-card>
-                </n-collapse-item>
-            </n-collapse>
-        </n-card>
-    </n-modal>
-    <n-modal v-model:show="last7daysModal" preset="card" title="近七日流量" style="max-width: 800px" :loading="loading">
-        <div ref="chartRef" style="width: 100%; height: 400px"></div>
-    </n-modal>
+    <TunnelListEmpty v-if="tunnelCards === null" :loading="addTheTunnelButtonShow" @create="createNodes" />
+    <ConfigModal
+        v-model:show="configModalShow"
+        :frpc-ini-config="frpcIniConfig"
+        :windowsdaima="windowsdaima"
+        :linuxdaima="linuxdaima"
+        :on-copy="handleCopyConfig"
+        :on-download="handleDownloadConfig"
+    />
+    <TrafficChartModal v-model:show="last7daysModal" :loading="chartLoading" ref="trafficChartModalRef" />
 </template>
 
 <script setup lang="ts">
-import {
-    RefreshOutline,
-    AddOutline,
-    BuildOutline,
-    BanOutline,
-    EarthOutline,
-    ShieldCheckmarkOutline,
-    ArrowUpOutline,
-    ArrowDownOutline,
-    CreateOutline,
-    CodeSlashOutline,
-    TrashOutline,
-    StatsChartOutline,
-    CopyOutline,
-    CodeDownloadOutline,
-    DownloadOutline
-} from '@vicons/ionicons5';
+import { ref, computed, watch, onMounted } from 'vue';
+import { useMessage, useDialog } from 'naive-ui';
 import { useScreenStore } from '@/stores/useScreen';
 import { storeToRefs } from 'pinia';
-// import { useRouter } from 'vue-router';
-import axios from 'axios';
-// 获取登录信息
 import { useUserStore } from '@/stores/user';
-
+import axios from 'axios';
 import api from '@/api';
-import { NIcon } from 'naive-ui';
-import { formatBytes } from '@/utils/formatBytes';
 
-import * as echarts from 'echarts/core';
-import { BarChart } from 'echarts/charts';
-import { TooltipComponent, LegendComponent, GridComponent } from 'echarts/components';
-import { CanvasRenderer } from 'echarts/renderers';
+// Composables
+import { useTunnelList } from './ListPage/composables/useTunnelList';
+import { useNodeList } from './ListPage/composables/useNodeList';
+import { useTunnelOperations } from './ListPage/composables/useTunnelOperations';
+import { useTunnelConfig } from './ListPage/composables/useTunnelConfig';
+import { useTunnelChart } from './ListPage/composables/useTunnelChart';
+import { useNodeInfo } from './ListPage/composables/useNodeInfo';
+import { useTunnelForm } from './ListPage/composables/useTunnelForm';
+import { useTunnelCreate } from './ListPage/composables/useTunnelCreate';
+import { useTunnelEdit } from './ListPage/composables/useTunnelEdit';
+import { useFormValidation } from './ListPage/composables/useFormValidation';
 
-// 注册必要的组件
-echarts.use([BarChart, TooltipComponent, LegendComponent, GridComponent, CanvasRenderer]);
+// Components
+import TunnelCardComponent from './ListPage/components/TunnelCard.vue';
+import NodeListModal from './ListPage/components/NodeListModal.vue';
+import ConfigModal from './ListPage/components/ConfigModal.vue';
+import NodeInfoModal from './ListPage/components/NodeInfoModal.vue';
+import TunnelFormModal from './ListPage/components/TunnelFormModal.vue';
+import TunnelListHeader from './ListPage/components/TunnelListHeader.vue';
+import TunnelListEmpty from './ListPage/components/TunnelListEmpty.vue';
+import TrafficChartModal from './ListPage/components/TrafficChartModal.vue';
+
+// Types
+import type { TunnelCard, NodeCard, NodeInfo } from './ListPage/types';
 
 const userStore = useUserStore();
 const userInfo = userStore.userInfo;
@@ -717,32 +150,69 @@ const userInfo = userStore.userInfo;
 const message = useMessage();
 const dialog = useDialog();
 
-const nodeListModal = ref(false); // 节点列表模态框
-const nodeInfoModal = ref(false); // 节点信息模态框
-const tunnelInfoModal = ref(false); // 隧道信息模态框
-const editTunnelModal = ref(false); // 编辑隧道模态框
-const loadingTunnel = ref(true); // 用户隧道加载
-const loadingTunnelInfo = ref(false);
-const loadingNodeMap = ref(false);
-const loadingCreateTunnel = ref(false);
-const loadingEditTunnel = ref(false);
-const addTheTunnelButtonShow = ref(false);
-const ConfigModal = ref(false);
-const frpcIniConfig = ref('');
-const windowsdaima = ref('');
-const linuxdaima = ref('');
-const last7daysModal = ref(false);
-const loading = ref(false);
-
 const screenStore = useScreenStore();
 const { screenWidth } = storeToRefs(screenStore);
-
-const selectNode = ref(''); // 选中节点名
 
 // 根据屏幕宽度决定对话框大小
 const widthStyle = computed(() => ({
     width: screenWidth.value >= 600 ? '70%' : '100%',
 }));
+
+// Composables
+const { loading: loadingTunnel, tunnelCards, fetchTunnelCards } = useTunnelList(userInfo || {});
+
+const {
+    nodeCards,
+    filters,
+    filteredNodeCards,
+    vipNodeCards,
+    normalNodeCards,
+    expandedPanels,
+    fetchNodeList,
+    filterWeb,
+    filterRegion,
+    initExpandedPanels,
+} = useNodeList(userInfo || undefined);
+
+const {
+    deletetTunnelSuccess,
+    refreshTunnelData,
+    handleOfflineTunnel: handleOfflineTunnelOp,
+    handleConfirmDelete,
+} = useTunnelOperations(userInfo || {}, fetchTunnelCards);
+
+const {
+    showModal: configModalShow,
+    frpcIniConfig,
+    windowsdaima,
+    linuxdaima,
+    getConfigCode,
+    copyToClipboard: copyConfigToClipboard,
+    downloadConfig: downloadConfigFile,
+} = useTunnelConfig(userInfo || {});
+
+const trafficChartModalRef = ref<InstanceType<typeof TrafficChartModal> | null>(null);
+const { showModal: last7daysModal, loading: chartLoading, getTunnelLast7days } = useTunnelChart(
+    userInfo || {},
+    () => trafficChartModalRef.value?.chartRef || null
+);
+
+const { loading: loadingTunnelInfo, nodeInfo: nodeInfoRef, fetchNodeInfo } = useNodeInfo(userInfo || {});
+// 为了兼容 useTunnelForm 的接口，创建一个包装对象
+const nodeInfo = { value: nodeInfoRef };
+// 为了在模板中方便使用，创建一个计算属性
+const nodeInfoValue = computed(() => nodeInfo.value.value);
+
+const { checkFormData } = useFormValidation();
+
+// 模态框状态
+const nodeListModal = ref(false);
+const nodeInfoModal = ref(false);
+const tunnelInfoModal = ref(false);
+const editTunnelModal = ref(false);
+const loadingNodeMap = ref(false);
+const addTheTunnelButtonShow = ref(false);
+const selectNode = ref('');
 
 // 无限滚动
 const count = ref(16);
@@ -750,269 +220,81 @@ const handleLoad = () => {
     count.value += 1;
 };
 
-const getDropdownOptions = () => [
-    {
-        label: '编辑隧道',
-        key: 'edit',
-        icon: () => h(NIcon, null, { default: () => h(CreateOutline) }),
-    },
-    {
-        label: '获取配置代码',
-        key: 'config',
-        icon: () => h(NIcon, null, { default: () => h(CodeSlashOutline) }),
-    },
-    {
-        type: 'divider',
-        key: 'd1',
-    },
-    {
-        label: '刷新流量等数据',
-        key: 'refresh',
-        icon: () => h(NIcon, null, { default: () => h(RefreshOutline) }),
-    },
-    {
-        label: '获取近七天流量',
-        key: 'stats',
-        icon: () => h(NIcon, null, { default: () => h(StatsChartOutline) }),
-    },
-    {
-        type: 'divider',
-        key: 'd2',
-    },
-    {
-        label: '强制下线隧道',
-        key: 'offtunnel',
-        icon: () => h(NIcon, { color: '#ff4d4f' }, { default: () => h(CodeDownloadOutline) }),
-        props: {
-            style: { color: '#ff4d4f' },
-        },
-        disabled: !deletetTunnelSuccess.value,
-    },
-    {
-        label: '删除隧道',
-        key: 'delete',
-        icon: () => h(NIcon, { color: '#ff4d4f' }, { default: () => h(TrashOutline) }),
-        props: {
-            style: { color: '#ff4d4f' },
-        },
-        disabled: !deletetTunnelSuccess.value,
-    },
-];
+// 隧道操作处理函数
 
-const handleDropdownSelect = (key: any, card: TunnelCard) => {
-    switch (key) {
-        case 'edit':
-            editTunnel(card);
-            break;
-        case 'config':
-            getConfigCode(card);
-            break;
-        case 'refresh':
+const handleRefreshTunnel = (card: TunnelCard) => {
             if (card.state === 'true') {
                 refreshTunnelData(card);
             } else {
-                message.warning('隧道不在线，无法刷新数据')
-            }
-            break;
-        case 'stats':
-            getTunnelLast7days(card.id, card.state); // 传入隧道ID
-            break;
-        case 'offtunnel':
-            if (card.state === 'true') {
-                handleOfflineTunnel(card);
-            } else {
-                message.warning('隧道不在线，无法强制下线')
-            }
-            break;
-        case 'delete':
-            handleConfirm(card.name, card.id, card.type, card.dorp);
-            break;
+        message.warning('隧道不在线，无法刷新数据');
     }
 };
 
-// 获取配置文件
-const getConfigCode = async (card: TunnelCard) => {
-    const response = await api.v2.tunnel.getTunnelConfig(userInfo?.usertoken || '', card.node || '', card.name);
-    frpcIniConfig.value = response.data || '';
-
-    windowsdaima.value = `frpc.exe -u ${userInfo?.usertoken} -p ${card.id}`;
-    linuxdaima.value = `chmod +x frpc && ./frpc -u ${userInfo?.usertoken} -p ${card.id}`;
-    ConfigModal.value = true;
+const handleGetStats = (card: TunnelCard) => {
+    getTunnelLast7days(card.id, card.state);
 };
 
-// 强制下线隧道
 const handleOfflineTunnel = (card: TunnelCard) => {
-    const d = dialog.warning({
-        title: '警告',
-        content: `您正在强制下线隧道：${card.name}(${card.id})，此操作将立即断开隧道连接，请确认是否继续。(只有frp核心版本为0.51.2_251023版本才支持此功能)`,
-        positiveText: '确定下线',
-        negativeText: '取消',
-        onPositiveClick: async () => {
-            try {
-                d.loading = true
-                const response = await api.v2.tunnel.offlineTunnel(userInfo?.usertoken || '', card.name);
-                if (response.code === 200) {
-                    message.success('隧道强制下线成功');
-                    // 刷新隧道列表以更新状态
-                    fetchTunnelCards();
+    if (card.state === 'true') {
+        handleOfflineTunnelOp(card);
                 } else {
-                    message.error(response.msg || '隧道下线失败');
-                }
-            } catch (error) {
-                message.error('隧道下线失败: ' + (error as Error).message);
+        message.warning('隧道不在线，无法强制下线');
             }
-        },
-    });
 };
 
-// 刷新隧道数据
-const refreshTunnelData = async (card: TunnelCard) => {
-    try {
-        const response = await api.v2.tunnel.refreshTunnel(userInfo?.usertoken || '', card.name);
-        if (response.code === 200) {
-            message.success('隧道数据刷新成功');
-            // 更新本地数据
-            if (tunnelCards.value) {
-                const tunnelIndex = tunnelCards.value.findIndex(t => t.id === card.id);
-                if (tunnelIndex !== -1 && response.data) {
-                    tunnelCards.value[tunnelIndex].today_traffic_in = response.data.today_traffic_in;
-                    tunnelCards.value[tunnelIndex].today_traffic_out = response.data.today_traffic_out;
-                    tunnelCards.value[tunnelIndex].cur_conns = response.data.cur_conns;
-                    tunnelCards.value[tunnelIndex].state = response.data.status === 'online' ? 'true' : 'false';
-                    tunnelCards.value[tunnelIndex].uptime = response.data.last_start_time;
-                }
-            }
-        } else {
-            message.error(response.msg || '隧道数据刷新失败');
-        }
-    } catch (error) {
-        message.error('隧道数据刷新失败: ' + (error as Error).message);
+const handleCopyAddress = (address: string) => {
+    copyConfigToClipboard(address);
+};
+
+const handleCopyConfig = (text: string) => {
+    copyConfigToClipboard(text);
+};
+
+const handleDownloadConfig = () => {
+    downloadConfigFile();
+};
+
+// 表单和隧道创建/编辑相关
+const {
+    formData,
+    domainNameOptions,
+    updateNodeOptions,
+    typeOptions,
+    typeOptionsTCPUDP,
+    typeOptionsHTTPHTTPS,
+    domainTypeOptions,
+    generateRandomPort,
+    generateRandomTunnelName,
+    subDomainData,
+    updateFetchNodeOptions,
+    checkPort,
+} = useTunnelForm(userInfo || undefined, nodeInfo as unknown as { value: NodeInfo });
+
+// 使用 composable 中的 checkPort 作为 updatePortTrig
+const updatePortTrig = checkPort;
+
+// 隧道创建和编辑
+const { loading: loadingCreateTunnel, createTunnel } = useTunnelCreate(
+    userInfo || {},
+    formData,
+    nodeInfo as unknown as { value: NodeInfo },
+    checkFormData,
+    fetchTunnelCards
+);
+
+const { loading: loadingEditTunnel, editTunnel: editTunnelFunc } = useTunnelEdit(
+    userInfo || {},
+    formData,
+    nodeInfo as unknown as { value: NodeInfo },
+    checkFormData,
+    () => {
+        editTunnelModal.value = false;
+        fetchTunnelCards();
     }
-};
-
-const chartRef = ref<HTMLElement | null>(null);
-let chartInstance: echarts.ECharts | null = null;
-
-// 获取近七日流量数据
-const getTunnelLast7days = async (tunnelId: number, state: string) => {
-    if (state === 'false') {
-        message.warning('隧道不在线，无法获取数据');
-    } else {
-        try {
-            loading.value = true;
-            const response = await api.v2.tunnel.getTunnelLast7days(userInfo?.usertoken || '', tunnelId);
-            const { traffic_in, traffic_out } = response.data;
-            last7daysModal.value = true;
-
-            // 确保DOM更新后初始化图表
-            nextTick(() => {
-                initChart(traffic_in, traffic_out);
-            });
-        } catch (error) {
-            message.error('获取流量数据时出错: ' + (error as Error).message);
-            last7daysModal.value = false;
-        } finally {
-            loading.value = false;
-        }
-    }
-};
-
-// 初始化图表
-const initChart = (trafficIn: number[], trafficOut: number[]) => {
-    if (!chartRef.value) return;
-
-    // 销毁旧图表实例
-    if (chartInstance) {
-        chartInstance.dispose();
-    }
-
-    // 创建新图表实例
-    chartInstance = echarts.init(chartRef.value);
-
-    // 生成日期标签
-    const dates = [];
-    const now = new Date();
-    for (let i = 6; i >= 0; i--) {
-        const date = new Date(now);
-        date.setDate(now.getDate() - i);
-        dates.push(`${date.getMonth() + 1}/${date.getDate()}`);
-    }
-
-    const option = {
-        tooltip: {
-            trigger: 'axis',
-            axisPointer: {
-                type: 'shadow',
-            },
-            formatter: (params: any) => {
-                let result = `${params[0].axisValue}<br>`;
-                params.forEach((item: any) => {
-                    result += `${item.seriesName}: ${(item.value / (1024 * 1024)).toFixed(2)} MB<br>`;
-                });
-                return result;
-            },
-        },
-        legend: {
-            data: ['下载流量 (入)', '上传流量 (出)'],
-            right: 10,
-            top: 10,
-        },
-        grid: {
-            left: '3%',
-            right: '4%',
-            bottom: '3%',
-            containLabel: true,
-        },
-        xAxis: {
-            type: 'category',
-            data: dates,
-            axisLabel: {
-                rotate: 45,
-            },
-        },
-        yAxis: {
-            type: 'value',
-            name: '流量 (MB)',
-            axisLine: {
-                show: true,
-            },
-            axisLabel: {
-                formatter: (value: number) => (value / 1024 / 1024).toFixed(0), // 字节转MB
-            },
-        },
-        series: [
-            {
-                name: '下载流量 (入)',
-                type: 'bar',
-                emphasis: { focus: 'series' },
-                itemStyle: { color: '#5d8ff0' },
-                data: trafficIn, // 直接传原始字节数
-            },
-            {
-                name: '上传流量 (出)',
-                type: 'bar',
-                emphasis: { focus: 'series' },
-                itemStyle: { color: '#63e2b7' },
-                data: trafficOut, // 直接传原始字节数
-            },
-        ],
-    };
-
-    chartInstance.setOption(option);
-
-    // 响应式调整
-    const resizeHandler = () => {
-        chartInstance && chartInstance.resize();
-    };
-    window.addEventListener('resize', resizeHandler);
-};
-
-const CloseConfigModal = () => {
-    ConfigModal.value = false;
-};
+);
 
 // 编辑隧道操作
-const editTunnel = (card: TunnelCard) => {
+const editTunnel = async (card: TunnelCard) => {
     formData.remarks = '';
     formData.ap = card.ap;
     formData.name = card.name;
@@ -1031,7 +313,7 @@ const editTunnel = (card: TunnelCard) => {
         formData.domain = card.dorp;
     }
 
-    // 强行转换 card.encryption 和 card.compression 为布尔值
+    // 强行转换 card.encryption 和 card.compression
     formData.encryption = card.encryption === 'true';
     formData.compression = card.compression === 'true';
 
@@ -1072,7 +354,7 @@ const editTunnel = (card: TunnelCard) => {
             .catch((error) => {
                 // 处理API调用错误
                 message.error('获取域名信息失败: ' + (error as Error).message);
-                formData.domainNameLabel = '自定义'; // 出现错误时设置为自定义
+                formData.domainNameLabel = '自定义';
             });
     }
 
@@ -1080,427 +362,13 @@ const editTunnel = (card: TunnelCard) => {
     updateFetchNodeOptions();
 
     // 获取选择的节点详情
-    apiGetNodeInfo(formData.node)
-        .then((res) => {
-            if (res) {
-                NodeInfo.value = {
-                    ...res,
-                    udp: res.udp === 'true',
-                    fangyu: res.fangyu === 'true',
-                    ipv6: res.ipv6 || '',
-                };
-                return res;
-            } else {
-                message.error('获取节点详情失败, 节点可能离线, 请稍后再试');
-                return null;
-            }
-        })
-        .catch((error) => {
-            console.error('获取节点详情失败', error);
-            message.error('获取节点详情失败', error);
-            return null;
-        });
+    await fetchNodeInfo(formData.node);
 
     editTunnelModal.value = true;
 };
 
-// 修改隧道apiv1
-const apiChangeTunnelV1 = async () => {
-    try {
-        const response = await axios.post(
-            'https://cf-v1.uapis.cn/api/cztunnel.php',
-            {
-                usertoken: userInfo?.usertoken,
-                userid: userInfo?.id,
-                type: formData.type.toLowerCase(),
-                node: formData.node,
-                name: formData.name,
-                ap: formData.ap,
-                // TCP或UDP隧道提交dorp为外网端口，HTTP或HTTPS隧道dorp为域名
-                dorp:
-                    formData.type.toLowerCase() === 'tcp' || formData.type.toLowerCase() === 'udp'
-                        ? formData.dorp
-                        : formData.domain,
-                localip: formData.localip,
-                nport: Number(formData.nport),
-                tunnelid: formData.tunnelid,
-                encryption: formData.encryption.toString(),
-                compression: formData.compression.toString(),
-            },
-            {
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            }
-        );
-        const data = response.data;
-        if (response.status === 200 && data.code === 200) {
-            message.success('隧道编辑成功');
-            return data;
-        } else {
-            message.error('隧道编辑失败: ' + data.error);
-        }
-    } catch (error) {
-        message.error('隧道编辑API请求失败:' + error);
-    }
-    return null;
-};
-
-// 修改隧道apiv2
-const apiChangeTunnelV2 = async () => {
-    try {
-        const data = await api.v2.tunnel.updateTunnel({
-            tunnelid: formData.tunnelid,
-            token: userInfo?.usertoken || '',
-            tunnelname: formData.name,
-            node: formData.node,
-            localip: formData.localip,
-            porttype: formData.type.toLowerCase(),
-            localport: Number(formData.nport),
-            // 根据类型设置 banddomain 或 remoteport
-            ...(formData.type.toUpperCase() === 'HTTP' || formData.type.toUpperCase() === 'HTTPS'
-                ? { banddomain: formData.domain }
-                : { remoteport: formData.dorp }),
-            encryption: formData.encryption,
-            compression: formData.compression,
-            extraparams: formData.ap,
-        });
-
-        message.success('隧道编辑成功');
-        return data;
-    } catch (error) {
-        message.error('隧道编辑失败: ' + (error as Error).message);
-    }
-    return null;
-};
-
-// 创建免费域名
-const apiCreateFreeDomain = async (domain: string, record: string, target: string, remarks: string, flag = true) => {
-    try {
-        const data = await api.v2.domain.createFreeSubdomain({
-            token: userInfo?.usertoken || '',
-            domain: domain,
-            record: record,
-            type: 'CNAME',
-            target: target,
-            ttl: '10分钟',
-            remarks: remarks,
-        });
-
-        flag && message.success('免费域名创建成功');
-        return data;
-    } catch (error) {
-        message.error('免费域名创建失败: ' + (error as Error).message);
-    }
-    return null;
-};
-
-// 删除免费域名
-const apiDeleteFreeDomain = async (domain: string, record: string, flag = true) => {
-    try {
-        const data = await api.v2.domain.deleteFreeSubdomain({
-            token: userInfo?.usertoken || '',
-            domain: domain,
-            record: record,
-        });
-
-        flag && message.success('免费域名删除成功');
-        return data;
-    } catch (error) {
-        message.error('免费域名删除失败: ' + (error as Error).message);
-    }
-    return null;
-};
-
-// 获取免费节点详情
-const apiGetFreeNodeInfo = async () => {
-    try {
-        const data = await api.v2.domain.getUserFreeSubdomains(userInfo?.usertoken || '');
-        return data.data;
-    } catch (error) {
-        message.error('节点详情获取失败: ' + (error as Error).message);
-    }
-    return null;
-};
-
-// 修改免费域名
-const apiUpdateFreeDomain = async (
-    domainOld: string,
-    recordOld: string,
-    domain: string,
-    record: string,
-    target: string,
-    remarks: string,
-    flag = true
-) => {
-    try {
-        // 获取旧解析参数
-        let freeDomainOld = await apiGetFreeNodeInfo();
-        if (freeDomainOld === null) {
-            return null;
-        }
-
-        const targetOld = freeDomainOld.find(
-            (item: { record: string; domain: string }) => item.record === recordOld && item.domain === domainOld
-        )?.target;
-        if (!targetOld) {
-            return null;
-        }
-        const remarksOld = freeDomainOld.find(
-            (item: { record: string; domain: string }) => item.record === recordOld && item.domain === domainOld
-        )?.remarks;
-        if (!remarksOld) {
-            return null;
-        }
-
-        // 删除原纪录
-        const deleteResponse = await apiDeleteFreeDomain(domainOld, recordOld, false);
-        if (deleteResponse === null) {
-            return null;
-        }
-
-        // 创建新纪录
-        const createResponse = await apiCreateFreeDomain(domain, record, target, remarks, false);
-        if (createResponse === null) {
-            // 回溯删除原纪录
-            const rollbackResponse = await apiCreateFreeDomain(domainOld, recordOld, targetOld, remarksOld, false);
-            if (rollbackResponse === null) {
-                message.error('免费域名修改失败，回溯失败，请前往免费域名管理页面删除错误域名');
-            } else {
-                message.error('免费域名修改失败，回溯成功');
-            }
-            return null;
-        }
-
-        flag && message.success('免费域名修改成功');
-        return createResponse;
-    } catch (error) {
-        message.error('免费域名修改API请求失败:' + error);
-    }
-    return null;
-};
-
-// 获取节点列表
-const apiGetNodeList = async () => {
-    try {
-        const data = await api.v2.node.getNodeList();
-        return data.data;
-    } catch (error) {
-        message.error('节点列表获取失败: ' + (error as Error).message);
-    }
-    return null;
-};
-
-// 获取节点详情
-const apiGetNodeInfo = async (node: string) => {
-    try {
-        const data = await api.v2.node.getNodeInfo(userInfo?.usertoken || '', node);
-        return data.data;
-    } catch (error) {
-        message.error('节点详情获取失败: ' + (error as Error).message);
-    }
-    return null;
-};
-
-// 检查合规性
-const checkFormData = (formData: any) => {
-    if (Number(formData.nport) < 1 || Number(formData.nport) > 65535) {
-        message.error('内网端口必须在 1 到 65535 之间');
-        return null;
-    }
-    if (formData.type === 'TCP' || formData.type === 'UDP') {
-        const minPort = parseInt(NodeInfo.value.rport.split('-')[0]) || 10000;
-        const maxPort = parseInt(NodeInfo.value.rport.split('-')[1]) || 65535;
-        if (formData.dorp < minPort || formData.dorp > maxPort) {
-            message.error(`外网端口必须在 ${minPort} 到 ${maxPort} 之间`);
-            return null;
-        }
-    } else {
-        if (formData.domainNameLabel === '') {
-            message.error('请选择域名类型');
-            return null;
-        } else if (formData.domainNameLabel === '免费域名' && (formData.choose === '' || formData.recordValue === '')) {
-            message.error('请选择并填写免费域名');
-            return null;
-        } else if (formData.domainNameLabel === '自定义') {
-            // 域名合规性校验
-            const domain = formData.domain.trim();
-            const isIp = /^(?:\d{1,3}\.){3}\d{1,3}$/.test(domain);
-            const isFrpOne = domain.endsWith('.frp.one');
-            const isValidDomain = /^(?:\*\.)?(?!-)(?:[a-z0-9-]{1,63}\.)+(?:xn--)?[a-z0-9]{2,63}$/.test(domain);
-
-            if (!domain) {
-                message.error('请输入域名');
-                return null;
-            } else if (isIp || isFrpOne || !isValidDomain) {
-                message.error('域名不合规');
-                return null;
-            }
-        }
-    }
-    return true;
-};
-
-const determineTheChangeOfTheTunnel = async () => {
-    // loading提示
-    loadingEditTunnel.value = true;
-
-    // 检查合规性
-    if (!checkFormData(formData)) {
-        loadingEditTunnel.value = false;
-        return null;
-    }
-
-    // HTTP 或 HTTPS 隧道
-    if (formData.type === 'HTTP' || formData.type === 'HTTPS') {
-        // 免费域名
-        if (formData.domainNameLabel === '免费域名') {
-            const freeDomainChanged =
-                formData.choose !== formData.chooseOld ||
-                formData.recordValue !== formData.recordValueOld ||
-                formData.node !== formData.nodeOld ||
-                formData.name !== formData.nameOld;
-            // 仅在发生变动时提交域名更改
-            if (freeDomainChanged) {
-                // 更新隧道绑定域名
-                formData.domain = formData.recordValue + '.' + formData.choose;
-                // 获取节点对应的域名 (target)
-                let nodeInfo = await apiGetNodeInfo(formData.node);
-                if (nodeInfo === null) {
-                    loadingEditTunnel.value = false;
-                    return null;
-                }
-                // 更新免费域名记录
-                let err = await apiUpdateFreeDomain(
-                    formData.chooseOld,
-                    formData.recordValueOld,
-                    formData.choose,
-                    formData.recordValue,
-                    nodeInfo.ip,
-                    '解析 网站 到 ' + formData.name + ' - ' + formData.node,
-                    true
-                );
-                if (err === null) {
-                    message.error('免费域名修改失败');
-                    loadingEditTunnel.value = false;
-                    return null;
-                }
-            }
-            // 修改隧道
-            try {
-                // apiv2似乎存在问题，返回“指定的端口不在允许的范围内”
-                // let err = await apiChangeTunnelV2()
-                let err = await apiChangeTunnelV1();
-
-                if (err === null) {
-                    // 回溯免费域名更改
-                    // 获取旧节点对应的域名 (target)
-                    let nodeInfoOld = await apiGetNodeInfo(formData.nodeOld);
-                    if (nodeInfoOld === null) {
-                        // 回溯失败，让用户自行处理
-                        message.error('修改失败，回溯失败，请前往免费域名管理页面删除错误域名');
-                        loadingEditTunnel.value = false;
-                        return null;
-                    }
-                    let err = await apiUpdateFreeDomain(
-                        formData.choose,
-                        formData.recordValue,
-                        formData.chooseOld,
-                        formData.recordValueOld,
-                        nodeInfoOld.ip,
-                        '解析 网站 到 ' + formData.nameOld + ' - ' + formData.nodeOld,
-                        false
-                    );
-                    if (err === null) {
-                        // 回溯失败，让用户自行处理
-                        message.error('修改失败，回溯失败，请前往免费域名管理页面删除错误域名');
-                        loadingEditTunnel.value = false;
-                        return null;
-                    }
-                    message.error('修改失败，回溯成功');
-                    loadingEditTunnel.value = false;
-                    return null;
-                }
-
-                editTunnelModal.value = false;
-
-                // 如果免费域名被修改，需要提示用户生效存在延迟
-                if (freeDomainChanged) {
-                    dialog.success({
-                        title: '成功',
-                        content:
-                            '隧道修改成功！此隧道使用的免费域名已同步更新解析，但是域名解析通常不会立即生效，需要等待DNS缓存更新，这个时间一般10分钟，慢的则需要48小时。请耐心等待，期间域名可能无法访问。',
-                        positiveText: '我知道了',
-                    });
-                }
-
-                fetchTunnelCards();
-            } catch (error) {
-                message.error('隧道编辑API调用失败:' + error);
-            }
-        }
-        // 自定义域名
-        else {
-            try {
-                // apiv2似乎存在问题，返回“指定的端口不在允许的范围内”
-                // let err = await apiChangeTunnelV2()
-                let err = await apiChangeTunnelV1();
-                err === null ? null : ((editTunnelModal.value = false), fetchTunnelCards());
-            } catch (error) {
-                message.error('隧道编辑API调用失败:' + error);
-            }
-        }
-    }
-    // TCP 或 UDP 隧道
-    else {
-        try {
-            let err = await apiChangeTunnelV2();
-            err === null ? null : ((editTunnelModal.value = false), fetchTunnelCards());
-        } catch (error) {
-            message.error('隧道编辑API调用失败:' + error);
-        }
-    }
-    loadingEditTunnel.value = false;
-    return null;
-};
-
-interface Domain {
-    id: number;
-    domain: string;
-    remarks: string | null;
-    icpFiling: boolean;
-}
-
-// 存储修改时可被选择的节点列表
-const updateNodeOptions = ref<{ label: string; value: string }[]>([]);
-
-// 获取并对应充填修改时可选择的节点列表
-const updateFetchNodeOptions = async () => {
-    let nodeList = await apiGetNodeList();
-    if (nodeList === null) {
-        return null;
-    }
-
-    // 筛选节点
-    const filteredNodeList = nodeList.filter((node: { web: string; udp: string; nodegroup: string }) => {
-        const show =
-            (formData.type === 'HTTP' || formData.type === 'HTTPS' ? node.web === 'yes' : true) &&
-            (formData.type === 'UDP' ? node.udp === 'true' : true) &&
-            (userInfo?.usergroup === '免费用户' ? node.nodegroup === 'user' : true);
-
-        return show;
-    });
-
-    updateNodeOptions.value = filteredNodeList.map((node: { name: string }) => ({
-        label: node.name,
-        value: node.name,
-    }));
-
-    // 如果当前选中的节点不在可选列表中，则清空选中值
-    if (!updateNodeOptions.value.some((option: { value: string }) => option.value === formData.node)) {
-        formData.node = '';
-    }
-    return null;
+const handleEditTunnelSubmit = () => {
+    editTunnelFunc();
 };
 
 // 在编辑隧道类型更新时，重新列出对应的可用节点列表
@@ -1510,28 +378,17 @@ const updateTypeTrig = async () => {
 
 // 在更改节点后，获取节点详情，确认端口等配置是否合适
 const updateNodeTrig = async () => {
-    const nodeDetails = await apiGetNodeInfo(formData.node);
+    const nodeDetails = await fetchNodeInfo(formData.node);
     if (nodeDetails) {
-        NodeInfo.value = {
-            ...nodeDetails!,
-            udp: nodeDetails!.udp === 'true',
-            fangyu: nodeDetails!.fangyu === 'true',
-            ipv6: nodeDetails!.ipv6 || '',
-        };
-    } else {
-        message.error('获取节点详情失败, 节点可能离线, 请更换节点');
-        return null;
-    }
-
     // 更新免费域名可选项
     if (formData.domainNameLabel === '免费域名') {
-        subDomainData();
+            subDomainDataWrapper();
     }
-
     // 检查现在的填写值是否合规
     updatePortTrig();
-
-    return null;
+    } else {
+        message.error('获取节点详情失败, 节点可能离线, 请更换节点');
+    }
 };
 
 // 更换域名类型触发
@@ -1539,51 +396,14 @@ const updateDomainTypeTrig = () => {
     if (formData.domainNameLabel === '自定义') {
         formData.domain = '';
     } else if (formData.domainNameLabel === '免费域名') {
-        subDomainData();
+        subDomainDataWrapper();
     }
 };
 
-// 填写端口检查
-const updatePortTrig = () => {
-    if (formData.type === 'TCP' || formData.type === 'UDP') {
-        const minPort = parseInt(NodeInfo.value.rport.split('-')[0]) || 10000;
-        const maxPort = parseInt(NodeInfo.value.rport.split('-')[1]) || 65535;
-        if (formData.dorp < minPort || formData.dorp > maxPort) {
-            message.destroyAll();
-            message.error(`外网端口必须在 ${minPort} 到 ${maxPort} 之间`);
-        } else {
-            message.destroyAll();
-            message.success(`外网端口合规`);
-        }
-    }
-};
-
-// 用于存储域名选项的数据
-const domainNameOptions = ref<{ label: string; value: string }[]>([]);
-
-// 从 API 获取域名数据并将其格式化为 n-select 的选项格式
-const subDomainData = async () => {
-    try {
-        const domains = (await api.v2.domain.listAvailableDomains()).data;
-
-        // 境内节点过滤掉无备案的域名，此处由于返回缺乏绝对判据，暂时使用国内节点滤除港澳台处理
-        domainNameOptions.value = domains
-            .filter(
-                (domain: Domain) =>
-                    NodeInfo.value.china !== 'yes' ||
-                    ['香港', '澳门', '台湾'].some((region) => NodeInfo.value.area.includes(region)) ||
-                    domain.icpFiling
-            )
-            .map((domain: Domain) => ({
-                label: domain.domain, // 显示的域名名称
-                value: domain.domain, // 选项的值
-            }));
-
-        formData.choose = formData.chooseOld;
-
+const subDomainDataWrapper = async () => {
+    await subDomainData();
         // 如果当前节点没有可选的域名，给出提示
         if (domainNameOptions.value.length === 0) {
-            // 整个大的提示框
             dialog.error({
                 title: '此节点没有可选的免费域名',
                 content: '当前节点为中国境内节点，禁止使用免费域名，请更换为中国境外节点（允许港澳台节点，无需备案）',
@@ -1605,435 +425,25 @@ const subDomainData = async () => {
                     }
                 },
             });
-        } else if (!domainNameOptions.value.some((option: { value: string }) => option.value === formData.choose)) {
-            // 如果当前选中的域名不在可选列表中，则清空选中值
-            formData.choose = '';
-        }
-    } catch (error) {
-        message.error('获取域名数据失败: ' + (error as Error).message);
     }
 };
 
-const formData = reactive({
-    name: '',
-    localip: '127.0.0.1',
-    node: '',
-    type: 'TCP',
-    nport: '0',
-    domainNameLabel: '',
-    dorp: 25565,
-    choose: '',
-    encryption: false,
-    compression: false,
-    ap: '',
-    domain: '',
-    recordValue: '',
-    remarks: '',
-    tunnelid: 0,
-    chooseOld: '',
-    recordValueOld: '',
-    nodeOld: '',
-    nameOld: '',
-});
-
-const typeOptions = ['TCP', 'UDP', 'HTTP', 'HTTPS'].map((v) => ({
-    label: v,
-    value: v,
-}));
-
-const typeOptionsTCPUDP = [
-    {
-        label: 'TCP',
-        value: 'TCP',
-    },
-    {
-        label: 'UDP',
-        value: 'UDP',
-    },
-    {
-        label: 'HTTP',
-        value: 'HTTP',
-        disabled: true,
-    },
-    {
-        label: 'HTTPS',
-        value: 'HTTPS',
-        disabled: true,
-    },
-];
-
-const typeOptionsHTTPHTTPS = [
-    {
-        label: 'TCP',
-        value: 'TCP',
-        disabled: true,
-    },
-    {
-        label: 'UDP',
-        value: 'UDP',
-        disabled: true,
-    },
-    {
-        label: 'HTTP',
-        value: 'HTTP',
-    },
-    {
-        label: 'HTTPS',
-        value: 'HTTPS',
-    },
-];
-
-const domainTypeOptions = ['自定义', '免费域名'].map((v) => ({
-    label: v,
-    value: v,
-}));
-
-// 随机生成外网端口
-const generateRandomPort = () => {
-    const minPort = parseInt(NodeInfo.value.rport.split('-')[0]) || 10000;
-    const maxPort = parseInt(NodeInfo.value.rport.split('-')[1]) || 65535;
-    formData.dorp = Math.floor(Math.random() * (maxPort - minPort + 1)) + Number(minPort);
-};
-
-// 随机生成一个8位的随机隧道名
-const generateRandomTunnelName = () => {
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    let randomName = '';
-    for (let i = 0; i < 8; i++) {
-        const randomIndex = Math.floor(Math.random() * chars.length);
-        randomName += chars[randomIndex];
-    }
-    formData.name = randomName;
-};
-
-const createATunnel = async () => {
-    loadingCreateTunnel.value = true;
-
-    try {
-        // 检查合规性
-        if (!checkFormData(formData)) {
-            loadingCreateTunnel.value = false;
-            return null;
-        }
-
-        // 生成 banddomain（仅当使用免费域名时用）
-        const isHttp = formData.type === 'HTTP' || formData.type === 'HTTPS';
-        const isFreeDomain = formData.domainNameLabel === '免费域名';
-        const banddomain = isFreeDomain && isHttp ? `${formData.recordValue}.${formData.choose}` : formData.domain;
-
-        // 构建隧道请求体
-        const tunnelPayload = {
-            token: userInfo?.usertoken || '',
-            tunnelname: formData.name,
-            node: formData.node,
-            localip: formData.localip,
-            porttype: formData.type,
-            localport: Number(formData.nport),
-            encryption: formData.encryption,
-            compression: formData.compression,
-            extraparams: formData.ap,
-            banddomain: isHttp ? banddomain : undefined,
-            remoteport: isHttp ? undefined : formData.dorp,
-        };
-
-        // 尝试创建免费域名（如果需要）
-        if (isHttp && isFreeDomain) {
-            try {
-                await api.v2.domain.createFreeSubdomain({
-                    token: userInfo?.usertoken || '',
-                    domain: formData.choose,
-                    record: formData.recordValue,
-                    type: 'CNAME',
-                    ttl: '10分钟',
-                    target: NodeInfo.value.ip,
-                    remarks: `解析 网站 到 ${formData.name} - ${formData.node}`,
-                });
-            } catch (error) {
-                message.error('创建免费域名失败: ' + (error as Error).message);
-                return null;
-            }
-        }
-
-        // 创建隧道
-        try {
-            await api.v2.tunnel.createTunnel(tunnelPayload);
-        } catch (error) {
-            message.error('隧道创建失败: ' + (error as Error).message);
-
-            // 如果是免费域名进行回退
-            if (isHttp && isFreeDomain) {
-                try {
-                    await api.v2.domain.deleteFreeSubdomain({
-                        token: userInfo?.usertoken || '',
-                        domain: formData.choose,
-                        record: formData.recordValue,
-                    });
-                } catch (error) {
-                    message.error('回溯失败，请自行删除已创建的免费域名记录: ' + (error as Error).message);
-                }
-            }
-
-            return null;
-        }
-
+// 使用 composable 中的 createTunnel
+const handleCreateTunnel = () => {
+    createTunnel();
         tunnelInfoModal.value = false;
-
-        if (isHttp && isFreeDomain) {
-            dialog.success({
-                title: '成功',
-                content:
-                    '隧道创建成功！但是您使用了ChmlFrp提供的免费域名，域名解析通常不会立即生效，一般10分钟左右生效，最长需48小时。',
-                positiveText: '我知道了',
-            });
-        }
-
-        message.success('隧道创建成功！');
-        fetchTunnelCards();
-    } finally {
-        loadingCreateTunnel.value = false;
-    }
-    return null;
 };
 
-const deletetTunnelSuccess = ref(true);
-const handleConfirm = (title: string, id: number, ttype: string, dorp: string) => {
-    const d = dialog.warning({
-        title: '警告',
-        content: '您正在删除隧道：' + title + '(' + id + ')，请确认是否删除。',
-        positiveText: '确定',
-        negativeText: '取消',
-        onPositiveClick: async () => {
-            d.loading = true;
-            deletetTunnelSuccess.value = false;
-            
-            try {
-                await deletetTunnel(title, id, ttype, dorp);
-                // 删除成功后从列表中移除
-                if (tunnelCards.value !== null) {
-                    const index = tunnelCards.value.findIndex((tunnel) => tunnel.name === title);
-                    if (index !== -1) {
-                        tunnelCards.value.splice(index, 1);
-                    } else {
-                        console.warn('未找到 title 为 ' + title + ' 的数据');
-                    }
-                }
-            } catch (error) {
-                // 错误已在 deletetTunnel 中处理
-                console.error('删除隧道失败', error);
-            } finally {
-                d.loading = false;
-                deletetTunnelSuccess.value = true;
-            }
-        },
-    });
-};
-const deletetTunnel = async (title: string, id: number, ttype: string, dorp: string) => {
-    try {
-        const response = await api.v2.tunnel.deleteTunnel(userInfo?.usertoken || '', id);
-        
-        if (response.code === 200) {
-            message.success('成功删除隧道：' + title);
-            if (ttype === 'http' || ttype === 'https') {
-                // 调用API获取用户的免费二级域名
-                api.v2.domain
-                    .getUserFreeSubdomains(userInfo?.usertoken || '')
-                    .then((data) => {
-                        const domainRecord = data.data.find(
-                            (item: { record: string; domain: string }) => item.record + '.' + item.domain === dorp
-                        );
-                        if (domainRecord) {
-                            // 检查remarks中是否包含"网站"
-                            if (domainRecord.remarks.includes('网站')) {
-                                const domainDialog = dialog.warning({
-                                    title: '警告',
-                                    content:
-                                        '隧道删除成功！但是此隧道绑定了免费域名，请问是否同步删除此隧道的域名解析。',
-                                    positiveText: '删除',
-                                    negativeText: '不删除',
-                                    onPositiveClick: async () => {
-                                        domainDialog.loading = true;
-                                        try {
-                                            await api.v2.domain.deleteFreeSubdomain({
-                                                token: userInfo?.usertoken || '',
-                                                domain: domainRecord.domain,
-                                                record: domainRecord.record,
-                                            });
-
-                                            message.success('免费域名同步删除成功');
-                                        } catch (error) {
-                                            message.error('免费域名失败: ' + (error as Error).message);
-                                        } finally {
-                                            domainDialog.loading = false;
-                                        }
-                                    },
-                                });
-                            }
-                        }
-                    })
-                    .catch((error) => {
-                        // 处理API调用错误
-                        console.error('获取域名信息失败', error);
-                        message.error('获取域名信息失败: ' + (error as Error).message);
-                        formData.domainNameLabel = '自定义'; // 出现错误时设置为自定义
-                    });
-            }
-        } else {
-            message.error(response.msg || '删除隧道失败');
-            fetchTunnelCards();
-            throw new Error(response.msg || '删除隧道失败');
-        }
-    } catch (error) {
-        console.error('删除隧道API调用失败', error);
-        message.error('删除隧道失败: ' + (error as Error).message);
-        fetchTunnelCards();
-        throw error; // 重新抛出错误，让调用者知道删除失败
-    }
-};
-
-onMounted(() => {
-    fetchTunnelCards();
-    initExpandedPanels();
-});
-
-
-interface NodeCard {
-    id: number;
-    name: string;
-    nodegroup: string;
-    web: string;
-    china: string;
-    fangyu: string;
-    udp: string;
-    area: string;
-    notes: string;
-}
-
-const nodeCards = ref<NodeCard[]>([]);
 
 const createNodes = async () => {
-    addTheTunnelButtonShow.value = true; // 新建隧道按钮加载
-    // 加载节点列表
-    try {
-        const response = await api.v2.node.getNodeList();
-        nodeCards.value = response.data.map((node: NodeCard) => ({
-            id: node.id, // 节点ID
-            name: node.name, // 节点名
-            nodegroup: node.nodegroup, // 权限组
-            web: node.web, // 是否允许建站
-            china: node.china, // 是否为境内带宽
-            fangyu: node.fangyu, // 防御
-            udp: node.udp, // 是否允许UDP
-            area: node.area, // 地区
-            notes: node.notes,
-        }));
-        nodeListModal.value = true; // 显示节点列表模态框
-    } catch (error) {
-        console.error('[隧道列表]从api获取节点列表数据失败', error);
-        message.error('获取节点列表数据失败: ' + (error as Error).message);
+    addTheTunnelButtonShow.value = true;
+            try {
+        await fetchNodeList();
+        nodeListModal.value = true;
+            } finally {
+        addTheTunnelButtonShow.value = false;
     }
-    addTheTunnelButtonShow.value = false; // 新建隧道按钮取消加载
 };
-
-// 从本地存储中恢复过滤器状态
-const storedFilters = localStorage.getItem('nodeFilters');
-// 默认分类
-const filters = ref(
-    storedFilters
-        ? JSON.parse(storedFilters)
-        : {
-            udp: false,
-            web: 'all',
-            region: 'all',
-        }
-);
-
-const filterWeb = (web: string) => {
-    filters.value.web = web;
-};
-
-const filterRegion = (region: string) => {
-    filters.value.region = region;
-};
-
-// 基础过滤函数
-const baseFilter = (node: NodeCard) => {
-    const matchUdp = filters.value.udp ? node.udp === 'true' : true;
-    const matchWeb = filters.value.web === 'all' || node.web === filters.value.web;
-    const matchRegion =
-        filters.value.region === 'all' ||
-        (filters.value.region === 'china' && node.china === 'yes') ||
-        (filters.value.region === 'overseas' &&
-            (node.china === 'no' ||
-                node.area.includes('香港') ||
-                node.area.includes('澳门') ||
-                node.area.includes('台湾')));
-
-    return matchUdp && matchWeb && matchRegion;
-};
-
-// 节点分类 - 用于判断是否有节点
-const filteredNodeCards = computed(() => {
-    return nodeCards.value.filter(baseFilter);
-});
-
-// 会员节点列表
-const vipNodeCards = computed(() => {
-    return filteredNodeCards.value.filter((node) => node.nodegroup === 'vip');
-});
-
-// 非会员节点列表
-const normalNodeCards = computed(() => {
-    return filteredNodeCards.value.filter((node) => node.nodegroup === 'user');
-});
-
-// 展开的面板 - 根据用户是否是会员决定
-const expandedPanels = ref<string[]>([]);
-
-// 初始化展开的面板
-const initExpandedPanels = () => {
-    const panels: string[] = ['normal']; // 非会员节点始终展开
-    // 如果用户是会员，默认展开会员节点
-    if (userInfo?.usergroup && userInfo.usergroup !== '免费用户') {
-        panels.push('vip');
-    }
-    expandedPanels.value = panels;
-};
-
-// 监听 expandedPanels 变化，确保非会员节点始终展开
-watch(expandedPanels, (newPanels, oldPanels) => {
-    // 只有当非会员节点存在且当前不包含 'normal' 时才添加
-    if (normalNodeCards.value.length > 0 && !newPanels.includes('normal')) {
-        // 避免无限循环：只有当 oldPanels 存在且不包含 'normal' 时才更新
-        if (!oldPanels || !oldPanels.includes('normal')) {
-            expandedPanels.value = [...newPanels, 'normal'];
-        }
-    }
-}, { deep: true });
-
-// 监听用户信息变化，更新展开状态
-watch(() => userInfo?.usergroup, () => {
-    initExpandedPanels();
-});
-
-const NodeInfo = ref({
-    id: 1, //节点ID
-    area: '', //节点地区
-    realIp: '', //节点IP
-    udp: true, //是否允许UDP
-    notes: '', //节点介绍
-    ip: '', //节点域名
-    coordinates: '', //节点经纬度
-    fangyu: true, //节点是否有防御
-    rport: '10000~65535', //节点端口范围
-    nodegroup: 'user', //节点权限组
-    china: 'yes', //节点是否走国内带宽
-    web: 'no', //节点是否允许web
-    ipv6: '', //节点IPV6
-    toowhite: false, //节点建站是否需要过白
-    name: '', //节点名
-    state: '', //节点状态
-    bandwidth_usage_percent: 0,
-});
 
 const handleNodeCardClick = async (card: NodeCard) => {
     if (card.nodegroup === 'vip' && userInfo?.usergroup === '免费用户') {
@@ -2043,26 +453,13 @@ const handleNodeCardClick = async (card: NodeCard) => {
     selectNode.value = card.name;
     nodeListModal.value = false;
     nodeInfoModal.value = true;
-    loadingTunnelInfo.value = true;
-    try {
-        const data = await api.v2.node.getNodeInfo(userInfo?.usertoken || '', card.name);
-        NodeInfo.value = {
-            ...data.data,
-            udp: data.data.udp === 'true',
-            fangyu: data.data.fangyu === 'true',
-            ipv6: data.data.ipv6 || '',
-        };
-    } catch (error) {
-        message.error('节点详情获取失败: ' + (error as Error).message);
-    } finally {
-        loadingTunnelInfo.value = false;
-    }
+    await fetchNodeInfo(card.name);
 };
 
-const markers = [
-    { position: [102.22092, 31.90059], title: '我的位置' },
-    { position: [116.407428, 39.91923], title: '节点位置' },
-];
+const markers = ref([
+    { position: [102.22092, 31.90059] as [number, number], title: '我的位置' },
+    { position: [116.407428, 39.91923] as [number, number], title: '节点位置' },
+]);
 
 const handleTabChange = async (activeName: string) => {
     loadingNodeMap.value = true;
@@ -2070,10 +467,10 @@ const handleTabChange = async (activeName: string) => {
         try {
             const response = await axios.get('https://api.uapis.cn/localaddr');
             const { latitude, longitude } = response.data;
-            markers[0] = { position: [longitude, latitude], title: '我的位置' };
-            const nodeCoordinates = NodeInfo.value.coordinates.split(',').map(Number);
+            markers.value[0] = { position: [longitude, latitude], title: '我的位置' };
+            const nodeCoordinates = nodeInfoValue.value.coordinates.split(',').map(Number);
             if (nodeCoordinates.length === 2 && !isNaN(nodeCoordinates[0]) && !isNaN(nodeCoordinates[1])) {
-                markers[1] = { position: nodeCoordinates, title: '节点位置' };
+                markers.value[1] = { position: [nodeCoordinates[0], nodeCoordinates[1]], title: '节点位置' };
             } else {
                 console.error('节点位置无效');
             }
@@ -2099,7 +496,7 @@ const createATunnelUp = () => {
 const goToTheTunnelDetails = () => {
     nodeInfoModal.value = false; // 取消显示节点详情模态框
     tunnelInfoModal.value = true; // 显示创建隧道详情拟态框
-    formData.node = NodeInfo.value.name;
+    formData.node = nodeInfoValue.value.name;
     generateRandomPort();
     generateRandomTunnelName();
     if (formData.domainNameLabel === '免费域名') {
@@ -2116,170 +513,9 @@ watch(
     { deep: true }
 );
 
-// 定义接口
-interface Status {
-    type: string;
-    label: string;
-    description: string;
-}
+onMounted(() => {
+    fetchTunnelCards();
+    initExpandedPanels();
+});
 
-interface TunnelCard {
-    id: number;
-    name: string;
-    localip: string;
-    type: string;
-    nport: number;
-    node: string;
-    state: string;
-    uptime: string;
-    today_traffic_in: number;
-    today_traffic_out: number;
-    cur_conns: number;
-    ip: string;
-    nodestate: string;
-    status?: Status;
-    tags?: string[];
-    dorp: string;
-    ap: string;
-    encryption: string;
-    compression: string;
-}
-
-// 创建响应式变量
-const tunnelCards = ref<TunnelCard[] | null>(null);
-
-// 异步函数获取数据
-const fetchTunnelCards = async () => {
-    loadingTunnel.value = true;
-    try {
-        const { data } = await api.v2.tunnel.getTunnelList(userInfo?.usertoken || '');
-
-        // 判断 data 是否为空
-        if (!data || data.length === 0) {
-            loadingTunnel.value = false;
-            tunnelCards.value = null;
-        } else {
-            // 映射数据并设置状态和标签
-            tunnelCards.value = data.map((card) => {
-                let status: Status = { type: 'error', label: '维护', description: '节点维护中' };
-
-                // 根据节点状态设置状态
-                if (card.nodestate === 'online') {
-                    status =
-                        card.state === 'true'
-                            ? { type: 'success', label: '在线', description: '隧道在线 一切正常' }
-                            : { type: 'warning', label: '离线', description: '隧道离线 请检查客户端是否正常启动' };
-                } else if (!card.ip || card.ip === '') {
-                    // 节点已经永久移除
-                    status = { type: 'default', label: '永久下线', description: '节点已永久下线 请编辑更换' };
-                } else if (card.nodestate === 'offline') {
-                    status = { type: 'error', label: '节点掉线', description: '节点掉线 请稍后再试' };
-                }
-
-                // 设置 tags
-                const tags = [card.node, `${card.localip}:${card.nport} - ${card.type}`];
-
-                const ip = card.ip ? card.ip : '节点已下线';
-
-                return { ...card, status, tags, ip };
-            });
-        }
-    } catch (error) {
-        // 错误处理逻辑
-        message.error('获取隧道列表失败: ' + (error as Error).message);
-        loadingTunnel.value = false;
-        tunnelCards.value = null;
-        return;
-    }
-    loadingTunnel.value = false;
-
-    // remove in future
-    forceCheck();
-};
-
-const copyToClipboard = (text: string) => {
-    navigator.clipboard
-        .writeText(text)
-        .then(() => {
-            message.success('连接地址复制成功');
-        })
-        .catch((err) => {
-            console.error('[隧道列表]复制连接地址失败:', err);
-            message.error('连接地址复制失败');
-        });
-};
-
-// 下载配置文件
-const downloadConfig = () => {
-    try {
-        // 创建 Blob 对象
-        const blob = new Blob([frpcIniConfig.value], { type: 'text/plain;charset=utf-8' });
-
-        // 创建下载链接
-        const url = window.URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = 'frpc.ini';
-
-        // 触发下载
-        document.body.appendChild(link);
-        link.click();
-
-        // 清理
-        document.body.removeChild(link);
-        window.URL.revokeObjectURL(url);
-
-        message.success('配置文件下载成功');
-    } catch (err) {
-        console.error('[隧道列表]下载配置文件失败:', err);
-        message.error('配置文件下载失败');
-    }
-};
-
-// remove in future
-const forceCheck = () => {
-    if (tunnelCards.value && editTunnelModal.value === false) {
-        for (const card of tunnelCards.value) {
-            if (card.type === 'http' || card.type === 'https') {
-                const isIp = /^(?:\d{1,3}\.){3}\d{1,3}$/.test(card.dorp);
-                const isFrpOne = card.dorp.endsWith('.frp.one');
-                const isValidDomain = /^(?:\*\.)?(?!-)(?:[a-z0-9-]{1,63}\.)+(?:xn--)?[a-z0-9]{2,63}$/.test(card.dorp);
-
-                if (isIp || isFrpOne || !isValidDomain) {
-                    editTunnel(card);
-                    message.error('域名不合规，请立即修正');
-                }
-            }
-        }
-    }
-};
-
-// remove in future
-// 每10s强行检查合规性
-setInterval(() => {
-    forceCheck();
-}, 10000);
 </script>
-
-<style scoped>
-.center-content {
-    text-align: center;
-}
-
-.center-content>* {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-}
-
-.center-content n-row,
-.center-content n-col {
-    justify-content: center;
-}
-
-.mapDiv {
-    width: 100%;
-    height: 100%;
-}
-</style>
