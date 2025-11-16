@@ -152,27 +152,27 @@ import { useUserStore } from '@/stores/user';
 import { useLoadUserInfo } from '@/components/useLoadUser';
 
 // Composables
-import { useSignIn } from './UserPage/composables/useSignIn';
-import { useRealName } from './UserPage/composables/useRealName';
-import { useExchangeCode } from './UserPage/composables/useExchangeCode';
-import { useEmailVerification } from './UserPage/composables/useEmailVerification';
-import { useAccountDeletion } from './UserPage/composables/useAccountDeletion';
-import { useUserSettings, createSettingsCards } from './UserPage/composables/useUserSettings';
-import { useUserProfile } from './UserPage/composables/useUserProfile';
-import { useUserUpdates } from './UserPage/composables/useUserUpdates';
+import { useSignIn } from './composables/useSignIn';
+import { useRealName } from './composables/useRealName';
+import { useExchangeCode } from './composables/useExchangeCode';
+import { useEmailVerification } from './composables/useEmailVerification';
+import { useAccountDeletion } from './composables/useAccountDeletion';
+import { useUserSettings, createSettingsCards } from './composables/useUserSettings';
+import { useUserProfile } from './composables/useUserProfile';
+import { useUserUpdates } from './composables/useUserUpdates';
 
 // Components
-import UserMessagesCard from './UserPage/components/UserMessagesCard.vue';
-import UserSettingsCard from './UserPage/components/UserSettingsCard.vue';
-import UserProfileCard from './UserPage/components/UserProfileCard.vue';
-import RealNameForm from './UserPage/components/RealNameForm.vue';
-import ExchangeCodeForm from './UserPage/components/ExchangeCodeForm.vue';
-import ChangeUsernameModal from './UserPage/components/ChangeUsernameModal.vue';
-import ChangeAvatarModal from './UserPage/components/ChangeAvatarModal.vue';
-import ChangePasswordModal from './UserPage/components/ChangePasswordModal.vue';
-import ChangeEmailModal from './UserPage/components/ChangeEmailModal.vue';
-import ChangeQQModal from './UserPage/components/ChangeQQModal.vue';
-import DeleteAccountModal from './UserPage/components/DeleteAccountModal.vue';
+import UserMessagesCard from './components/UserMessagesCard.vue';
+import UserSettingsCard from './components/UserSettingsCard.vue';
+import UserProfileCard from './components/UserProfileCard.vue';
+import RealNameForm from './components/RealNameForm.vue';
+import ExchangeCodeForm from './components/ExchangeCodeForm.vue';
+import ChangeUsernameModal from './components/ChangeUsernameModal.vue';
+import ChangeAvatarModal from './components/ChangeAvatarModal.vue';
+import ChangePasswordModal from './components/ChangePasswordModal.vue';
+import ChangeEmailModal from './components/ChangeEmailModal.vue';
+import ChangeQQModal from './components/ChangeQQModal.vue';
+import DeleteAccountModal from './components/DeleteAccountModal.vue';
 
 const userStore = useUserStore();
 const userInfo = userStore.userInfo;

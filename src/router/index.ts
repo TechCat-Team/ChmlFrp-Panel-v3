@@ -6,12 +6,12 @@ const routes: Array<RouteRecordRaw> = [
     {
         path: '/',
         redirect: '/home',
-        component: () => import('@/views/HomeView.vue'),
+        component: () => import('@/views/Home/index.vue'),
         children: [
             {
                 path: '/home',
                 name: '首页',
-                component: () => import('@/pages/HomePage.vue'),
+                component: () => import('@/pages/Home/index.vue'),
                 meta: {
                     title: 'ChmlFrp - 控制台首页',
                     keywords: 'ChmlFrp, 内网穿透, 端口映射, frp, 免费frp, 映射',
@@ -22,7 +22,7 @@ const routes: Array<RouteRecordRaw> = [
             {
                 path: '/user',
                 name: '个人资料',
-                component: () => import('@/pages/UserPage.vue'),
+                component: () => import('@/pages/User/index.vue'),
                 meta: {
                     title: '个人资料 - ChmlFrp',
                     keywords: 'ChmlFrp, 个人资料, 用户信息, 内网穿透, 端口映射, frp, 免费frp, 映射',
@@ -35,12 +35,12 @@ const routes: Array<RouteRecordRaw> = [
     {
         path: '/',
         name: '隧道管理',
-        component: () => import('@/views/HomeView.vue'),
+        component: () => import('@/views/Home/index.vue'),
         children: [
             {
                 path: '/tunnel/list',
                 name: '隧道列表',
-                component: () => import('@/pages/Tunnel/ListPage.vue'),
+                component: () => import('@/pages/Tunnel/List/index.vue'),
                 meta: {
                     title: '隧道列表 - ChmlFrp',
                     keywords: 'ChmlFrp, 隧道管理, 隧道列表, 内网穿透, 端口映射, frp, 免费frp, 映射',
@@ -51,7 +51,7 @@ const routes: Array<RouteRecordRaw> = [
             {
                 path: '/tunnel/download',
                 name: '软件下载',
-                component: () => import('@/pages/Tunnel/DownloadPage.vue'),
+                component: () => import('@/pages/Tunnel/Download/index.vue'),
                 meta: {
                     title: '软件下载 - ChmlFrp',
                     keywords: 'ChmlFrp, 软件下载, 客户端, 内网穿透, 端口映射, frp, 免费frp, 映射',
@@ -61,7 +61,7 @@ const routes: Array<RouteRecordRaw> = [
             {
                 path: '/tunnel/config',
                 name: '配置文件',
-                component: () => import('@/pages/Tunnel/ConfigPage.vue'),
+                component: () => import('@/pages/Tunnel/Config/index.vue'),
                 meta: {
                     title: '配置文件 - ChmlFrp',
                     keywords: 'ChmlFrp, 配置文件, 内网穿透, 端口映射, frp, 免费frp, 映射',
@@ -72,7 +72,7 @@ const routes: Array<RouteRecordRaw> = [
             {
                 path: '/tunnel/status',
                 name: '节点状态',
-                component: () => import('@/pages/Tunnel/StatusPage.vue'),
+                component: () => import('@/pages/Tunnel/Status/index.vue'),
                 meta: {
                     title: '节点状态 - ChmlFrp',
                     keywords: 'ChmlFrp, 节点状态, 内网穿透, 端口映射, frp, 免费frp, 映射',
@@ -84,12 +84,12 @@ const routes: Array<RouteRecordRaw> = [
     {
         path: '/',
         name: '扩展功能',
-        component: () => import('@/views/HomeView.vue'),
+        component: () => import('@/views/Home/index.vue'),
         children: [
             {
                 path: '/expand/domain-name',
                 name: '免费域名',
-                component: () => import('@/pages/Expand/DomainName.vue'),
+                component: () => import('@/pages/Expand/DomainName/index.vue'),
                 meta: {
                     title: '免费域名 - ChmlFrp',
                     keywords: 'ChmlFrp, 免费域名, 域名服务, 内网穿透, 端口映射, frp, 免费frp, 映射',
@@ -100,7 +100,7 @@ const routes: Array<RouteRecordRaw> = [
             {
                 path: '/expand/free-ssl',
                 name: '免费SSL',
-                component: () => import('@/pages/Expand/FreeSSL.vue'),
+                component: () => import('@/pages/Expand/FreeSSL/index.vue'),
                 meta: {
                     title: '免费SSL - ChmlFrp',
                     keywords: 'ChmlFrp, 免费SSL证书, SSL, 端口映射, frp, 免费frp, 映射',
@@ -111,7 +111,7 @@ const routes: Array<RouteRecordRaw> = [
             {
                 path: '/expand/app-marketplace',
                 name: '应用市场',
-                component: () => import('@/pages/Expand/AppMarketplace.vue'),
+                component: () => import('@/pages/Expand/AppMarketplace/index.vue'),
                 meta: {
                     title: 'ChmlFrp应用市场 - ChmlFrp',
                     keywords: 'ChmlFrp, 应用市场, 第三方应用市场, ChmlFrp应用市场, ChmlFrp软件, frp, 免费frp, 映射',
@@ -125,12 +125,12 @@ const routes: Array<RouteRecordRaw> = [
     {
         path: '/',
         name: '增值中心',
-        component: () => import('@/views/HomeView.vue'),
+        component: () => import('@/views/Home/index.vue'),
         children: [
             {
                 path: '/shop/top-up',
                 name: '积分充值',
-                component: () => import('@/pages/Shop/TopUp.vue'),
+                component: () => import('@/pages/Shop/TopUp/index.vue'),
                 meta: {
                     title: '积分充值 - ChmlFrp',
                     keywords: 'ChmlFrp, 积分充值, 增值服务, 内网穿透, 端口映射, frp, 免费frp, 映射',
@@ -141,7 +141,7 @@ const routes: Array<RouteRecordRaw> = [
             {
                 path: '/shop/buy',
                 name: '积分商城',
-                component: () => import('@/pages/Shop/BuyPage.vue'),
+                component: () => import('@/pages/Shop/Buy/index.vue'),
                 meta: {
                     title: '积分商城 - ChmlFrp',
                     keywords: 'ChmlFrp, 积分商城, 增值服务, 内网穿透, 端口映射, frp, 免费frp, 映射',
@@ -154,12 +154,12 @@ const routes: Array<RouteRecordRaw> = [
     {
         path: '/',
         name: '其他信息',
-        component: () => import('@/views/HomeView.vue'),
+        component: () => import('@/views/Home/index.vue'),
         children: [
             {
                 path: '/other/about',
                 name: '关于面板',
-                component: () => import('@/pages/Other/AboutPage.vue'),
+                component: () => import('@/pages/Other/About/index.vue'),
                 meta: {
                     title: '关于面板 - ChmlFrp',
                     keywords: 'ChmlFrp, 关于我们, 内网穿透, 端口映射, frp, 免费frp, 映射',
@@ -169,7 +169,7 @@ const routes: Array<RouteRecordRaw> = [
             {
                 path: '/other/log',
                 name: '用户日志',
-                component: () => import('@/pages/Other/LogPage.vue'),
+                    component: () => import('@/pages/Other/Log/index.vue'),
                 meta: {
                     title: '用户日志 - ChmlFrp',
                     keywords: 'ChmlFrp, 用户日志, 操作记录, 内网穿透, 端口映射, frp, 免费frp, 映射',
@@ -182,7 +182,7 @@ const routes: Array<RouteRecordRaw> = [
     {
         path: '/sign',
         name: '登录',
-        component: () => import('@/views/SignView.vue'),
+        component: () => import('@/views/Sign/index.vue'),
         meta: {
             title: '登录 - ChmlFrp',
             keywords: 'ChmlFrp, 登录, 用户认证, 内网穿透, 端口映射, frp, 免费frp, 映射',
@@ -192,7 +192,7 @@ const routes: Array<RouteRecordRaw> = [
     {
         path: '/tunnel/info',
         name: '隧道详情',
-        component: () => import('@/views/TunnelInfo.vue'),
+        component: () => import('@/views/TunnelInfo/index.vue'),
         meta: {
             title: '隧道详情 - ChmlFrp',
             keywords: 'ChmlFrp, 隧道详情, 内网穿透, 端口映射, frp, 免费frp, 映射',
@@ -203,7 +203,7 @@ const routes: Array<RouteRecordRaw> = [
     {
         path: '/node/info',
         name: '节点详情',
-        component: () => import('@/views/NodeInfo.vue'),
+        component: () => import('@/views/NodeInfo/index.vue'),
         meta: {
             title: '节点详情 - ChmlFrp',
             keywords: 'ChmlFrp, 节点详情, 内网穿透, 端口映射, frp, 免费frp, 映射',
@@ -213,12 +213,12 @@ const routes: Array<RouteRecordRaw> = [
     {
         path: '/',
         name: '管理面板',
-        component: () => import('@/views/HomeView.vue'),
+        component: () => import('@/views/Home/index.vue'),
         children: [
             {
                 path: '/admin/overall',
                 name: '系统总览',
-                component: () => import('@/pages/Admin/OverallPage.vue'),
+                component: () => import('@/pages/Admin/Overall/index.vue'),
                 meta: {
                     title: '总览 - 管理员控制台 - ChmlFrp',
                     requiresAuth: true,
@@ -227,7 +227,7 @@ const routes: Array<RouteRecordRaw> = [
             {
                 path: '/admin/panel',
                 name: '面板管理',
-                component: () => import('@/pages/Admin/PanelSettings.vue'),
+                component: () => import('@/pages/Admin/PanelSettings/index.vue'),
                 meta: {
                     title: '面板管理 - 管理员控制台 - ChmlFrp',
                     requiresAuth: true,
@@ -236,7 +236,7 @@ const routes: Array<RouteRecordRaw> = [
             {
                 path: '/admin/node',
                 name: '节点管理',
-                component: () => import('@/pages/Admin/NodeManagement.vue'),
+                component: () => import('@/pages/Admin/NodeManagement/index.vue'),
                 meta: {
                     title: '节点管理 - 管理员控制台 - ChmlFrp',
                     requiresAuth: true,
@@ -245,7 +245,7 @@ const routes: Array<RouteRecordRaw> = [
             {
                 path: '/admin/user',
                 name: '用户管理',
-                component: () => import('@/pages/Admin/UserManagement.vue'),
+                component: () => import('@/pages/Admin/UserManagement/index.vue'),
                 meta: {
                     title: '用户管理 - 管理员控制台 - ChmlFrp',
                     requiresAuth: true,
@@ -254,7 +254,7 @@ const routes: Array<RouteRecordRaw> = [
             {
                 path: '/admin/tunnel',
                 name: '管理隧道',
-                component: () => import('@/pages/Admin/TunnelManagement.vue'),
+                component: () => import('@/pages/Admin/TunnelManagement/index.vue'),
                 meta: {
                     title: '隧道管理 - 管理员控制台 - ChmlFrp',
                     requiresAuth: true,
@@ -263,7 +263,7 @@ const routes: Array<RouteRecordRaw> = [
             {
                 path: '/admin/gift-code',
                 name: '兑换码管理',
-                component: () => import('@/pages/Admin/ExchangeCode.vue'),
+                component: () => import('@/pages/Admin/ExchangeCode/index.vue'),
                 meta: {
                     title: '兑换码管理 - 管理员控制台 - ChmlFrp',
                     requiresAuth: true,
@@ -272,7 +272,7 @@ const routes: Array<RouteRecordRaw> = [
             {
                 path: '/admin/domain-name',
                 name: '免费域名管理',
-                component: () => import('@/pages/Admin/DomainNameManagement.vue'),
+                component: () => import('@/pages/Admin/DomainNameManagement/index.vue'),
                 meta: {
                     title: '免费域名管理 - 管理员控制台 - ChmlFrp',
                     requiresAuth: true,
@@ -283,7 +283,7 @@ const routes: Array<RouteRecordRaw> = [
     {
         path: '/:pathMatch(.*)*',
         name: 'NotFound',
-        component: () => import('@/views/NotFound.vue'),
+        component: () => import('@/views/NotFound/index.vue'),
     },
 ];
 

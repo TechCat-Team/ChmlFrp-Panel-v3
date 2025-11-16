@@ -57,28 +57,28 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, computed, watch, onMounted } from 'vue';
-import { useMessage, useDialog, FormInst } from 'naive-ui';
+import { ref, watch, onMounted } from 'vue';
+import { useMessage, useDialog } from 'naive-ui';
 import { useUserStore } from '@/stores/user';
-import { useDomainList } from './DomainName/composables/useDomainList';
-import { useDomainForm } from './DomainName/composables/useDomainForm';
-import { useDomainCreate } from './DomainName/composables/useDomainCreate';
-import { useDomainEdit } from './DomainName/composables/useDomainEdit';
-import { useDomainDelete } from './DomainName/composables/useDomainDelete';
-import { useDomainOptions } from './DomainName/composables/useDomainOptions';
-import { useTunnelList } from './DomainName/composables/useTunnelList';
-import DomainListHeader from './DomainName/components/DomainListHeader.vue';
-import DomainCard from './DomainName/components/DomainCard.vue';
-import DomainListEmpty from './DomainName/components/DomainListEmpty.vue';
-import CreateDomainModal from './DomainName/components/CreateDomainModal.vue';
-import EditDomainModal from './DomainName/components/EditDomainModal.vue';
-import type { FreeDomain, TTLValue } from './DomainName/types';
+import { useDomainList } from './composables/useDomainList';
+import { useDomainForm } from './composables/useDomainForm';
+import { useDomainCreate } from './composables/useDomainCreate';
+import { useDomainEdit } from './composables/useDomainEdit';
+import { useDomainDelete } from './composables/useDomainDelete';
+import { useDomainOptions } from './composables/useDomainOptions';
+import { useTunnelList } from './composables/useTunnelList';
+import DomainListHeader from './components/DomainListHeader.vue';
+import DomainCard from './components/DomainCard.vue';
+import DomainListEmpty from './components/DomainListEmpty.vue';
+import CreateDomainModal from './components/CreateDomainModal.vue';
+import EditDomainModal from './components/EditDomainModal.vue';
+import type { FreeDomain, TTLValue } from './types';
 import {
     RECORD_TYPE_OPTIONS,
     FAST_RECORD_TYPE_OPTIONS,
     TTL_OPTIONS,
     INFO_MESSAGES,
-} from './DomainName/constants';
+} from './constants';
 
 const userStore = useUserStore();
 const userInfo = userStore.userInfo;

@@ -59,26 +59,26 @@ import {
     ArrowUpCircleOutline,
     ArrowDownCircleOutline,
 } from '@vicons/ionicons5';
-import wxImage from '../assets/wx.jpg';
+import wxImage from '@/assets/wx.jpg';
 
 // Components
-import UserGreetingCard from './HomePage/components/UserGreetingCard.vue';
-import SignInCard from './HomePage/components/SignInCard.vue';
-import StatsCards from './HomePage/components/StatsCards.vue';
-import TrafficChart from './HomePage/components/TrafficChart.vue';
-import PanelInfoCard from './HomePage/components/PanelInfoCard.vue';
-import UserAlertsCard from './HomePage/components/UserAlertsCard.vue';
-import FAQCard from './HomePage/components/FAQCard.vue';
+import UserGreetingCard from './components/UserGreetingCard.vue';
+import SignInCard from './components/SignInCard.vue';
+import StatsCards from './components/StatsCards.vue';
+import TrafficChart from './components/TrafficChart.vue';
+import PanelInfoCard from './components/PanelInfoCard.vue';
+import UserAlertsCard from './components/UserAlertsCard.vue';
+import FAQCard from './components/FAQCard.vue';
 
 // Composables
-import { useGreeting } from './HomePage/composables/useGreeting';
-import { useYiyan } from './HomePage/composables/useYiyan';
-import { useSignIn } from './HomePage/composables/useSignIn';
-import { usePanelInfo } from './HomePage/composables/usePanelInfo';
+import { useGreeting } from './composables/useGreeting';
+import { useYiyan } from './composables/useYiyan';
+import { useSignIn } from './composables/useSignIn';
+import { usePanelInfo } from './composables/usePanelInfo';
 
 // Utils & Constants
 import { formatBytes } from '@/utils/formatBytes';
-import { COUNTDOWN_DURATION, TIME_UPDATE_INTERVAL, TUTORIAL_URL } from './HomePage/constants';
+import { COUNTDOWN_DURATION, TIME_UPDATE_INTERVAL, TUTORIAL_URL } from './constants';
 
 const userStore = useUserStore();
 const userInfo = userStore.userInfo;

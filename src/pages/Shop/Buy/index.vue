@@ -66,17 +66,17 @@ import { ref, computed, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { useMessage } from 'naive-ui';
 import { useUserStore } from '@/stores/user';
-import { useMembershipPricing } from './BuyPage/composables/useMembershipPricing';
-import { useMembershipPurchase } from './BuyPage/composables/useMembershipPurchase';
-import { useMembershipUpgrade } from './BuyPage/composables/useMembershipUpgrade';
-import { useLifetimePurchase } from './BuyPage/composables/useLifetimePurchase';
-import { useTradeStatus } from './BuyPage/composables/useTradeStatus';
-import MembershipCard from './BuyPage/components/MembershipCard.vue';
-import AnniversaryCard from './BuyPage/components/AnniversaryCard.vue';
-import PerkCard from './BuyPage/components/PerkCard.vue';
-import LifetimeMemberModal from './BuyPage/components/LifetimeMemberModal.vue';
-import PurchaseDrawer from './BuyPage/components/PurchaseDrawer.vue';
-import type { MembershipType } from './BuyPage/types';
+import { useMembershipPricing } from './composables/useMembershipPricing';
+import { useMembershipPurchase } from './composables/useMembershipPurchase';
+import { useMembershipUpgrade } from './composables/useMembershipUpgrade';
+import { useLifetimePurchase } from './composables/useLifetimePurchase';
+import { useTradeStatus } from './composables/useTradeStatus';
+import MembershipCard from './components/MembershipCard.vue';
+import AnniversaryCard from './components/AnniversaryCard.vue';
+import PerkCard from './components/PerkCard.vue';
+import LifetimeMemberModal from './components/LifetimeMemberModal.vue';
+import PurchaseDrawer from './components/PurchaseDrawer.vue';
+import type { MembershipType } from './types';
 import {
     PURCHASE_NOTICE,
     MEMBERSHIP_FEATURES,
@@ -85,7 +85,7 @@ import {
     MEMBERSHIP_PRICE_TEXT,
     BUTTON_TEXT,
     LIFETIME_TERM_DATE,
-} from './BuyPage/constants';
+} from './constants';
 
 const userStore = useUserStore();
 const userInfo = userStore.userInfo;
