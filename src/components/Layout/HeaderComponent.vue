@@ -47,7 +47,7 @@
                 </template>
                 <span>面板设置</span>
             </n-popover>
-            <n-dropdown trigger="hover" :options="userDropdownOptions">
+            <n-dropdown trigger="click" :options="userDropdownOptions">
                 <n-button quaternary size="large">
                     <n-avatar
                         v-if="userInfo?.userimg"
