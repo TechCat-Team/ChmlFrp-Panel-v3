@@ -41,7 +41,8 @@ jobs:
           script: |
             DEPLOY_PATH="${{ secrets.DEPLOY_PATH }}"
             if [ -d "$DEPLOY_PATH" ]; then
-              find "$DEPLOY_PATH" -mindepth 1 -maxdepth 1 -exec rm -rf {} +
+              # 排除 .user.ini 和其他系统文件，只删除构建产物
+              find "$DEPLOY_PATH" -mindepth 1 -maxdepth 1 ! -name ".user.ini" ! -name ".htaccess" ! -name ".well-known" -exec rm -rf {} + || true
             fi
 
       - name: Deploy to server via SSH
