@@ -12,7 +12,7 @@ export const FILTER_REGION_OPTIONS = ['all', 'china', 'overseas'] as const;
 export const DEFAULT_LOCAL_IP = '127.0.0.1';
 export const DEFAULT_TUNNEL_TYPE = 'TCP';
 export const DEFAULT_NPORT = '0';
-export const DEFAULT_DORP = 25565;
+export const DEFAULT_DORP = '25565';
 export const DEFAULT_TUNNEL_NAME_LENGTH = 8;
 
 export const RANDOM_PORT_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';

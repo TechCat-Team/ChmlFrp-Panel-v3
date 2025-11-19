@@ -279,7 +279,11 @@ const { loading: loadingCreateTunnel, createTunnel } = useTunnelCreate(
     formData,
     nodeInfo as unknown as { value: NodeInfo },
     checkFormData,
-    fetchTunnelCards
+    () => {
+        tunnelInfoModal.value = false;
+        fetchTunnelCards();
+    },
+    fetchNodeInfo
 );
 
 const { loading: loadingEditTunnel, editTunnel: editTunnelFunc } = useTunnelEdit(
@@ -306,10 +310,10 @@ const editTunnel = async (card: TunnelCard) => {
 
     // 判断 card.dorp 是否为数字类型的字符串
     if (!isNaN(Number(card.dorp))) {
-        // 如果是数字字符串，转换为数字并赋值给 formData.dorp
-        formData.dorp = Number(card.dorp);
+        // 如果是数字字符串，转换为字符串并赋值给 formData.dorp
+        formData.dorp = String(card.dorp);
     } else {
-        // 否则将其赋值给 formData.domainNameLabel
+        // 否则将其赋值给 formData.domain
         formData.domain = card.dorp;
     }
 
@@ -429,9 +433,8 @@ const subDomainDataWrapper = async () => {
 };
 
 // 使用 composable 中的 createTunnel
-const handleCreateTunnel = () => {
-    createTunnel();
-        tunnelInfoModal.value = false;
+const handleCreateTunnel = async () => {
+    await createTunnel();
 };
 
 
@@ -497,8 +500,11 @@ const goToTheTunnelDetails = () => {
     nodeInfoModal.value = false; // 取消显示节点详情模态框
     tunnelInfoModal.value = true; // 显示创建隧道详情拟态框
     formData.node = nodeInfoValue.value.name;
-    generateRandomPort();
     generateRandomTunnelName();
+    // 只在TCP/UDP类型且有rport信息时生成随机端口
+    if ((formData.type === 'TCP' || formData.type === 'UDP') && nodeInfoValue.value?.rport) {
+        generateRandomPort();
+    }
     if (formData.domainNameLabel === '免费域名') {
         subDomainData();
     }
@@ -511,6 +517,26 @@ watch(
         localStorage.setItem('nodeFilters', JSON.stringify(newFilters));
     },
     { deep: true }
+);
+
+// 监听创建隧道弹窗打开，自动生成随机隧道名
+watch(
+    tunnelInfoModal,
+    (isOpen) => {
+        if (isOpen) {
+            // 当弹窗打开时，如果隧道名为空，生成随机隧道名
+            if (!formData.name) {
+                generateRandomTunnelName();
+            }
+            // 如果有节点信息且有rport，生成随机端口（仅TCP/UDP类型）
+            if (
+                nodeInfoValue.value?.rport &&
+                (formData.type === 'TCP' || formData.type === 'UDP')
+            ) {
+                generateRandomPort();
+            }
+        }
+    }
 );
 
 onMounted(() => {

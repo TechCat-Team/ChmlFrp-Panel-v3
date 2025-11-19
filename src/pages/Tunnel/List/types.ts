@@ -76,7 +76,7 @@ export interface TunnelFormData {
     type: string;
     nport: string;
     domainNameLabel: string;
-    dorp: number;
+    dorp: string;
     choose: string;
     encryption: boolean;
     compression: boolean;

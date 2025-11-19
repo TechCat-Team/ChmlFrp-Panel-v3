@@ -1,4 +1,4 @@
-import { ref } from 'vue';
+import { ref, unref, type Ref } from 'vue';
 import { useMessage, useDialog } from 'naive-ui';
 import api from '@/api';
 import type { TunnelFormData, NodeInfo } from '../types';
@@ -9,21 +9,40 @@ import type { TunnelFormData, NodeInfo } from '../types';
 export function useTunnelCreate(
     userInfo: { usertoken?: string },
     formData: TunnelFormData,
-    nodeInfo: { value: NodeInfo },
+    nodeInfo: { value: NodeInfo | Ref<NodeInfo> },
     checkFormData: (formData: TunnelFormData, nodeInfo: NodeInfo) => boolean | null,
-    onSuccess: () => void
+    onSuccess: () => void,
+    fetchNodeInfo?: (nodeName: string) => Promise<NodeInfo | null>
 ) {
     const message = useMessage();
     const dialog = useDialog();
     const loading = ref(false);
 
+    // 获取实际的节点信息（处理 ref 嵌套）
+    const getActualNodeInfo = (): NodeInfo => {
+        const nodeInfoValue = nodeInfo.value;
+        // 如果是 ref，使用 unref 获取值；否则直接返回
+        return unref(nodeInfoValue as Ref<NodeInfo> | NodeInfo);
+    };
+
     const createTunnel = async () => {
         loading.value = true;
 
         try {
+            // 获取实际的节点信息
+            let actualNodeInfo = getActualNodeInfo();
+            
+            // 如果节点信息不完整且提供了 fetchNodeInfo 函数，尝试重新获取
+            if ((!actualNodeInfo || !actualNodeInfo.name || (formData.type === 'TCP' || formData.type === 'UDP') && !actualNodeInfo.rport) && fetchNodeInfo && formData.node) {
+                message.info('正在重新获取节点信息...');
+                const refreshedNodeInfo = await fetchNodeInfo(formData.node);
+                if (refreshedNodeInfo) {
+                    actualNodeInfo = refreshedNodeInfo;
+                }
+            }
+            
             // 检查合规性
-            if (!checkFormData(formData, nodeInfo.value)) {
-                loading.value = false;
+            if (!checkFormData(formData, actualNodeInfo)) {
                 return;
             }
 
@@ -44,7 +63,7 @@ export function useTunnelCreate(
                 compression: formData.compression,
                 extraparams: formData.ap,
                 banddomain: isHttp ? banddomain : undefined,
-                remoteport: isHttp ? undefined : formData.dorp,
+                remoteport: isHttp ? undefined : Number(formData.dorp),
             };
 
             // 尝试创建免费域名（如果需要）
@@ -56,7 +75,7 @@ export function useTunnelCreate(
                         record: formData.recordValue,
                         type: 'CNAME',
                         ttl: '10分钟',
-                        target: nodeInfo.value.ip,
+                        target: actualNodeInfo.ip,
                         remarks: `解析 网站 到 ${formData.name} - ${formData.node}`,
                     });
                 } catch (error) {

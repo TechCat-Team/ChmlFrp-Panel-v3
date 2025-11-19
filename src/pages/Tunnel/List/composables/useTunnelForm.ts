@@ -1,4 +1,4 @@
-import { reactive, ref, computed } from 'vue';
+import { reactive, ref, computed, unref, type Ref } from 'vue';
 import { useMessage } from 'naive-ui';
 import api from '@/api';
 import type { TunnelFormData, NodeInfo, Domain } from '../types';
@@ -17,7 +17,7 @@ import {
  */
 export function useTunnelForm(
     userInfo?: { usertoken?: string; usergroup?: string },
-    nodeInfo?: { value: NodeInfo }
+    nodeInfo?: { value: NodeInfo | Ref<NodeInfo> }
 ) {
     const message = useMessage();
 
@@ -75,9 +75,15 @@ export function useTunnelForm(
     // 随机生成外网端口
     const generateRandomPort = () => {
         if (!nodeInfo?.value) return;
-        const minPort = parseInt(nodeInfo.value.rport.split('-')[0]) || 10000;
-        const maxPort = parseInt(nodeInfo.value.rport.split('-')[1]) || 65535;
-        formData.dorp = Math.floor(Math.random() * (maxPort - minPort + 1)) + Number(minPort);
+        // 获取实际的节点信息（处理 ref 嵌套）
+        const actualNodeInfo = unref(nodeInfo.value as Ref<NodeInfo> | NodeInfo);
+        if (!actualNodeInfo || !actualNodeInfo.rport) return;
+        const rportStr = String(actualNodeInfo.rport);
+        const portRange = rportStr.split('-');
+        if (portRange.length !== 2) return;
+        const minPort = parseInt(portRange[0]) || 10000;
+        const maxPort = parseInt(portRange[1]) || 65535;
+        formData.dorp = String(Math.floor(Math.random() * (maxPort - minPort + 1)) + Number(minPort));
     };
 
     // 随机生成隧道名
@@ -96,12 +102,14 @@ export function useTunnelForm(
             const domains = (await api.v2.domain.listAvailableDomains()).data;
 
             if (!nodeInfo?.value) return;
+            const actualNodeInfo = unref(nodeInfo.value as Ref<NodeInfo> | NodeInfo);
+            if (!actualNodeInfo) return;
 
             domainNameOptions.value = domains
                 .filter(
                     (domain: Domain) =>
-                        nodeInfo.value.china !== 'yes' ||
-                        CHINA_SPECIAL_REGIONS.some((region) => nodeInfo.value.area.includes(region)) ||
+                        actualNodeInfo.china !== 'yes' ||
+                        CHINA_SPECIAL_REGIONS.some((region) => actualNodeInfo.area.includes(region)) ||
                         domain.icpFiling
                 )
                 .map((domain: Domain) => ({
@@ -155,9 +163,16 @@ export function useTunnelForm(
     // 检查端口合规性
     const checkPort = () => {
         if (!nodeInfo?.value || (formData.type !== 'TCP' && formData.type !== 'UDP')) return;
-        const minPort = parseInt(nodeInfo.value.rport.split('-')[0]) || 10000;
-        const maxPort = parseInt(nodeInfo.value.rport.split('-')[1]) || 65535;
-        if (formData.dorp < minPort || formData.dorp > maxPort) {
+        // 获取实际的节点信息（处理 ref 嵌套）
+        const actualNodeInfo = unref(nodeInfo.value as Ref<NodeInfo> | NodeInfo);
+        if (!actualNodeInfo || !actualNodeInfo.rport) return;
+        const rportStr = String(actualNodeInfo.rport);
+        const portRange = rportStr.split('-');
+        if (portRange.length !== 2) return;
+        const minPort = parseInt(portRange[0]) || 10000;
+        const maxPort = parseInt(portRange[1]) || 65535;
+        const dorpNum = Number(formData.dorp);
+        if (isNaN(dorpNum) || dorpNum < minPort || dorpNum > maxPort) {
             message.destroyAll();
             message.error(`外网端口必须在 ${minPort} 到 ${maxPort} 之间`);
         } else {
