@@ -175,9 +175,6 @@ export function useTunnelForm(
         if (isNaN(dorpNum) || dorpNum < minPort || dorpNum > maxPort) {
             message.destroyAll();
             message.error(`外网端口必须在 ${minPort} 到 ${maxPort} 之间`);
-        } else {
-            message.destroyAll();
-            message.success(`外网端口合规`);
         }
     };
 

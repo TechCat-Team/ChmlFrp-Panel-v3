@@ -53,7 +53,15 @@
                     </n-col>
                     <n-col :span="12">
                         <n-form-item label="内网端口" path="nport">
-                            <n-input v-model:value="formData.nport" clearable placeholder="请输入内网端口" />
+                            <n-input 
+                                v-model:value="formData.nport" 
+                                clearable 
+                                placeholder="请输入内网端口"
+                                :maxlength="5"
+                                @keypress="handlePortKeypress"
+                                @update:value="handleNportInput"
+                                @blur="handleNportBlur"
+                            />
                         </n-form-item>
                     </n-col>
                     <n-col :span="12">
@@ -63,7 +71,15 @@
                                 placeholder="请选择域名类型" @update:value="$emit('domain-type-change', $event)" />
                         </n-form-item>
                         <n-form-item v-else label="外网端口" path="dorp">
-                            <n-input v-model:value="formData.dorp" clearable @update:value="$emit('port-change', $event)" />
+                            <n-input 
+                                v-model:value="formData.dorp" 
+                                clearable 
+                                :maxlength="5"
+                                :placeholder="getDorpPlaceholder()"
+                                @keypress="handlePortKeypress"
+                                @update:value="handleDorpInput"
+                                @blur="handleDorpBlur"
+                            />
                         </n-form-item>
                     </n-col>
                     <n-col :span="24" v-if="
@@ -131,6 +147,7 @@
 </template>
 
 <script lang="ts" setup>
+import { useMessage } from 'naive-ui';
 import type { TunnelFormData, NodeInfo } from '../types';
 
 interface Props {
@@ -148,15 +165,153 @@ interface Props {
     loading: boolean;
 }
 
-defineProps<Props>();
+const props = defineProps<Props>();
+const message = useMessage();
 
-defineEmits<{
+// 限制端口输入只能输入数字
+const handlePortKeypress = (e: KeyboardEvent) => {
+    // 允许：数字、退格、删除、Tab、方向键等
+    const allowedKeys = ['Backspace', 'Delete', 'Tab', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'];
+    if (allowedKeys.includes(e.key)) {
+        return;
+    }
+    // 只允许数字
+    if (!/^\d$/.test(e.key)) {
+        e.preventDefault();
+    }
+};
+
+// 获取节点的外网端口范围
+const getNodePortRange = (): { min: number; max: number } | null => {
+    if (!props.nodeInfo || !props.nodeInfo.rport) {
+        return null;
+    }
+    const rportStr = String(props.nodeInfo.rport);
+    const portRange = rportStr.split('-');
+    if (portRange.length !== 2) {
+        return null;
+    }
+    const minPort = parseInt(portRange[0]) || 1;
+    const maxPort = parseInt(portRange[1]) || 65535;
+    return { min: minPort, max: maxPort };
+};
+
+// 获取外网端口的 placeholder 提示
+const getDorpPlaceholder = (): string => {
+    const portRange = getNodePortRange();
+    if (portRange) {
+        return `请输入外网端口 (${portRange.min}-${portRange.max})`;
+    }
+    return '请输入外网端口 (1-65535)';
+};
+
+// 验证并限制内网端口范围（1-65535）
+const validateNport = (value: string): string => {
+    if (!value || value === '') {
+        return '';
+    }
+    // 移除所有非数字字符
+    let numStr = value.replace(/\D/g, '');
+    if (!numStr) {
+        return '';
+    }
+    // 转换为数字并限制范围
+    let num = parseInt(numStr, 10);
+    if (isNaN(num)) {
+        return '';
+    }
+    // 限制在1-65535之间
+    if (num < 1) {
+        num = 1;
+    } else if (num > 65535) {
+        num = 65535;
+    }
+    return String(num);
+};
+
+// 验证并限制外网端口范围（根据节点限制）
+const validateDorp = (value: string): string => {
+    if (!value || value === '') {
+        return '';
+    }
+    // 移除所有非数字字符
+    let numStr = value.replace(/\D/g, '');
+    if (!numStr) {
+        return '';
+    }
+    // 转换为数字
+    let num = parseInt(numStr, 10);
+    if (isNaN(num)) {
+        return '';
+    }
+    
+    // 获取节点的端口范围
+    const portRange = getNodePortRange();
+    if (portRange) {
+        // 根据节点限制调整范围
+        if (num < portRange.min) {
+            num = portRange.min;
+        } else if (num > portRange.max) {
+            num = portRange.max;
+        }
+    } else {
+        // 如果没有节点信息，使用默认范围 1-65535
+        if (num < 1) {
+            num = 1;
+        } else if (num > 65535) {
+            num = 65535;
+        }
+    }
+    return String(num);
+};
+
+// 处理内网端口输入（只允许数字，不验证范围）
+const handleNportInput = (value: string) => {
+    // 只移除非数字字符，不验证范围
+    const numStr = value.replace(/\D/g, '');
+    props.formData.nport = numStr;
+};
+
+// 处理内网端口失去焦点（验证并修正范围）
+const handleNportBlur = () => {
+    const validatedValue = validateNport(props.formData.nport);
+    if (validatedValue !== props.formData.nport && props.formData.nport) {
+        props.formData.nport = validatedValue;
+        message.warning('端口范围必须在 1-65535 之间');
+    }
+};
+
+// 处理外网端口输入（只允许数字，不验证范围）
+const handleDorpInput = (value: string) => {
+    // 只移除非数字字符，不验证范围
+    const numStr = value.replace(/\D/g, '');
+    props.formData.dorp = numStr;
+    // 输入过程中不触发 port-change 事件，避免实时弹出提示
+};
+
+// 处理外网端口失去焦点（验证并修正范围）
+const handleDorpBlur = () => {
+    const validatedValue = validateDorp(props.formData.dorp);
+    if (validatedValue !== props.formData.dorp && props.formData.dorp) {
+        props.formData.dorp = validatedValue;
+        const portRange = getNodePortRange();
+        if (portRange) {
+            message.warning(`外网端口范围必须在 ${portRange.min}-${portRange.max} 之间`);
+        } else {
+            message.warning('端口范围必须在 1-65535 之间');
+        }
+    }
+    // 失去焦点后触发 port-change 事件，用于检查端口合规性
+    emit('port-change', props.formData.dorp ? Number(props.formData.dorp) : undefined);
+};
+
+const emit = defineEmits<{
     'update:show': [value: boolean];
     'select-node': [];
     'node-change': [value: string];
     'type-change': [value: string];
     'domain-type-change': [value: string];
-    'port-change': [value: number];
+    'port-change': [value: number | undefined];
     'random-port': [];
     'random-name': [];
     cancel: [];
