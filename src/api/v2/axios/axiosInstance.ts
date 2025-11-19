@@ -1,4 +1,6 @@
 import axios from 'axios';
+import router from '@/router';
+import { useUserStore } from '@/stores/user';
 
 // 通用响应接口
 export interface BaseResponse {
@@ -38,10 +40,25 @@ axiosInstance.interceptors.request.use(
     }
 );
 
+const handleInvalidToken = () => {
+    const userStore = useUserStore();
+    userStore.clearUser();
+
+    const redirectPath = '/sign';
+    if (router.currentRoute.value.path !== redirectPath) {
+        void router.replace(redirectPath);
+    }
+};
+
 // 响应拦截器
 axiosInstance.interceptors.response.use(
     (response) => {
         const data = response.data;
+
+        if (data?.msg === '无效的Token') {
+            handleInvalidToken();
+            throw new ApiError('response', data.msg, data);
+        }
 
         // 判断业务状态
         if (data.state !== 'success') {
@@ -54,6 +71,10 @@ axiosInstance.interceptors.response.use(
         if (!error.response) {
             // 网络错误
             return Promise.reject(new ApiError('network', '连接到API网络失败，请稍候再试', error));
+        }
+
+        if (error.response.data?.msg === '无效的Token') {
+            handleInvalidToken();
         }
 
         // 其他未知错误
