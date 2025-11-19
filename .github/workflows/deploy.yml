@@ -6,6 +6,9 @@ on:
       - main
   workflow_dispatch: # 允许手动触发
 
+permissions:
+  contents: read # 只需要读取代码的权限
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest

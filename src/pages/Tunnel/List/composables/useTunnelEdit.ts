@@ -149,7 +149,7 @@ export function useTunnelEdit(
                     ap: formData.ap,
                     dorp:
                         formData.type.toLowerCase() === 'tcp' || formData.type.toLowerCase() === 'udp'
-                            ? formData.dorp
+                            ? Number(formData.dorp)
                             : formData.domain,
                     localip: formData.localip,
                     nport: Number(formData.nport),
@@ -189,7 +189,7 @@ export function useTunnelEdit(
                 localport: Number(formData.nport),
                 ...(formData.type.toUpperCase() === 'HTTP' || formData.type.toUpperCase() === 'HTTPS'
                     ? { banddomain: formData.domain }
-                    : { remoteport: formData.dorp }),
+                    : { remoteport: Number(formData.dorp) }),
                 encryption: formData.encryption,
                 compression: formData.compression,
                 extraparams: formData.ap,
