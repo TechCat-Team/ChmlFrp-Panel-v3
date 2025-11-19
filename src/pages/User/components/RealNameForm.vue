@@ -49,10 +49,12 @@ const formRef = ref<FormInst | null>(null);
 const rules = realNameRules;
 
 const handleSubmit = async () => {
-    if (!formRef.value?.validate()) {
-        return;
+    try {
+        await formRef.value?.validate();
+        props.onSubmit();
+    } catch (error) {
+        // 验证失败，不执行提交
     }
-    props.onSubmit();
 };
 
 defineExpose({

@@ -1,5 +1,4 @@
 import { ref } from 'vue';
-import { FormInst } from 'naive-ui';
 import axios from 'axios';
 import { useMessage } from 'naive-ui';
 import { useUserStore } from '@/stores/user';
@@ -16,16 +15,12 @@ export function useRealName(userInfo: { id?: number; usertoken?: string }) {
     const message = useMessage();
     const userStore = useUserStore();
     const loading = ref(false);
-    const formRef = ref<FormInst | null>(null);
     const model = ref<RealNameModel>({
         name: null,
         idCard: null,
     });
 
     const submit = async () => {
-        if (!formRef.value?.validate()) {
-            return;
-        }
         loading.value = true;
         try {
             const formData = new FormData();
@@ -59,7 +54,6 @@ export function useRealName(userInfo: { id?: number; usertoken?: string }) {
 
     return {
         loading,
-        formRef,
         model,
         submit,
     };
