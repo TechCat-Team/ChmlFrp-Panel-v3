@@ -40,8 +40,10 @@ jobs:
           port: ${{ secrets.SSH_PORT || 22 }}
           script: |
             DEPLOY_PATH="${{ secrets.DEPLOY_PATH }}"
+            # 确保目录存在
+            mkdir -p "$DEPLOY_PATH"
+            # 排除 .user.ini 和其他系统文件，只删除构建产物
             if [ -d "$DEPLOY_PATH" ]; then
-              # 排除 .user.ini 和其他系统文件，只删除构建产物
               find "$DEPLOY_PATH" -mindepth 1 -maxdepth 1 ! -name ".user.ini" ! -name ".htaccess" ! -name ".well-known" -exec rm -rf {} + || true
             fi
 
@@ -52,7 +54,6 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SSH_PORT || 22 }}
-          source: "dist/*"
+          source: "dist/"
           target: ${{ secrets.DEPLOY_PATH }}
           strip_components: 1
-          rm: true
