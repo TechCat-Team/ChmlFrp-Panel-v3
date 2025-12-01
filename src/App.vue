@@ -6,7 +6,7 @@
             <n-message-provider>
                 <!-- 对话框 -->
                 <n-dialog-provider>
-                    <ViewComponent />
+                    <RouterViewWithTransition />
                 </n-dialog-provider>
             </n-message-provider>
         </n-loading-bar-provider>
@@ -27,9 +27,8 @@
 
 <script setup lang="ts">
 import { useThemeStore } from '@/stores/theme';
-import { RouterView } from 'vue-router';
-import { useProviderStore } from './stores/provider';
 import { useUserStore } from '@/stores/user';
+import RouterViewWithTransition from '@/components/RouterViewWithTransition.vue';
 import hljs from 'highlight.js/lib/core';
 import ini from 'highlight.js/lib/languages/ini';
 import nginx from 'highlight.js/lib/languages/nginx';
@@ -110,14 +109,6 @@ const themeOverrides = computed(() => {
     };
 });
 
-const provider = useProviderStore();
-
-const ViewComponent = defineComponent({
-    render: () => h(RouterView),
-    setup() {
-        provider.setLoadingBar(useLoadingBar());
-    },
-});
 
 let animationFrameId: number | null = null;
 let isRGBRunning = false;

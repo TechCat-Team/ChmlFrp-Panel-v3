@@ -18,7 +18,21 @@
                 <MenuComponent />
             </n-layout-sider>
             <n-layout content-style="padding: 24px;" :native-scrollbar="false">
-                <router-view></router-view>
+                <router-view v-slot="{ Component, route }">
+                    <transition 
+                        :name="transitionName" 
+                        mode="out-in" 
+                        :appear="themeStore.pageTransitionEnabled"
+                        v-if="themeStore.pageTransitionEnabled"
+                    >
+                        <div :key="route.path" v-if="Component">
+                            <component :is="Component" />
+                        </div>
+                    </transition>
+                    <div :key="route.path" v-else-if="Component">
+                        <component :is="Component" />
+                    </div>
+                </router-view>
             </n-layout>
         </n-layout>
     </n-layout>
@@ -27,6 +41,7 @@
 <script lang="ts" setup>
 import { useLayoutStore } from '@/stores/useLayout';
 import { useScreenStore } from '@/stores/useScreen';
+import { useThemeStore } from '@/stores/theme';
 import { storeToRefs } from 'pinia';
 
 // 菜单适配手机端，自动隐藏sider
@@ -35,6 +50,13 @@ const { isHidden } = storeToRefs(screenStore);
 
 const layoutStore = useLayoutStore();
 const collapsed = computed(() => layoutStore.collapsed);
+
+const themeStore = useThemeStore();
+
+// 根据设置计算过渡动画名称
+const transitionName = computed(() => {
+    return `page-${themeStore.pageTransitionEffect}`;
+});
 
 const handleCollapse = () => {
     layoutStore.setCollapse(true);
