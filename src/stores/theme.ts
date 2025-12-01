@@ -12,6 +12,8 @@ interface ThemeState {
     colorBlindMode: boolean;
     highContrastMode: boolean;
     frostedGlassMode: boolean;
+    pageTransitionEnabled: boolean;
+    pageTransitionEffect: string;
 }
 
 const THEME_KEY = 'app-theme';
@@ -25,6 +27,8 @@ const BACKGROUND_OPACITY_KEY = 'app-background-opacity';
 const COLOR_BLIND_MODE_KEY = 'app-color-blind-mode';
 const HIGH_CONTRAST_MODE_KEY = 'app-high-contrast-mode';
 const FROSTED_GLASS_MODE_KEY = 'app-frosted-glass-mode';
+const PAGE_TRANSITION_ENABLED_KEY = 'app-page-transition-enabled';
+const PAGE_TRANSITION_EFFECT_KEY = 'app-page-transition-effect';
 
 export const useThemeStore = defineStore('theme', {
     state: (): ThemeState => ({
@@ -43,6 +47,8 @@ export const useThemeStore = defineStore('theme', {
         colorBlindMode: localStorage.getItem(COLOR_BLIND_MODE_KEY) === 'true' || false,
         highContrastMode: localStorage.getItem(HIGH_CONTRAST_MODE_KEY) === 'true' || false,
         frostedGlassMode: localStorage.getItem(FROSTED_GLASS_MODE_KEY) === 'true' || false,
+        pageTransitionEnabled: localStorage.getItem(PAGE_TRANSITION_ENABLED_KEY) !== 'false',
+        pageTransitionEffect: localStorage.getItem(PAGE_TRANSITION_EFFECT_KEY) || 'fade',
     }),
     actions: {
         setTheme(theme: string) {
@@ -93,6 +99,14 @@ export const useThemeStore = defineStore('theme', {
                 this.backgroundOpacity = 100;
                 localStorage.setItem(BACKGROUND_OPACITY_KEY, '100');
             }
+        },
+        setPageTransitionEnabled(enabled: boolean) {
+            this.pageTransitionEnabled = enabled;
+            localStorage.setItem(PAGE_TRANSITION_ENABLED_KEY, enabled.toString());
+        },
+        setPageTransitionEffect(effect: string) {
+            this.pageTransitionEffect = effect;
+            localStorage.setItem(PAGE_TRANSITION_EFFECT_KEY, effect);
         },
     },
 });

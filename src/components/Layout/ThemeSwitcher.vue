@@ -86,6 +86,49 @@
             </div>
         </n-card>
 
+        
+        <!-- 页面切换动画设置卡片 -->
+        <n-card class="setting-card" size="small">
+            <template #header>
+                <div class="card-header">
+                    <n-icon :component="FlashOutline" :size="20" />
+                    <span>页面切换动画</span>
+                </div>
+            </template>
+            <div class="setting-content">
+                <div class="setting-item">
+                    <div class="setting-label">
+                        <n-icon :component="FlowerOutline" :size="18" />
+                        <span>页面切换动画</span>
+                    </div>
+                    <n-switch 
+                        size="large" 
+                        v-model:value="pageTransitionEnabled" 
+                        :checked-value="true" 
+                        :unchecked-value="false"
+                        @update:value="handleTransitionEnabledChange"
+                    >
+                        <template #checked>启用</template>
+                        <template #unchecked>禁用</template>
+                    </n-switch>
+                </div>
+                
+                <div class="setting-item" v-if="pageTransitionEnabled">
+                    <div class="setting-label">
+                        <n-icon :component="ColorPaletteOutline" :size="18" />
+                        <span>动画效果</span>
+                    </div>
+                    <n-select
+                        v-model:value="pageTransitionEffect"
+                        :options="transitionOptions"
+                        placeholder="选择动画效果"
+                        style="width: 100px"
+                        @update:value="handleTransitionEffectChange"
+                    />
+                </div>
+            </div>
+        </n-card>
+
         <!-- 视觉效果设置卡片 -->
         <n-card class="setting-card" size="small">
             <template #header>
@@ -279,7 +322,9 @@ import {
     LinkOutline,
     TrashOutline,
     WaterOutline,
-    CheckmarkCircleOutline
+    CheckmarkCircleOutline,
+    FlashOutline,
+    FlowerOutline
 } from '@vicons/ionicons5';
 
 const themeStore = useThemeStore();
@@ -295,6 +340,8 @@ const backgroundOpacity = ref(themeStore.backgroundOpacity || 100);
 const colorBlindMode = ref(themeStore.colorBlindMode);
 const highContrastMode = ref(themeStore.highContrastMode);
 const frostedGlassMode = ref(themeStore.frostedGlassMode);
+const pageTransitionEnabled = ref(themeStore.pageTransitionEnabled);
+const pageTransitionEffect = ref(themeStore.pageTransitionEffect);
 
 const presetColors = [
     '#18a058',
@@ -575,6 +622,36 @@ const clearBackgroundImage = () => {
     }
     updateBackgroundStyle();
     updateFrostedGlassStyle();
+};
+
+// 页面动画设置
+const transitionOptions = [
+    {
+        label: '滑动淡入',
+        value: 'fade-slide',
+    },
+    {
+        label: '淡入淡出',
+        value: 'fade',
+    },
+    {
+        label: '滑动',
+        value: 'slide',
+    },
+    {
+        label: '缩放',
+        value: 'scale',
+    },
+];
+
+const handleTransitionEnabledChange = (enabled: boolean) => {
+    pageTransitionEnabled.value = enabled;
+    themeStore.setPageTransitionEnabled(enabled);
+};
+
+const handleTransitionEffectChange = (effect: string) => {
+    pageTransitionEffect.value = effect;
+    themeStore.setPageTransitionEffect(effect);
 };
 
 const updateBackgroundStyle = () => {

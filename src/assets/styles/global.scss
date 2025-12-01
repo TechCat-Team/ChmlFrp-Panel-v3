@@ -31,3 +31,127 @@
 .n-modal-mask {
     backdrop-filter: blur(var(--modal-filter));
 }
+
+/* 页面切换过渡动画 - 淡入淡出滑动效果（默认） */
+.page-enter-active,
+.page-leave-active {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.page-enter-from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+    filter: blur(4px);
+}
+
+.page-enter-to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+}
+
+.page-leave-from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+}
+
+.page-leave-to {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.98);
+    filter: blur(4px);
+}
+
+/* 淡入淡出效果 */
+.page-fade-enter-active,
+.page-fade-leave-active {
+    transition: opacity 0.3s ease;
+}
+
+.page-fade-enter-from,
+.page-fade-leave-to {
+    opacity: 0;
+}
+
+/* 滑动效果 */
+.page-slide-enter-active,
+.page-slide-leave-active {
+    transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    will-change: transform, opacity;
+}
+
+.page-slide-enter-from {
+    opacity: 0;
+    transform: translateX(40px);
+}
+
+.page-slide-enter-to {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.page-slide-leave-from {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.page-slide-leave-to {
+    opacity: 0;
+    transform: translateX(-40px);
+}
+
+/* 缩放效果 */
+.page-scale-enter-active,
+.page-scale-leave-active {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.page-scale-enter-from {
+    opacity: 0;
+    transform: scale(0.9);
+}
+
+.page-scale-enter-to {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.page-scale-leave-from {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.page-scale-leave-to {
+    opacity: 0;
+    transform: scale(1.05);
+}
+
+/* 淡入淡出滑动效果（默认，已有上面的定义） */
+.page-fade-slide-enter-active,
+.page-fade-slide-leave-active {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.page-fade-slide-enter-from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+    filter: blur(4px);
+}
+
+.page-fade-slide-enter-to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+}
+
+.page-fade-slide-leave-from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+}
+
+.page-fade-slide-leave-to {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.98);
+    filter: blur(4px);
+}

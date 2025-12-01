@@ -6,7 +6,7 @@
             <n-message-provider>
                 <!-- 对话框 -->
                 <n-dialog-provider>
-                    <ViewComponent />
+                    <RouterViewWithTransition />
                 </n-dialog-provider>
             </n-message-provider>
         </n-loading-bar-provider>
@@ -27,9 +27,8 @@
 
 <script setup lang="ts">
 import { useThemeStore } from '@/stores/theme';
-import { RouterView } from 'vue-router';
-import { useProviderStore } from './stores/provider';
 import { useUserStore } from '@/stores/user';
+import RouterViewWithTransition from '@/components/RouterViewWithTransition.vue';
 import hljs from 'highlight.js/lib/core';
 import ini from 'highlight.js/lib/languages/ini';
 import nginx from 'highlight.js/lib/languages/nginx';
@@ -51,15 +50,17 @@ onMounted(() => {
 const currentDate = new Date();
 const currentYear = currentDate.getFullYear();
 
-// 控制台输出版权信息
-const chmlFrpPanel = ` _____         _      ____      _   
-|_   _|__  ___| |__  / ___|__ _| |_ 
-  | |/ _ \\/ __| '_ \\| |   / _\` | __|
-  | |  __/ (__| | | | |__| (_| | |_ 
-  |_|\\___|\\___|_| |_|\\____\\__,_|\\__|
+// 控制台输出版权信息             
+const qzhuaLogo = `
+   ___    _____  _                     
+  / _ \\  |__  / | |__    _   _    __ _ 
+ | | | |   / /  | '_ \\  | | | |  / _\` |
+ | |_| |  / /_  | | | | | |_| | | (_| |
+  \\__\\_\\ /____| |_| |_|  \\__,_|  \\__,_|
 `;
-console.info(chmlFrpPanel);
-console.info(`Copyright 2021 - ${currentYear} TechCat All rights reserved.`);
+
+console.info(qzhuaLogo);
+console.info(`Copyright 2021 - ${currentYear} 南充市轻爪网络科技有限公司 All rights reserved.`);
 
 const themeStore = useThemeStore();
 
@@ -108,14 +109,6 @@ const themeOverrides = computed(() => {
     };
 });
 
-const provider = useProviderStore();
-
-const ViewComponent = defineComponent({
-    render: () => h(RouterView),
-    setup() {
-        provider.setLoadingBar(useLoadingBar());
-    },
-});
 
 let animationFrameId: number | null = null;
 let isRGBRunning = false;

@@ -16,7 +16,7 @@
             type="warning"
             @click="goToUserPage"
         >
-            根据相关法律规定，不实名则无法使用ChmlFrp提供的服务，点击此提示可前往个人中心免费实名，我们允许未成年实名。
+            根据相关法律规定，不实名则无法使用ChmlFrp提供的服务，点击此提示可前往个人中心免费实名，我们允许14岁以上人群实名。
         </n-alert>
         <n-alert title="提示" type="info" style="margin-bottom: 10px">
             如果这里没有您想了解的，可以前往
