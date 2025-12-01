@@ -1,4 +1,4 @@
-import { ref } from 'vue';
+import { ref, unref, type Ref } from 'vue';
 import { useMessage, useDialog } from 'naive-ui';
 import axios from 'axios';
 import api from '@/api';
@@ -10,13 +10,20 @@ import type { TunnelFormData, NodeInfo } from '../types';
 export function useTunnelEdit(
     userInfo: { usertoken?: string; id?: number },
     formData: TunnelFormData,
-    nodeInfo: { value: NodeInfo },
+    nodeInfo: { value: NodeInfo | Ref<NodeInfo> },
     checkFormData: (formData: TunnelFormData, nodeInfo: NodeInfo) => boolean | null,
     onSuccess: () => void
 ) {
     const message = useMessage();
     const dialog = useDialog();
     const loading = ref(false);
+
+    // 获取实际的节点信息（处理 ref 嵌套）
+    const getActualNodeInfo = (): NodeInfo => {
+        const nodeInfoValue = nodeInfo.value;
+        // 如果是 ref，使用 unref 获取值；否则直接返回
+        return unref(nodeInfoValue as Ref<NodeInfo> | NodeInfo);
+    };
 
     // 获取免费节点详情
     const apiGetFreeNodeInfo = async () => {
@@ -207,8 +214,11 @@ export function useTunnelEdit(
         loading.value = true;
 
         try {
+            // 获取实际的节点信息
+            const actualNodeInfo = getActualNodeInfo();
+            
             // 检查合规性
-            if (!checkFormData(formData, nodeInfo.value)) {
+            if (!checkFormData(formData, actualNodeInfo)) {
                 loading.value = false;
                 return;
             }
