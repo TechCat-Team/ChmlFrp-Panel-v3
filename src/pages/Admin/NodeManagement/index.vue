@@ -1244,7 +1244,7 @@ const deployCode = computed(() => {
     // 判断是否可建站
     const canWeb = node.web === 'yes' || node.web === 'true' ? 'true' : 'false';
     
-    return `curl -O https://www.chmlfrp.cn/script/linux/server_deploy.sh && chmod +x server_deploy.sh && sudo ./server_deploy.sh --skip-source-check ${node.port} ${node.adminPort} ${username} ${password} ${node.nodetoken} 7001 http://cf-v2.uapis.cn/cfg "${node.apitoken}" ${canWeb}`;
+    return `curl -O https://www.chmlfrp.net/script/linux/server_deploy.sh && chmod +x server_deploy.sh && sudo ./server_deploy.sh --skip-source-check ${node.port} ${node.adminPort} ${username} ${password} ${node.nodetoken} 7001 http://cf-v2.uapis.cn/cfg "${node.apitoken}" ${canWeb}`;
 });
 
 // 搜索处理函数
