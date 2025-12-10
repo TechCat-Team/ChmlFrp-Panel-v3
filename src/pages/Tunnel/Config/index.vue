@@ -300,14 +300,14 @@ const getConfigFile = async () => {
                 .filter(tunnel => multipleSelectValue.value.includes(tunnel.id.toString()))
                 .map(tunnel => tunnel.name);
             params.tunnel_names = selectedTunnelNames.join(',');
-            LinuxScript.value = `curl -O https://www.chmlfrp.cn/script/linux/frpc_install.sh && chmod +x frpc_install.sh && sudo ./frpc_install.sh "${userInfo?.usertoken}" "${nodeValue.value}" "${params.tunnel_names}"`;
+            LinuxScript.value = `curl -O https://www.chmlfrp.net/script/linux/frpc_install.sh && chmod +x frpc_install.sh && sudo ./frpc_install.sh "${userInfo?.usertoken}" "${nodeValue.value}" "${params.tunnel_names}"`;
         } else {
             // 如果没有选择特定隧道，使用该节点所有隧道的ID
             const nodeTunnelIds = allTunnels.value
                 .filter(tunnel => tunnel.node === nodeValue.value)
                 .map(tunnel => tunnel.id.toString());
             startupCode.value = `frpc.exe -u ${userInfo?.usertoken} -p ${nodeTunnelIds.join(',')}`;
-            LinuxScript.value = `curl -O https://www.chmlfrp.cn/script/linux/frpc_install.sh && chmod +x frpc_install.sh && sudo ./frpc_install.sh "${userInfo?.usertoken}" "${nodeValue.value}"`;
+            LinuxScript.value = `curl -O https://www.chmlfrp.net/script/linux/frpc_install.sh && chmod +x frpc_install.sh && sudo ./frpc_install.sh "${userInfo?.usertoken}" "${nodeValue.value}"`;
         }
 
         const response = await api.v2.tunnel.getTunnelConfig(

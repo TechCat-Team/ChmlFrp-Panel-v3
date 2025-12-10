@@ -2,7 +2,7 @@
     <n-back-top :right="100" />
     <n-carousel show-arrow autoplay style="width: 100%; height: 320px; border-radius: 8px">
         <div class="carousel-slide" :class="{ 'dark-mode-overlay': isDarkTheme }">
-            <img class="carousel-img" src="https://www.chmlfrp.cn/image/1.png" />
+            <img class="carousel-img" src="https://www.chmlfrp.net/image/1.png" />
             <div class="carousel-caption">
                 <img
                     class="carousel-favicon"
@@ -14,12 +14,12 @@
             </div>
         </div>
         <div class="carousel-slide" :class="{ 'dark-mode-overlay': isDarkTheme }">
-            <img class="carousel-img" src="https://www.chmlfrp.cn/image/2.png" />
+            <img class="carousel-img" src="https://www.chmlfrp.net/image/2.png" />
             <div class="carousel-caption">
                 <img
                     class="carousel-favicon"
                     :class="{ 'dark-favicon': isDarkTheme }"
-                    src="https://chmlfrp.cn/favicon.ico"
+                    src="https://chmlfrp.net/favicon.ico"
                 />
                 <h3>ChmlFrp_WinUi启动器</h3>
                 <p>来自ChmlFrp官方开发组，简洁美观，专为Win10以上设计</p>
@@ -149,16 +149,16 @@ const apps = ref([
         id: 1,
         name: 'WinUi启动器',
         description: 'win10以上的图形客户端',
-        coverImage: 'https://www.chmlfrp.cn/image/2.png',
-        favicon: 'https://chmlfrp.cn/favicon.ico',
+        coverImage: 'https://www.chmlfrp.net/image/2.png',
+        favicon: 'https://chmlfrp.net/favicon.ico',
         router: '/app_details/1',
     },
     {
         id: 2,
         name: 'EXUI启动器',
         description: 'win7以上的图形客户端',
-        coverImage: 'https://www.chmlfrp.cn/image/3.png',
-        favicon: 'https://chmlfrp.cn/favicon.ico',
+        coverImage: 'https://www.chmlfrp.net/image/3.png',
+        favicon: 'https://chmlfrp.net/favicon.ico',
         router: '/app_details/2',
     },
     {

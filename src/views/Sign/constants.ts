@@ -37,7 +37,7 @@ export const TERMS_LINKS = {
 } as const;
 
 // Logo URL
-export const LOGO_URL = 'https://www.chmlfrp.cn/favicon.ico';
+export const LOGO_URL = 'https://www.chmlfrp.net/favicon.ico';
 
 // 邮箱验证码登录表单验证规则
 export const EMAIL_CODE_LOGIN_RULES = {

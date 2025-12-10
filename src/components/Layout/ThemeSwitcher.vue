@@ -15,7 +15,6 @@
                         <span>自动切换主题</span>
                     </div>
                     <n-switch 
-                        size="large" 
                         v-model:value="isAutoTheme" 
                         :checked-value="true" 
                         :unchecked-value="false"
@@ -30,7 +29,6 @@
                         <span>主题模式</span>
         </div>
             <n-switch
-                size="large"
                 v-model:value="isDarkTheme"
                 :rail-style="railStyle"
                 :checked-value="true"
@@ -102,14 +100,11 @@
                         <span>页面切换动画</span>
                     </div>
                     <n-switch 
-                        size="large" 
                         v-model:value="pageTransitionEnabled" 
                         :checked-value="true" 
                         :unchecked-value="false"
                         @update:value="handleTransitionEnabledChange"
                     >
-                        <template #checked>启用</template>
-                        <template #unchecked>禁用</template>
                     </n-switch>
                 </div>
                 
@@ -144,7 +139,6 @@
                 <span>RGB模式</span>
                     </div>
                     <n-switch 
-                        size="large" 
                         v-model:value="isRGBMode" 
                         :checked-value="true" 
                         :unchecked-value="false"
@@ -156,7 +150,6 @@
                 <span>对话框模糊</span>
                     </div>
                 <n-switch
-                    size="large"
                     v-model:value="isDialogBoxHairGlass"
                     :checked-value="true"
                     :unchecked-value="false"
@@ -180,7 +173,6 @@
                         <span>色弱模式</span>
                     </div>
                     <n-switch
-                        size="large"
                         v-model:value="colorBlindMode"
                         :checked-value="true"
                         :unchecked-value="false"
@@ -192,7 +184,6 @@
                         <span>高对比度模式</span>
                     </div>
                     <n-switch
-                        size="large"
                         v-model:value="highContrastMode"
                         :checked-value="true"
                         :unchecked-value="false"
@@ -288,7 +279,6 @@
                                 <span>毛玻璃模式</span>
                             </div>
                             <n-switch
-                                size="large"
                                 v-model:value="frostedGlassMode"
                                 :checked-value="true"
                                 :unchecked-value="false"
