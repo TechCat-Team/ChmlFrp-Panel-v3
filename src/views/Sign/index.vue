@@ -100,7 +100,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref } from 'vue';
+import { ref, provide, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useMessage, useDialog, FormInst } from 'naive-ui';
 import { useUserStore } from '@/stores/user';
@@ -129,8 +129,20 @@ const userInfo = userStore.userInfo;
 // 模式切换
 const { isRegister, isReset, mode, formTransitionName, toLogin, toReset, toggleRegister } = useModeSwitch();
 
-// 移动端检测
+// 移动端 & 触控检测
 const { isMobile } = useMobileDetection();
+const isTouchDevice = (() => {
+    if (typeof window === 'undefined' || typeof navigator === 'undefined') {
+        return false;
+    }
+    return (
+        'ontouchstart' in window ||
+        navigator.maxTouchPoints > 0 ||
+        // @ts-expect-error 兼容旧版浏览器
+        navigator.msMaxTouchPoints > 0
+    );
+})();
+provide('isTouchDevice', isTouchDevice);
 
 // 极验验证码
 const geetest = useGeetest();
@@ -284,6 +296,81 @@ const touristPanel = () => {
         });
     }
 };
+
+const handleEnterKeydown = (event: KeyboardEvent) => {
+    if (event.key !== 'Enter' || event.isComposing) {
+        return;
+    }
+
+    const target = event.target as HTMLElement | null;
+    if (target?.tagName === 'TEXTAREA') {
+        return;
+    }
+
+    const triggerLogin = () => {
+        if (loginLoading.value || !loginModel.value.email || !loginModel.value.password) {
+            return false;
+        }
+        handleLoginSubmit();
+        return true;
+    };
+
+    const triggerEmailCodeLogin = () => {
+        if (
+            emailCodeLoginLoading.value ||
+            !emailCodeModel.value.email ||
+            !emailCodeModel.value.code ||
+            geetest.loadingCaptcha.value === true
+        ) {
+            return false;
+        }
+        handleEmailCodeLoginSubmit();
+        return true;
+    };
+
+    const triggerRegister = () => {
+        if (register.isNextStepDisabled.value || register.RegLoading.value) {
+            return false;
+        }
+        register.nextStep();
+        return true;
+    };
+
+    const triggerResetPassword = () => {
+        if (
+            resetPassword.loginLoading.value ||
+            !resetModel.value.email ||
+            !resetModel.value.newPassword ||
+            !resetModel.value.confirmPassword ||
+            !resetModel.value.verificationCode
+        ) {
+            return false;
+        }
+        handleResetPasswordSubmit();
+        return true;
+    };
+
+    let handled = false;
+    if (mode.value === 'login') {
+        handled = isEmailCodeLoginMode.value ? triggerEmailCodeLogin() : triggerLogin();
+    } else if (mode.value === 'register') {
+        handled = triggerRegister();
+    } else if (isReset.value) {
+        handled = triggerResetPassword();
+    }
+
+    if (handled) {
+        event.preventDefault();
+    }
+};
+
+onMounted(() => {
+    window.addEventListener('keydown', handleEnterKeydown);
+});
+
+onUnmounted(() => {
+    window.removeEventListener('keydown', handleEnterKeydown);
+});
 </script>
 
 <style lang="scss">

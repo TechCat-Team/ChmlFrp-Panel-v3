@@ -148,7 +148,7 @@
 </template>
 
 <script lang="ts" setup>
-import { inject } from 'vue';
+import { computed, inject } from 'vue';
 import { FormInst } from 'naive-ui';
 import { registerRules } from '@/utils/authRules';
 import type { RegisterModel } from '../types';
@@ -172,15 +172,27 @@ const formRef = defineModel<FormInst | null>('formRef', { default: null });
 
 const isTouchDevice = inject('isTouchDevice');
 
-// 解包 ref 值
-const currentStep = typeof props.currentStep === 'object' ? props.currentStep.value : props.currentStep;
-const transitionName = typeof props.transitionName === 'object' ? props.transitionName.value : props.transitionName;
-const loading = typeof props.loading === 'object' ? props.loading.value : props.loading;
-const loadingCaptcha = typeof props.loadingCaptcha === 'object' ? props.loadingCaptcha.value : props.loadingCaptcha;
-const buttonDisabled = typeof props.buttonDisabled === 'object' ? props.buttonDisabled.value : props.buttonDisabled;
-const buttonText = typeof props.buttonText === 'object' ? props.buttonText.value : props.buttonText;
-const isNextStepDisabled = typeof props.isNextStepDisabled === 'object' ? props.isNextStepDisabled.value : props.isNextStepDisabled;
-const isMobile = typeof props.isMobile === 'object' ? props.isMobile.value : props.isMobile;
+// 解包 ref 值（保持响应式）
+const currentStep = computed(() =>
+    typeof props.currentStep === 'object' ? props.currentStep.value : props.currentStep
+);
+const transitionName = computed(() =>
+    typeof props.transitionName === 'object' ? props.transitionName.value : props.transitionName
+);
+const loading = computed(() => (typeof props.loading === 'object' ? props.loading.value : props.loading));
+const loadingCaptcha = computed(() =>
+    typeof props.loadingCaptcha === 'object' ? props.loadingCaptcha.value : props.loadingCaptcha
+);
+const buttonDisabled = computed(() =>
+    typeof props.buttonDisabled === 'object' ? props.buttonDisabled.value : props.buttonDisabled
+);
+const buttonText = computed(() =>
+    typeof props.buttonText === 'object' ? props.buttonText.value : props.buttonText
+);
+const isNextStepDisabled = computed(() =>
+    typeof props.isNextStepDisabled === 'object' ? props.isNextStepDisabled.value : props.isNextStepDisabled
+);
+const isMobile = computed(() => (typeof props.isMobile === 'object' ? props.isMobile.value : props.isMobile));
 
 defineEmits<{
     'update:model': [value: RegisterModel];

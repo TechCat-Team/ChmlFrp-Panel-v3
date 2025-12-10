@@ -42,13 +42,18 @@
                         </n-form-item>
                     </n-col>
                     <n-col :span="12">
-                        <n-form-item v-if="formData.type === 'TCP' || formData.type === 'UDP'" label="端口类型" path="type">
+                        <n-form-item v-if="isEdit && (formData.type === 'TCP' || formData.type === 'UDP')" label="端口类型"
+                            path="type">
                             <n-select v-model:value="formData.type" :options="typeOptionsTCPUDP" placeholder="请选择端口类型"
                                 clearable @update:value="$emit('type-change', $event)" />
                         </n-form-item>
+                        <n-form-item v-else-if="isEdit" label="端口类型" path="type">
+                            <n-select v-model:value="formData.type" :options="typeOptionsHTTPHTTPS" placeholder="请选择端口类型"
+                                clearable @update:value="$emit('type-change', $event)" />
+                        </n-form-item>
                         <n-form-item v-else label="端口类型" path="type">
-                            <n-select v-model:value="formData.type" :options="isEdit ? typeOptionsHTTPHTTPS : typeOptions"
-                                placeholder="请选择端口类型" clearable @update:value="$emit('type-change', $event)" />
+                            <n-select v-model:value="formData.type" :options="typeOptions" placeholder="请选择端口类型" clearable
+                                @update:value="$emit('type-change', $event)" />
                         </n-form-item>
                     </n-col>
                     <n-col :span="12">
