@@ -94,7 +94,7 @@
 <script lang="ts" setup>
 import { LogoAlipay, LogoWechat } from '@vicons/ionicons5';
 import { ref, computed, onMounted, watch, h } from 'vue';
-import { useMessage, useThemeVars, useDialog } from 'naive-ui';
+import { useMessage, useThemeVars, useDialog, NQrCode } from 'naive-ui';
 import { useLoadUserInfo } from '@/components/useLoadUser';
 import api from '@/api/v2';
 
@@ -107,6 +107,85 @@ const router = useRouter();
 const dialog = useDialog();
 const message = useMessage();
 const themeVars = useThemeVars();
+
+let pollingTimer: number | null = null;
+let qrCodeDialog: any = null; // 保存二维码对话框实例
+
+/**
+ * 开始轮询订单状态
+ */
+const startPolling = (outTradeNo: string) => {
+    let pollCount = 0;
+    const maxPolls = 60; // 最多轮询60次（3分钟）
+    const pollInterval = 3000; // 每3秒轮询一次
+
+    const poll = async () => {
+        try {
+            pollCount++;
+            const response = await api.payment.queryPayment({ outTradeNo });
+
+        // 只有当 tradeStatus === 'success' 时才算支付成功
+        if (response.success && response.tradeStatus === 'success') {
+            // 支付成功
+            stopPolling();
+            
+            // 先关闭二维码对话框
+            if (qrCodeDialog) {
+                qrCodeDialog.destroy();
+                qrCodeDialog = null;
+            }
+            
+            const points = (response.money || 0) * 1000;
+            dialog.success({
+                title: '支付成功',
+                content: `积分充值成功！\n充值金额：${response.money}元\n获得积分：${points}\n支付时间：${response.payTime || '刚刚'}`,
+                positiveText: '确定',
+                onPositiveClick: () => {
+                    message.success('ChmlFrp感谢您的支持！');
+                    // 刷新用户信息
+                    useLoadUserInfo();
+                },
+                maskClosable: false,
+            });
+        } else if (response.tradeStatus === 'closed' || response.tradeStatus === 'refund') {
+            // 订单关闭或退款
+            stopPolling();
+            message.error(response.tradeStatus === 'closed' ? '订单已关闭' : '订单已退款');
+        } else if (!response.success) {
+            // API调用失败
+            stopPolling();
+            message.error(response.message || '查询订单失败');
+        } else if (pollCount >= maxPolls) {
+            // 超时
+            stopPolling();
+            message.warning('轮询超时，请手动刷新页面查看支付结果');
+        } else {
+            // 继续轮询 (pending状态或其他)
+            pollingTimer = window.setTimeout(poll, pollInterval);
+        }
+        } catch (error) {
+            console.error('轮询订单状态失败:', error);
+            if (pollCount < maxPolls) {
+                pollingTimer = window.setTimeout(poll, pollInterval);
+            } else {
+                stopPolling();
+            }
+        }
+    };
+
+    // 开始第一次轮询
+    pollingTimer = window.setTimeout(poll, pollInterval);
+};
+
+/**
+ * 停止轮询
+ */
+const stopPolling = () => {
+    if (pollingTimer) {
+        clearTimeout(pollingTimer);
+        pollingTimer = null;
+    }
+};
 
 // 检查订单状态
 const checkTradeStatus = async () => {
@@ -315,25 +394,41 @@ const pay = async (ttype: 'wxpay' | 'alipay') => {
                 return;
             }
 
-            // 显示二维码对话框
-            dialog.info({
+        // 显示二维码对话框并保存实例
+        qrCodeDialog = dialog.info({
                 title: '微信支付',
-                content: () => h('div', { style: 'text-align: center;' }, [
-                    h('n-qr-code', {
-                        value: response.codeUrl,
-                        size: 300,
-                    }),
+                content: () => h('div', { style: 'display: flex; flex-direction: column; align-items: center;' }, [
+                    h('div', { style: 'max-width: 300px; width: 100%; display: flex; justify-content: center;' }, [
+                        h(NQrCode, {
+                            value: response.codeUrl,
+                            size: 300,
+                            color: '#18a058',
+                        }),
+                    ]),
                     h('p', { style: 'margin-top: 10px;' }, `请使用微信扫码支付 ${response.money} 元`),
                     h('p', { style: 'font-size: 12px; color: #999;' }, `订单号：${outTradeNo}`),
                 ]),
-                positiveText: '支付完成',
-                negativeText: '取消',
-                onPositiveClick: () => {
-                    // 跳转到当前页面并带上订单号，用于查询订单状态
-                    window.location.href = `${window.location.pathname}?outTradeNo=${outTradeNo}`;
-                },
-                maskClosable: false,
-            });
+            positiveText: '我已支付',
+            negativeText: '取消支付',
+            onPositiveClick: () => {
+                stopPolling();
+                qrCodeDialog = null;
+                message.success('ChmlFrp感谢您的支持！');
+                useLoadUserInfo();
+            },
+            onNegativeClick: () => {
+                stopPolling();
+                qrCodeDialog = null;
+            },
+            onClose: () => {
+                stopPolling();
+                qrCodeDialog = null;
+            },
+            maskClosable: false,
+        });
+
+            // 开始轮询订单状态
+            startPolling(outTradeNo!);
         } else if (ttype === 'alipay') {
             // 支付宝支付：提交表单跳转
             if (!response.payForm) {
