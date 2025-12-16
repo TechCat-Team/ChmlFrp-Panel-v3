@@ -24,17 +24,6 @@
                 >
                     如果您是初次使用，请点击此链接查看教程！
                 </n-button>
-                <div v-if="!isHidden">
-                    <n-button
-                        text
-                        tag="a"
-                        target="_blank"
-                        type="primary"
-                        href="https://chaojixyz.lanzoub.com/b04jwt94d"
-                    >
-                        下载速度慢？点击前往蓝奏云下载。访问密码：1234
-                    </n-button>
-                </div>
             </div>
         </div>
         <n-grid :x-gap="20" :y-gap="20" cols="1 s:2 m:4" style="margin-top: 32px" responsive="screen">

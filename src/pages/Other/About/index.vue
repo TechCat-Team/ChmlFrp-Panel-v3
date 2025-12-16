@@ -81,6 +81,8 @@
         <n-p style="opacity: 0.6"> Copyright © {{ currentYear }} 南充市轻爪网络科技有限公司 All rights reserved. </n-p>
         <n-p style="opacity: 0.6">
             <a href="https://beian.miit.gov.cn/" target="_blank" style="color: inherit; text-decoration: none;"> 蜀ICP备2025175860号 </a>
+            <n-divider vertical />
+            <a href="https://beian.mps.gov.cn/#/query/webSearch?code=%E5%B7%9D%E5%85%AC%E7%BD%91%E5%AE%89%E5%A4%8751132202000197%E5%8F%B7" target="_blank" style="color: inherit; text-decoration: none;"> 川公网安备51132202000197号 </a>
         </n-p>
     </n-card>
     <n-card title="开发环境依赖" style="margin-top: 15px">

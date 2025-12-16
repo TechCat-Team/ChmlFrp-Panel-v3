@@ -132,14 +132,14 @@ export function useLifetimePurchase(userInfo: { usertoken?: string; usergroup?: 
         targetGroup.value = group;
 
         if (isFreeUser.value) {
-            payAmount.value = LIFETIME_MEMBER_PRICE[group] || 0;
+            payAmount.value = LIFETIME_MEMBER_PRICE[group as keyof typeof LIFETIME_MEMBER_PRICE] ?? 0;
         } else if (userInfo?.usergroup === '普通会员') {
-            const currentPrice = LIFETIME_MEMBER_PRICE['普通会员'] || 0;
-            const targetPrice = LIFETIME_MEMBER_PRICE[group] || 0;
+            const currentPrice = LIFETIME_MEMBER_PRICE['普通会员'] ?? 0;
+            const targetPrice = LIFETIME_MEMBER_PRICE[group as keyof typeof LIFETIME_MEMBER_PRICE] ?? 0;
             payAmount.value = targetPrice > currentPrice ? targetPrice - currentPrice : 0;
         } else if (userInfo?.usergroup === '高级会员') {
-            const currentPrice = LIFETIME_MEMBER_PRICE['高级会员'] || 0;
-            const targetPrice = LIFETIME_MEMBER_PRICE[group] || 0;
+            const currentPrice = LIFETIME_MEMBER_PRICE['高级会员'] ?? 0;
+            const targetPrice = LIFETIME_MEMBER_PRICE[group as keyof typeof LIFETIME_MEMBER_PRICE] ?? 0;
             payAmount.value = targetPrice > currentPrice ? targetPrice - currentPrice : 0;
         } else {
             payAmount.value = 0;
