@@ -1,7 +1,7 @@
 {
   "name": "chmlfrp-panel-v3",
   "nameme": "ChmlFrp",
-  "version": "0.6.1",
+  "version": "0.7.2",
   "private": true,
   "type": "module",
   "scripts": {
@@ -30,6 +30,8 @@
     "naive-ui": "^2.43.2",
     "pinia": "^3.0.4",
     "pinyin-pro": "^3.27.0",
+    "qrcode": "^1.5.4",
+    "qrcode-vue3": "^1.7.1",
     "skinview3d": "^3.4.1",
     "vfonts": "^0.0.3",
     "vue": "^3.5.24",

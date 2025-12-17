@@ -1,6 +1,6 @@
 <template>
     <n-modal :show="show" @update:show="$emit('update:show', $event)">
-        <n-card :style="widthStyle" title="选择节点" closable :bordered="false" role="dialog" aria-modal="true">
+        <n-card :style="widthStyle" title="选择节点" closable :bordered="false" role="dialog" aria-modal="true" @close="$emit('update:show', false)">
             <n-alert type="info" style="bottom: 12px"> 为确保您的体验，请尽量选择负载低，距离近的节点。 </n-alert>
             <n-flex justify="space-between" align="center">
                 <n-flex>

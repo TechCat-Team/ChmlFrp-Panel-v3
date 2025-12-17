@@ -93,14 +93,14 @@
 
 <script lang="ts" setup>
 import { LogoAlipay, LogoWechat } from '@vicons/ionicons5';
-import { ref, computed, onMounted, watch } from 'vue';
-import { useMessage, useThemeVars } from 'naive-ui';
+import { ref, computed, onMounted, watch, h } from 'vue';
+import { useMessage, useThemeVars, useDialog, NQrCode } from 'naive-ui';
 import { useLoadUserInfo } from '@/components/useLoadUser';
+import api from '@/api/v2';
 
 // 获取登录信息
 import { useUserStore } from '@/stores/user';
 import { useRoute, useRouter } from 'vue-router';
-import axios from 'axios';
 
 const route = useRoute();
 const router = useRouter();
@@ -108,19 +108,127 @@ const dialog = useDialog();
 const message = useMessage();
 const themeVars = useThemeVars();
 
-// 检查 URL 是否包含 trade_status 参数
-const checkTradeStatus = () => {
-    if (route.query.trade_status === 'TRADE_SUCCESS') {
-        showDialog(route.query.money as unknown as number);
+let pollingTimer: number | null = null;
+let qrCodeDialog: any = null; // 保存二维码对话框实例
+
+/**
+ * 开始轮询订单状态
+ */
+const startPolling = (outTradeNo: string) => {
+    let pollCount = 0;
+    const maxPolls = 60; // 最多轮询60次（3分钟）
+    const pollInterval = 3000; // 每3秒轮询一次
+
+    const poll = async () => {
+        try {
+            pollCount++;
+            const response = await api.payment.queryPayment({ outTradeNo });
+
+        // 只有当 tradeStatus === 'success' 时才算支付成功
+        if (response.success && response.tradeStatus === 'success') {
+            // 支付成功
+            stopPolling();
+            
+            // 先关闭二维码对话框
+            if (qrCodeDialog) {
+                qrCodeDialog.destroy();
+                qrCodeDialog = null;
+            }
+            
+            const points = (response.money || 0) * 1000;
+            dialog.success({
+                title: '支付成功',
+                content: `积分充值成功！\n充值金额：${response.money}元\n获得积分：${points}\n支付时间：${response.payTime || '刚刚'}`,
+                positiveText: '确定',
+                onPositiveClick: () => {
+                    message.success('ChmlFrp感谢您的支持！');
+                    // 刷新用户信息
+                    useLoadUserInfo();
+                },
+                maskClosable: false,
+            });
+        } else if (response.tradeStatus === 'closed' || response.tradeStatus === 'refund') {
+            // 订单关闭或退款
+            stopPolling();
+            message.error(response.tradeStatus === 'closed' ? '订单已关闭' : '订单已退款');
+        } else if (!response.success) {
+            // API调用失败
+            stopPolling();
+            message.error(response.message || '查询订单失败');
+        } else if (pollCount >= maxPolls) {
+            // 超时
+            stopPolling();
+            message.warning('轮询超时，请手动刷新页面查看支付结果');
+        } else {
+            // 继续轮询 (pending状态或其他)
+            pollingTimer = window.setTimeout(poll, pollInterval);
+        }
+        } catch (error) {
+            console.error('轮询订单状态失败:', error);
+            if (pollCount < maxPolls) {
+                pollingTimer = window.setTimeout(poll, pollInterval);
+            } else {
+                stopPolling();
+            }
+        }
+    };
+
+    // 开始第一次轮询
+    pollingTimer = window.setTimeout(poll, pollInterval);
+};
+
+/**
+ * 停止轮询
+ */
+const stopPolling = () => {
+    if (pollingTimer) {
+        clearTimeout(pollingTimer);
+        pollingTimer = null;
     }
 };
-const showDialog = (money: number) => {
+
+// 检查订单状态
+const checkTradeStatus = async () => {
+    const outTradeNo = route.query.outTradeNo as string;
+    
+    if (!outTradeNo) {
+        return;
+    }
+
+    try {
+        // 查询订单状态
+        const response = await api.payment.queryPayment({ outTradeNo });
+
+        if (!response.success) {
+            message.error(response.message || '查询订单状态失败');
+            clearQueryParams();
+            return;
+        }
+
+        // 只处理支付成功的情况
+        if (response.tradeStatus === 'success') {
+            showSuccessDialog(response.money || 0);
+        } else if (response.tradeStatus === 'pending') {
+            message.warning('订单尚未支付，请完成支付');
+            clearQueryParams();
+        } else {
+            message.error('订单状态异常');
+            clearQueryParams();
+        }
+    } catch (error: any) {
+        console.error('查询订单状态失败:', error);
+        message.error(error.message || '查询订单状态异常，请稍后再试');
+        clearQueryParams();
+    }
+};
+
+const showSuccessDialog = (money: number) => {
     dialog.success({
         title: '积分充值提示',
         content: `积分充值成功！您充值了 ${money} 元，共获得 ${money * 1000} 积分。`,
         positiveText: '确定',
         onPositiveClick: () => {
-            router.replace({ path: route.path, query: {} });
+            clearQueryParams();
             message.success('ChmlFrp感谢您的支持！');
             useLoadUserInfo();
         },
@@ -129,11 +237,15 @@ const showDialog = (money: number) => {
             message.warning('请点击确定关闭此弹窗');
         },
         onEsc: () => {
-            router.replace({ path: route.path, query: {} });
+            clearQueryParams();
             message.success('ChmlFrp感谢您的支持！');
             useLoadUserInfo();
         },
     });
+};
+
+const clearQueryParams = () => {
+    router.replace({ path: route.path, query: {} });
 };
 
 onMounted(() => {
@@ -146,13 +258,10 @@ onMounted(() => {
         // 如果传入了金额，直接使用（确保至少3元）
         const amount = Math.max(parseInt(amountParam) || 0, 3);
         customAmount.value = Math.min(amount, 9999).toString();
-        // 清除查询参数，但保留 trade_status 和 money（用于支付回调）
+        // 清除查询参数，但保留 outTradeNo（用于支付回调）
         const newQuery: Record<string, string> = {};
-        if (route.query.trade_status) {
-            newQuery.trade_status = route.query.trade_status as string;
-        }
-        if (route.query.money) {
-            newQuery.money = route.query.money as string;
+        if (route.query.outTradeNo) {
+            newQuery.outTradeNo = route.query.outTradeNo as string;
         }
         router.replace({ path: route.path, query: newQuery });
     } else if (pointsParam) {
@@ -160,13 +269,10 @@ onMounted(() => {
         const points = parseInt(pointsParam) || 0;
         const amount = Math.max(Math.ceil(points / 1000), 3);
         customAmount.value = Math.min(amount, 9999).toString();
-        // 清除查询参数，但保留 trade_status 和 money（用于支付回调）
+        // 清除查询参数，但保留 outTradeNo（用于支付回调）
         const newQuery: Record<string, string> = {};
-        if (route.query.trade_status) {
-            newQuery.trade_status = route.query.trade_status as string;
-        }
-        if (route.query.money) {
-            newQuery.money = route.query.money as string;
+        if (route.query.outTradeNo) {
+            newQuery.outTradeNo = route.query.outTradeNo as string;
         }
         router.replace({ path: route.path, query: newQuery });
     }
@@ -251,7 +357,7 @@ const validateAmount = () => {
 };
 
 // 支付函数
-const pay = async (ttype: 'wxpay' | 'alipay' | 'qqpay') => {
+const pay = async (ttype: 'wxpay' | 'alipay') => {
     const amount = parseInt(customAmount.value) || 3;
     if (amount < 3) {
         message.error('金额最少为3元');
@@ -262,32 +368,94 @@ const pay = async (ttype: 'wxpay' | 'alipay' | 'qqpay') => {
         return;
     }
 
-    const currentFullUrl = window.location.href;
-
     loading.value = true;
     try {
-        const response = await axios.get('https://cf-v1.uapis.cn/api/pay.php', {
-            params: {
-                usertoken: userInfo?.usertoken,
-                name: '积分充值',
-                type: ttype,
-                money: amount,
-                return: currentFullUrl,
-            },
+        // 创建支付订单
+        const response = await api.payment.createPayment({
+            name: '积分充值',
+            money: amount,
+            usertoken: userInfo?.usertoken || '',
+            type: ttype,
         });
-        const data = response.data;
-        if (data?.success === true) {
-            // 跳转到支付API
-            message.success('获取付款链接成功，正在跳转至支付页面，请稍等。');
-            window.location.href = data.url;
-        } else {
-            message.error(data?.message);
+
+        if (!response.success) {
+            message.error(response.message || '创建订单失败');
+            return;
         }
-    } catch (error) {
+
+        // 保存订单号
+        const outTradeNo = response.outTradeNo;
+
+        // 根据支付类型处理
+        if (ttype === 'wxpay') {
+            // 微信支付：显示二维码
+            if (!response.codeUrl) {
+                message.error('获取微信支付二维码失败');
+                return;
+            }
+
+        // 显示二维码对话框并保存实例
+        qrCodeDialog = dialog.info({
+                title: '微信支付',
+                content: () => h('div', { style: 'display: flex; flex-direction: column; align-items: center;' }, [
+                    h('div', { style: 'max-width: 300px; width: 100%; display: flex; justify-content: center;' }, [
+                        h(NQrCode, {
+                            value: response.codeUrl,
+                            size: 300,
+                            color: '#18a058',
+                        }),
+                    ]),
+                    h('p', { style: 'margin-top: 10px;' }, `请使用微信扫码支付 ${response.money} 元`),
+                    h('p', { style: 'font-size: 12px; color: #999;' }, `订单号：${outTradeNo}`),
+                ]),
+            positiveText: '我已支付',
+            negativeText: '取消支付',
+            onPositiveClick: () => {
+                stopPolling();
+                qrCodeDialog = null;
+                message.success('ChmlFrp感谢您的支持！');
+                useLoadUserInfo();
+            },
+            onNegativeClick: () => {
+                stopPolling();
+                qrCodeDialog = null;
+            },
+            onClose: () => {
+                stopPolling();
+                qrCodeDialog = null;
+            },
+            maskClosable: false,
+        });
+
+            // 开始轮询订单状态
+            startPolling(outTradeNo!);
+        } else if (ttype === 'alipay') {
+            // 支付宝支付：提交表单跳转
+            if (!response.payForm) {
+                message.error('获取支付宝支付表单失败');
+                return;
+            }
+
+            message.success('正在跳转到支付宝支付页面...');
+            
+            // 创建临时表单并提交
+            const div = document.createElement('div');
+            div.innerHTML = response.payForm;
+            document.body.appendChild(div);
+            
+            const form = div.querySelector('form');
+            if (form) {
+                form.submit();
+            } else {
+                message.error('支付表单格式错误');
+            }
+        }
+    } catch (error: any) {
         console.error('购买请求失败:', error);
-        message.error('购买请求异常，请检查网络或稍后再试');
+        message.error(error.message || '购买请求异常，请检查网络或稍后再试');
+    } finally {
+        loading.value = false;
     }
-    loading.value = false;
 };
 </script>
 
