@@ -915,8 +915,8 @@ const handleCreate = async () => {
             speed: createForm.speed,
             area: createForm.area,
             nodegroup: createForm.nodegroup,
-            china: createForm.china,
-            web: createForm.web,
+            china: createForm.china === 'true' ? 'yes' : 'no',
+            web: createForm.web === 'true' ? 'yes' : 'no',
             udp: createForm.udp,
             fangyu: createForm.fangyu,
             notes: createForm.notes,
@@ -955,8 +955,9 @@ const handleEditClick = (node: Node) => {
     editForm.speed = node.speed;
     editForm.area = node.area;
     editForm.nodegroup = node.nodegroup;
-    editForm.china = node.china;
-    editForm.web = node.web;
+    // 兼容构思数据库
+    editForm.china = node.china === 'yes' ? 'true' : 'false';
+    editForm.web = node.web === 'yes' ? 'true' : 'false';
     editForm.udp = node.udp;
     editForm.fangyu = node.fangyu;
     editForm.notes = node.notes;
@@ -1004,8 +1005,8 @@ const handleEdit = async () => {
             speed: editForm.speed,
             area: editForm.area,
             nodegroup: editForm.nodegroup,
-            china: editForm.china,
-            web: editForm.web,
+            china: editForm.china === 'true' ? 'yes' : 'no',
+            web: editForm.web === 'true' ? 'yes' : 'no',
             udp: editForm.udp,
             fangyu: editForm.fangyu,
             notes: editForm.notes,

@@ -89,7 +89,7 @@ export const getUsers = async (
  */
 export const searchUsers = async (
     admin_token: string,
-    type: 'username' | 'email',
+    type: 'username' | 'email' | 'id',
     value: string,
     page: number,
     size: number
@@ -109,6 +109,123 @@ export const updateUser = async (
 ): Promise<BaseResponse> => {
     return axiosInstance.put(`/admin/users/${userId}`, payload, {
         params: { admin_token },
+    });
+};
+
+// ---------------- Tunnels (Admin) ----------------
+interface TunnelsListData {
+    tunnels: Array<{
+        id: number;
+        name: string;
+        localip: string;
+        type: string;
+        nport: number;
+        dorp: string;
+        node: string;
+        state: string;
+        userid: number;
+        encryption: string;
+        compression: string;
+        ap: string;
+        uptime: string;
+        client_version: string;
+        today_traffic_in: number;
+        today_traffic_out: number;
+        cur_conns: number;
+    }>;
+    total: number;
+    page: number;
+    size: number;
+    totalPages: number;
+}
+
+export interface TunnelsListResponse extends BaseResponse {
+    data: TunnelsListData;
+}
+
+export interface TunnelDetailResponse extends BaseResponse {
+    data: {
+        id: number;
+        name: string;
+        localip: string;
+        type: string;
+        nport: number;
+        dorp: string;
+        node: string;
+        state: string;
+        userid: number;
+        encryption: string;
+        compression: string;
+        ap: string;
+        uptime: string;
+        client_version: string;
+        today_traffic_in: number;
+        today_traffic_out: number;
+        cur_conns: number;
+    };
+}
+
+export interface TunnelSearchResponse extends BaseResponse {
+    data: TunnelsListData & {
+        searchType: string;
+        searchValue: string;
+    };
+}
+
+/**
+ * 获取隧道列表（管理员）
+ */
+export const getTunnels = async (
+    admin_token: string,
+    page: number,
+    size: number
+): Promise<TunnelsListResponse> => {
+    return axiosInstance.get('/admin/tunnels', {
+        params: { admin_token, page, size },
+    });
+};
+
+/**
+ * 搜索隧道（管理员）
+ */
+export const searchTunnels = async (
+    admin_token: string,
+    type: 'user_id' | 'name' | 'tunnel_id' | 'dorp',
+    value: string,
+    page: number,
+    size: number
+): Promise<TunnelSearchResponse> => {
+    return axiosInstance.get('/admin/tunnels/search', {
+        params: { admin_token, type, value, page, size },
+    });
+};
+
+/**
+ * 获取隧道详情（管理员）
+ */
+export const getTunnelById = async (
+    admin_token: string,
+    tunnelId: number
+): Promise<TunnelDetailResponse> => {
+    return axiosInstance.get(`/admin/tunnels/${tunnelId}`, {
+        params: { admin_token },
+    });
+};
+
+/**
+ * 管理员强制下线隧道
+ */
+export const offlineTunnel = async (
+    admin_token: string,
+    identifier: string,
+    identifierType: 'id' | 'name' = 'name'
+): Promise<BaseResponse> => {
+    return axiosInstance.post('/admin/tunnels/offline', null, {
+        params: { 
+            admin_token, 
+            identifier, 
+            type: identifierType 
+        },
     });
 };
 
