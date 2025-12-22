@@ -8,7 +8,7 @@
             role="dialog"
             aria-modal="true"
             closable
-            @close="$emit('close')"
+            @close="$emit('update:show', false)"
         >
             <n-collapse :default-expanded-names="['1', '3']">
                 <n-collapse-item title="快捷启动代码" name="1">
@@ -79,7 +79,6 @@ defineProps<Props>();
 
 defineEmits<{
     'update:show': [value: boolean];
-    close: [];
 }>();
 </script>
 
