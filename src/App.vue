@@ -1,5 +1,5 @@
 <template>
-    <n-config-provider :hljs="hljs" :theme="computedTheme" :theme-overrides="themeOverrides">
+    <n-config-provider :locale="zhCN" :date-locale="dateZhCN" :hljs="hljs" :theme="computedTheme" :theme-overrides="themeOverrides">
         <!-- 加载条 -->
         <n-loading-bar-provider>
             <!-- 顶部信息 -->
@@ -34,6 +34,7 @@ import ini from 'highlight.js/lib/languages/ini';
 import nginx from 'highlight.js/lib/languages/nginx';
 import powershell from 'highlight.js/lib/languages/powershell';
 import bash from 'highlight.js/lib/languages/bash';
+import { dateZhCN, zhCN } from 'naive-ui';
 
 hljs.registerLanguage('ini', ini);
 hljs.registerLanguage('nginx', nginx);

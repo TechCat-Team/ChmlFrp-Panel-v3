@@ -102,10 +102,11 @@ const props = defineProps({
 const screenStore = useScreenStore();
 const { screenWidth } = storeToRefs(screenStore);
 
-const displayedUptimeHistory = computed(() => props.uptimeHistory.slice(0, props.daysToShow));
+const displayedUptimeHistory = computed(() => props.uptimeHistory.slice(0, props.daysToShow).reverse());
 
 const formattedDate = (index: number) => {
-    const date = subDays(new Date(), index);
+    const daysAgo = displayedUptimeHistory.value.length - 1 - index;
+    const date = subDays(new Date(), daysAgo);
     return format(date, 'yyyy-MM-dd');
 };
 

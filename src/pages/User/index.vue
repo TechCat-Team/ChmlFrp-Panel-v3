@@ -50,7 +50,14 @@
                     :user-info="userInfo ? { realname: userInfo.realname } : undefined"
                     :on-submit="submitRealName"
                 />
-                <ExchangeCodeForm :loading="loadingGiftCode" :model="exchangeCodeModel" :on-submit="submitExchangeCode" />
+                <ExchangeCodeForm
+                    :loading="loadingGiftCode"
+                    :model="exchangeCodeModel"
+                    :on-submit="submitExchangeCode"
+                    :history-loading="loadingGiftcardHistory"
+                    :history-data="historyData"
+                    :on-view-history="loadHistory"
+                />
                 <UserProfileCard
                     :user-info="
                         userInfo
@@ -155,6 +162,7 @@ import { useLoadUserInfo } from '@/components/useLoadUser';
 import { useSignIn } from './composables/useSignIn';
 import { useRealName } from './composables/useRealName';
 import { useExchangeCode } from './composables/useExchangeCode';
+import { useGiftcardHistory } from './composables/useGiftcardHistory';
 import { useEmailVerification } from './composables/useEmailVerification';
 import { useAccountDeletion } from './composables/useAccountDeletion';
 import { useUserSettings, createSettingsCards } from './composables/useUserSettings';
@@ -200,6 +208,12 @@ const {
     model: exchangeCodeModel,
     submit: submitExchangeCode,
 } = useExchangeCode(userInfo || {});
+
+const {
+    loading: loadingGiftcardHistory,
+    historyData,
+    loadHistory,
+} = useGiftcardHistory(userInfo || {});
 
 const {
     oldButtonText,

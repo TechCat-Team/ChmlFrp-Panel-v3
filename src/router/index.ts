@@ -226,10 +226,10 @@ const routes: Array<RouteRecordRaw> = [
             },
             {
                 path: '/admin/panel',
-                name: '面板管理',
-                component: () => import('@/pages/Admin/PanelSettings/index.vue'),
+                name: '系统管理',
+                component: () => import('@/pages/Admin/SystemManagement/index.vue'),
                 meta: {
-                    title: '面板管理 - 管理员控制台 - ChmlFrp',
+                    title: '系统管理 - 管理员控制台 - ChmlFrp',
                     requiresAuth: true,
                 },
             },

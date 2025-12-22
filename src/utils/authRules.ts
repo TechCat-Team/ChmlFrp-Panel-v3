@@ -104,14 +104,6 @@ export const realNameRules: FormRules = {
     ],
 };
 
-// 兑换码规则
-export const exchangeCodeRules: FormRules = {
-    exchangeCode: [
-        { required: true, message: '请输入兑换码', trigger: 'blur' },
-        { pattern: /^[A-Za-z0-9\-]{8,32}$/, message: '兑换码格式不正确', trigger: ['blur', 'input'] },
-    ],
-};
-
 // 修改邮箱规则
 export const resetEmailRules: FormRules = {
     old_code: [

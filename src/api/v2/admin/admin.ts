@@ -229,4 +229,215 @@ export const offlineTunnel = async (
     });
 };
 
+// ---------------- Gift Cards (Admin) ----------------
+
+/**
+ * 礼品卡信息接口
+ */
+export interface GiftCard {
+    id: number;
+    cardCode: string;
+    cardName: string;
+    rewardType: '会员' | '积分';
+    memberType: string | null;
+    memberDays: number | null;
+    points: number | null;
+    totalUsageLimit: number;
+    usedCount: number;
+    perUserLimit: number;
+    validFrom: string | null;
+    validUntil: string | null;
+    isActive: boolean;
+    createTime: string;
+    updateTime: string;
+}
+
+/**
+ * 礼品卡使用记录接口
+ */
+export interface GiftCardUsageRecord {
+    id: number;
+    cardId: number;
+    userId: number;
+    usageTime: string;
+    rewardType: '会员' | '积分';
+    memberType: string | null;
+    memberDays: number | null;
+    points: number | null;
+}
+
+/**
+ * 创建礼品卡请求参数
+ */
+export interface CreateGiftCardRequest {
+    admin_token: string;
+    card_code: string;
+    card_name?: string;
+    reward_type: '会员' | '积分';
+    member_type?: '普通会员' | '高级会员' | '超级会员';
+    member_days?: number;
+    points?: number;
+    total_usage_limit?: number;
+    per_user_limit?: number;
+    valid_from?: string;
+    valid_until?: string;
+    is_active?: boolean;
+}
+
+/**
+ * 创建礼品卡响应
+ */
+export interface CreateGiftCardResponse extends BaseResponse {
+    data: {
+        id: number;
+        card_code: string;
+    };
+}
+
+/**
+ * 礼品卡列表数据
+ */
+interface GiftCardsListData {
+    gift_cards: GiftCard[];
+    total: number;
+    page: number;
+    size: number;
+    totalPages: number;
+}
+
+/**
+ * 礼品卡列表响应
+ */
+export interface GiftCardsListResponse extends BaseResponse {
+    data: GiftCardsListData;
+}
+
+/**
+ * 礼品卡详情响应
+ */
+export interface GiftCardDetailResponse extends BaseResponse {
+    data: GiftCard;
+}
+
+/**
+ * 礼品卡使用记录响应（按卡查询）
+ */
+export interface GiftCardUsageByCardResponse extends BaseResponse {
+    data: {
+        card_code: string;
+        card_name: string;
+        total_usage_limit: number;
+        used_count: number;
+        usage_records: GiftCardUsageRecord[];
+    };
+}
+
+/**
+ * 礼品卡使用记录响应（按用户查询）
+ */
+export interface GiftCardUsageByUserResponse extends BaseResponse {
+    data: {
+        user_id: number;
+        username: string;
+        total_count: number;
+        usage_records: GiftCardUsageRecord[];
+    };
+}
+
+/**
+ * 切换礼品卡状态响应
+ */
+export interface ToggleGiftCardStatusResponse extends BaseResponse {
+    data: {
+        card_code: string;
+        is_active: boolean;
+    };
+}
+
+/**
+ * 创建礼品卡（管理员）
+ */
+export const createGiftCard = async (
+    request: CreateGiftCardRequest
+): Promise<CreateGiftCardResponse> => {
+    return axiosInstance.post('/admin/giftcard/create', request);
+};
+
+/**
+ * 删除礼品卡（管理员）
+ */
+export const deleteGiftCard = async (
+    admin_token: string,
+    card_code: string
+): Promise<BaseResponse> => {
+    return axiosInstance.delete('/admin/giftcard/delete', {
+        params: { admin_token, card_code },
+    });
+};
+
+/**
+ * 启用/禁用礼品卡（管理员）
+ */
+export const toggleGiftCardStatus = async (
+    admin_token: string,
+    card_code: string,
+    is_active: boolean
+): Promise<ToggleGiftCardStatusResponse> => {
+    return axiosInstance.put('/admin/giftcard/toggle-status', {
+        admin_token,
+        card_code,
+        is_active,
+    });
+};
+
+/**
+ * 查询礼品卡列表（管理员）
+ */
+export const getGiftCards = async (
+    admin_token: string,
+    page: number = 1,
+    size: number = 20,
+    keyword?: string
+): Promise<GiftCardsListResponse> => {
+    return axiosInstance.get('/admin/giftcard/list', {
+        params: { admin_token, page, size, keyword },
+    });
+};
+
+/**
+ * 查询礼品卡详情（管理员）
+ */
+export const getGiftCardDetail = async (
+    admin_token: string,
+    card_code: string
+): Promise<GiftCardDetailResponse> => {
+    return axiosInstance.get('/admin/giftcard/detail', {
+        params: { admin_token, card_code },
+    });
+};
+
+/**
+ * 查询某个礼品卡的所有使用记录（管理员）
+ */
+export const getGiftCardUsageByCard = async (
+    admin_token: string,
+    card_code: string
+): Promise<GiftCardUsageByCardResponse> => {
+    return axiosInstance.get('/admin/giftcard/usage/by-card', {
+        params: { admin_token, card_code },
+    });
+};
+
+/**
+ * 查询某个用户的领取记录（管理员）
+ */
+export const getGiftCardUsageByUser = async (
+    admin_token: string,
+    user_id: number
+): Promise<GiftCardUsageByUserResponse> => {
+    return axiosInstance.get('/admin/giftcard/usage/by-user', {
+        params: { admin_token, user_id },
+    });
+};
+
 

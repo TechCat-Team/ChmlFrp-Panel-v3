@@ -254,11 +254,11 @@ export const computedMenuOptionsAdmin = computed(() => [
                             h(
                                 RouterLink,
                                 {
-                                    to: { name: '面板管理' },
+                                    to: { name: '系统管理' },
                                 },
-                                { default: () => '面板管理' }
+                                { default: () => '系统管理' }
                             ),
-                        key: '面板管理',
+                        key: '系统管理',
                         icon: renderIcon(ConstructOutline),
                     },
                 ],
