@@ -1,10 +1,5 @@
 <template>
-    <n-card
-        title="消息"
-        :bordered="false"
-        size="large"
-        class="message-card"
-    >
+    <n-card title="消息" :bordered="false" size="large" class="message-card">
         <!-- 桌面端搜索 -->
         <template #header-extra>
             <n-input
@@ -53,14 +48,7 @@
                     {{ item.label }}
                 </n-tag>
 
-                <n-button
-                    v-if="isSearchMode"
-                    text
-                    size="tiny"
-                    @click="handleResetSearch"
-                >
-                    清除
-                </n-button>
+                <n-button v-if="isSearchMode" text size="tiny" @click="handleResetSearch"> 清除 </n-button>
             </n-space>
 
             <!-- 消息列表 -->
@@ -68,29 +56,14 @@
                 <!-- 骨架屏加载 -->
                 <template v-if="loading && messages.length === 0">
                     <div class="skeleton-list">
-                        <div
-                            v-for="i in 5"
-                            :key="i"
-                            class="skeleton-item"
-                        >
+                        <div v-for="i in 5" :key="i" class="skeleton-item">
                             <div class="message-item-inner">
                                 <n-flex justify="space-between" align="center">
                                     <n-flex align="center" :size="10">
-                                        <n-skeleton
-                                            :width="50"
-                                            :height="22"
-                                            round
-                                            style="border-radius: 12px"
-                                        />
-                                        <n-skeleton
-                                            :width="getSkeletonWidth(i)"
-                                            :height="20"
-                                        />
+                                        <n-skeleton :width="50" :height="22" round style="border-radius: 12px" />
+                                        <n-skeleton :width="getSkeletonWidth(i)" :height="20" />
                                     </n-flex>
-                                    <n-skeleton
-                                        :width="140"
-                                        :height="16"
-                                    />
+                                    <n-skeleton :width="140" :height="16" />
                                 </n-flex>
                             </div>
                         </div>
@@ -98,10 +71,7 @@
                 </template>
 
                 <!-- 空状态 -->
-                <n-empty
-                    v-else-if="!loading && messages.length === 0"
-                    description="暂无消息"
-                />
+                <n-empty v-else-if="!loading && messages.length === 0" description="暂无消息" />
 
                 <!-- 消息列表 -->
                 <template v-else>
@@ -139,38 +109,21 @@
 
                     <!-- 加载更多骨架屏 -->
                     <div v-if="loadingMore" class="skeleton-list">
-                        <div
-                            v-for="i in 3"
-                            :key="`more-${i}`"
-                            class="skeleton-item"
-                        >
+                        <div v-for="i in 3" :key="`more-${i}`" class="skeleton-item">
                             <div class="message-item-inner">
                                 <n-flex justify="space-between" align="center">
                                     <n-flex align="center" :size="10">
-                                        <n-skeleton
-                                            :width="50"
-                                            :height="22"
-                                            round
-                                            style="border-radius: 12px"
-                                        />
-                                        <n-skeleton
-                                            :width="getSkeletonWidth(i)"
-                                            :height="20"
-                                        />
+                                        <n-skeleton :width="50" :height="22" round style="border-radius: 12px" />
+                                        <n-skeleton :width="getSkeletonWidth(i)" :height="20" />
                                     </n-flex>
-                                    <n-skeleton
-                                        :width="140"
-                                        :height="16"
-                                    />
+                                    <n-skeleton :width="140" :height="16" />
                                 </n-flex>
                             </div>
                         </div>
                     </div>
 
                     <!-- 加载更多提示 -->
-                    <div v-else-if="hasMore" class="load-more-hint">
-                        滚动到底部加载更多
-                    </div>
+                    <div v-else-if="hasMore" class="load-more-hint">滚动到底部加载更多</div>
                 </template>
             </div>
         </n-space>
@@ -189,165 +142,116 @@
         <template v-if="loadingDetail">
             <n-space vertical :size="24">
                 <n-flex align="center" :size="12">
-                    <n-skeleton
-                        :width="60"
-                        :height="28"
-                        round
-                        style="border-radius: 14px"
-                    />
-                    <n-skeleton
-                        :width="300"
-                        :height="28"
-                    />
+                    <n-skeleton :width="60" :height="28" round style="border-radius: 14px" />
+                    <n-skeleton :width="300" :height="28" />
                 </n-flex>
-                <n-skeleton
-                    :width="200"
-                    :height="20"
-                />
-                <n-skeleton
-                    width="100%"
-                    :height="200"
-                    style="border-radius: 8px"
-                />
+                <n-skeleton :width="200" :height="20" />
+                <n-skeleton width="100%" :height="200" style="border-radius: 8px" />
             </n-space>
         </template>
         <div v-else-if="currentMessage">
-            <n-space vertical :size="24">
-                <!-- 标题 -->
-                <n-flex align="center" :size="12">
-                    <n-tag
-                        :type="getPriorityType(currentMessage.priority)"
-                        size="medium"
-                        round
-                        :bordered="false"
-                    >
-                        {{ getPriorityLabel(currentMessage.priority) }}
-                    </n-tag>
-
-                    <n-text strong style="font-size: 20px">
-                        {{ currentMessage.title }}
-                    </n-text>
-                </n-flex>
-
-                <!-- 时间 -->
-                <n-text depth="3" style="font-size: 13px">
-                    <n-icon
-                        :component="TimeOutline"
-                        style="margin-right: 6px"
-                    />
-                    发布时间：{{ formatTime(currentMessage.publishTime) }}
-                </n-text>
-
-                <n-divider style="margin: 0" />
-
-                <!-- 内容 -->
-                <div
-                    class="markdown-content"
-                    v-html="renderMarkdown(currentMessage.contentMd)"
-                />
-            </n-space>
+            <!-- 内容 -->
+            <div class="markdown-content" v-html="renderMarkdown(currentMessage.contentMd)" />
         </div>
     </n-modal>
 </template>
 
 <script lang="ts" setup>
-    import { onMounted } from 'vue'
-    import { SearchOutline, TimeOutline } from '@vicons/ionicons5'
-    import { useSystemMessages } from '../composables/useSystemMessages'
-    import dayjs from 'dayjs'
-    import MarkdownIt from 'markdown-it'
-    
-    const md = new MarkdownIt({
-        html: true,
-        linkify: true,
-        typographer: true,
-    })
-    
-    interface Props {
-        userInfo?: {
-            usertoken?: string
-            username?: string
-        }
+import { onMounted } from 'vue';
+import { SearchOutline } from '@vicons/ionicons5';
+import { useSystemMessages } from '../composables/useSystemMessages';
+import dayjs from 'dayjs';
+import MarkdownIt from 'markdown-it';
+
+const md = new MarkdownIt({
+    html: true,
+    linkify: true,
+    typographer: true,
+});
+
+interface Props {
+    userInfo?: {
+        usertoken?: string;
+        username?: string;
+    };
+}
+
+const props = defineProps<Props>();
+
+const {
+    loading,
+    loadingMore,
+    messages,
+    hasMore,
+    selectedPriority,
+    searchKeyword,
+    isSearchMode,
+    currentMessage,
+    showDetailModal,
+    loadingDetail,
+    fetchMessages,
+    searchMessages,
+    resetSearch,
+    fetchMessageDetail,
+    loadMoreMessages,
+    handlePriorityChange,
+    getPriorityLabel,
+    getPriorityType,
+} = useSystemMessages(props.userInfo);
+
+const priorityOptions = [
+    { label: '全部', value: undefined },
+    { label: '普通', value: 1 },
+    { label: '重要', value: 2 },
+    { label: '紧急', value: 3 },
+];
+
+// 搜索
+const handleSearch = () => {
+    searchKeyword.value.trim() ? searchMessages() : resetSearch();
+};
+
+const handleResetSearch = () => resetSearch();
+
+const handlePriorityFilter = (priority?: number) => {
+    handlePriorityChange(priority);
+};
+
+const handleViewDetail = (id: number) => {
+    fetchMessageDetail(id);
+};
+
+const formatTime = (time: string) => {
+    return time ? dayjs(time).format('YYYY-MM-DD HH:mm:ss') : '';
+};
+
+const renderMarkdown = (content: string) => {
+    return content ? md.render(content) : '';
+};
+
+// 获取骨架屏宽度（模拟不同长度的标题）
+const getSkeletonWidth = (index: number) => {
+    const widths = [200, 250, 180, 220, 190, 210, 170];
+    return widths[index % widths.length];
+};
+
+// 处理滚动事件
+const handleScroll = (e: Event) => {
+    const target = e.target as HTMLElement;
+    const scrollTop = target.scrollTop;
+    const scrollHeight = target.scrollHeight;
+    const clientHeight = target.clientHeight;
+
+    // 当滚动到距离底部 50px 时加载更多
+    if (scrollHeight - scrollTop - clientHeight < 50 && hasMore.value && !loadingMore.value && !loading.value) {
+        loadMoreMessages();
     }
-    
-    const props = defineProps<Props>()
-    
-    const {
-        loading,
-        loadingMore,
-        messages,
-        hasMore,
-        selectedPriority,
-        searchKeyword,
-        isSearchMode,
-        currentMessage,
-        showDetailModal,
-        loadingDetail,
-        fetchMessages,
-        searchMessages,
-        resetSearch,
-        fetchMessageDetail,
-        loadMoreMessages,
-        handlePriorityChange,
-        getPriorityLabel,
-        getPriorityType,
-    } = useSystemMessages(props.userInfo)
-    
-    const priorityOptions = [
-        { label: '全部', value: undefined },
-        { label: '普通', value: 1 },
-        { label: '重要', value: 2 },
-        { label: '紧急', value: 3 },
-    ]
-    
-    // 搜索
-    const handleSearch = () => {
-        searchKeyword.value.trim()
-            ? searchMessages()
-            : resetSearch()
-    }
-    
-    const handleResetSearch = () => resetSearch()
-    
-    const handlePriorityFilter = (priority?: number) => {
-        handlePriorityChange(priority)
-    }
-    
-    const handleViewDetail = (id: number) => {
-        fetchMessageDetail(id)
-    }
-    
-    const formatTime = (time: string) => {
-        return time ? dayjs(time).format('YYYY-MM-DD HH:mm:ss') : ''
-    }
-    
-    const renderMarkdown = (content: string) => {
-        return content ? md.render(content) : ''
-    }
-    
-    // 获取骨架屏宽度（模拟不同长度的标题）
-    const getSkeletonWidth = (index: number) => {
-        const widths = [200, 250, 180, 220, 190, 210, 170]
-        return widths[index % widths.length]
-    }
-    
-    // 处理滚动事件
-    const handleScroll = (e: Event) => {
-        const target = e.target as HTMLElement
-        const scrollTop = target.scrollTop
-        const scrollHeight = target.scrollHeight
-        const clientHeight = target.clientHeight
-        
-        // 当滚动到距离底部 50px 时加载更多
-        if (scrollHeight - scrollTop - clientHeight < 50 && hasMore.value && !loadingMore.value && !loading.value) {
-            loadMoreMessages()
-        }
-    }
-    
-    onMounted(() => {
-        fetchMessages()
-    })
-    </script>    
+};
+
+onMounted(() => {
+    fetchMessages();
+});
+</script>
 
 <style scoped>
 /* 搜索框 */
@@ -504,6 +408,7 @@
 
 /* Markdown */
 .markdown-content {
+    margin-top: -16px;
     font-size: 14px;
     line-height: 1.9;
     color: var(--n-text-color);
@@ -534,4 +439,3 @@
     overflow-x: auto;
 }
 </style>
-
