@@ -80,9 +80,17 @@
         </n-flex>
         <n-p style="opacity: 0.6"> Copyright © {{ currentYear }} 南充市轻爪网络科技有限公司 All rights reserved. </n-p>
         <n-p style="opacity: 0.6">
-            <a href="https://beian.miit.gov.cn/" target="_blank" style="color: inherit; text-decoration: none;"> 蜀ICP备2025175860号 </a>
+            <a href="https://beian.miit.gov.cn/" target="_blank" style="color: inherit; text-decoration: none">
+                蜀ICP备2025175860号
+            </a>
             <n-divider vertical />
-            <a href="https://beian.mps.gov.cn/#/query/webSearch?code=51132202000197" target="_blank" style="color: inherit; text-decoration: none;"> 川公网安备51132202000197号 </a>
+            <a
+                href="https://beian.mps.gov.cn/#/query/webSearch?code=51132202000197"
+                target="_blank"
+                style="color: inherit; text-decoration: none"
+            >
+                川公网安备51132202000197号
+            </a>
         </n-p>
     </n-card>
     <n-card title="开发环境依赖" style="margin-top: 15px">

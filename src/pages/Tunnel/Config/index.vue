@@ -6,13 +6,24 @@
                 <n-select v-model:value="nodeValue" :options="nodeOptions" placeholder="请选择节点" />
             </n-grid-item>
             <n-grid-item span="10 m:5">
-                <n-select placeholder="请选择隧道，不选则该节点全部隧道" v-model:value="multipleSelectValue" filterable multiple tag
-                    :options="tunnelOptions" />
+                <n-select
+                    placeholder="请选择隧道，不选则该节点全部隧道"
+                    v-model:value="multipleSelectValue"
+                    filterable
+                    multiple
+                    tag
+                    :options="tunnelOptions"
+                />
             </n-grid-item>
             <n-grid-item span="10 m:2">
                 <n-flex justify="end">
-                    <n-button type="primary" @click="getConfigFile" :disabled="nodeValue === null"
-                        :loading="loadingGenerate">生成</n-button>
+                    <n-button
+                        type="primary"
+                        @click="getConfigFile"
+                        :disabled="nodeValue === null"
+                        :loading="loadingGenerate"
+                        >生成</n-button
+                    >
                     <n-button type="primary" @click="copyToClipboard" :disabled="tunnelConfig === ''">复制</n-button>
                     <n-button type="primary" @click="downloadConfig" :disabled="tunnelConfig === ''">下载</n-button>
                 </n-flex>
@@ -136,15 +147,23 @@
         <n-grid-item :span="2">
             <n-card title="映射启动">
                 <template #header-extra>
-                    <n-button text tag="a" href="https://docs.chmlfrp.cn/docs/use/mapping.html" target="_blank"
-                        type="primary">
+                    <n-button
+                        text
+                        tag="a"
+                        href="https://docs.chmlfrp.cn/docs/use/mapping.html"
+                        target="_blank"
+                        type="primary"
+                    >
                         详细教程
                     </n-button>
                 </template>
                 <n-steps vertical :current="3">
                     <n-step title="步骤1" description="在隧道页面创建隧道" />
                     <n-step title="步骤2" description="在网站下载页面下载对应的软件版本(一般为amd64)" />
-                    <n-step title="步骤3" description="解压好下载的软件后，打开frpc.ini，在里面粘贴此页面生成的配置文件，然后保存" />
+                    <n-step
+                        title="步骤3"
+                        description="解压好下载的软件后，打开frpc.ini，在里面粘贴此页面生成的配置文件，然后保存"
+                    />
                     <n-step title="步骤4" description="在frp的windows路径栏输入cmd然后回车，启动cmd软件" />
                     <n-step title="步骤4" description="在打开的cmd内输入frpc启动映射" />
                 </n-steps>
@@ -297,15 +316,15 @@ const getConfigFile = async () => {
 
             // 获取选中隧道的名称用于API调用
             const selectedTunnelNames = allTunnels.value
-                .filter(tunnel => multipleSelectValue.value.includes(tunnel.id.toString()))
-                .map(tunnel => tunnel.name);
+                .filter((tunnel) => multipleSelectValue.value.includes(tunnel.id.toString()))
+                .map((tunnel) => tunnel.name);
             params.tunnel_names = selectedTunnelNames.join(',');
             LinuxScript.value = `curl -O https://www.chmlfrp.net/script/linux/frpc_install.sh && chmod +x frpc_install.sh && sudo ./frpc_install.sh "${userInfo?.usertoken}" "${nodeValue.value}" "${params.tunnel_names}"`;
         } else {
             // 如果没有选择特定隧道，使用该节点所有隧道的ID
             const nodeTunnelIds = allTunnels.value
-                .filter(tunnel => tunnel.node === nodeValue.value)
-                .map(tunnel => tunnel.id.toString());
+                .filter((tunnel) => tunnel.node === nodeValue.value)
+                .map((tunnel) => tunnel.id.toString());
             startupCode.value = `frpc.exe -u ${userInfo?.usertoken} -p ${nodeTunnelIds.join(',')}`;
             LinuxScript.value = `curl -O https://www.chmlfrp.net/script/linux/frpc_install.sh && chmod +x frpc_install.sh && sudo ./frpc_install.sh "${userInfo?.usertoken}" "${nodeValue.value}"`;
         }

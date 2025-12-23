@@ -44,4 +44,3 @@ const textStyle = computed(() => ({
     textAlign: 'left' as const,
 }));
 </script>
-

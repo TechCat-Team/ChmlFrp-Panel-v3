@@ -11,8 +11,8 @@ import { pinyin } from 'pinyin-pro';
  * @returns 拼音字符串
  */
 export function toPinyin(text: string): string {
-  if (!text) return '';
-  return pinyin(text, { toneType: 'symbol' });
+    if (!text) return '';
+    return pinyin(text, { toneType: 'symbol' });
 }
 
 /**
@@ -21,8 +21,8 @@ export function toPinyin(text: string): string {
  * @returns 拼音字符串
  */
 export function toPinyinWithoutTone(text: string): string {
-  if (!text) return '';
-  return pinyin(text, { toneType: 'none' });
+    if (!text) return '';
+    return pinyin(text, { toneType: 'none' });
 }
 
 /**
@@ -31,8 +31,8 @@ export function toPinyinWithoutTone(text: string): string {
  * @returns 连续拼音字符串
  */
 export function toPinyinContinuous(text: string): string {
-  if (!text) return '';
-  return pinyin(text, { toneType: 'none' }).replace(/\s+/g, '');
+    if (!text) return '';
+    return pinyin(text, { toneType: 'none' }).replace(/\s+/g, '');
 }
 
 /**
@@ -41,8 +41,8 @@ export function toPinyinContinuous(text: string): string {
  * @returns 首字母拼音字符串
  */
 export function toPinyinInitials(text: string): string {
-  if (!text) return '';
-  return pinyin(text, { pattern: 'first', toneType: 'none' });
+    if (!text) return '';
+    return pinyin(text, { pattern: 'first', toneType: 'none' });
 }
 
 /**
@@ -51,8 +51,8 @@ export function toPinyinInitials(text: string): string {
  * @returns 连续首字母拼音字符串
  */
 export function toPinyinInitialsContinuous(text: string): string {
-  if (!text) return '';
-  return pinyin(text, { pattern: 'first', toneType: 'none' }).replace(/\s+/g, '');
+    if (!text) return '';
+    return pinyin(text, { pattern: 'first', toneType: 'none' }).replace(/\s+/g, '');
 }
 
 /**
@@ -62,54 +62,55 @@ export function toPinyinInitialsContinuous(text: string): string {
  * @returns 是否匹配
  */
 export function matchPinyinSearch(text: string, keyword: string): boolean {
-  if (!text || !keyword) return false;
-  
-  const lowerText = text.toLowerCase();
-  const lowerKeyword = keyword.toLowerCase().trim();
-  
-  // 1. 直接文本匹配
-  if (lowerText.includes(lowerKeyword)) {
-    return true;
-  }
-  
-  // 2. 拼音全拼匹配（不带声调，带空格）
-  const textPinyin = toPinyinWithoutTone(text).toLowerCase();
-  if (textPinyin.includes(lowerKeyword)) {
-    return true;
-  }
-  
-  // 3. 拼音全拼匹配（不带声调，连续形式）
-  const textPinyinContinuous = toPinyinContinuous(text).toLowerCase();
-  if (textPinyinContinuous.includes(lowerKeyword)) {
-    return true;
-  }
-  
-  // 4. 拼音全拼匹配（带声调）
-  const textPinyinWithTone = toPinyin(text).toLowerCase();
-  if (textPinyinWithTone.includes(lowerKeyword)) {
-    return true;
-  }
-  
-  // 5. 首字母拼音匹配（带空格）
-  const textInitials = toPinyinInitials(text).toLowerCase();
-  if (textInitials.includes(lowerKeyword)) {
-    return true;
-  }
-  
-  // 6. 首字母拼音匹配（连续形式）
-  const textInitialsContinuous = toPinyinInitialsContinuous(text).toLowerCase();
-  if (textInitialsContinuous.includes(lowerKeyword)) {
-    return true;
-  }
-  
-  // 7. 混合匹配：支持拼音+中文混合搜索
-  // 例如：搜索 "beijing" 可以匹配 "北京"
-  const mixedText = lowerText + ' ' + textPinyin + ' ' + textPinyinContinuous + ' ' + textInitials + ' ' + textInitialsContinuous;
-  if (mixedText.includes(lowerKeyword)) {
-    return true;
-  }
-  
-  return false;
+    if (!text || !keyword) return false;
+
+    const lowerText = text.toLowerCase();
+    const lowerKeyword = keyword.toLowerCase().trim();
+
+    // 1. 直接文本匹配
+    if (lowerText.includes(lowerKeyword)) {
+        return true;
+    }
+
+    // 2. 拼音全拼匹配（不带声调，带空格）
+    const textPinyin = toPinyinWithoutTone(text).toLowerCase();
+    if (textPinyin.includes(lowerKeyword)) {
+        return true;
+    }
+
+    // 3. 拼音全拼匹配（不带声调，连续形式）
+    const textPinyinContinuous = toPinyinContinuous(text).toLowerCase();
+    if (textPinyinContinuous.includes(lowerKeyword)) {
+        return true;
+    }
+
+    // 4. 拼音全拼匹配（带声调）
+    const textPinyinWithTone = toPinyin(text).toLowerCase();
+    if (textPinyinWithTone.includes(lowerKeyword)) {
+        return true;
+    }
+
+    // 5. 首字母拼音匹配（带空格）
+    const textInitials = toPinyinInitials(text).toLowerCase();
+    if (textInitials.includes(lowerKeyword)) {
+        return true;
+    }
+
+    // 6. 首字母拼音匹配（连续形式）
+    const textInitialsContinuous = toPinyinInitialsContinuous(text).toLowerCase();
+    if (textInitialsContinuous.includes(lowerKeyword)) {
+        return true;
+    }
+
+    // 7. 混合匹配：支持拼音+中文混合搜索
+    // 例如：搜索 "beijing" 可以匹配 "北京"
+    const mixedText =
+        lowerText + ' ' + textPinyin + ' ' + textPinyinContinuous + ' ' + textInitials + ' ' + textInitialsContinuous;
+    if (mixedText.includes(lowerKeyword)) {
+        return true;
+    }
+
+    return false;
 }
 
 /**
@@ -119,38 +120,38 @@ export function matchPinyinSearch(text: string, keyword: string): boolean {
  * @returns 高亮后的HTML字符串
  */
 export function highlightMatch(text: string, keyword: string): string {
-  if (!text || !keyword) return text;
-  
-  const lowerText = text.toLowerCase();
-  const lowerKeyword = keyword.toLowerCase().trim();
-  
-  // 查找匹配位置
-  let matchIndex = -1;
-  
-  // 优先匹配原始文本
-  matchIndex = lowerText.indexOf(lowerKeyword);
-  
-  // 如果原始文本没有匹配，尝试拼音匹配
-  if (matchIndex === -1) {
-    const textPinyin = toPinyinWithoutTone(text).toLowerCase();
-    matchIndex = textPinyin.indexOf(lowerKeyword);
-    if (matchIndex !== -1) {
-      // 找到拼音匹配，但需要映射回原始文本位置
-      // 这里简化处理，直接返回原始文本
-      return text;
+    if (!text || !keyword) return text;
+
+    const lowerText = text.toLowerCase();
+    const lowerKeyword = keyword.toLowerCase().trim();
+
+    // 查找匹配位置
+    let matchIndex = -1;
+
+    // 优先匹配原始文本
+    matchIndex = lowerText.indexOf(lowerKeyword);
+
+    // 如果原始文本没有匹配，尝试拼音匹配
+    if (matchIndex === -1) {
+        const textPinyin = toPinyinWithoutTone(text).toLowerCase();
+        matchIndex = textPinyin.indexOf(lowerKeyword);
+        if (matchIndex !== -1) {
+            // 找到拼音匹配，但需要映射回原始文本位置
+            // 这里简化处理，直接返回原始文本
+            return text;
+        }
     }
-  }
-  
-  if (matchIndex === -1) {
-    return text;
-  }
-  
-  // 高亮匹配部分
-  const beforeMatch = text.substring(0, matchIndex);
-  const matchText = text.substring(matchIndex, matchIndex + keyword.length);
-  const afterMatch = text.substring(matchIndex + keyword.length);
-  
-  return `${beforeMatch}<mark style="background-color: #ffeb3b; padding: 2px 4px; border-radius: 3px;">${matchText}</mark>${afterMatch}`;
+
+    if (matchIndex === -1) {
+        return text;
+    }
+
+    // 高亮匹配部分
+    const beforeMatch = text.substring(0, matchIndex);
+    const matchText = text.substring(matchIndex, matchIndex + keyword.length);
+    const afterMatch = text.substring(matchIndex + keyword.length);
+
+    return `${beforeMatch}<mark style="background-color: #ffeb3b; padding: 2px 4px; border-radius: 3px;">${matchText}</mark>${afterMatch}`;
 }
 
 /**
@@ -159,29 +160,32 @@ export function highlightMatch(text: string, keyword: string): string {
  * @param keyword 搜索关键词
  * @returns 搜索建议信息
  */
-export function getSearchSuggestions(text: string, keyword: string): {
-  originalText: string;
-  pinyin: string;
-  initials: string;
-  matchType: 'exact' | 'pinyin' | 'initials' | 'none';
+export function getSearchSuggestions(
+    text: string,
+    keyword: string
+): {
+    originalText: string;
+    pinyin: string;
+    initials: string;
+    matchType: 'exact' | 'pinyin' | 'initials' | 'none';
 } {
-  const lowerKeyword = keyword.toLowerCase().trim();
-  const lowerText = text.toLowerCase();
-  
-  let matchType: 'exact' | 'pinyin' | 'initials' | 'none' = 'none';
-  
-  if (lowerText.includes(lowerKeyword)) {
-    matchType = 'exact';
-  } else if (toPinyinWithoutTone(text).toLowerCase().includes(lowerKeyword)) {
-    matchType = 'pinyin';
-  } else if (toPinyinInitials(text).toLowerCase().includes(lowerKeyword)) {
-    matchType = 'initials';
-  }
-  
-  return {
-    originalText: text,
-    pinyin: toPinyinWithoutTone(text),
-    initials: toPinyinInitials(text),
-    matchType
-  };
+    const lowerKeyword = keyword.toLowerCase().trim();
+    const lowerText = text.toLowerCase();
+
+    let matchType: 'exact' | 'pinyin' | 'initials' | 'none' = 'none';
+
+    if (lowerText.includes(lowerKeyword)) {
+        matchType = 'exact';
+    } else if (toPinyinWithoutTone(text).toLowerCase().includes(lowerKeyword)) {
+        matchType = 'pinyin';
+    } else if (toPinyinInitials(text).toLowerCase().includes(lowerKeyword)) {
+        matchType = 'initials';
+    }
+
+    return {
+        originalText: text,
+        pinyin: toPinyinWithoutTone(text),
+        initials: toPinyinInitials(text),
+        matchType,
+    };
 }

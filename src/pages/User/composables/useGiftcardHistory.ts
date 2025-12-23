@@ -44,4 +44,3 @@ export function useGiftcardHistory(userInfo: { usertoken?: string }) {
         loadHistory,
     };
 }
-

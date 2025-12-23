@@ -123,9 +123,7 @@ export function useTunnelForm(
                 message.error('此节点没有可选的免费域名');
                 formData.domainNameLabel = '自定义';
                 formData.domain = '';
-            } else if (
-                !domainNameOptions.value.some((option: { value: string }) => option.value === formData.choose)
-            ) {
+            } else if (!domainNameOptions.value.some((option: { value: string }) => option.value === formData.choose)) {
                 formData.choose = '';
             }
         } catch (error) {
@@ -193,4 +191,3 @@ export function useTunnelForm(
         checkPort,
     };
 }
-

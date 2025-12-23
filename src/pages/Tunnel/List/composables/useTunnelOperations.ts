@@ -6,10 +6,7 @@ import type { TunnelCard } from '../types';
 /**
  * 隧道操作 composable
  */
-export function useTunnelOperations(
-    userInfo: { usertoken?: string },
-    onRefresh: () => void
-) {
+export function useTunnelOperations(userInfo: { usertoken?: string }, onRefresh: () => void) {
     const message = useMessage();
     const dialog = useDialog();
 
@@ -152,4 +149,3 @@ export function useTunnelOperations(
         handleConfirmDelete,
     };
 }
-

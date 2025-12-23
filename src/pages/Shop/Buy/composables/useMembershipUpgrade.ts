@@ -21,7 +21,11 @@ export function useMembershipUpgrade(
     const upgradeOption = ref<MembershipType | ''>('');
 
     const upgradeCost = computed(() => {
-        if (userInfo?.usergroup === '免费用户' || userInfo?.term === LIFETIME_TERM_DATE || userInfo?.usergroup === '超级会员') {
+        if (
+            userInfo?.usergroup === '免费用户' ||
+            userInfo?.term === LIFETIME_TERM_DATE ||
+            userInfo?.usergroup === '超级会员'
+        ) {
             return 0;
         }
 
@@ -86,4 +90,3 @@ export function useMembershipUpgrade(
         handleUpgrade,
     };
 }
-

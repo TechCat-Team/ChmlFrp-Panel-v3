@@ -17,8 +17,14 @@
         <n-thing content-style="margin-top: 10px;">
             <template #description>
                 <n-space size="small" style="margin-top: 4px">
-                    <n-tag round v-for="(tag, tagIndex) in card.tags" :key="tagIndex" :bordered="false" type="primary"
-                        size="small">
+                    <n-tag
+                        round
+                        v-for="(tag, tagIndex) in card.tags"
+                        :key="tagIndex"
+                        :bordered="false"
+                        type="primary"
+                        size="small"
+                    >
                         {{ tag }}
                     </n-tag>
                 </n-space>
@@ -66,8 +72,12 @@
                     </n-row>
                 </n-grid-item>
                 <n-grid-item :span="1" style="display: flex; justify-content: flex-end">
-                    <n-dropdown trigger="click" :options="dropdownOptions" @select="handleDropdownSelect"
-                        placement="bottom-end">
+                    <n-dropdown
+                        trigger="click"
+                        :options="dropdownOptions"
+                        @select="handleDropdownSelect"
+                        placement="bottom-end"
+                    >
                         <n-button quaternary circle size="medium" style="--n-padding: 8px">
                             <template #icon>
                                 <n-icon size="16">
@@ -196,4 +206,3 @@ const handleDropdownSelect = (key: string) => {
     }
 };
 </script>
-

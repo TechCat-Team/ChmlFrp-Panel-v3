@@ -43,43 +43,41 @@ export const LOGO_URL = 'https://www.chmlfrp.net/favicon.ico';
 export const EMAIL_CODE_LOGIN_RULES = {
     email: [
         { required: true, message: '请输入邮箱地址', trigger: 'blur' },
-        { type: 'email', message: '请输入有效的邮箱格式', trigger: ['blur', 'input'] }
+        { type: 'email', message: '请输入有效的邮箱格式', trigger: ['blur', 'input'] },
     ],
     code: [
         { required: true, message: '请输入验证码', trigger: 'blur' },
         {
             pattern: /^[0-9]{6}$/,
             message: '验证码必须为6位数字',
-            trigger: ['blur', 'input']
-        }
-    ]
+            trigger: ['blur', 'input'],
+        },
+    ],
 } as const;
 
 // 重置密码表单验证规则
 export const RESET_PASSWORD_RULES = {
     email: [
         { required: true, message: '请输入邮箱地址', trigger: 'blur' },
-        { type: 'email', message: '请输入有效的邮箱格式', trigger: ['blur', 'input'] }
+        { type: 'email', message: '请输入有效的邮箱格式', trigger: ['blur', 'input'] },
     ],
     verificationCode: [
         { required: true, message: '请输入验证码', trigger: 'blur' },
         {
             pattern: /^[0-9]{6}$/,
             message: '验证码必须为6位数字',
-            trigger: ['blur', 'input']
-        }
+            trigger: ['blur', 'input'],
+        },
     ],
     newPassword: [
         { required: true, message: '请输入新密码', trigger: 'blur' },
         {
             pattern: /^(?![a-zA-Z]+$)(?!\d+$)(?![^\da-zA-Z\s]+$).{6,48}$/,
             message: '密码6~48位，且至少包含字母、数字、特殊符号中任意两种',
-            trigger: ['blur', 'input']
-        }
+            trigger: ['blur', 'input'],
+        },
     ],
-    confirmPassword: [
-        { required: true, message: '请再次输入新密码', trigger: 'blur' }
-    ]
+    confirmPassword: [{ required: true, message: '请再次输入新密码', trigger: 'blur' }],
 } as const;
 
 // 消息文本
@@ -97,7 +95,8 @@ export const MESSAGES = {
     LOGIN_VERIFYING: '正在进行登录验证...',
     TOURIST_PANEL_WARNING: '游客页面功能不完全，如需完整功能请登录！',
     TOURIST_PANEL_TITLE: '提示',
-    TOURIST_PANEL_CONTENT: '检测到您已登录账户，是否直接跳转到首页？选择是则不退出登录到首页，选择否则退出登录到游客页面。',
+    TOURIST_PANEL_CONTENT:
+        '检测到您已登录账户，是否直接跳转到首页？选择是则不退出登录到首页，选择否则退出登录到游客页面。',
 } as const;
 
 // 按钮文本
@@ -150,4 +149,3 @@ export const ALERT_MESSAGES = {
     EMAIL_CODE_LOGIN_REQUIRED: '您的账户或IP已被临时限制登录，请使用邮箱验证码登录',
     REMAINING_TIME: (time: string) => `剩余时间: ${time}`,
 } as const;
-

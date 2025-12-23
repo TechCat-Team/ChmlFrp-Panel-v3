@@ -28,9 +28,7 @@
                         :percentage="memoryUsedPercentage"
                         :rail-style="[{ opacity: 0.6 }]"
                     >
-                        <div style="text-align: center; font-size: 8px">
-                            {{ memoryUsedPercentage.toFixed(1) }}%
-                        </div>
+                        <div style="text-align: center; font-size: 8px">{{ memoryUsedPercentage.toFixed(1) }}%</div>
                     </n-progress>
                 </n-grid-item>
             </n-grid-item>
@@ -63,9 +61,7 @@
                         :percentage="storageUsedPercentage"
                         :rail-style="[{ opacity: 0.6 }]"
                     >
-                        <div style="text-align: center; font-size: 8px">
-                            {{ storageUsedPercentage.toFixed(1) }}%
-                        </div>
+                        <div style="text-align: center; font-size: 8px">{{ storageUsedPercentage.toFixed(1) }}%</div>
                     </n-progress>
                 </n-grid-item>
             </n-grid-item>
@@ -94,4 +90,3 @@ const storageRemaining = computed(() => {
     return total - used;
 });
 </script>
-

@@ -104,17 +104,12 @@ export interface GiftcardHistoryResponse extends BaseResponse {
  * @param request - 兑换礼品卡请求参数
  * @returns 兑换礼品卡响应
  */
-export const redeemGiftcard = async (
-    request: RedeemGiftcardRequest
-): Promise<RedeemGiftcardResponse> => {
+export const redeemGiftcard = async (request: RedeemGiftcardRequest): Promise<RedeemGiftcardResponse> => {
     try {
-        return (await axiosInstance.post(
-            `${GIFTCARD_BASE_URL}/redeem`,
-            {
-                usertoken: request.usertoken,
-                giftcode: request.giftcode,
-            }
-        )) as unknown as RedeemGiftcardResponse;
+        return (await axiosInstance.post(`${GIFTCARD_BASE_URL}/redeem`, {
+            usertoken: request.usertoken,
+            giftcode: request.giftcode,
+        })) as unknown as RedeemGiftcardResponse;
     } catch (error: any) {
         // 处理错误响应
         if (error.response?.data) {
@@ -131,14 +126,11 @@ export const redeemGiftcard = async (
  */
 export const getGiftcardHistory = async (usertoken: string): Promise<GiftcardHistoryResponse> => {
     try {
-        return (await axiosInstance.get(
-            `${GIFTCARD_BASE_URL}/history`,
-            {
-                params: {
-                    usertoken,
-                },
-            }
-        )) as unknown as GiftcardHistoryResponse;
+        return (await axiosInstance.get(`${GIFTCARD_BASE_URL}/history`, {
+            params: {
+                usertoken,
+            },
+        })) as unknown as GiftcardHistoryResponse;
     } catch (error: any) {
         // 处理错误响应
         if (error.response?.data) {
@@ -147,4 +139,3 @@ export const getGiftcardHistory = async (usertoken: string): Promise<GiftcardHis
         throw new Error('查询礼品卡历史失败：' + (error.message || '未知错误'));
     }
 };
-

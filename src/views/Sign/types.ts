@@ -49,4 +49,3 @@ declare global {
         initGeetest4: (config: any, callback: (captchaObj: CaptchaObj) => void) => void;
     }
 }
-

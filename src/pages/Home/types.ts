@@ -33,4 +33,3 @@ export interface PanelInfo {
     user_amount: string;
     friend_links: FriendLink[];
 }
-

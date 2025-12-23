@@ -26,7 +26,7 @@
                                             v-model:form-ref="formRef"
                                             :model="loginModel"
                                             :keep-logged-in="keepLoggedIn"
-                                                    :loading="loginLoading"
+                                            :loading="loginLoading"
                                             :is-mobile="isMobile"
                                             @update:model="loginModel = $event"
                                             @update:keep-logged-in="keepLoggedIn = $event"
@@ -177,10 +177,7 @@ const handleBanned = (errorMessage: string) => {
 };
 
 const { loginLoading, handleLogin } = useLogin(loginModel, keepLoggedIn, handleBanned);
-const { loginLoading: emailCodeLoginLoading, handleEmailCodeLogin } = useEmailCodeLogin(
-    emailCodeModel,
-    keepLoggedIn
-);
+const { loginLoading: emailCodeLoginLoading, handleEmailCodeLogin } = useEmailCodeLogin(emailCodeModel, keepLoggedIn);
 
 // 注册相关
 const registerModel = ref<RegisterModel>({
@@ -194,7 +191,7 @@ const registerModel = ref<RegisterModel>({
 const clause = ref(false);
 
 const register = useRegister(registerModel, clause, () => {
-            toggleRegister();
+    toggleRegister();
     registerModel.value = {
         username: '',
         qq: '',
@@ -217,7 +214,7 @@ const resetModel = ref<ResetPasswordModel>({
 const resetPassword = useResetPassword(resetModel, () => {
     handleToLogin();
     resetModel.value = {
-    email: '',
+        email: '',
         verificationCode: '',
         newPassword: '',
         confirmPassword: '',

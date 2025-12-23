@@ -70,10 +70,7 @@ export function useCharts(
               }
             : { TCP: 0, UDP: 0, HTTP: 0, HTTPS: 0 };
 
-        const cpuData = statusList.map((status) => [
-            formatTimestamp(status.timestamp),
-            status.cpu_usage.toFixed(2),
-        ]);
+        const cpuData = statusList.map((status) => [formatTimestamp(status.timestamp), status.cpu_usage.toFixed(2)]);
         const CPUDateList = cpuData.map((item) => item[0]);
         const cpuValueList = cpuData.map((item) => item[1]);
 
@@ -664,4 +661,3 @@ export function useCharts(
         updateCharts,
     };
 }
-

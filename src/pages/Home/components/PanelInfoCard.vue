@@ -46,4 +46,3 @@ defineProps<Props>();
 const screenStore = useScreenStore();
 const { screenWidth } = storeToRefs(screenStore);
 </script>
-

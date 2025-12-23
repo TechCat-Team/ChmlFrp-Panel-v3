@@ -20,9 +20,7 @@
         </n-alert>
         <n-alert title="提示" type="info" style="margin-bottom: 10px">
             如果这里没有您想了解的，可以前往
-            <n-button text tag="a" :href="docsUrl" target="_blank" type="primary">
-                ChmlFrp文档
-            </n-button>
+            <n-button text tag="a" :href="docsUrl" target="_blank" type="primary"> ChmlFrp文档 </n-button>
             或ChmlFrp交流群询问。
         </n-alert>
         <n-flex style="margin-top: 20px">
@@ -34,9 +32,7 @@
             >
                 QQ三群
             </n-button>
-            <n-button style="border-radius: 5px" tertiary type="primary" @click="showWxGroup = true">
-                微信群
-            </n-button>
+            <n-button style="border-radius: 5px" tertiary type="primary" @click="showWxGroup = true"> 微信群 </n-button>
         </n-flex>
     </n-card>
 </template>
@@ -84,4 +80,3 @@ defineExpose({
     showWxGroup,
 });
 </script>
-

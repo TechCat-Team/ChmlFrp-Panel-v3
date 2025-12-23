@@ -67,4 +67,3 @@ defineProps<Props>();
 
 const percentage = ref(3);
 </script>
-

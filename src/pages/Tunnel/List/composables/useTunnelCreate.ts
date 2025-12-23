@@ -31,16 +31,22 @@ export function useTunnelCreate(
         try {
             // 获取实际的节点信息
             let actualNodeInfo = getActualNodeInfo();
-            
+
             // 如果节点信息不完整且提供了 fetchNodeInfo 函数，尝试重新获取
-            if ((!actualNodeInfo || !actualNodeInfo.name || (formData.type === 'TCP' || formData.type === 'UDP') && !actualNodeInfo.rport) && fetchNodeInfo && formData.node) {
+            if (
+                (!actualNodeInfo ||
+                    !actualNodeInfo.name ||
+                    ((formData.type === 'TCP' || formData.type === 'UDP') && !actualNodeInfo.rport)) &&
+                fetchNodeInfo &&
+                formData.node
+            ) {
                 message.info('正在重新获取节点信息...');
                 const refreshedNodeInfo = await fetchNodeInfo(formData.node);
                 if (refreshedNodeInfo) {
                     actualNodeInfo = refreshedNodeInfo;
                 }
             }
-            
+
             // 检查合规性
             if (!checkFormData(formData, actualNodeInfo)) {
                 return;
@@ -127,4 +133,3 @@ export function useTunnelCreate(
         createTunnel,
     };
 }
-

@@ -109,30 +109,46 @@ export function useExchangeCode(userInfo: { id?: number; usertoken?: string }) {
                         content: () =>
                             h(NSpace, { vertical: true, size: 'small' }, () => [
                                 h(NText, { type: 'error' }, () => response.msg),
-                                h('div', { style: 'margin-top: 12px; padding: 12px; background-color: var(--n-color-target); border-radius: 4px' }, [
-                                    h('div', { style: 'margin-bottom: 8px' }, [
-                                        h(NText, { strong: true }, () => '状态：'),
-                                        h(NTag, { type: 'error', size: 'small' }, () => info.status),
-                                    ]),
-                                    h('div', { style: 'margin-bottom: 8px' }, [
-                                        h(NText, null, () => `最近尝试次数：${info.recent_attempts} 次`),
-                                    ]),
-                                    h('div', { style: 'margin-bottom: 8px' }, [
-                                        h(NText, null, () => `总尝试次数：${info.total_attempts} 次`),
-                                    ]),
-                                    h('div', { style: 'margin-bottom: 8px' }, [
-                                        h(NText, null, () => `连续失败次数：${info.consecutive_failures} 次`),
-                                    ]),
-                                    info.remaining_ban_minutes !== undefined && h('div', { style: 'margin-bottom: 8px' }, [
-                                        h(NText, { type: 'warning' }, () => `剩余封禁时间：${info.remaining_ban_minutes} 分钟`),
-                                    ]),
-                                    info.ban_end_time && h('div', { style: 'margin-bottom: 8px' }, [
-                                        h(NText, null, () => `封禁结束时间：${info.ban_end_time}`),
-                                    ]),
-                                    h('div', { style: 'margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--n-border-color)' }, [
-                                        h(NText, { type: 'info', italic: true }, () => info.tips),
-                                    ]),
-                                ]),
+                                h(
+                                    'div',
+                                    {
+                                        style: 'margin-top: 12px; padding: 12px; background-color: var(--n-color-target); border-radius: 4px',
+                                    },
+                                    [
+                                        h('div', { style: 'margin-bottom: 8px' }, [
+                                            h(NText, { strong: true }, () => '状态：'),
+                                            h(NTag, { type: 'error', size: 'small' }, () => info.status),
+                                        ]),
+                                        h('div', { style: 'margin-bottom: 8px' }, [
+                                            h(NText, null, () => `最近尝试次数：${info.recent_attempts} 次`),
+                                        ]),
+                                        h('div', { style: 'margin-bottom: 8px' }, [
+                                            h(NText, null, () => `总尝试次数：${info.total_attempts} 次`),
+                                        ]),
+                                        h('div', { style: 'margin-bottom: 8px' }, [
+                                            h(NText, null, () => `连续失败次数：${info.consecutive_failures} 次`),
+                                        ]),
+                                        info.remaining_ban_minutes !== undefined &&
+                                            h('div', { style: 'margin-bottom: 8px' }, [
+                                                h(
+                                                    NText,
+                                                    { type: 'warning' },
+                                                    () => `剩余封禁时间：${info.remaining_ban_minutes} 分钟`
+                                                ),
+                                            ]),
+                                        info.ban_end_time &&
+                                            h('div', { style: 'margin-bottom: 8px' }, [
+                                                h(NText, null, () => `封禁结束时间：${info.ban_end_time}`),
+                                            ]),
+                                        h(
+                                            'div',
+                                            {
+                                                style: 'margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--n-border-color)',
+                                            },
+                                            [h(NText, { type: 'info', italic: true }, () => info.tips)]
+                                        ),
+                                    ]
+                                ),
                             ]),
                         positiveText: '知道了',
                     });
@@ -156,4 +172,3 @@ export function useExchangeCode(userInfo: { id?: number; usertoken?: string }) {
         submit,
     };
 }
-

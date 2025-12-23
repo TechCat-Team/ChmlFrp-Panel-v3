@@ -7,10 +7,7 @@ import { MESSAGES } from '../constants';
 /**
  * 重置密码 composable
  */
-export function useResetPassword(
-    resetModel: { value: ResetPasswordModel },
-    onSuccess: () => void
-) {
+export function useResetPassword(resetModel: { value: ResetPasswordModel }, onSuccess: () => void) {
     const message = useMessage();
     const loginLoading = ref(false);
 
@@ -37,4 +34,3 @@ export function useResetPassword(
         handleResetPassword,
     };
 }
-

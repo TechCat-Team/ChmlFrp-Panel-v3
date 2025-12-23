@@ -20,7 +20,7 @@ export function useTradeStatus() {
     const checkTradeStatus = async () => {
         // 从URL参数中获取订单号
         const outTradeNo = route.query.outTradeNo as string;
-        
+
         if (!outTradeNo) {
             return;
         }
@@ -69,7 +69,7 @@ export function useTradeStatus() {
      */
     const showSuccessDialog = (orderInfo: any) => {
         const { name, money, payTime } = orderInfo;
-        
+
         let content = '';
         if (name === '永久会员购买' || name === '终身会员购买') {
             content = `恭喜您成功购买永久会员！支付金额：${money}元`;

@@ -9,10 +9,7 @@ import { MESSAGES } from '../constants';
 /**
  * 邮箱验证码登录 composable
  */
-export function useEmailCodeLogin(
-    model: { value: EmailCodeLoginModel },
-    keepLoggedIn: { value: boolean }
-) {
+export function useEmailCodeLogin(model: { value: EmailCodeLoginModel }, keepLoggedIn: { value: boolean }) {
     const router = useRouter();
     const message = useMessage();
     const userStore = useUserStore();
@@ -92,4 +89,3 @@ export function useEmailCodeLogin(
         handleEmailCodeLogin,
     };
 }
-

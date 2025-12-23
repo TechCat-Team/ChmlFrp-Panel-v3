@@ -149,4 +149,3 @@ export function useAccountDeletion(userInfo: { email?: string; usertoken?: strin
         handleGeeTest,
     };
 }
-

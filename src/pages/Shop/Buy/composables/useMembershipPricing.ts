@@ -40,4 +40,3 @@ export function useMembershipPricing(userInfo: { usergroup?: string; term?: stri
         remainingDays,
     };
 }
-

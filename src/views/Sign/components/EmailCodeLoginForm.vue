@@ -1,19 +1,11 @@
 <template>
     <n-form ref="formRef" :model="model" :rules="emailCodeLoginRules" class="center-form">
         <n-flex justify="center">
-            <n-image
-                v-if="isMobile"
-                width="48"
-                style="margin-bottom: 24px"
-                :src="LOGO_URL"
-                preview-disabled
-            />
+            <n-image v-if="isMobile" width="48" style="margin-bottom: 24px" :src="LOGO_URL" preview-disabled />
         </n-flex>
         <n-alert type="warning" style="margin-bottom: 24px">
             {{ ALERT_MESSAGES.EMAIL_CODE_LOGIN_REQUIRED }}
-            <template v-if="banRemainingTime">
-                <br />{{ ALERT_MESSAGES.REMAINING_TIME(banRemainingTime) }}
-            </template>
+            <template v-if="banRemainingTime"> <br />{{ ALERT_MESSAGES.REMAINING_TIME(banRemainingTime) }} </template>
         </n-alert>
         <n-form-item label="邮箱" path="email">
             <n-input
@@ -104,7 +96,8 @@ const loading = typeof props.loading === 'object' ? props.loading.value : props.
 const loadingCaptcha = typeof props.loadingCaptcha === 'object' ? props.loadingCaptcha.value : props.loadingCaptcha;
 const buttonDisabled = typeof props.buttonDisabled === 'object' ? props.buttonDisabled.value : props.buttonDisabled;
 const buttonText = typeof props.buttonText === 'object' ? props.buttonText.value : props.buttonText;
-const banRemainingTime = typeof props.banRemainingTime === 'object' ? props.banRemainingTime.value : props.banRemainingTime;
+const banRemainingTime =
+    typeof props.banRemainingTime === 'object' ? props.banRemainingTime.value : props.banRemainingTime;
 const isMobile = typeof props.isMobile === 'object' ? props.isMobile.value : props.isMobile;
 
 defineEmits<{
@@ -124,4 +117,3 @@ defineEmits<{
     height: 100%;
 }
 </style>
-

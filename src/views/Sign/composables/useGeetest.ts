@@ -37,11 +37,7 @@ export function useGeetest() {
         }, 1000);
     };
 
-    const sendMailboxVerificationCode = async (
-        type: string,
-        email: string,
-        geetestResult: GeetestResult
-    ) => {
+    const sendMailboxVerificationCode = async (type: string, email: string, geetestResult: GeetestResult) => {
         try {
             await api.v2.user.sendMailCode(
                 type,
@@ -113,4 +109,3 @@ export function useGeetest() {
         reset,
     };
 }
-

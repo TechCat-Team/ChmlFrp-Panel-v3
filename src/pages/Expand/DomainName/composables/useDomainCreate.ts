@@ -7,10 +7,7 @@ import { DEFAULT_TTL, MINECRAFT_SRV_CONFIG, INFO_MESSAGES, REMARKS } from '../co
 /**
  * 创建域名 composable
  */
-export function useDomainCreate(
-    userInfo: { usertoken?: string } | undefined,
-    onSuccess: () => void
-) {
+export function useDomainCreate(userInfo: { usertoken?: string } | undefined, onSuccess: () => void) {
     const message = useMessage();
     const dialog = useDialog();
     const loading = ref(false);
@@ -46,10 +43,7 @@ export function useDomainCreate(
         }
     };
 
-    const createFastDomain = async (
-        formData: FastDomainFormModel,
-        tunnelInfo: SelectedTunnelInfo | null
-    ) => {
+    const createFastDomain = async (formData: FastDomainFormModel, tunnelInfo: SelectedTunnelInfo | null) => {
         if (!tunnelInfo) {
             message.error('请选择隧道');
             return false;
@@ -101,4 +95,3 @@ export function useDomainCreate(
         createFastDomain,
     };
 }
-

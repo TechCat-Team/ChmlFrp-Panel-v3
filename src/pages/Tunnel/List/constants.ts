@@ -40,4 +40,3 @@ export const FORCE_CHECK_INTERVAL = 10000; // 10秒
 export const CHINA_SPECIAL_REGIONS = ['香港', '澳门', '台湾'];
 
 export const FREE_USER_GROUP = '免费用户';
-

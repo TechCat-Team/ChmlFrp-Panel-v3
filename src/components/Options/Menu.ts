@@ -25,6 +25,7 @@ import {
     ConstructOutline,
     ListCircleOutline,
     ServerOutline,
+    KeyOutline,
 } from '@vicons/ionicons5';
 
 const userStore = useUserStore();
@@ -138,6 +139,18 @@ export const computedMenuOptionsUser = computed(() => [
                     ),
                 key: '免费域名',
                 icon: renderIcon(LinkOutline),
+            },
+            {
+                label: () =>
+                    h(
+                        RouterLink,
+                        {
+                            to: { name: '免费SSL' },
+                        },
+                        { default: () => '免费SSL' }
+                    ),
+                key: '免费SSL',
+                icon: renderIcon(KeyOutline),
             },
         ],
     },
@@ -334,7 +347,7 @@ export const computedMenuOptionsAdmin = computed(() => [
                             ),
                         key: '免费域名管理',
                         icon: renderIcon(LinkOutline),
-                    }
+                    },
                 ],
             },
         ],

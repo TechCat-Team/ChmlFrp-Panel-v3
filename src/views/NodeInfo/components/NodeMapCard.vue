@@ -1,13 +1,7 @@
 <template>
     <n-card>
         <n-skeleton v-if="loading" text :style="{ width: '100%', marginTop: '16px' }" :height="MAP_HEIGHT" />
-        <MapComponent
-            v-else
-            style="margin-top: 16px"
-            :width="'100%'"
-            :height="MAP_HEIGHT"
-            :markers="markers"
-        />
+        <MapComponent v-else style="margin-top: 16px" :width="'100%'" :height="MAP_HEIGHT" :markers="markers" />
     </n-card>
 </template>
 
@@ -22,4 +16,3 @@ interface Props {
 
 defineProps<Props>();
 </script>
-

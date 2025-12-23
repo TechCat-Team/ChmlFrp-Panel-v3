@@ -56,10 +56,7 @@ export function useLogin(
         try {
             await formRef?.validate();
 
-            const { data } = await api.v2.user.login(
-                model.value.email || '',
-                model.value.password || ''
-            );
+            const { data } = await api.v2.user.login(model.value.email || '', model.value.password || '');
 
             const userInfo = { ...data };
 
@@ -75,10 +72,9 @@ export function useLogin(
             router.push('/home');
         } catch (error: any) {
             const errorMessage = extractErrorMessage(error);
-            const isBanned = errorMessage && (
-                errorMessage.includes('该账户已被临时封禁') ||
-                errorMessage.includes('IP地址已被临时封禁')
-            );
+            const isBanned =
+                errorMessage &&
+                (errorMessage.includes('该账户已被临时封禁') || errorMessage.includes('IP地址已被临时封禁'));
 
             if (isBanned) {
                 onBanned(errorMessage);
@@ -108,4 +104,3 @@ export function useLogin(
         handleLogin,
     };
 }
-

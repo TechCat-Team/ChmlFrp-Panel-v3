@@ -4,8 +4,7 @@
             <n-text>
                 您正在请求购买 终身{{ targetGroup }}，您当前为
                 <n-text v-if="isLifetime && userGroup !== '免费用户'">终身</n-text>
-                {{ userGroup }}，升级到 终身{{ targetGroup }} 需要支付 {{ payAmount }} 元。
-                <br />请选择支付方式。
+                {{ userGroup }}，升级到 终身{{ targetGroup }} 需要支付 {{ payAmount }} 元。 <br />请选择支付方式。
             </n-text>
             <template #footer>
                 <n-flex justify="end">
@@ -50,4 +49,3 @@ defineEmits<{
     pay: [type: 'wechat' | 'alipay'];
 }>();
 </script>
-

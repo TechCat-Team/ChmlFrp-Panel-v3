@@ -15,11 +15,7 @@ export function useTunnelConfig(userInfo: { usertoken?: string; id?: number }) {
 
     const getConfigCode = async (card: TunnelCard) => {
         try {
-            const response = await api.v2.tunnel.getTunnelConfig(
-                userInfo?.usertoken || '',
-                card.node || '',
-                card.name
-            );
+            const response = await api.v2.tunnel.getTunnelConfig(userInfo?.usertoken || '', card.node || '', card.name);
             frpcIniConfig.value = response.data || '';
             windowsdaima.value = `frpc.exe -u ${userInfo?.usertoken} -p ${card.id}`;
             linuxdaima.value = `chmod +x frpc && ./frpc -u ${userInfo?.usertoken} -p ${card.id}`;
@@ -69,4 +65,3 @@ export function useTunnelConfig(userInfo: { usertoken?: string; id?: number }) {
         downloadConfig,
     };
 }
-

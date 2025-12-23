@@ -15,22 +15,17 @@
                     style="width: 200px"
                     @keyup.enter="handleSearch"
                 />
-                <n-button type="primary" @click="handleSearch" :loading="loading">
-                    搜索
-                </n-button>
-                <n-button @click="handleReset">
-                    重置
-                </n-button>
+                <n-button type="primary" @click="handleSearch" :loading="loading"> 搜索 </n-button>
+                <n-button @click="handleReset"> 重置 </n-button>
             </n-space>
         </div>
 
         <!-- 搜索结果提示 -->
         <div v-if="isSearchMode" style="margin-bottom: 16px">
             <n-alert type="info" :show-icon="false">
-                搜索结果：{{ getSearchTypeLabel() }}包含"{{ searchForm.value }}"的隧道，共找到 {{ pagination.itemCount }} 个
-                <n-button text type="primary" @click="handleReset" style="margin-left: 8px">
-                    查看全部隧道
-                </n-button>
+                搜索结果：{{ getSearchTypeLabel() }}包含"{{ searchForm.value }}"的隧道，共找到
+                {{ pagination.itemCount }} 个
+                <n-button text type="primary" @click="handleReset" style="margin-left: 8px"> 查看全部隧道 </n-button>
             </n-alert>
         </div>
 
@@ -61,22 +56,16 @@
     </n-card>
 
     <!-- 查看详情模态框 -->
-    <n-modal 
-        v-model:show="showDetailModal" 
-        preset="card" 
-        style="width: 800px" 
+    <n-modal
+        v-model:show="showDetailModal"
+        preset="card"
+        style="width: 800px"
         :bordered="false"
         size="large"
         title="隧道详情"
     >
         <n-spin :show="detailLoading">
-            <n-descriptions 
-                v-if="currentTunnel"
-                label-placement="left" 
-                bordered 
-                :column="2"
-                size="large"
-            >
+            <n-descriptions v-if="currentTunnel" label-placement="left" bordered :column="2" size="large">
                 <n-descriptions-item label="隧道ID">
                     <n-tag type="info">{{ currentTunnel.id }}</n-tag>
                 </n-descriptions-item>
@@ -90,14 +79,14 @@
                     <n-tag type="primary">{{ currentTunnel.node }}</n-tag>
                 </n-descriptions-item>
                 <n-descriptions-item label="协议类型">
-                    <n-tag 
+                    <n-tag
                         :type="getProtocolConfig(currentTunnel.type).type"
                         round
                         :style="{
                             minWidth: '70px',
                             justifyContent: 'center',
                             display: 'inline-flex',
-                            alignItems: 'center'
+                            alignItems: 'center',
                         }"
                     >
                         <template #icon>
@@ -116,14 +105,14 @@
                     <n-text code>{{ currentTunnel.dorp }}</n-text>
                 </n-descriptions-item>
                 <n-descriptions-item label="运行状态" :span="2">
-                    <n-tag 
+                    <n-tag
                         :type="isOnlineState(currentTunnel.state) ? 'info' : 'error'"
                         round
                         :style="{
                             minWidth: '60px',
                             justifyContent: 'center',
                             display: 'inline-flex',
-                            alignItems: 'center'
+                            alignItems: 'center',
                         }"
                     >
                         <template #icon>
@@ -161,10 +150,8 @@
         </n-spin>
 
         <template #footer>
-            <div style="display: flex; justify-content: flex-end;">
-                <n-button @click="showDetailModal = false">
-                    关闭
-                </n-button>
+            <div style="display: flex; justify-content: flex-end">
+                <n-button @click="showDetailModal = false"> 关闭 </n-button>
             </div>
         </template>
     </n-modal>
@@ -175,18 +162,37 @@
 <script lang="ts" setup>
 import { ref, onMounted, h, reactive } from 'vue';
 import { useRouter } from 'vue-router';
-import { 
-    NDataTable, NButton, NCard, NModal, NDescriptions, NDescriptionsItem, 
-    NBackTop, NSpace, NSelect, NAlert, NTag, NText, NSpin, useMessage,
-    NWatermark, NIcon, useDialog,
-    NDropdown
+import {
+    NDataTable,
+    NButton,
+    NCard,
+    NModal,
+    NDescriptions,
+    NDescriptionsItem,
+    NBackTop,
+    NSpace,
+    NSelect,
+    NAlert,
+    NTag,
+    NText,
+    NSpin,
+    useMessage,
+    NWatermark,
+    NIcon,
+    useDialog,
+    NDropdown,
 } from 'naive-ui';
-import { 
-    CheckmarkCircle, CloseCircle, Globe, Server, 
-    LockClosed, Rocket, Cube,
+import {
+    CheckmarkCircle,
+    CloseCircle,
+    Globe,
+    Server,
+    LockClosed,
+    Rocket,
+    Cube,
     EllipsisVertical,
     CodeDownloadOutline,
-    EyeOutline
+    EyeOutline,
 } from '@vicons/ionicons5';
 import type { DataTableColumns } from 'naive-ui';
 import api from '@/api';
@@ -231,7 +237,7 @@ const isSearchMode = ref(false);
 // 搜索表单
 const searchForm = reactive({
     type: 'user_id',
-    value: ''
+    value: '',
 });
 
 // 搜索类型选项
@@ -239,7 +245,7 @@ const searchTypeOptions = [
     { label: '用户ID', value: 'user_id' },
     { label: '隧道名称', value: 'name' },
     { label: '隧道ID', value: 'tunnel_id' },
-    { label: '外网端口', value: 'dorp' }
+    { label: '外网端口', value: 'dorp' },
 ];
 
 // 分页配置
@@ -253,7 +259,7 @@ const pagination = reactive({
 
 // 获取搜索类型标签
 const getSearchTypeLabel = () => {
-    const option = searchTypeOptions.find(opt => opt.value === searchForm.type);
+    const option = searchTypeOptions.find((opt) => opt.value === searchForm.type);
     return option?.label || '搜索';
 };
 
@@ -265,11 +271,11 @@ const formatTraffic = (bytes: number) => {
 
 // 获取协议类型配置
 const getProtocolConfig = (type: string) => {
-    const configs: Record<string, { type: any, icon: any }> = {
-        'http': { type: 'success', icon: Globe },
-        'https': { type: 'success', icon: LockClosed },
-        'tcp': { type: 'info', icon: Server },
-        'udp': { type: 'warning', icon: Rocket }
+    const configs: Record<string, { type: any; icon: any }> = {
+        http: { type: 'success', icon: Globe },
+        https: { type: 'success', icon: LockClosed },
+        tcp: { type: 'info', icon: Server },
+        udp: { type: 'warning', icon: Rocket },
     };
     return configs[type.toLowerCase()] || { type: 'default', icon: Cube };
 };
@@ -313,11 +319,7 @@ const fetchTunnels = async () => {
             );
             data = res.data;
         } else {
-            const res = await api.v2.admin.getTunnels(
-                adminToken,
-                pagination.page,
-                pagination.pageSize
-            );
+            const res = await api.v2.admin.getTunnels(adminToken, pagination.page, pagination.pageSize);
             data = res.data;
         }
 
@@ -367,7 +369,7 @@ const handleReset = () => {
 const handleViewDetail = async (tunnel: Tunnel) => {
     showDetailModal.value = true;
     detailLoading.value = true;
-    
+
     try {
         const adminToken = userInfoStore?.usertoken || '';
         const res = await api.v2.admin.getTunnelById(adminToken, tunnel.id);
@@ -392,11 +394,7 @@ const handleOfflineTunnel = (tunnel: Tunnel) => {
         onPositiveClick: async () => {
             try {
                 const adminToken = userInfoStore?.usertoken || '';
-                await api.v2.admin.offlineTunnel(
-                    adminToken,
-                    String(tunnel.id),
-                    'id'
-                );
+                await api.v2.admin.offlineTunnel(adminToken, String(tunnel.id), 'id');
                 message.success('隧道下线成功');
                 // 刷新列表
                 fetchTunnels();
@@ -405,23 +403,23 @@ const handleOfflineTunnel = (tunnel: Tunnel) => {
                 message.error(`下线失败: ${msg}`);
                 console.error(error);
             }
-        }
+        },
     });
 };
 
 // 定义表格列
 const columns: DataTableColumns<Tunnel> = [
-    { 
-        title: 'ID', 
-        key: 'id', 
-        width: 70, 
+    {
+        title: 'ID',
+        key: 'id',
+        width: 70,
         sorter: 'default',
-        fixed: 'left'
+        fixed: 'left',
     },
-    { 
-        title: '用户ID', 
-        key: 'userid', 
-        width: 100, 
+    {
+        title: '用户ID',
+        key: 'userid',
+        width: 100,
         sorter: 'default',
         render(row) {
             return h(
@@ -435,35 +433,35 @@ const columns: DataTableColumns<Tunnel> = [
                             path: '/admin/user',
                             query: {
                                 searchType: 'id',
-                                searchValue: String(row.userid)
-                            }
+                                searchValue: String(row.userid),
+                            },
                         });
-                    }
+                    },
                 },
                 { default: () => row.userid }
             );
-        }
+        },
     },
-    { 
-        title: '隧道名称', 
-        key: 'name', 
+    {
+        title: '隧道名称',
+        key: 'name',
         sorter: 'default',
         width: 80,
         ellipsis: {
-            tooltip: true
-        }
+            tooltip: true,
+        },
     },
-    { 
-        title: '节点', 
+    {
+        title: '节点',
         key: 'node',
         width: 100,
         ellipsis: {
-            tooltip: true
-        }
+            tooltip: true,
+        },
     },
-    { 
-        title: '协议', 
-        key: 'type', 
+    {
+        title: '协议',
+        key: 'type',
         width: 95,
         align: 'center',
         render(row) {
@@ -478,26 +476,26 @@ const columns: DataTableColumns<Tunnel> = [
                         minWidth: '70px',
                         justifyContent: 'center',
                         display: 'inline-flex',
-                        alignItems: 'center'
-                    }
+                        alignItems: 'center',
+                    },
                 },
                 {
                     default: () => row.type.toUpperCase(),
-                    icon: () => h(NIcon, null, { default: () => h(config.icon) })
+                    icon: () => h(NIcon, null, { default: () => h(config.icon) }),
                 }
             );
-        }
+        },
     },
-    { 
-        title: '外网端口', 
+    {
+        title: '外网端口',
         key: 'dorp',
         width: 80,
         ellipsis: {
-            tooltip: true
-        }
+            tooltip: true,
+        },
     },
-    { 
-        title: '状态', 
+    {
+        title: '状态',
         key: 'state',
         width: 85,
         align: 'center',
@@ -514,45 +512,41 @@ const columns: DataTableColumns<Tunnel> = [
                         minWidth: '60px',
                         justifyContent: 'center',
                         display: 'inline-flex',
-                        alignItems: 'center'
-                    }
+                        alignItems: 'center',
+                    },
                 },
                 {
                     default: () => stateText,
-                    icon: () => h(
-                        NIcon, 
-                        null, 
-                        { default: () => h(isOnline ? CheckmarkCircle : CloseCircle) }
-                    )
+                    icon: () => h(NIcon, null, { default: () => h(isOnline ? CheckmarkCircle : CloseCircle) }),
                 }
             );
-        }
+        },
     },
-    { 
-        title: '入流量', 
+    {
+        title: '入流量',
         key: 'today_traffic_in',
         width: 100,
         align: 'right',
         render(row) {
             const result = formatBytes(row.today_traffic_in);
             return `${result.value} ${result.suffix}`;
-        }
+        },
     },
-    { 
-        title: '出流量', 
+    {
+        title: '出流量',
         key: 'today_traffic_out',
         width: 100,
         align: 'right',
         render(row) {
             const result = formatBytes(row.today_traffic_out);
             return `${result.value} ${result.suffix}`;
-        }
+        },
     },
-    { 
-        title: '连接数', 
+    {
+        title: '连接数',
         key: 'cur_conns',
         width: 85,
-        align: 'right'
+        align: 'right',
     },
     {
         title: '操作',
@@ -569,11 +563,11 @@ const columns: DataTableColumns<Tunnel> = [
                     icon: () => h(NIcon, { component: EyeOutline }),
                     props: {
                         onClick: () => handleViewDetail(row),
-                    }
+                    },
                 },
                 {
                     type: 'divider',
-                    key: 'd1'
+                    key: 'd1',
                 },
                 {
                     label: '下线隧道',
@@ -582,28 +576,38 @@ const columns: DataTableColumns<Tunnel> = [
                     disabled: !isOnline,
                     props: {
                         onClick: () => handleOfflineTunnel(row),
-                        style: 'color: #d03050;'
-                    }
-                }
+                        style: 'color: #d03050;',
+                    },
+                },
             ];
-            return h(NDropdown, {
-                trigger: 'click',
-                options: options,
-                placement: 'bottom-end',
-                showArrow: true
-            }, {
-                default: () => h(NButton, {
-                    size: 'small',
-                    quaternary: true,
-                    circle: true
-                }, {
-                    icon: () => h(NIcon, { 
-                        component: EllipsisVertical,
-                        size: 18
-                    })
-                })
-            });
-        }
+            return h(
+                NDropdown,
+                {
+                    trigger: 'click',
+                    options: options,
+                    placement: 'bottom-end',
+                    showArrow: true,
+                },
+                {
+                    default: () =>
+                        h(
+                            NButton,
+                            {
+                                size: 'small',
+                                quaternary: true,
+                                circle: true,
+                            },
+                            {
+                                icon: () =>
+                                    h(NIcon, {
+                                        component: EllipsisVertical,
+                                        size: 18,
+                                    }),
+                            }
+                        ),
+                }
+            );
+        },
     },
 ];
 
@@ -611,7 +615,6 @@ const columns: DataTableColumns<Tunnel> = [
 onMounted(() => {
     fetchTunnels();
 });
-
 </script>
 
 <style scoped>

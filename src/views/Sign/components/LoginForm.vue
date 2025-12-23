@@ -1,13 +1,7 @@
 <template>
     <n-form ref="formRef" :model="model" :rules="loginRules" class="center-form">
         <n-flex justify="center">
-            <n-image
-                v-if="isMobile"
-                width="48"
-                style="margin-bottom: 24px"
-                :src="LOGO_URL"
-                preview-disabled
-            />
+            <n-image v-if="isMobile" width="48" style="margin-bottom: 24px" :src="LOGO_URL" preview-disabled />
         </n-flex>
         <n-form-item path="email">
             <n-input
@@ -33,7 +27,12 @@
             />
         </n-form-item>
         <n-flex justify="space-between">
-            <n-checkbox size="small" :checked="keepLoggedIn" @update:checked="$emit('update:keepLoggedIn', $event)" :label="LABELS.KEEP_LOGGED_IN" />
+            <n-checkbox
+                size="small"
+                :checked="keepLoggedIn"
+                @update:checked="$emit('update:keepLoggedIn', $event)"
+                :label="LABELS.KEEP_LOGGED_IN"
+            />
             <n-button text color="#9398b3" @click="$emit('reset-password')">{{ LABELS.RESET_PASSWORD }}</n-button>
         </n-flex>
         <div style="display: flex; justify-content: flex-end; margin-top: 24px">
@@ -95,4 +94,3 @@ defineEmits<{
     height: 100%;
 }
 </style>
-

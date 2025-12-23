@@ -72,8 +72,7 @@ export function useNodeList(userInfo?: { usergroup?: string }) {
             filters.value.region === 'all' ||
             (filters.value.region === 'china' && node.china === 'yes') ||
             (filters.value.region === 'overseas' &&
-                (node.china === 'no' ||
-                    CHINA_SPECIAL_REGIONS.some((region) => node.area.includes(region))));
+                (node.china === 'no' || CHINA_SPECIAL_REGIONS.some((region) => node.area.includes(region))));
 
         return matchUdp && matchWeb && matchRegion;
     };
@@ -103,18 +102,25 @@ export function useNodeList(userInfo?: { usergroup?: string }) {
     };
 
     // 监听 expandedPanels 变化，确保非会员节点始终展开
-    watch(expandedPanels, (newPanels, oldPanels) => {
-        if (normalNodeCards.value.length > 0 && !newPanels.includes('normal')) {
-            if (!oldPanels || !oldPanels.includes('normal')) {
-                expandedPanels.value = [...newPanels, 'normal'];
+    watch(
+        expandedPanels,
+        (newPanels, oldPanels) => {
+            if (normalNodeCards.value.length > 0 && !newPanels.includes('normal')) {
+                if (!oldPanels || !oldPanels.includes('normal')) {
+                    expandedPanels.value = [...newPanels, 'normal'];
+                }
             }
-        }
-    }, { deep: true });
+        },
+        { deep: true }
+    );
 
     // 监听用户信息变化，更新展开状态
-    watch(() => userInfo?.usergroup, () => {
-        initExpandedPanels();
-    });
+    watch(
+        () => userInfo?.usergroup,
+        () => {
+            initExpandedPanels();
+        }
+    );
 
     return {
         loading,
@@ -130,4 +136,3 @@ export function useNodeList(userInfo?: { usergroup?: string }) {
         initExpandedPanels,
     };
 }
-

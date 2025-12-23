@@ -88,15 +88,11 @@ export const createPayment = async (request: CreatePaymentRequest): Promise<Crea
             formData.append('type', request.type);
         }
 
-        const response = await axios.post<CreatePaymentResponse>(
-            `${PAYMENT_BASE_URL}/create`,
-            formData,
-            {
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-            }
-        );
+        const response = await axios.post<CreatePaymentResponse>(`${PAYMENT_BASE_URL}/create`, formData, {
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+        });
 
         return response.data;
     } catch (error: any) {
@@ -115,14 +111,11 @@ export const createPayment = async (request: CreatePaymentRequest): Promise<Crea
  */
 export const queryPayment = async (request: QueryPaymentRequest): Promise<QueryPaymentResponse> => {
     try {
-        const response = await axios.get<QueryPaymentResponse>(
-            `${PAYMENT_BASE_URL}/query`,
-            {
-                params: {
-                    outTradeNo: request.outTradeNo,
-                },
-            }
-        );
+        const response = await axios.get<QueryPaymentResponse>(`${PAYMENT_BASE_URL}/query`, {
+            params: {
+                outTradeNo: request.outTradeNo,
+            },
+        });
 
         return response.data;
     } catch (error: any) {

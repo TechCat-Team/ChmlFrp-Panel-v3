@@ -107,8 +107,12 @@ const {
 } = useMembershipPurchase(userInfo || undefined);
 
 // 会员升级
-const { loading: upgradeLoading, upgradeOption, upgradeCost, handleUpgrade: handleUpgradeAction } =
-    useMembershipUpgrade(userInfo || undefined);
+const {
+    loading: upgradeLoading,
+    upgradeOption,
+    upgradeCost,
+    handleUpgrade: handleUpgradeAction,
+} = useMembershipUpgrade(userInfo || undefined);
 
 // 终身会员购买
 const {
@@ -193,7 +197,7 @@ const goToTopUp = (type: 'purchase' | 'upgrade') => {
         Math.ceil(missingPoints / PAYMENT_CONFIG.POINTS_PER_YUAN),
         PAYMENT_CONFIG.MIN_TOP_UP_AMOUNT
     );
-    
+
     message.warning('积分不足，正在跳转到充值页面...(已自动填入缺失金额)');
     router.push({
         path: '/shop/top-up',
@@ -218,4 +222,3 @@ const goToTopUp = (type: 'purchase' | 'upgrade') => {
     font-size: 14px;
 }
 </style>
-

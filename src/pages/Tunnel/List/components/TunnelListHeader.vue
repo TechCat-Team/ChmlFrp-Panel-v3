@@ -7,8 +7,7 @@
                 </template>
                 刷新
             </n-button>
-            <n-button @click="$emit('add')" :loading="adding" type="primary" round quaternary
-                :disabled="adding">
+            <n-button @click="$emit('add')" :loading="adding" type="primary" round quaternary :disabled="adding">
                 <template #icon>
                     <n-icon v-if="!adding" :component="AddOutline" />
                 </template>
@@ -33,4 +32,3 @@ defineEmits<{
     add: [];
 }>();
 </script>
-

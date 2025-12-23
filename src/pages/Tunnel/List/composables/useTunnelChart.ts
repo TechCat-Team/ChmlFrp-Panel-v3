@@ -12,10 +12,7 @@ echarts.use([BarChart, TooltipComponent, LegendComponent, GridComponent, CanvasR
 /**
  * 隧道流量图表 composable
  */
-export function useTunnelChart(
-    userInfo: { usertoken?: string },
-    getChartRef: () => HTMLElement | null
-) {
+export function useTunnelChart(userInfo: { usertoken?: string }, getChartRef: () => HTMLElement | null) {
     const message = useMessage();
     const styleStore = useStyleStore();
     const showModal = ref(false);
@@ -176,4 +173,3 @@ export function useTunnelChart(
         getTunnelLast7days,
     };
 }
-

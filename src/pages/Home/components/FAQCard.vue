@@ -13,4 +13,3 @@ import { FAQ_DATA } from '../faqData';
 
 const faqData = FAQ_DATA;
 </script>
-

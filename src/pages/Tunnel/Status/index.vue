@@ -326,7 +326,6 @@ const nodeStatus = async () => {
     }
 };
 
-
 // 根据节点负载调整进度条颜色
 const progressColor = (bandwidthOccupation: number) => {
     if (bandwidthOccupation >= 0 && bandwidthOccupation < 25) {

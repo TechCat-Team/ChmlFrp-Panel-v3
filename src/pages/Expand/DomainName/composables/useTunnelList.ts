@@ -18,13 +18,7 @@ export function useTunnelList(userInfo: { usertoken?: string } | undefined) {
             const response = await api.v2.tunnel.getTunnelList(userInfo?.usertoken || '');
 
             tunnelOptions.value = response.data!.map(
-                (tunnel: {
-                    id: number;
-                    name: string;
-                    node: string;
-                    ip: string | null;
-                    dorp: string;
-                }) => ({
+                (tunnel: { id: number; name: string; node: string; ip: string | null; dorp: string }) => ({
                     label: `${tunnel.name} - ${tunnel.node}`,
                     value: `${tunnel.name} - ${tunnel.node}`,
                     node: tunnel.node,
@@ -61,4 +55,3 @@ export function useTunnelList(userInfo: { usertoken?: string } | undefined) {
         handleTunnelChange,
     };
 }
-

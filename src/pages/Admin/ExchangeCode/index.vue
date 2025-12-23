@@ -213,11 +213,10 @@
                         {{ currentDetail.points }}
                     </n-descriptions-item>
                     <n-descriptions-item label="使用情况">
-                        {{ currentDetail.usedCount }} / {{ currentDetail.totalUsageLimit === 0 ? '∞' : currentDetail.totalUsageLimit }}
+                        {{ currentDetail.usedCount }} /
+                        {{ currentDetail.totalUsageLimit === 0 ? '∞' : currentDetail.totalUsageLimit }}
                     </n-descriptions-item>
-                    <n-descriptions-item label="每人限用">
-                        {{ currentDetail.perUserLimit }} 次
-                    </n-descriptions-item>
+                    <n-descriptions-item label="每人限用"> {{ currentDetail.perUserLimit }} 次 </n-descriptions-item>
                     <n-descriptions-item label="生效时间">
                         {{ currentDetail.validFrom ? formatDateTime(currentDetail.validFrom) : '立即生效' }}
                     </n-descriptions-item>
@@ -247,7 +246,20 @@
 </template>
 
 <script lang="ts" setup>
-import { DataTableColumns, FormInst, FormRules, NButton, NSpace, NTag, PaginationProps, SelectOption, NDropdown, NIcon, useDialog, NInputGroup } from 'naive-ui';
+import {
+    DataTableColumns,
+    FormInst,
+    FormRules,
+    NButton,
+    NSpace,
+    NTag,
+    PaginationProps,
+    SelectOption,
+    NDropdown,
+    NIcon,
+    useDialog,
+    NInputGroup,
+} from 'naive-ui';
 import { ref, reactive, onMounted, h } from 'vue';
 import { useRouter } from 'vue-router';
 import {
@@ -462,8 +474,8 @@ const columns: DataTableColumns<GiftCard> = [
                         minWidth: '100px',
                         justifyContent: 'center',
                         display: 'inline-flex',
-                        alignItems: 'center'
-                    }
+                        alignItems: 'center',
+                    },
                 },
                 {
                     default: () => {
@@ -511,11 +523,7 @@ const columns: DataTableColumns<GiftCard> = [
         render(row) {
             if (!row.validUntil) return '永不过期';
             const isExpired = new Date(row.validUntil) < new Date();
-            return h(
-                'span',
-                { style: { color: isExpired ? '#d03050' : '#666' } },
-                formatDateTime(row.validUntil)
-            );
+            return h('span', { style: { color: isExpired ? '#d03050' : '#666' } }, formatDateTime(row.validUntil));
         },
     },
     {
@@ -534,16 +542,12 @@ const columns: DataTableColumns<GiftCard> = [
                         minWidth: '60px',
                         justifyContent: 'center',
                         display: 'inline-flex',
-                        alignItems: 'center'
-                    }
+                        alignItems: 'center',
+                    },
                 },
                 {
                     default: () => (row.isActive ? '激活' : '禁用'),
-                    icon: () => h(
-                        NIcon,
-                        null,
-                        { default: () => h(row.isActive ? CheckmarkCircle : CloseCircle) }
-                    )
+                    icon: () => h(NIcon, null, { default: () => h(row.isActive ? CheckmarkCircle : CloseCircle) }),
                 }
             );
         },
@@ -562,7 +566,7 @@ const columns: DataTableColumns<GiftCard> = [
                     icon: () => h(NIcon, { component: EyeOutline }),
                     props: {
                         onClick: () => handleViewDetail(row.cardCode),
-                    }
+                    },
                 },
                 {
                     label: '复制卡码',
@@ -570,11 +574,11 @@ const columns: DataTableColumns<GiftCard> = [
                     icon: () => h(NIcon, { component: CopyOutline }),
                     props: {
                         onClick: () => handleCopyCode(row),
-                    }
+                    },
                 },
                 {
                     type: 'divider',
-                    key: 'd1'
+                    key: 'd1',
                 },
                 {
                     label: row.isActive ? '禁用' : '启用',
@@ -582,12 +586,12 @@ const columns: DataTableColumns<GiftCard> = [
                     icon: () => h(NIcon, { component: PowerOutline }),
                     props: {
                         onClick: () => handleToggleStatus(row.cardCode, !row.isActive),
-                        style: row.isActive ? 'color: #f0a020;' : 'color: #18a058;'
-                    }
+                        style: row.isActive ? 'color: #f0a020;' : 'color: #18a058;',
+                    },
                 },
                 {
                     type: 'divider',
-                    key: 'd2'
+                    key: 'd2',
                 },
                 {
                     label: '删除',
@@ -595,27 +599,37 @@ const columns: DataTableColumns<GiftCard> = [
                     icon: () => h(NIcon, { component: TrashOutline }),
                     props: {
                         onClick: () => handleDeleteConfirm(row),
-                        style: 'color: #d03050;'
-                    }
-                }
+                        style: 'color: #d03050;',
+                    },
+                },
             ];
-            return h(NDropdown, {
-                trigger: 'click',
-                options: options,
-                placement: 'bottom-end',
-                showArrow: true
-            }, {
-                default: () => h(NButton, {
-                    size: 'small',
-                    quaternary: true,
-                    circle: true
-                }, {
-                    icon: () => h(NIcon, { 
-                        component: EllipsisVertical,
-                        size: 18
-                    })
-                })
-            });
+            return h(
+                NDropdown,
+                {
+                    trigger: 'click',
+                    options: options,
+                    placement: 'bottom-end',
+                    showArrow: true,
+                },
+                {
+                    default: () =>
+                        h(
+                            NButton,
+                            {
+                                size: 'small',
+                                quaternary: true,
+                                circle: true,
+                            },
+                            {
+                                icon: () =>
+                                    h(NIcon, {
+                                        component: EllipsisVertical,
+                                        size: 18,
+                                    }),
+                            }
+                        ),
+                }
+            );
         },
     },
 ];
@@ -643,10 +657,10 @@ const usageColumns: DataTableColumns<GiftCardUsageRecord> = [
                             path: '/admin/user',
                             query: {
                                 searchType: 'id',
-                                searchValue: String(row.userId)
-                            }
+                                searchValue: String(row.userId),
+                            },
                         });
-                    }
+                    },
                 },
                 { default: () => row.userId }
             );
@@ -787,7 +801,7 @@ const handleDeleteConfirm = (card: GiftCard) => {
         negativeText: '取消',
         onPositiveClick: async () => {
             await handleDelete(card.cardCode);
-        }
+        },
     });
 };
 
@@ -871,10 +885,10 @@ const handleViewDetail = async (cardCode: string) => {
 const generateRandomCardCode = (showMessage = true) => {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
     const segments: string[] = [];
-    
+
     const randomBytes = new Uint8Array(16);
     crypto.getRandomValues(randomBytes);
-    
+
     // 将随机字节转换为字符
     for (let i = 0; i < 4; i++) {
         let segment = '';
@@ -885,7 +899,7 @@ const generateRandomCardCode = (showMessage = true) => {
         }
         segments.push(segment);
     }
-    
+
     const code = segments.join('-');
     createForm.value.card_code = code;
     if (showMessage) {
@@ -909,7 +923,7 @@ const handleCopyCode = (card: GiftCard) => {
     } else {
         contentText = `${card.points}积分`;
     }
-    
+
     // 构建有效期部分
     let validUntilText = '';
     if (card.validUntil) {
@@ -917,7 +931,7 @@ const handleCopyCode = (card: GiftCard) => {
     } else {
         validUntilText = '兑换码有效期为：永不过期';
     }
-    
+
     // 构建完整的复制文本
     const copyText = `ChmlFrp兑换码
 =================
@@ -928,7 +942,7 @@ ${validUntilText}
 =================
 温馨提示:请妥善保管好您的兑换码
 本信息只发一次 如有丢失无法找回`;
-    
+
     navigator.clipboard.writeText(copyText);
     message.success('已复制到剪贴板');
 };

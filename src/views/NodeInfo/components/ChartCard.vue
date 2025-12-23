@@ -2,11 +2,7 @@
     <n-card>
         <div :id="chartId" :style="{ width: '100%', height: CHART_HEIGHT }"></div>
         <n-descriptions v-if="descriptions" label-placement="top">
-            <n-descriptions-item
-                v-for="(value, label) in descriptions"
-                :key="label"
-                :label="label"
-            >
+            <n-descriptions-item v-for="(value, label) in descriptions" :key="label" :label="label">
                 {{ value }}
             </n-descriptions-item>
         </n-descriptions>
@@ -23,4 +19,3 @@ interface Props {
 
 defineProps<Props>();
 </script>
-

@@ -27,4 +27,3 @@ export const DOCS_URL = 'https://docs.chmlfrp.cn';
 export const QQ_GROUP_LINK = 'https://qm.qq.com/q/l5LAQEDAVq';
 
 export const QQ_GROUP_NUMBER = 838521529;
-

@@ -118,4 +118,3 @@ export const MINECRAFT_SRV_CONFIG = {
     PREFIX: '_minecraft._tcp.',
     TARGET_FORMAT: (dorp: string, ip: string) => `5 0 ${dorp} ${ip}`,
 } as const;
-

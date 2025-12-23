@@ -1,6 +1,11 @@
 <template>
     <n-back-top :right="100" />
-    <DomainListHeader :loading="loading" :create-loading="createDomainNameLoading" @refresh="fetchDomainData" @create="handleCreateDomain" />
+    <DomainListHeader
+        :loading="loading"
+        :create-loading="createDomainNameLoading"
+        @refresh="fetchDomainData"
+        @create="handleCreateDomain"
+    />
     <n-grid v-if="loading" cols="1 m:2 l:3 xl:4 2xl:5" :x-gap="12" :y-gap="12" responsive="screen">
         <n-grid-item v-for="i in count" :key="i">
             <n-infinite-scroll :distance="1" @load="handleLoad">
@@ -19,7 +24,11 @@
             />
         </n-grid-item>
     </n-grid>
-    <DomainListEmpty v-if="!loading && domainData.length === 0" :loading="createDomainNameLoading" @create="handleCreateDomain" />
+    <DomainListEmpty
+        v-if="!loading && domainData.length === 0"
+        :loading="createDomainNameLoading"
+        @create="handleCreateDomain"
+    />
     <CreateDomainModal
         :show="createDomainNameModal"
         :model="model"
@@ -73,12 +82,7 @@ import DomainListEmpty from './components/DomainListEmpty.vue';
 import CreateDomainModal from './components/CreateDomainModal.vue';
 import EditDomainModal from './components/EditDomainModal.vue';
 import type { FreeDomain, TTLValue } from './types';
-import {
-    RECORD_TYPE_OPTIONS,
-    FAST_RECORD_TYPE_OPTIONS,
-    TTL_OPTIONS,
-    INFO_MESSAGES,
-} from './constants';
+import { RECORD_TYPE_OPTIONS, FAST_RECORD_TYPE_OPTIONS, TTL_OPTIONS, INFO_MESSAGES } from './constants';
 
 const userStore = useUserStore();
 const userInfo = userStore.userInfo;
@@ -104,15 +108,16 @@ const {
 } = useTunnelList(userInfo || undefined);
 
 // 创建域名
-const { loading: createLoading, createDomain, createFastDomain } = useDomainCreate(
-    userInfo || undefined,
-    () => {
-        createDomainNameModal.value = false;
-        resetForm();
-        resetFastForm();
-        fetchDomainData();
-    }
-);
+const {
+    loading: createLoading,
+    createDomain,
+    createFastDomain,
+} = useDomainCreate(userInfo || undefined, () => {
+    createDomainNameModal.value = false;
+    resetForm();
+    resetFastForm();
+    fetchDomainData();
+});
 
 // 编辑域名
 const { loading: editLoading, updateDomain } = useDomainEdit(userInfo || undefined, () => {
@@ -245,4 +250,3 @@ onMounted(() => {
     opacity: 0.95;
 }
 </style>
-

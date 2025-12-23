@@ -17,11 +17,7 @@
                 class="custom-card"
             >
                 <template #header-extra>
-                    <n-tooltip
-                        v-if="domain.type === 'SRV' && isSpecialRecord"
-                        trigger="hover"
-                        placement="top"
-                    >
+                    <n-tooltip v-if="domain.type === 'SRV' && isSpecialRecord" trigger="hover" placement="top">
                         <template #trigger>
                             <n-tag round :bordered="false" type="primary" size="small" class="type-tag">
                                 {{ domain.type }}
@@ -132,7 +128,9 @@ const dropdownOptions = computed(() => [
 <style scoped>
 .custom-card {
     border-radius: 12px;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
 }
 
 .custom-card:hover {
@@ -172,4 +170,3 @@ const dropdownOptions = computed(() => [
     border-radius: 12px;
 }
 </style>
-
