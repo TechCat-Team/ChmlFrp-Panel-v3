@@ -22,11 +22,11 @@ export function useGiftcardHistory(userInfo: { usertoken?: string }) {
         try {
             const response = await getGiftcardHistory(userInfo.usertoken);
 
-            if (response.success && response.data) {
+            if (response.code === 200 && response.state === 'success' && response.data) {
                 historyData.value = response.data;
                 showHistory.value = true;
             } else {
-                message.error(response.message || '获取历史记录失败');
+                message.error(response.msg || '获取历史记录失败');
             }
         } catch (error) {
             console.error('获取礼品卡历史记录失败', error);

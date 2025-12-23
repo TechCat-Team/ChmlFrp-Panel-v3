@@ -1,5 +1,6 @@
-import axios from 'axios';
 import axiosInstance from '../axios/axiosInstance';
+import type { BaseResponse } from '../axios/axiosInstance';
+
 const GIFTCARD_BASE_URL = axiosInstance.defaults.baseURL + '/giftcard';
 
 /**
@@ -16,11 +17,9 @@ export interface RedeemGiftcardRequest {
 }
 
 /**
- * 兑换礼品卡响应（会员类型）
+ * 兑换礼品卡响应数据（会员类型）
  */
-export interface RedeemGiftcardMemberResponse {
-    success: true;
-    message: string;
+export interface RedeemGiftcardMemberData {
     rewardType: '会员';
     cardName: string;
     memberType: string;
@@ -29,11 +28,9 @@ export interface RedeemGiftcardMemberResponse {
 }
 
 /**
- * 兑换礼品卡响应（积分类型）
+ * 兑换礼品卡响应数据（积分类型）
  */
-export interface RedeemGiftcardPointsResponse {
-    success: true;
-    message: string;
+export interface RedeemGiftcardPointsData {
     rewardType: '积分';
     cardName: string;
     points: number;
@@ -41,11 +38,15 @@ export interface RedeemGiftcardPointsResponse {
 }
 
 /**
- * 兑换礼品卡响应（失败）
+ * 兑换礼品卡响应数据
  */
-export interface RedeemGiftcardErrorResponse {
-    success: false;
-    message: string;
+export type RedeemGiftcardData = RedeemGiftcardMemberData | RedeemGiftcardPointsData;
+
+/**
+ * 兑换礼品卡响应
+ */
+export interface RedeemGiftcardResponse extends BaseResponse {
+    data?: RedeemGiftcardData;
     rate_limit_info?: {
         blocked: boolean;
         status: string;
@@ -57,14 +58,6 @@ export interface RedeemGiftcardErrorResponse {
         tips: string;
     };
 }
-
-/**
- * 兑换礼品卡响应
- */
-export type RedeemGiftcardResponse =
-    | RedeemGiftcardMemberResponse
-    | RedeemGiftcardPointsResponse
-    | RedeemGiftcardErrorResponse;
 
 /**
  * 礼品卡使用历史项（会员类型）
@@ -102,9 +95,7 @@ export type GiftcardHistoryItem = GiftcardHistoryMemberItem | GiftcardHistoryPoi
 /**
  * 查询使用历史响应
  */
-export interface GiftcardHistoryResponse {
-    success: boolean;
-    message?: string;
+export interface GiftcardHistoryResponse extends BaseResponse {
     data?: GiftcardHistoryItem[];
 }
 
@@ -117,20 +108,13 @@ export const redeemGiftcard = async (
     request: RedeemGiftcardRequest
 ): Promise<RedeemGiftcardResponse> => {
     try {
-        const response = await axios.post<RedeemGiftcardResponse>(
+        return (await axiosInstance.post(
             `${GIFTCARD_BASE_URL}/redeem`,
             {
                 usertoken: request.usertoken,
                 giftcode: request.giftcode,
-            },
-            {
-                headers: {
-                    'Content-Type': 'application/json',
-                },
             }
-        );
-
-        return response.data;
+        )) as unknown as RedeemGiftcardResponse;
     } catch (error: any) {
         // 处理错误响应
         if (error.response?.data) {
@@ -147,19 +131,14 @@ export const redeemGiftcard = async (
  */
 export const getGiftcardHistory = async (usertoken: string): Promise<GiftcardHistoryResponse> => {
     try {
-        const response = await axios.get<GiftcardHistoryResponse>(
+        return (await axiosInstance.get(
             `${GIFTCARD_BASE_URL}/history`,
             {
                 params: {
                     usertoken,
                 },
-                headers: {
-                    'Content-Type': 'application/json',
-                },
             }
-        );
-
-        return response.data;
+        )) as unknown as GiftcardHistoryResponse;
     } catch (error: any) {
         // 处理错误响应
         if (error.response?.data) {

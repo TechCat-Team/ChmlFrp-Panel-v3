@@ -38,29 +38,31 @@ export function useExchangeCode(userInfo: { id?: number; usertoken?: string }) {
                 giftcode: model.value.exchangeCode,
             });
 
-            if (response.success) {
+            // 检查响应状态
+            if (response.code === 200 && response.state === 'success' && response.data) {
+                const data = response.data;
                 // 根据不同的奖励类型显示不同的内容
-                if (response.rewardType === '会员') {
+                if (data.rewardType === '会员') {
                     dialog.success({
                         title: '兑换成功',
                         content: () =>
                             h(NSpace, { vertical: true, size: 'small' }, () => [
-                                h(NText, null, () => response.message),
+                                h(NText, null, () => response.msg),
                                 h('div', { style: 'margin-top: 12px' }, [
                                     h(NText, { strong: true }, () => '礼品卡名称：'),
-                                    h(NText, null, () => response.cardName),
+                                    h(NText, null, () => data.cardName),
                                 ]),
                                 h('div', [
                                     h(NText, { strong: true }, () => '会员类型：'),
-                                    h(NTag, { type: 'success', size: 'small' }, () => response.memberType),
+                                    h(NTag, { type: 'success', size: 'small' }, () => data.memberType),
                                 ]),
                                 h('div', [
                                     h(NText, { strong: true }, () => '有效期：'),
-                                    h(NText, null, () => `${response.memberDays} 天`),
+                                    h(NText, null, () => `${data.memberDays} 天`),
                                 ]),
                                 h('div', [
                                     h(NText, { strong: true }, () => '到期时间：'),
-                                    h(NText, { type: 'info' }, () => response.newTerm),
+                                    h(NText, { type: 'info' }, () => data.newTerm),
                                 ]),
                             ]),
                         positiveText: '好的',
@@ -69,23 +71,23 @@ export function useExchangeCode(userInfo: { id?: number; usertoken?: string }) {
                             window.location.reload();
                         },
                     });
-                } else if (response.rewardType === '积分') {
+                } else if (data.rewardType === '积分') {
                     dialog.success({
                         title: '兑换成功',
                         content: () =>
                             h(NSpace, { vertical: true, size: 'small' }, () => [
-                                h(NText, null, () => response.message),
+                                h(NText, null, () => response.msg),
                                 h('div', { style: 'margin-top: 12px' }, [
                                     h(NText, { strong: true }, () => '礼品卡名称：'),
-                                    h(NText, null, () => response.cardName),
+                                    h(NText, null, () => data.cardName),
                                 ]),
                                 h('div', [
                                     h(NText, { strong: true }, () => '获得积分：'),
-                                    h(NTag, { type: 'success', size: 'small' }, () => `+${response.points}`),
+                                    h(NTag, { type: 'success', size: 'small' }, () => `+${data.points}`),
                                 ]),
                                 h('div', [
                                     h(NText, { strong: true }, () => '当前总积分：'),
-                                    h(NText, { type: 'info' }, () => response.newIntegral.toString()),
+                                    h(NText, { type: 'info' }, () => data.newIntegral.toString()),
                                 ]),
                             ]),
                         positiveText: '好的',
@@ -106,7 +108,7 @@ export function useExchangeCode(userInfo: { id?: number; usertoken?: string }) {
                         title: '兑换失败',
                         content: () =>
                             h(NSpace, { vertical: true, size: 'small' }, () => [
-                                h(NText, { type: 'error' }, () => response.message),
+                                h(NText, { type: 'error' }, () => response.msg),
                                 h('div', { style: 'margin-top: 12px; padding: 12px; background-color: var(--n-color-target); border-radius: 4px' }, [
                                     h('div', { style: 'margin-bottom: 8px' }, [
                                         h(NText, { strong: true }, () => '状态：'),
@@ -135,7 +137,7 @@ export function useExchangeCode(userInfo: { id?: number; usertoken?: string }) {
                         positiveText: '知道了',
                     });
                 } else {
-                    message.error(response.message);
+                    message.error(response.msg || '兑换失败');
                 }
             }
         } catch (error) {

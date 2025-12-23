@@ -3,9 +3,8 @@
     <n-flex vertical>
         <n-grid cols="1 s:5" responsive="screen" :x-gap="15" :y-gap="20">
             <n-gi :span="3">
-                <UserMessagesCard
-                    :user-info="userInfo ? { usergroup: userInfo.usergroup, realname: userInfo.realname, term: userInfo.term } : undefined"
-                    :remaining-days="remainingDays"
+                <SystemMessagesCard
+                    :user-info="userInfo ? { usertoken: userInfo.usertoken, username: userInfo.username } : undefined"
                 />
                 <UserSettingsCard :settings="settingCard">
                     <template #header-extra>
@@ -170,7 +169,7 @@ import { useUserProfile } from './composables/useUserProfile';
 import { useUserUpdates } from './composables/useUserUpdates';
 
 // Components
-import UserMessagesCard from './components/UserMessagesCard.vue';
+import SystemMessagesCard from './components/SystemMessagesCard.vue';
 import UserSettingsCard from './components/UserSettingsCard.vue';
 import UserProfileCard from './components/UserProfileCard.vue';
 import RealNameForm from './components/RealNameForm.vue';
@@ -272,19 +271,6 @@ onMounted(() => {
     fetchSignInInfo();
     useLoadUserInfo();
 });
-
-const remainingDays = computed(() => {
-    if (!userInfo?.term) return 0;
-
-    const termDate = new Date(userInfo.term);
-    const today = new Date();
-
-    const diffTime = termDate.getTime() - today.getTime();
-    return Math.ceil(diffTime / (1000 * 3600 * 24));
-});
-
-
-
 
 const handleResetUserImg = async () => {
     const success = await resetUserImg();
