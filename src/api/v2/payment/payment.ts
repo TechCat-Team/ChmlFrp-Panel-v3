@@ -1,7 +1,6 @@
 import axios from 'axios';
-
-// 支付API的基础URL（与v2 API不同，直接调用支付服务）
-const PAYMENT_BASE_URL = import.meta.env.VITE_PAYMENT_API_URL || 'https://cf-v2.uapis.cn/api/payment';
+import axiosInstance from '../axios/axiosInstance';
+const PAYMENT_BASE_URL = axiosInstance.defaults.baseURL + '/api/payment';
 
 /**
  * 支付类型
@@ -17,11 +16,8 @@ export type TradeStatus = 'pending' | 'success' | 'closed' | 'refund';
  * 创建支付订单请求参数
  */
 export interface CreatePaymentRequest {
-    /** 商品名称：永久会员购买、积分充值、终身会员购买（会自动转换为"永久会员购买"） */
     name: string;
-    /** 订单金额（元），最小值为 3 元，最多 2 位小数 */
     money: number;
-    /** 用户令牌，必须为 24 位 */
     usertoken: string;
     /** 支付类型，wxpay（微信支付，默认）或 alipay（支付宝支付） */
     type?: PaymentType;

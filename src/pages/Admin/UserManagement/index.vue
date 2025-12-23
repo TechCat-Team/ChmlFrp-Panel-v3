@@ -27,7 +27,7 @@
         <!-- 搜索结果提示 -->
         <div v-if="isSearchMode" style="margin-bottom: 16px">
             <n-alert type="info" :show-icon="false">
-                搜索结果：{{ searchForm.type === 'username' ? '用户名' : '邮箱' }}包含"{{ searchForm.value }}"的用户，共找到 {{ pagination.itemCount }} 个
+                搜索结果：{{ getSearchTypeLabel() }}包含"{{ searchForm.value }}"的用户，共找到 {{ pagination.itemCount }} 个
                 <n-button text type="primary" @click="handleReset" style="margin-left: 8px">
                     查看全部用户
                 </n-button>
@@ -302,11 +302,14 @@
 
 <script lang="ts" setup>
 import { ref, onMounted, h, reactive, watch, nextTick } from 'vue';
+import { useRoute } from 'vue-router';
 import { NDataTable, NButton, NCard, NModal, NForm, NFormItem, NInput, NInputNumber, NRow, NCol, useMessage, NBackTop, NSpace, NSelect, NAlert, NAvatar, NDatePicker, NDivider, NIcon } from 'naive-ui';
 import type { DataTableColumns, FormInst, FormRules } from 'naive-ui';
 import { PersonOutline, MailOutline, ChatbubbleOutline, PeopleOutline, StarOutline, SpeedometerOutline, GitBranchOutline, CalendarOutline, LockClosedOutline } from '@vicons/ionicons5';
 import api from '@/api';
 import { useUserStore } from '@/stores/user';
+
+const route = useRoute();
 
 const userStore = useUserStore();
 const userInfoStore = userStore.userInfo;
@@ -362,12 +365,13 @@ const userGroupOptions = computed(() => {
 
 // 搜索表单
 const searchForm = reactive({
-    type: 'username',
+    type: 'id',
     value: ''
 });
 
 // 搜索类型选项
 const searchTypeOptions = [
+    { label: '用户ID', value: 'id' },
     { label: '用户名', value: 'username' },
     { label: '邮箱', value: 'email' }
 ];
@@ -387,6 +391,12 @@ const rules: FormRules = {
     email: [{ required: true, message: '请输入邮箱', trigger: 'blur' }],
 };
 
+// 获取搜索类型标签
+const getSearchTypeLabel = () => {
+    const option = searchTypeOptions.find(opt => opt.value === searchForm.type);
+    return option?.label || '搜索';
+};
+
 // 获取用户列表
 const fetchUsers = async () => {
     loading.value = true;
@@ -397,7 +407,7 @@ const fetchUsers = async () => {
         if (isSearchMode.value && searchForm.value.trim()) {
             const res = await api.v2.admin.searchUsers(
                 adminToken,
-                searchForm.type as 'username' | 'email',
+                searchForm.type as 'username' | 'email' | 'id',
                 searchForm.value.trim(),
                 pagination.page,
                 pagination.pageSize
@@ -622,6 +632,16 @@ watch(showEditModal, (newVal) => {
 
 // 组件挂载时获取数据
 onMounted(() => {
+    // 检查路由参数，支持从其他页面跳转过来并自动搜索
+    const searchType = route.query.searchType as string;
+    const searchValue = route.query.searchValue as string;
+    
+    if (searchType && searchValue) {
+        searchForm.type = searchType;
+        searchForm.value = searchValue;
+        isSearchMode.value = true;
+    }
+    
     fetchUsers();
 });
 

@@ -5,6 +5,7 @@ import * as panel from './panel/panel';
 import * as domain from './domain/domain';
 import * as admin from './admin/admin';
 import * as payment from './payment/payment';
+import * as giftcard from './giftcard/giftcard';
 import { ApiError } from './axios/axiosInstance';
 
 export default {
@@ -15,5 +16,6 @@ export default {
     domain,
     admin,
     payment,
+    giftcard,
     ApiError,
 };

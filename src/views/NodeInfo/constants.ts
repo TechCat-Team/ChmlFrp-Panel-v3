@@ -31,7 +31,7 @@ export const CARD_MIN_HEIGHT = '198px';
 
 export const MAP_CARD_HEIGHT = '556px';
 
-export const IP_API_URL = 'https://uapis.cn/api/myip.php';
+export const IP_API_URL = 'https://uapis.cn/api/v1/network/myip';
 
 export const IP_API_TIMEOUT = 5000;
 

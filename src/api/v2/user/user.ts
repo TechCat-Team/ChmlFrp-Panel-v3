@@ -368,3 +368,90 @@ export const getUserLogs = async (params: GetUserLogsParams): Promise<GetUserLog
         params,
     });
 };
+
+// 系统消息接口
+export interface SystemMessage {
+    id: number;
+    title: string;
+    contentMd: string;
+    priority: number; // 1-普通，2-重要，3-紧急
+    targetUsers: string | null; // JSON字符串或null
+    publishTime: string;
+    createdAt: string;
+}
+
+// 获取系统消息列表参数
+export interface GetSystemMessagesParams {
+    page?: number;
+    size?: number;
+    priority?: number; // 1-普通，2-重要，3-紧急
+    usertoken?: string; // 用户令牌（可选）
+}
+
+// 获取系统消息列表响应
+interface GetSystemMessagesResponse extends BaseResponse {
+    data: {
+        messages: SystemMessage[];
+        total: number;
+        page: number;
+        size: number;
+        totalPages: number;
+    };
+}
+
+/**
+ * 获取系统消息列表
+ * @param {GetSystemMessagesParams} params - 查询参数
+ * @returns {Promise<GetSystemMessagesResponse>} 系统消息列表响应
+ */
+export const getSystemMessages = async (params: GetSystemMessagesParams = {}): Promise<GetSystemMessagesResponse> => {
+    return axiosInstance.get('/system-message/list', {
+        params,
+    });
+};
+
+// 获取系统消息详情响应
+interface GetSystemMessageDetailResponse extends BaseResponse {
+    data: SystemMessage;
+}
+
+/**
+ * 获取系统消息详情
+ * @param {number} id - 消息ID
+ * @returns {Promise<GetSystemMessageDetailResponse>} 系统消息详情响应
+ */
+export const getSystemMessageDetail = async (id: number): Promise<GetSystemMessageDetailResponse> => {
+    return axiosInstance.get('/system-message/detail', {
+        params: { id },
+    });
+};
+
+// 搜索系统消息参数
+export interface SearchSystemMessagesParams {
+    keyword: string;
+    page?: number;
+    size?: number;
+}
+
+// 搜索系统消息响应
+interface SearchSystemMessagesResponse extends BaseResponse {
+    data: {
+        messages: SystemMessage[];
+        total: number;
+        page: number;
+        size: number;
+        totalPages: number;
+        keyword: string;
+    };
+}
+
+/**
+ * 搜索系统消息
+ * @param {SearchSystemMessagesParams} params - 搜索参数
+ * @returns {Promise<SearchSystemMessagesResponse>} 搜索响应
+ */
+export const searchSystemMessages = async (params: SearchSystemMessagesParams): Promise<SearchSystemMessagesResponse> => {
+    return axiosInstance.get('/system-message/search', {
+        params,
+    });
+};
