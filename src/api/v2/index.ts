@@ -6,6 +6,7 @@ import * as domain from './domain/domain';
 import * as admin from './admin/admin';
 import * as payment from './payment/payment';
 import * as giftcard from './giftcard/giftcard';
+import * as ssl from './ssl/ssl';
 import { ApiError } from './axios/axiosInstance';
 
 export default {
@@ -17,5 +18,6 @@ export default {
     admin,
     payment,
     giftcard,
+    ssl,
     ApiError,
 };
