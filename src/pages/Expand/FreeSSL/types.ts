@@ -9,6 +9,7 @@ export interface Certificate extends CertificateListItem {
     domainList?: string[]; // 解析后的域名列表
     isWildcard?: boolean; // 是否包含泛域名
     hasRootDomain?: boolean; // 是否包含根域名
+    isMultipleDomains?: boolean; // 是否包含多个域名
 }
 
 export interface CertificateFormModel {

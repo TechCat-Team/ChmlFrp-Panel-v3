@@ -48,8 +48,23 @@
                         <n-space vertical>
                             <ol class="steps">
                                 <li>在网站访问目录创建 .well-known/acme-challenge 目录</li>
-                                <li>在创建的目录下添加 Token 文件，文件名称为 {{ detail.challengeToken }}</li>
-                                <li>将文件内容改为 {{ detail.challengeKeyAuthorization }}</li>
+                                <li>
+                                    <n-button
+                                        text
+                                        type="primary"
+                                        size="small"
+                                        @click="handleDownloadChallengeFile"
+                                        style="margin-left: 4px; margin-right: 4px"
+                                    >
+                                        点击下载验证文件
+                                    </n-button>
+                                </li>
+                                <li>
+                                    将下载的文件放到 .well-known/acme-challenge 目录下
+                                    <n-text depth="3" style="font-size: 12px; display: block; margin-top: 4px">
+                                        （如果下载的文件带有 .txt 扩展名，请重命名为 {{ detail.challengeToken }}）
+                                    </n-text>
+                                </li>
                                 <li>
                                     确保
                                     {{
@@ -57,7 +72,7 @@
                                     }}
                                     可以正常访问
                                 </li>
-                                <li>点击下方按钮完成验证</li>
+                                <li>点击"验证并签发"按钮完成验证</li>
                             </ol>
                         </n-space>
                     </n-alert>
@@ -74,7 +89,7 @@
                             <ol class="steps">
                                 <li>在 DNS 服务商处添加 TXT 记录</li>
                                 <li>等待 DNS 生效（可能需要几分钟）</li>
-                                <li>点击下方按钮完成验证</li>
+                                <li>点击"验证并签发"按钮完成验证</li>
                             </ol>
 
                             <n-divider />
@@ -186,6 +201,42 @@ const handleCopy = async (text: string) => {
         message.success('已复制到剪切板');
     } catch {
         message.error('复制失败');
+    }
+};
+
+const handleDownloadChallengeFile = () => {
+    if (!props.detail || props.detail.status !== 'pending' || props.detail.challengeType !== 'http01') {
+        return;
+    }
+
+    const token = props.detail.challengeToken;
+    const content = props.detail.challengeKeyAuthorization;
+
+    if (!token || !content) {
+        message.error('验证信息不完整');
+        return;
+    }
+
+    try {
+        // 创建 Blob 对象，使用 application/octet-stream 避免浏览器自动添加 .txt 扩展名
+        const blob = new Blob([content], { type: 'application/octet-stream' });
+        // 创建下载链接
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        // 确保文件名就是 token，没有扩展名
+        link.download = token;
+        link.style.display = 'none';
+        // 触发下载
+        document.body.appendChild(link);
+        link.click();
+        // 清理
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        message.success('验证文件下载成功');
+    } catch (error) {
+        message.error('下载失败');
+        console.error('Download challenge file error:', error);
     }
 };
 </script>

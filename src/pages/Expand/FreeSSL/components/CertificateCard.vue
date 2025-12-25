@@ -29,8 +29,11 @@
                     <n-tag v-if="certificate.hasRootDomain" round :bordered="false" type="primary" size="small">
                         包含根域
                     </n-tag>
+                    <n-tag v-if="certificate.isMultipleDomains" round :bordered="false" type="primary" size="small">
+                        多域名
+                    </n-tag>
                     <n-tag
-                        v-if="!certificate.isWildcard && !certificate.hasRootDomain"
+                        v-if="!certificate.isWildcard && !certificate.hasRootDomain && !certificate.isMultipleDomains"
                         round
                         :bordered="false"
                         type="primary"
@@ -67,7 +70,6 @@ import { NIcon } from 'naive-ui';
 import {
     EyeOutline,
     CheckmarkCircleOutline,
-    DownloadOutline,
     TrashOutline,
 } from '@vicons/ionicons5';
 import type { Certificate } from '../types';
@@ -143,21 +145,6 @@ const dropdownOptions = computed(() => {
                 },
             },
             disabled: props.verifying === props.certificate.id,
-        });
-    }
-
-    // 如果状态是issued，显示下载选项
-    if (props.certificate.status === 'issued') {
-        options.push({
-            label: '下载证书',
-            key: 'download',
-            icon: renderIcon(DownloadOutline),
-            props: {
-                onClick: () => {
-                    emit('download', props.certificate);
-                },
-            },
-            disabled: props.downloading === props.certificate.id,
         });
     }
 

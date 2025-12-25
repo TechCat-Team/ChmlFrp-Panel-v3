@@ -33,6 +33,7 @@ export function useCertificateOperations(
         }
 
         verifying.value = certificate.id;
+        message.info('正在进行验证，这可能需要些时间，请耐心等待');
         try {
             await api.v2.ssl.verifyCertificate(certificate.id, {
                 usertoken: userInfo.usertoken,
