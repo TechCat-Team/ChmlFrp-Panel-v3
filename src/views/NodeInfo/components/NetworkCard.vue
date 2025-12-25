@@ -5,17 +5,13 @@
                 <n-descriptions :column="4">
                     <n-descriptions-item label="上传带宽">
                         <n-tooltip trigger="hover">
-                            <template #trigger>
-                                {{ latestStatus?.upload_bandwidth_usage_percent }}%
-                            </template>
+                            <template #trigger> {{ latestStatus?.upload_bandwidth_usage_percent }}% </template>
                             最近一次数据统计的上传带宽占用百分比
                         </n-tooltip>
                     </n-descriptions-item>
                     <n-descriptions-item label="下载带宽">
                         <n-tooltip trigger="hover">
-                            <template #trigger>
-                                {{ latestStatus?.download_bandwidth_usage_percent }}%
-                            </template>
+                            <template #trigger> {{ latestStatus?.download_bandwidth_usage_percent }}% </template>
                             最近一次数据统计的下载带宽占用百分比
                         </n-tooltip>
                     </n-descriptions-item>
@@ -66,4 +62,3 @@ interface Props {
 
 defineProps<Props>();
 </script>
-

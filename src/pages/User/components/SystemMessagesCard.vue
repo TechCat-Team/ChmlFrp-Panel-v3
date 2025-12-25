@@ -270,6 +270,12 @@ onMounted(() => {
     width: 100%;
 }
 
+/* 筛选区 */
+.priority-filter {
+    margin-top: -16px;
+    margin-bottom: 4px;
+}
+
 /* 移动端适配 */
 @media (max-width: 768px) {
     .desktop-search {
@@ -297,14 +303,9 @@ onMounted(() => {
     }
 
     .priority-filter {
+        margin-top: 1px;
         flex-wrap: wrap;
     }
-}
-
-/* 筛选区 */
-.priority-filter {
-    margin-top: -16px;
-    margin-bottom: 4px;
 }
 
 /* 消息列表容器 */

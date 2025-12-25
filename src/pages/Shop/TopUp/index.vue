@@ -124,45 +124,45 @@ const startPolling = (outTradeNo: string) => {
             pollCount++;
             const response = await api.payment.queryPayment({ outTradeNo });
 
-        // 只有当 tradeStatus === 'success' 时才算支付成功
-        if (response.success && response.tradeStatus === 'success') {
-            // 支付成功
-            stopPolling();
-            
-            // 先关闭二维码对话框
-            if (qrCodeDialog) {
-                qrCodeDialog.destroy();
-                qrCodeDialog = null;
+            // 只有当 tradeStatus === 'success' 时才算支付成功
+            if (response.success && response.tradeStatus === 'success') {
+                // 支付成功
+                stopPolling();
+
+                // 先关闭二维码对话框
+                if (qrCodeDialog) {
+                    qrCodeDialog.destroy();
+                    qrCodeDialog = null;
+                }
+
+                const points = (response.money || 0) * 1000;
+                dialog.success({
+                    title: '支付成功',
+                    content: `积分充值成功！\n充值金额：${response.money}元\n获得积分：${points}\n支付时间：${response.payTime || '刚刚'}`,
+                    positiveText: '确定',
+                    onPositiveClick: () => {
+                        message.success('ChmlFrp感谢您的支持！');
+                        // 刷新用户信息
+                        useLoadUserInfo();
+                    },
+                    maskClosable: false,
+                });
+            } else if (response.tradeStatus === 'closed' || response.tradeStatus === 'refund') {
+                // 订单关闭或退款
+                stopPolling();
+                message.error(response.tradeStatus === 'closed' ? '订单已关闭' : '订单已退款');
+            } else if (!response.success) {
+                // API调用失败
+                stopPolling();
+                message.error(response.message || '查询订单失败');
+            } else if (pollCount >= maxPolls) {
+                // 超时
+                stopPolling();
+                message.warning('轮询超时，请手动刷新页面查看支付结果');
+            } else {
+                // 继续轮询 (pending状态或其他)
+                pollingTimer = window.setTimeout(poll, pollInterval);
             }
-            
-            const points = (response.money || 0) * 1000;
-            dialog.success({
-                title: '支付成功',
-                content: `积分充值成功！\n充值金额：${response.money}元\n获得积分：${points}\n支付时间：${response.payTime || '刚刚'}`,
-                positiveText: '确定',
-                onPositiveClick: () => {
-                    message.success('ChmlFrp感谢您的支持！');
-                    // 刷新用户信息
-                    useLoadUserInfo();
-                },
-                maskClosable: false,
-            });
-        } else if (response.tradeStatus === 'closed' || response.tradeStatus === 'refund') {
-            // 订单关闭或退款
-            stopPolling();
-            message.error(response.tradeStatus === 'closed' ? '订单已关闭' : '订单已退款');
-        } else if (!response.success) {
-            // API调用失败
-            stopPolling();
-            message.error(response.message || '查询订单失败');
-        } else if (pollCount >= maxPolls) {
-            // 超时
-            stopPolling();
-            message.warning('轮询超时，请手动刷新页面查看支付结果');
-        } else {
-            // 继续轮询 (pending状态或其他)
-            pollingTimer = window.setTimeout(poll, pollInterval);
-        }
         } catch (error) {
             console.error('轮询订单状态失败:', error);
             if (pollCount < maxPolls) {
@@ -190,7 +190,7 @@ const stopPolling = () => {
 // 检查订单状态
 const checkTradeStatus = async () => {
     const outTradeNo = route.query.outTradeNo as string;
-    
+
     if (!outTradeNo) {
         return;
     }
@@ -253,7 +253,7 @@ onMounted(() => {
     // 检查是否有传入的积分或金额参数
     const pointsParam = route.query.points as string;
     const amountParam = route.query.amount as string;
-    
+
     if (amountParam) {
         // 如果传入了金额，直接使用（确保至少3元）
         const amount = Math.max(parseInt(amountParam) || 0, 3);
@@ -394,38 +394,39 @@ const pay = async (ttype: 'wxpay' | 'alipay') => {
                 return;
             }
 
-        // 显示二维码对话框并保存实例
-        qrCodeDialog = dialog.info({
+            // 显示二维码对话框并保存实例
+            qrCodeDialog = dialog.info({
                 title: '微信支付',
-                content: () => h('div', { style: 'display: flex; flex-direction: column; align-items: center;' }, [
-                    h('div', { style: 'max-width: 300px; width: 100%; display: flex; justify-content: center;' }, [
-                        h(NQrCode, {
-                            value: response.codeUrl,
-                            size: 300,
-                            color: '#18a058',
-                        }),
+                content: () =>
+                    h('div', { style: 'display: flex; flex-direction: column; align-items: center;' }, [
+                        h('div', { style: 'max-width: 300px; width: 100%; display: flex; justify-content: center;' }, [
+                            h(NQrCode, {
+                                value: response.codeUrl,
+                                size: 300,
+                                color: '#18a058',
+                            }),
+                        ]),
+                        h('p', { style: 'margin-top: 10px;' }, `请使用微信扫码支付 ${response.money} 元`),
+                        h('p', { style: 'font-size: 12px; color: #999;' }, `订单号：${outTradeNo}`),
                     ]),
-                    h('p', { style: 'margin-top: 10px;' }, `请使用微信扫码支付 ${response.money} 元`),
-                    h('p', { style: 'font-size: 12px; color: #999;' }, `订单号：${outTradeNo}`),
-                ]),
-            positiveText: '我已支付',
-            negativeText: '取消支付',
-            onPositiveClick: () => {
-                stopPolling();
-                qrCodeDialog = null;
-                message.success('ChmlFrp感谢您的支持！');
-                useLoadUserInfo();
-            },
-            onNegativeClick: () => {
-                stopPolling();
-                qrCodeDialog = null;
-            },
-            onClose: () => {
-                stopPolling();
-                qrCodeDialog = null;
-            },
-            maskClosable: false,
-        });
+                positiveText: '我已支付',
+                negativeText: '取消支付',
+                onPositiveClick: () => {
+                    stopPolling();
+                    qrCodeDialog = null;
+                    message.success('ChmlFrp感谢您的支持！');
+                    useLoadUserInfo();
+                },
+                onNegativeClick: () => {
+                    stopPolling();
+                    qrCodeDialog = null;
+                },
+                onClose: () => {
+                    stopPolling();
+                    qrCodeDialog = null;
+                },
+                maskClosable: false,
+            });
 
             // 开始轮询订单状态
             startPolling(outTradeNo!);
@@ -437,12 +438,12 @@ const pay = async (ttype: 'wxpay' | 'alipay') => {
             }
 
             message.success('正在跳转到支付宝支付页面...');
-            
+
             // 创建临时表单并提交
             const div = document.createElement('div');
             div.innerHTML = response.payForm;
             document.body.appendChild(div);
-            
+
             const form = div.querySelector('form');
             if (form) {
                 form.submit();

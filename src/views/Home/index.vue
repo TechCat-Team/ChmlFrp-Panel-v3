@@ -19,9 +19,9 @@
             </n-layout-sider>
             <n-layout content-style="padding: 24px;" :native-scrollbar="false">
                 <router-view v-slot="{ Component, route }">
-                    <transition 
-                        :name="transitionName" 
-                        mode="out-in" 
+                    <transition
+                        :name="transitionName"
+                        mode="out-in"
                         :appear="themeStore.pageTransitionEnabled"
                         v-if="themeStore.pageTransitionEnabled"
                     >

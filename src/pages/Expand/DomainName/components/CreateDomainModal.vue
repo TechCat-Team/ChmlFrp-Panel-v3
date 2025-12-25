@@ -108,7 +108,9 @@
                                         placeholder="请选择域名"
                                         :options="domainNameOptions"
                                         :value="fastModel.selectedDomain"
-                                        @update:value="$emit('update:fast-model', { ...fastModel, selectedDomain: $event })"
+                                        @update:value="
+                                            $emit('update:fast-model', { ...fastModel, selectedDomain: $event })
+                                        "
                                     />
                                 </n-form-item>
                             </n-grid-item>
@@ -118,7 +120,9 @@
                                         placeholder="请选择记录类型"
                                         :options="fastRecordTypeOptions"
                                         :value="fastModel.selectedRecordType"
-                                        @update:value="$emit('update:fast-model', { ...fastModel, selectedRecordType: $event })"
+                                        @update:value="
+                                            $emit('update:fast-model', { ...fastModel, selectedRecordType: $event })
+                                        "
                                     />
                                 </n-form-item>
                             </n-grid-item>
@@ -126,7 +130,9 @@
                                 <n-form-item label="记录" :required="true" required-message="请输入记录">
                                     <n-input
                                         :value="fastModel.recordValue"
-                                        @update:value="$emit('update:fast-model', { ...fastModel, recordValue: $event })"
+                                        @update:value="
+                                            $emit('update:fast-model', { ...fastModel, recordValue: $event })
+                                        "
                                         placeholder="请输入记录"
                                     >
                                         <template #suffix> .{{ fastModel.selectedDomain }} </template>
@@ -146,7 +152,9 @@
                                         placeholder="请选择隧道"
                                         :options="tunnelOptions"
                                         :value="fastModel.selectedTunnel"
-                                        @update:value="$emit('update:fast-model', { ...fastModel, selectedTunnel: $event })"
+                                        @update:value="
+                                            $emit('update:fast-model', { ...fastModel, selectedTunnel: $event })
+                                        "
                                     />
                                 </n-form-item>
                             </n-grid-item>
@@ -208,4 +216,3 @@ defineEmits<{
     'fast-submit': [];
 }>();
 </script>
-

@@ -4,12 +4,7 @@
             <HeaderComponent />
         </n-layout-header>
         <n-layout-content content-style="padding: 24px;">
-            <ErrorState
-                v-if="!node"
-                status="404"
-                title="缺少参数"
-                description="您尚未传递节点参数"
-            />
+            <ErrorState v-if="!node" status="404" title="缺少参数" description="您尚未传递节点参数" />
             <ErrorState
                 v-else-if="whetherTheNodeExists"
                 status="404"
@@ -112,10 +107,7 @@ const { latestStatus, sortedStatusList, updateLatestStatus } = useNodeStatus(sta
 
 const { loadingNodeMap, markers, fetchLocalAddr } = useNodeMap();
 
-const { storageUsedPercentage, memoryUsedPercentage, uptimeDays } = useNodeMetrics(
-    nodeDetails,
-    latestStatus
-);
+const { storageUsedPercentage, memoryUsedPercentage, uptimeDays } = useNodeMetrics(nodeDetails, latestStatus);
 
 useCharts(sortedStatusList, latestStatus);
 

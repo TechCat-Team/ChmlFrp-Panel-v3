@@ -169,7 +169,7 @@ const routes: Array<RouteRecordRaw> = [
             {
                 path: '/other/log',
                 name: '用户日志',
-                    component: () => import('@/pages/Other/Log/index.vue'),
+                component: () => import('@/pages/Other/Log/index.vue'),
                 meta: {
                     title: '用户日志 - ChmlFrp',
                     keywords: 'ChmlFrp, 用户日志, 操作记录, 内网穿透, 端口映射, frp, 免费frp, 映射',
@@ -277,7 +277,7 @@ const routes: Array<RouteRecordRaw> = [
                     title: '免费域名管理 - 管理员控制台 - ChmlFrp',
                     requiresAuth: true,
                 },
-            }
+            },
         ],
     },
     {

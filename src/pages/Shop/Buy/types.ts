@@ -27,4 +27,3 @@ export interface MembershipConfig {
     price: number;
     features: MembershipFeatures;
 }
-

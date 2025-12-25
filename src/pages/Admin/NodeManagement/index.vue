@@ -20,7 +20,7 @@
             </template>
 
             <!-- 搜索框 -->
-            <n-space vertical :size="16" style="margin-bottom: 16px;">
+            <n-space vertical :size="16" style="margin-bottom: 16px">
                 <n-input
                     v-model:value="searchQuery"
                     placeholder="搜索节点名、域名或真实IP...（支持拼音搜索）"
@@ -33,29 +33,29 @@
                 </n-input>
             </n-space>
             <n-watermark
-    :content="`禁止截图\n${userInfoStore?.username}`"
-    cross
-    selectable
-    :font-size="16"
-    :line-height="16"
-    :width="192"
-    :height="128"
-    :x-offset="12"
-    :y-offset="28"
-    :rotate="-15"
-    :font-color="'rgba(128, 128, 128, 0.1)'"
-  >
-            <n-data-table
-                :columns="columns"
-                :data="filteredNodes"
-                :loading="loading"
-                :pagination="pagination"
-                :scroll-x="1400"
-                striped
-                :single-line="false"
-                size="medium"
-                :row-props="rowProps"
-            />
+                :content="`禁止截图\n${userInfoStore?.username}`"
+                cross
+                selectable
+                :font-size="16"
+                :line-height="16"
+                :width="192"
+                :height="128"
+                :x-offset="12"
+                :y-offset="28"
+                :rotate="-15"
+                :font-color="'rgba(128, 128, 128, 0.1)'"
+            >
+                <n-data-table
+                    :columns="columns"
+                    :data="filteredNodes"
+                    :loading="loading"
+                    :pagination="pagination"
+                    :scroll-x="1400"
+                    striped
+                    :single-line="false"
+                    size="medium"
+                    :row-props="rowProps"
+                />
             </n-watermark>
         </n-card>
 
@@ -82,17 +82,30 @@
                     </n-col>
                     <n-col :span="12">
                         <n-form-item label="域名前缀" path="domain_prefix">
-                            <n-input v-model:value="createForm.domain_prefix" placeholder="只能包含小写字母、数字和短横线" />
+                            <n-input
+                                v-model:value="createForm.domain_prefix"
+                                placeholder="只能包含小写字母、数字和短横线"
+                            />
                         </n-form-item>
                     </n-col>
                     <n-col :span="12">
                         <n-form-item label="连接端口" path="port">
-                            <n-input-number v-model:value="createForm.port" :min="1" :max="65535" placeholder="默认7000" />
+                            <n-input-number
+                                v-model:value="createForm.port"
+                                :min="1"
+                                :max="65535"
+                                placeholder="默认7000"
+                            />
                         </n-form-item>
                     </n-col>
                     <n-col :span="12">
                         <n-form-item label="管理端口" path="adminport">
-                            <n-input-number v-model:value="createForm.adminport" :min="1" :max="65535" placeholder="默认8233" />
+                            <n-input-number
+                                v-model:value="createForm.adminport"
+                                :min="1"
+                                :max="65535"
+                                placeholder="默认8233"
+                            />
                         </n-form-item>
                     </n-col>
                     <n-col :span="12">
@@ -107,7 +120,11 @@
                     </n-col>
                     <n-col :span="12">
                         <n-form-item label="节点组" path="nodegroup">
-                            <n-select v-model:value="createForm.nodegroup" :options="nodegroupOptions" placeholder="默认user" />
+                            <n-select
+                                v-model:value="createForm.nodegroup"
+                                :options="nodegroupOptions"
+                                placeholder="默认user"
+                            />
                         </n-form-item>
                     </n-col>
                     <n-col :span="12">
@@ -127,7 +144,11 @@
                     </n-col>
                     <n-col :span="12">
                         <n-form-item label="防御" path="fangyu">
-                            <n-select v-model:value="createForm.fangyu" :options="booleanOptions" placeholder="默认否" />
+                            <n-select
+                                v-model:value="createForm.fangyu"
+                                :options="booleanOptions"
+                                placeholder="默认否"
+                            />
                         </n-form-item>
                     </n-col>
                     <n-col :span="12">
@@ -150,7 +171,12 @@
                     <n-col :span="12">
                         <n-form-item label="密码" path="auth_password">
                             <n-input-group>
-                                <n-input v-model:value="createForm.auth_password" type="password" show-password-on="click" placeholder="自动生成" />
+                                <n-input
+                                    v-model:value="createForm.auth_password"
+                                    type="password"
+                                    show-password-on="click"
+                                    placeholder="自动生成"
+                                />
                                 <n-button @click="generateRandomPassword">
                                     <template #icon>
                                         <n-icon><RefreshIcon /></n-icon>
@@ -262,7 +288,12 @@
                     </n-col>
                     <n-col :span="12">
                         <n-form-item label="密码" path="auth_password">
-                            <n-input v-model:value="editForm.auth_password" type="password" show-password-on="click" placeholder="请输入密码" />
+                            <n-input
+                                v-model:value="editForm.auth_password"
+                                type="password"
+                                show-password-on="click"
+                                placeholder="请输入密码"
+                            />
                         </n-form-item>
                     </n-col>
                     <n-col :span="12">
@@ -338,7 +369,12 @@
                             <n-code :code="frpsIniConfig" language="ini" word-wrap />
                             <template #action>
                                 <n-space>
-                                    <n-button secondary type="primary" size="small" @click="copyToClipboard(frpsIniConfig)">
+                                    <n-button
+                                        secondary
+                                        type="primary"
+                                        size="small"
+                                        @click="copyToClipboard(frpsIniConfig)"
+                                    >
                                         <template #icon>
                                             <n-icon :component="CopyOutline" />
                                         </template>
@@ -357,13 +393,33 @@
 <script lang="ts" setup>
 import { ref, reactive, onMounted, h, computed } from 'vue';
 import {
-    NCard, NDataTable, NButton, NModal, NForm, NFormItem, NInput, NInputNumber,
-    NSelect, NSpace, NRow, NCol, NIcon, NTag, useMessage, NBackTop, NInputGroup, NCode, NCollapse, NCollapseItem,
-    NEllipsis, NDropdown, useDialog
+    NCard,
+    NDataTable,
+    NButton,
+    NModal,
+    NForm,
+    NFormItem,
+    NInput,
+    NInputNumber,
+    NSelect,
+    NSpace,
+    NRow,
+    NCol,
+    NIcon,
+    NTag,
+    useMessage,
+    NBackTop,
+    NInputGroup,
+    NCode,
+    NCollapse,
+    NCollapseItem,
+    NEllipsis,
+    NDropdown,
+    useDialog,
 } from 'naive-ui';
-import { 
-    Add as AddIcon, 
-    Refresh as RefreshIcon, 
+import {
+    Add as AddIcon,
+    Refresh as RefreshIcon,
     CopyOutline,
     CheckmarkCircle,
     CloseCircle,
@@ -375,7 +431,7 @@ import {
     EllipsisVertical,
     TrashOutline,
     Search as SearchIcon,
-    OpenOutline
+    OpenOutline,
 } from '@vicons/ionicons5';
 import type { DataTableColumns, FormInst, FormRules } from 'naive-ui';
 import { useUserStore } from '@/stores/user';
@@ -494,7 +550,7 @@ const createForm = reactive<CreateForm>({
     rport: '10000-65535',
     auth_username: '',
     auth_password: '',
-    ipv6: 'null'
+    ipv6: 'null',
 });
 
 // 编辑表单
@@ -519,41 +575,33 @@ const editForm = reactive<EditForm>({
     nodetoken: '',
     apitoken: '',
     coordinates: '',
-    ipv6: ''
+    ipv6: '',
 });
 
 // 选项配置
 const nodegroupOptions = [
     { label: '用户组', value: 'user' },
-    { label: 'VIP组', value: 'vip' }
+    { label: 'VIP组', value: 'vip' },
 ];
 
 const booleanOptions = [
     { label: '是', value: 'true' },
-    { label: '否', value: 'false' }
+    { label: '否', value: 'false' },
 ];
 
 // 表单验证规则
 const createRules: FormRules = {
-    name: [
-        { required: true, message: '请输入节点名称', trigger: 'blur' }
-    ],
-    real_IP: [
-        { required: true, message: '请输入真实IP', trigger: 'blur' }
-    ],
+    name: [{ required: true, message: '请输入节点名称', trigger: 'blur' }],
+    real_IP: [{ required: true, message: '请输入真实IP', trigger: 'blur' }],
     domain_prefix: [
         { required: true, message: '请输入域名前缀', trigger: 'blur' },
-        { pattern: /^[a-z0-9-.]+$/, message: '域名前缀只能包含小写字母、数字和短横线、点', trigger: 'blur' }
-    ]
+        { pattern: /^[a-z0-9-.]+$/, message: '域名前缀只能包含小写字母、数字和短横线、点', trigger: 'blur' },
+    ],
 };
 
 const editRules: FormRules = {
-    name: [
-        { required: true, message: '请输入节点名称', trigger: 'blur' }
-    ],
-    ip: [
-        { required: true, message: '请输入节点IP', trigger: 'blur' }
-    ]
+    name: [{ required: true, message: '请输入节点名称', trigger: 'blur' }],
+    ip: [{ required: true, message: '请输入节点IP', trigger: 'blur' }],
 };
 
 // 计算过滤后的节点列表
@@ -561,15 +609,15 @@ const filteredNodes = computed(() => {
     if (!searchQuery.value.trim()) {
         return nodes.value;
     }
-    
+
     const query = searchQuery.value.trim();
-    return nodes.value.filter(node => {
+    return nodes.value.filter((node) => {
         // 使用拼音搜索功能
         const matchName = matchPinyinSearch(node.name, query);
         const matchDomain = matchPinyinSearch(node.ip, query);
         const matchRealIp = matchPinyinSearch(node.realIp, query);
         const matchArea = matchPinyinSearch(node.area, query);
-        
+
         return matchName || matchDomain || matchRealIp || matchArea;
     });
 });
@@ -587,221 +635,286 @@ const pagination = reactive({
         pagination.pageSize = pageSize;
         pagination.page = 1;
     },
-    prefix: (info: any) => `共 ${info.itemCount} 条`
+    prefix: (info: any) => `共 ${info.itemCount} 条`,
 });
 
 // 表格列配置
 const columns: DataTableColumns<Node> = [
-    { 
-        title: 'ID', 
-        key: 'id', 
-        width: 70, 
+    {
+        title: 'ID',
+        key: 'id',
+        width: 70,
         sorter: 'default',
         align: 'center',
         render(row) {
-            return h('span', { 
-                style: 'font-weight: 600; color: #18a058;' 
-            }, row.id);
-        }
+            return h(
+                'span',
+                {
+                    style: 'font-weight: 600; color: #18a058;',
+                },
+                row.id
+            );
+        },
     },
-    { 
-        title: '节点名称', 
-        key: 'name', 
-        width: 150, 
+    {
+        title: '节点名称',
+        key: 'name',
+        width: 150,
         sorter: 'default',
         render(row) {
-            return h(NEllipsis, {}, {
-                default: () => h('span', { 
-                    style: 'font-weight: 500;' 
-                }, row.name)
-            });
-        }
+            return h(
+                NEllipsis,
+                {},
+                {
+                    default: () =>
+                        h(
+                            'span',
+                            {
+                                style: 'font-weight: 500;',
+                            },
+                            row.name
+                        ),
+                }
+            );
+        },
     },
-    { 
-        title: '域名', 
-        key: 'ip', 
+    {
+        title: '域名',
+        key: 'ip',
         width: 160,
         ellipsis: {
-            tooltip: true
+            tooltip: true,
         },
         render(row) {
-            return h('span', { 
-                style: 'font-family: monospace; font-size: 13px;' 
-            }, row.ip);
-        }
+            return h(
+                'span',
+                {
+                    style: 'font-family: monospace; font-size: 13px;',
+                },
+                row.ip
+            );
+        },
     },
-    { 
-        title: '真实IP', 
-        key: 'realIp', 
+    {
+        title: '真实IP',
+        key: 'realIp',
         width: 160,
         ellipsis: {
-            tooltip: true
+            tooltip: true,
         },
         render(row) {
-            return h('span', { 
-                style: 'font-family: monospace; font-size: 13px; color: #666;' 
-            }, row.realIp);
-        }
+            return h(
+                'span',
+                {
+                    style: 'font-family: monospace; font-size: 13px; color: #666;',
+                },
+                row.realIp
+            );
+        },
     },
-    { 
-        title: '状态', 
-        key: 'state', 
+    {
+        title: '状态',
+        key: 'state',
         width: 90,
         align: 'center',
         render(row) {
-            const statusMap: Record<string, { type: 'success' | 'error' | 'warning', text: string, icon: any }> = {
-                'online': { type: 'success', text: '在线', icon: CheckmarkCircle },
-                'offline': { type: 'error', text: '离线', icon: CloseCircle }
+            const statusMap: Record<string, { type: 'success' | 'error' | 'warning'; text: string; icon: any }> = {
+                online: { type: 'success', text: '在线', icon: CheckmarkCircle },
+                offline: { type: 'error', text: '离线', icon: CloseCircle },
             };
             const status = statusMap[row.state] || { type: 'error', text: '未知', icon: CloseCircle };
-            return h(NTag, { 
-                type: status.type,
-                size: 'small',
-                round: true
-            }, { 
-                default: () => h(NSpace, { size: 4, align: 'center' }, {
-                    default: () => [
-                        h(NIcon, { size: 14, component: status.icon }),
-                        h('span', status.text)
-                    ]
-                })
-            });
-        }
+            return h(
+                NTag,
+                {
+                    type: status.type,
+                    size: 'small',
+                    round: true,
+                },
+                {
+                    default: () =>
+                        h(
+                            NSpace,
+                            { size: 4, align: 'center' },
+                            {
+                                default: () => [h(NIcon, { size: 14, component: status.icon }), h('span', status.text)],
+                            }
+                        ),
+                }
+            );
+        },
     },
-    { 
-        title: '区域', 
-        key: 'area', 
+    {
+        title: '区域',
+        key: 'area',
         width: 120,
         ellipsis: {
-            tooltip: true
+            tooltip: true,
         },
         render(row) {
-            return h(NSpace, { size: 4, align: 'center' }, {
-                default: () => [
-                    h('span', row.area)
-                ]
-            });
-        }
+            return h(
+                NSpace,
+                { size: 4, align: 'center' },
+                {
+                    default: () => [h('span', row.area)],
+                }
+            );
+        },
     },
-    { 
-        title: '速度(m)', 
-        key: 'speed', 
+    {
+        title: '速度(m)',
+        key: 'speed',
         width: 100,
         align: 'center',
         render(row) {
-            return h(NTag, { 
-                type: 'info',
-                size: 'small',
-                bordered: false
-            }, { 
-                default: () => h(NSpace, { size: 4, align: 'center' }, {
-                    default: () => [
-                        h('span', row.speed)
-                    ]
-                })
-            });
-        }
+            return h(
+                NTag,
+                {
+                    type: 'info',
+                    size: 'small',
+                    bordered: false,
+                },
+                {
+                    default: () =>
+                        h(
+                            NSpace,
+                            { size: 4, align: 'center' },
+                            {
+                                default: () => [h('span', row.speed)],
+                            }
+                        ),
+                }
+            );
+        },
     },
-    { 
-        title: '国内', 
-        key: 'china', 
+    {
+        title: '国内',
+        key: 'china',
         width: 80,
         align: 'center',
         render(row) {
             const isChina = row.china === 'yes' || row.china === 'true';
-            return h(NTag, { 
-                type: isChina ? 'success' : 'default',
-                size: 'small',
-                round: true,
-                bordered: false
-            }, { 
-                default: () => h(NIcon, { 
-                    size: 16, 
-                    component: isChina ? CheckmarkCircle : CloseCircle 
-                })
-            });
-        }
+            return h(
+                NTag,
+                {
+                    type: isChina ? 'success' : 'default',
+                    size: 'small',
+                    round: true,
+                    bordered: false,
+                },
+                {
+                    default: () =>
+                        h(NIcon, {
+                            size: 16,
+                            component: isChina ? CheckmarkCircle : CloseCircle,
+                        }),
+                }
+            );
+        },
     },
-    { 
-        title: 'Web', 
-        key: 'web', 
+    {
+        title: 'Web',
+        key: 'web',
         width: 80,
         align: 'center',
         render(row) {
             const hasWeb = row.web === 'yes' || row.web === 'true';
-            return h(NTag, { 
-                type: hasWeb ? 'success' : 'default',
-                size: 'small',
-                round: true,
-                bordered: false
-            }, { 
-                default: () => h(NIcon, { 
-                    size: 16, 
-                    component: hasWeb ? CheckmarkCircle : CloseCircle 
-                })
-            });
-        }
+            return h(
+                NTag,
+                {
+                    type: hasWeb ? 'success' : 'default',
+                    size: 'small',
+                    round: true,
+                    bordered: false,
+                },
+                {
+                    default: () =>
+                        h(NIcon, {
+                            size: 16,
+                            component: hasWeb ? CheckmarkCircle : CloseCircle,
+                        }),
+                }
+            );
+        },
     },
-    { 
-        title: 'UDP', 
-        key: 'udp', 
+    {
+        title: 'UDP',
+        key: 'udp',
         width: 80,
         align: 'center',
         render(row) {
             const hasUdp = row.udp === 'true';
-            return h(NTag, { 
-                type: hasUdp ? 'success' : 'default',
-                size: 'small',
-                round: true,
-                bordered: false
-            }, { 
-                default: () => h(NIcon, { 
-                    size: 16, 
-                    component: hasUdp ? CheckmarkCircle : CloseCircle 
-                })
-            });
-        }
+            return h(
+                NTag,
+                {
+                    type: hasUdp ? 'success' : 'default',
+                    size: 'small',
+                    round: true,
+                    bordered: false,
+                },
+                {
+                    default: () =>
+                        h(NIcon, {
+                            size: 16,
+                            component: hasUdp ? CheckmarkCircle : CloseCircle,
+                        }),
+                }
+            );
+        },
     },
-    { 
-        title: '权限', 
-        key: 'nodegroup', 
+    {
+        title: '权限',
+        key: 'nodegroup',
         width: 90,
         align: 'center',
         render(row) {
             const isUser = row.nodegroup === 'user';
-            return h(NTag, { 
-                type: isUser ? 'primary' : 'warning',
-                size: 'small',
-                round: true
-            }, { 
-                default: () => h(NSpace, { size: 4, align: 'center' }, {
-                    default: () => [
-                        h(NIcon, { size: 14, component: isUser ? People : Diamond }),
-                        h('span', isUser ? '用户' : '会员')
-                    ]
-                })
-            });
-        }
+            return h(
+                NTag,
+                {
+                    type: isUser ? 'primary' : 'warning',
+                    size: 'small',
+                    round: true,
+                },
+                {
+                    default: () =>
+                        h(
+                            NSpace,
+                            { size: 4, align: 'center' },
+                            {
+                                default: () => [
+                                    h(NIcon, { size: 14, component: isUser ? People : Diamond }),
+                                    h('span', isUser ? '用户' : '会员'),
+                                ],
+                            }
+                        ),
+                }
+            );
+        },
     },
-    { 
-        title: '防御', 
-        key: 'fangyu', 
+    {
+        title: '防御',
+        key: 'fangyu',
         width: 80,
         align: 'center',
         render(row) {
             const hasFangyu = row.fangyu === 'true';
-            return h(NTag, { 
-                type: hasFangyu ? 'success' : 'default',
-                size: 'small',
-                round: true,
-                bordered: false
-            }, { 
-                default: () => h(NIcon, { 
-                    size: 16, 
-                    component: hasFangyu ? Shield : CloseCircle 
-                })
-            });
-        }
+            return h(
+                NTag,
+                {
+                    type: hasFangyu ? 'success' : 'default',
+                    size: 'small',
+                    round: true,
+                    bordered: false,
+                },
+                {
+                    default: () =>
+                        h(NIcon, {
+                            size: 16,
+                            component: hasFangyu ? Shield : CloseCircle,
+                        }),
+                }
+            );
+        },
     },
     {
         title: '操作',
@@ -816,28 +929,28 @@ const columns: DataTableColumns<Node> = [
                     key: 'edit',
                     icon: () => h(NIcon, { component: Create }),
                     props: {
-                        onClick: () => handleEditClick(row)
-                    }
+                        onClick: () => handleEditClick(row),
+                    },
                 },
                 {
                     label: '查看代码',
                     key: 'code',
                     icon: () => h(NIcon, { component: CodeSlash }),
                     props: {
-                        onClick: () => handleCodeClick(row)
-                    }
+                        onClick: () => handleCodeClick(row),
+                    },
                 },
                 {
                     label: '访问面板',
                     key: 'panel',
                     icon: () => h(NIcon, { component: OpenOutline }),
                     props: {
-                        onClick: () => handlePanelAccess(row)
-                    }
+                        onClick: () => handlePanelAccess(row),
+                    },
                 },
                 {
                     type: 'divider',
-                    key: 'd1'
+                    key: 'd1',
                 },
                 {
                     label: '删除',
@@ -845,30 +958,40 @@ const columns: DataTableColumns<Node> = [
                     icon: () => h(NIcon, { component: TrashOutline, style: 'color: #d03050;' }),
                     props: {
                         onClick: () => handleDeleteClick(row),
-                        style: 'color: #d03050;'
-                    }
-                }
+                        style: 'color: #d03050;',
+                    },
+                },
             ];
 
-            return h(NDropdown, {
-                trigger: 'click',
-                options: options,
-                placement: 'bottom-end',
-                showArrow: true
-            }, {
-                default: () => h(NButton, {
-                    size: 'small',
-                    quaternary: true,
-                    circle: true
-                }, {
-                    icon: () => h(NIcon, { 
-                        component: EllipsisVertical,
-                        size: 18
-                    })
-                })
-            });
-        }
-    }
+            return h(
+                NDropdown,
+                {
+                    trigger: 'click',
+                    options: options,
+                    placement: 'bottom-end',
+                    showArrow: true,
+                },
+                {
+                    default: () =>
+                        h(
+                            NButton,
+                            {
+                                size: 'small',
+                                quaternary: true,
+                                circle: true,
+                            },
+                            {
+                                icon: () =>
+                                    h(NIcon, {
+                                        component: EllipsisVertical,
+                                        size: 18,
+                                    }),
+                            }
+                        ),
+                }
+            );
+        },
+    },
 ];
 
 // 打开新增节点模态框
@@ -896,7 +1019,7 @@ const fetchNodes = async () => {
 // 创建节点
 const handleCreate = async () => {
     if (!createFormRef.value) return;
-    
+
     try {
         await createFormRef.value.validate();
         createLoading.value = true;
@@ -922,7 +1045,7 @@ const handleCreate = async () => {
             notes: createForm.notes,
             rport: createForm.rport,
             auth: authBase64,
-            ipv6: createForm.ipv6
+            ipv6: createForm.ipv6,
         };
 
         const adminToken = userInfoStore?.usertoken || '';
@@ -945,7 +1068,7 @@ const handleCreate = async () => {
 // 编辑节点点击处理
 const handleEditClick = (node: Node) => {
     currentEditNode.value = node;
-    
+
     // 填充编辑表单
     editForm.name = node.name;
     editForm.ip = node.ip;
@@ -963,7 +1086,7 @@ const handleEditClick = (node: Node) => {
     editForm.notes = node.notes;
     editForm.rport = node.rport;
     editForm.auth = node.auth;
-    
+
     // 解码Base64的auth为用户名和密码
     try {
         const decodedAuth = atob(node.auth);
@@ -974,19 +1097,19 @@ const handleEditClick = (node: Node) => {
         editForm.auth_username = '';
         editForm.auth_password = '';
     }
-    
+
     editForm.nodetoken = node.nodetoken;
     editForm.apitoken = node.apitoken;
     editForm.coordinates = node.coordinates;
     editForm.ipv6 = node.ipv6;
-    
+
     showEditModal.value = true;
 };
 
 // 编辑节点
 const handleEdit = async () => {
     if (!editFormRef.value || !currentEditNode.value) return;
-    
+
     try {
         await editFormRef.value.validate();
         editLoading.value = true;
@@ -1015,11 +1138,15 @@ const handleEdit = async () => {
             nodetoken: editForm.nodetoken,
             apitoken: editForm.apitoken,
             coordinates: editForm.coordinates,
-            ipv6: editForm.ipv6
+            ipv6: editForm.ipv6,
         };
 
         const adminToken = userInfoStore?.usertoken || '';
-        await api.v2.admin.updateNode(adminToken, currentEditNode.value.id, requestData as unknown as Record<string, unknown>);
+        await api.v2.admin.updateNode(
+            adminToken,
+            currentEditNode.value.id,
+            requestData as unknown as Record<string, unknown>
+        );
         message.success('节点信息更新成功');
         showEditModal.value = false;
         await fetchNodes();
@@ -1039,12 +1166,12 @@ const generateRandomString = (length: number, includeSpecialChars: boolean = fal
     const letters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
     const numbers = '0123456789';
     const specialChars = '!@#$%^&*';
-    
+
     let chars = letters + numbers;
     if (includeSpecialChars) {
         chars += specialChars;
     }
-    
+
     let result = '';
     for (let i = 0; i < length; i++) {
         result += chars.charAt(Math.floor(Math.random() * chars.length));
@@ -1081,7 +1208,7 @@ const resetCreateForm = () => {
         rport: '10000-65535',
         auth_username: '',
         auth_password: '',
-        ipv6: 'null'
+        ipv6: 'null',
     });
     // 自动生成随机用户名和密码
     generateRandomUsername();
@@ -1118,18 +1245,18 @@ const handlePanelAccess = (node: Node) => {
         // 解码auth获取用户名和密码
         const decodedAuth = atob(node.auth);
         const [username, password] = decodedAuth.split(':');
-        
+
         if (!username || !password) {
             message.error('节点认证信息不完整，无法访问面板');
             return;
         }
-        
+
         // 创建Basic Auth URL
         const authUrl = `http://${username}:${password}@${node.realIp}:${node.adminPort}`;
-        
+
         // 在新标签页打开面板
         window.open(authUrl, '_blank');
-        
+
         message.success(`正在打开节点 "${node.name}" 的管理面板`);
     } catch (error) {
         console.error('访问面板失败:', error);
@@ -1146,14 +1273,14 @@ const handleDeleteClick = (node: Node) => {
         negativeText: '取消',
         onPositiveClick: async () => {
             await handleDelete(node);
-        }
+        },
     });
 };
 
 // 删除节点
 const handleDelete = async (node: Node) => {
     const loadingMessage = message.loading('正在删除节点...', { duration: 0 });
-    
+
     try {
         const adminToken = userInfoStore?.usertoken || '';
         const res = await api.v2.admin.deleteNode(adminToken, node.id);
@@ -1182,9 +1309,9 @@ const handleDelete = async (node: Node) => {
 // 生成 frps.ini 配置
 const frpsIniConfig = computed(() => {
     if (!currentCodeNode.value) return '';
-    
+
     const node = currentCodeNode.value;
-    
+
     // 解码auth获取用户名和密码
     let username = 'admin';
     let password = 'password';
@@ -1196,15 +1323,17 @@ const frpsIniConfig = computed(() => {
     } catch (error) {
         console.error('解码auth失败:', error);
     }
-    
+
     // 判断是否允许建站
     const canWeb = node.web === 'yes' || node.web === 'true';
-    
+
     // 构建vhost配置（仅在允许建站时添加）
-    const vhostConfig = canWeb ? `vhost_http_port = 80
+    const vhostConfig = canWeb
+        ? `vhost_http_port = 80
 vhost_https_port = 443
-` : '';
-    
+`
+        : '';
+
     return `[common]
 bind_addr = 0.0.0.0
 bind_port = ${node.port}
@@ -1227,9 +1356,9 @@ api_token = ${node.apitoken}`;
 // 生成一键部署代码
 const deployCode = computed(() => {
     if (!currentCodeNode.value) return '';
-    
+
     const node = currentCodeNode.value;
-    
+
     // 解码auth获取用户名和密码
     let username = 'admin';
     let password = 'password';
@@ -1241,10 +1370,10 @@ const deployCode = computed(() => {
     } catch (error) {
         console.error('解码auth失败:', error);
     }
-    
+
     // 判断是否可建站
     const canWeb = node.web === 'yes' || node.web === 'true' ? 'true' : 'false';
-    
+
     return `curl -O https://www.chmlfrp.net/script/linux/server_deploy.sh && chmod +x server_deploy.sh && sudo ./server_deploy.sh --skip-source-check ${node.port} ${node.adminPort} ${username} ${password} ${node.nodetoken} 7001 http://cf-v2.uapis.cn/cfg "${node.apitoken}" ${canWeb}`;
 });
 
@@ -1265,7 +1394,7 @@ const rowProps = () => {
         onMouseleave: (e: MouseEvent) => {
             const target = e.currentTarget as HTMLElement;
             target.style.transform = 'scale(1)';
-        }
+        },
     };
 };
 

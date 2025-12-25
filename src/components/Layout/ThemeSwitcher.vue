@@ -14,35 +14,31 @@
                         <n-icon :component="SyncOutline" :size="18" />
                         <span>自动切换主题</span>
                     </div>
-                    <n-switch 
-                        v-model:value="isAutoTheme" 
-                        :checked-value="true" 
-                        :unchecked-value="false"
-                    >
-                <template #checked>自动切换</template>
-                <template #unchecked>手动切换</template>
-            </n-switch>
+                    <n-switch v-model:value="isAutoTheme" :checked-value="true" :unchecked-value="false">
+                        <template #checked>自动切换</template>
+                        <template #unchecked>手动切换</template>
+                    </n-switch>
                 </div>
                 <div class="setting-item" v-if="!isAutoTheme">
                     <div class="setting-label">
                         <n-icon :component="isDarkTheme ? Sparkles : Sunny" :size="18" />
                         <span>主题模式</span>
-        </div>
-            <n-switch
-                v-model:value="isDarkTheme"
-                :rail-style="railStyle"
-                :checked-value="true"
-                :unchecked-value="false"
-            >
-                <template #checked-icon>
-                    <n-icon :component="Sparkles" color="#9f9f9c" />
-                </template>
-                <template #unchecked-icon>
-                    <n-icon :component="Sunny" color="#E6A23C" />
-                </template>
-                <template #checked>月映万川</template>
-                <template #unchecked>日照千里</template>
-            </n-switch>
+                    </div>
+                    <n-switch
+                        v-model:value="isDarkTheme"
+                        :rail-style="railStyle"
+                        :checked-value="true"
+                        :unchecked-value="false"
+                    >
+                        <template #checked-icon>
+                            <n-icon :component="Sparkles" color="#9f9f9c" />
+                        </template>
+                        <template #unchecked-icon>
+                            <n-icon :component="Sunny" color="#E6A23C" />
+                        </template>
+                        <template #checked>月映万川</template>
+                        <template #unchecked>日照千里</template>
+                    </n-switch>
                 </div>
             </div>
         </n-card>
@@ -57,25 +53,20 @@
             </template>
             <div class="setting-content">
                 <div class="color-picker-wrapper">
-                    <n-color-picker 
-                        v-model:value="primaryColor" 
-                        :show-preview="true"
-                        :modes="['hex']"
-                        size="large"
-                    />
-        </div>
-        <div class="preset-colors">
-            <div
-                v-for="color in presetColors"
-                :key="color"
-                :style="{ backgroundColor: color }"
-                class="preset-color"
+                    <n-color-picker v-model:value="primaryColor" :show-preview="true" :modes="['hex']" size="large" />
+                </div>
+                <div class="preset-colors">
+                    <div
+                        v-for="color in presetColors"
+                        :key="color"
+                        :style="{ backgroundColor: color }"
+                        class="preset-color"
                         :class="{ active: primaryColor === color }"
-                @click="setPresetColor(color)"
+                        @click="setPresetColor(color)"
                     >
-                        <n-icon 
-                            v-if="primaryColor === color" 
-                            :component="CheckmarkCircleOutline" 
+                        <n-icon
+                            v-if="primaryColor === color"
+                            :component="CheckmarkCircleOutline"
                             :size="16"
                             color="#fff"
                         />
@@ -84,7 +75,6 @@
             </div>
         </n-card>
 
-        
         <!-- 页面切换动画设置卡片 -->
         <n-card class="setting-card" size="small">
             <template #header>
@@ -99,15 +89,15 @@
                         <n-icon :component="FlowerOutline" :size="18" />
                         <span>页面切换动画</span>
                     </div>
-                    <n-switch 
-                        v-model:value="pageTransitionEnabled" 
-                        :checked-value="true" 
+                    <n-switch
+                        v-model:value="pageTransitionEnabled"
+                        :checked-value="true"
                         :unchecked-value="false"
                         @update:value="handleTransitionEnabledChange"
                     >
                     </n-switch>
                 </div>
-                
+
                 <div class="setting-item" v-if="pageTransitionEnabled">
                     <div class="setting-label">
                         <n-icon :component="ColorPaletteOutline" :size="18" />
@@ -130,30 +120,22 @@
                 <div class="card-header">
                     <n-icon :component="EyeOutline" :size="20" />
                     <span>视觉效果</span>
-        </div>
+                </div>
             </template>
             <div class="setting-content">
                 <div class="setting-item">
                     <div class="setting-label">
                         <n-icon :component="ColorFilterOutline" :size="18" />
-                <span>RGB模式</span>
+                        <span>RGB模式</span>
                     </div>
-                    <n-switch 
-                        v-model:value="isRGBMode" 
-                        :checked-value="true" 
-                        :unchecked-value="false"
-                    />
+                    <n-switch v-model:value="isRGBMode" :checked-value="true" :unchecked-value="false" />
                 </div>
                 <div class="setting-item">
                     <div class="setting-label">
                         <n-icon :component="LayersOutline" :size="18" />
-                <span>对话框模糊</span>
+                        <span>对话框模糊</span>
                     </div>
-                <n-switch
-                    v-model:value="isDialogBoxHairGlass"
-                    :checked-value="true"
-                    :unchecked-value="false"
-                />
+                    <n-switch v-model:value="isDialogBoxHairGlass" :checked-value="true" :unchecked-value="false" />
                 </div>
             </div>
         </n-card>
@@ -172,22 +154,14 @@
                         <n-icon :component="ColorWandOutline" :size="18" />
                         <span>色弱模式</span>
                     </div>
-                    <n-switch
-                        v-model:value="colorBlindMode"
-                        :checked-value="true"
-                        :unchecked-value="false"
-                    />
+                    <n-switch v-model:value="colorBlindMode" :checked-value="true" :unchecked-value="false" />
                 </div>
                 <div class="setting-item">
                     <div class="setting-label">
                         <n-icon :component="ContrastOutline" :size="18" />
                         <span>高对比度模式</span>
                     </div>
-                    <n-switch
-                        v-model:value="highContrastMode"
-                        :checked-value="true"
-                        :unchecked-value="false"
-                    />
+                    <n-switch v-model:value="highContrastMode" :checked-value="true" :unchecked-value="false" />
                 </div>
             </div>
         </n-card>
@@ -229,17 +203,9 @@
                     </n-input>
                     <div v-if="backgroundImageUrl || backgroundImage" class="image-preview">
                         <div class="preview-wrapper">
-                            <img
-                                :src="backgroundImageUrl || backgroundImage"
-                                alt="背景预览"
-                                class="preview-image"
-                            />
+                            <img :src="backgroundImageUrl || backgroundImage" alt="背景预览" class="preview-image" />
                             <div class="preview-overlay">
-                                <n-button
-                                    size="small"
-                                    type="error"
-                                    @click="clearBackgroundImage"
-                                >
+                                <n-button size="small" type="error" @click="clearBackgroundImage">
                                     <template #icon>
                                         <n-icon :component="TrashOutline" />
                                     </template>
@@ -295,8 +261,8 @@
 <script lang="ts" setup>
 import { CSSProperties } from 'vue';
 import { useThemeStore } from '@/stores/theme';
-import { 
-    Sparkles, 
+import {
+    Sparkles,
     Sunny,
     ColorPaletteOutline,
     SyncOutline,
@@ -314,7 +280,7 @@ import {
     WaterOutline,
     CheckmarkCircleOutline,
     FlashOutline,
-    FlowerOutline
+    FlowerOutline,
 } from '@vicons/ionicons5';
 
 const themeStore = useThemeStore();
@@ -434,7 +400,7 @@ const updateAccessibilityStyles = () => {
         root.style.removeProperty('--color-blind-filter');
         root.classList.remove('color-blind-mode');
     }
-    
+
     if (highContrastMode.value) {
         root.classList.add('high-contrast-mode');
     } else {
@@ -476,7 +442,12 @@ const handleSystemThemeChange = (e: MediaQueryListEvent) => {
 };
 
 // 压缩图片函数
-const compressImage = (file: File, maxWidth: number = 1920, maxHeight: number = 1080, quality: number = 0.8): Promise<string> => {
+const compressImage = (
+    file: File,
+    maxWidth: number = 1920,
+    maxHeight: number = 1080,
+    quality: number = 0.8
+): Promise<string> => {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.onload = (e) => {
@@ -485,27 +456,27 @@ const compressImage = (file: File, maxWidth: number = 1920, maxHeight: number = 
                 // 计算压缩后的尺寸
                 let width = img.width;
                 let height = img.height;
-                
+
                 if (width > maxWidth || height > maxHeight) {
                     const ratio = Math.min(maxWidth / width, maxHeight / height);
                     width = width * ratio;
                     height = height * ratio;
                 }
-                
+
                 // 创建 canvas 进行压缩
                 const canvas = document.createElement('canvas');
                 canvas.width = width;
                 canvas.height = height;
                 const ctx = canvas.getContext('2d');
-                
+
                 if (!ctx) {
                     reject(new Error('无法创建 canvas 上下文'));
                     return;
                 }
-                
+
                 // 绘制图片
                 ctx.drawImage(img, 0, 0, width, height);
-                
+
                 // 转换为 base64
                 const compressedBase64 = canvas.toDataURL(file.type, quality);
                 resolve(compressedBase64);
@@ -524,7 +495,7 @@ const handleFileChange = async (options: { fileList: any[] }) => {
         try {
             // 压缩图片（最大 1920x1080，质量 0.8）
             const compressedBase64 = await compressImage(file, 1920, 1080, 0.8);
-            
+
             // 检查 base64 字符串长度（localStorage 限制约 5-10MB，但为了安全我们限制在 2MB）
             if (compressedBase64.length > 2 * 1024 * 1024) {
                 // 如果还是太大，进一步压缩
@@ -537,7 +508,7 @@ const handleFileChange = async (options: { fileList: any[] }) => {
                 backgroundImage.value = compressedBase64;
                 themeStore.setBackgroundImage(compressedBase64);
             }
-            
+
             updateBackgroundStyle();
         } catch (error) {
             console.error('图片处理失败:', error);
@@ -651,23 +622,23 @@ const updateBackgroundStyle = () => {
             const imageUrl = `url(${backgroundImage.value})`;
             // 确保不透明度不低于20%
             const opacity = Math.max(20, backgroundOpacity.value || 100);
-            
+
             // 设置 CSS 变量
             root.style.setProperty('--background-image', imageUrl);
             root.style.setProperty('--background-blur', `${backgroundBlur.value}px`);
             root.style.setProperty('--background-opacity', `${opacity / 100}`);
-            
+
             // 验证是否设置成功
             const setValue = root.style.getPropertyValue('--background-image');
             if (!setValue || setValue === 'none') {
                 console.warn('背景图 CSS 变量设置可能失败，图片可能太大');
             }
-            
+
             // 调试信息
             console.log('背景图已设置:', {
                 length: backgroundImage.value.length,
                 blur: backgroundBlur.value,
-                opacity: opacity
+                opacity: opacity,
             });
         } catch (error) {
             console.error('设置背景图失败:', error);
@@ -768,7 +739,7 @@ onMounted(() => {
 
 .setting-card {
     transition: all 0.3s ease;
-    
+
     &:hover {
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
     }
@@ -795,7 +766,7 @@ onMounted(() => {
     align-items: center;
     padding: 8px 0;
     transition: all 0.2s ease;
-    
+
     &:hover {
         padding-left: 4px;
     }
@@ -837,7 +808,7 @@ onMounted(() => {
     justify-content: center;
     position: relative;
     overflow: hidden;
-    
+
     &::before {
         content: '';
         position: absolute;
@@ -845,28 +816,34 @@ onMounted(() => {
         border-radius: 50%;
         padding: 2px;
         background: linear-gradient(135deg, rgba(255, 255, 255, 0.3), rgba(0, 0, 0, 0.1));
-        -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+        -webkit-mask:
+            linear-gradient(#fff 0 0) content-box,
+            linear-gradient(#fff 0 0);
         -webkit-mask-composite: xor;
         mask-composite: exclude;
-        mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+        mask:
+            linear-gradient(#fff 0 0) content-box,
+            linear-gradient(#fff 0 0);
         mask-composite: exclude;
         opacity: 0;
         transition: opacity 0.3s ease;
     }
-    
+
     &:hover {
         transform: scale(1.15);
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
-        
+
         &::before {
             opacity: 1;
         }
     }
-    
+
     &.active {
         border-color: var(--primary-color, #18a058);
-        box-shadow: 0 0 0 2px var(--primary-color, #18a058), 0 4px 12px rgba(0, 0, 0, 0.25);
-    transform: scale(1.1);
+        box-shadow:
+            0 0 0 2px var(--primary-color, #18a058),
+            0 4px 12px rgba(0, 0, 0, 0.25);
+        transform: scale(1.1);
     }
 }
 
@@ -896,10 +873,10 @@ onMounted(() => {
     overflow: hidden;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     transition: all 0.3s ease;
-    
+
     &:hover {
         box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
-        
+
         .preview-overlay {
             opacity: 1;
         }
@@ -912,7 +889,7 @@ onMounted(() => {
     object-fit: cover;
     display: block;
     transition: transform 0.3s ease;
-    
+
     .preview-wrapper:hover & {
         transform: scale(1.02);
     }
@@ -955,7 +932,7 @@ onMounted(() => {
         grid-template-columns: repeat(5, 1fr);
         gap: 10px;
     }
-    
+
     .preset-color {
         width: 32px;
         height: 32px;

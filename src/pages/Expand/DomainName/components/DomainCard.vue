@@ -14,14 +14,10 @@
                 :segmented="{ content: true, footer: 'soft' }"
                 header-style="padding: 16px;"
                 footer-style="padding: 12px 16px;"
-                class="custom-card"
+                hoverable
             >
                 <template #header-extra>
-                    <n-tooltip
-                        v-if="domain.type === 'SRV' && isSpecialRecord"
-                        trigger="hover"
-                        placement="top"
-                    >
+                    <n-tooltip v-if="domain.type === 'SRV' && isSpecialRecord" trigger="hover" placement="top">
                         <template #trigger>
                             <n-tag round :bordered="false" type="primary" size="small" class="type-tag">
                                 {{ domain.type }}
@@ -130,16 +126,6 @@ const dropdownOptions = computed(() => [
 </script>
 
 <style scoped>
-.custom-card {
-    border-radius: 12px;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.custom-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
-}
-
 .type-tag {
     margin-left: 8px;
     font-weight: 600;
@@ -172,4 +158,3 @@ const dropdownOptions = computed(() => [
     border-radius: 12px;
 }
 </style>
-

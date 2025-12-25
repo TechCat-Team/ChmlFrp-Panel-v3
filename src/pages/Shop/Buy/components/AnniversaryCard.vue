@@ -19,4 +19,3 @@
         </n-flex>
     </n-card>
 </template>
-

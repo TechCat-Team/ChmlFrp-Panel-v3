@@ -193,7 +193,7 @@ export const offlineTunnel = (token: string, tunnel_name: string): Promise<Offli
     const formData = new URLSearchParams();
     formData.append('token', token);
     formData.append('tunnel_name', tunnel_name);
-    
+
     return axiosInstance.post('/offline_tunnel', formData, {
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
@@ -224,7 +224,7 @@ export const refreshTunnel = (token: string, tunnel_name: string): Promise<Refre
     const formData = new URLSearchParams();
     formData.append('token', token);
     formData.append('tunnel_name', tunnel_name);
-    
+
     return axiosInstance.post('/refresh_tunnel', formData, {
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',

@@ -186,9 +186,7 @@ const loadingCaptcha = computed(() =>
 const buttonDisabled = computed(() =>
     typeof props.buttonDisabled === 'object' ? props.buttonDisabled.value : props.buttonDisabled
 );
-const buttonText = computed(() =>
-    typeof props.buttonText === 'object' ? props.buttonText.value : props.buttonText
-);
+const buttonText = computed(() => (typeof props.buttonText === 'object' ? props.buttonText.value : props.buttonText));
 const isNextStepDisabled = computed(() =>
     typeof props.isNextStepDisabled === 'object' ? props.isNextStepDisabled.value : props.isNextStepDisabled
 );
@@ -217,4 +215,3 @@ defineEmits<{
     min-height: 200px;
 }
 </style>
-

@@ -13,14 +13,7 @@
                 <n-text strong>四周年福利</n-text>
             </n-flex>
             <n-text depth="2" class="perk-desc">{{ perkMessage }}</n-text>
-            <n-button
-                v-if="canPurchase"
-                tertiary
-                type="error"
-                size="small"
-                class="perk-btn"
-                @click="$emit('upgrade')"
-            >
+            <n-button v-if="canPurchase" tertiary type="error" size="small" class="perk-btn" @click="$emit('upgrade')">
                 购买终身{{ membershipType }}
             </n-button>
         </n-flex>
@@ -41,4 +34,3 @@ defineEmits<{
     upgrade: [];
 }>();
 </script>
-

@@ -54,4 +54,3 @@ export function useNodeInfo(userInfo: { usertoken?: string }) {
         fetchNodeInfo,
     };
 }
-

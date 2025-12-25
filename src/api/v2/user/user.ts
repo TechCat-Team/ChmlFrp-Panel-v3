@@ -296,7 +296,9 @@ export const resetPasswordByEmail = async (
     code: string
 ): Promise<BaseResponse> => {
     return axiosInstance.post('/email_reset_password', {
-        email, new_password, code,
+        email,
+        new_password,
+        code,
     });
 };
 
@@ -450,7 +452,9 @@ interface SearchSystemMessagesResponse extends BaseResponse {
  * @param {SearchSystemMessagesParams} params - 搜索参数
  * @returns {Promise<SearchSystemMessagesResponse>} 搜索响应
  */
-export const searchSystemMessages = async (params: SearchSystemMessagesParams): Promise<SearchSystemMessagesResponse> => {
+export const searchSystemMessages = async (
+    params: SearchSystemMessagesParams
+): Promise<SearchSystemMessagesResponse> => {
     return axiosInstance.get('/system-message/search', {
         params,
     });

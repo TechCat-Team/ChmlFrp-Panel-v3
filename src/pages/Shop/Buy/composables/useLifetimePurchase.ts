@@ -39,13 +39,13 @@ export function useLifetimePurchase(userInfo: { usertoken?: string; usergroup?: 
                     // 支付成功
                     stopPolling();
                     onSuccess();
-                    
+
                     // 先关闭二维码对话框
                     if (qrCodeDialog) {
                         qrCodeDialog.destroy();
                         qrCodeDialog = null;
                     }
-                    
+
                     dialog.success({
                         title: '支付成功',
                         content: `恭喜您成功购买永久会员！\n支付金额：${response.money}元\n支付时间：${response.payTime || '刚刚'}`,
@@ -156,9 +156,9 @@ export function useLifetimePurchase(userInfo: { usertoken?: string; usergroup?: 
     const handlePay = async (ttype: 'wechat' | 'alipay') => {
         // 转换支付类型
         const paymentType = ttype === 'wechat' ? 'wxpay' : 'alipay';
-        
+
         loading.value = true;
-        
+
         try {
             // 创建支付订单
             const response = await api.payment.createPayment({
@@ -194,13 +194,17 @@ export function useLifetimePurchase(userInfo: { usertoken?: string; usergroup?: 
                         title: '微信支付',
                         content: () => {
                             return h('div', { style: 'display: flex; flex-direction: column; align-items: center;' }, [
-                                h('div', { style: 'max-width: 300px; width: 100%; display: flex; justify-content: center;' }, [
-                                    h(NQrCode, {
-                                        value: response.codeUrl,
-                                        size: 300,
-                                        color: '#18a058',
-                                    }),
-                                ]),
+                                h(
+                                    'div',
+                                    { style: 'max-width: 300px; width: 100%; display: flex; justify-content: center;' },
+                                    [
+                                        h(NQrCode, {
+                                            value: response.codeUrl,
+                                            size: 300,
+                                            color: '#18a058',
+                                        }),
+                                    ]
+                                ),
                                 h('p', { style: 'margin-top: 10px;' }, `请使用微信扫码支付 ${response.money} 元`),
                                 h('p', { style: 'font-size: 12px; color: #999;' }, `订单号：${outTradeNo}`),
                             ]);
@@ -246,12 +250,12 @@ export function useLifetimePurchase(userInfo: { usertoken?: string; usergroup?: 
                 showModal.value = false;
 
                 message.success('正在跳转到支付宝支付页面...');
-                
+
                 // 创建临时表单并提交
                 const div = document.createElement('div');
                 div.innerHTML = response.payForm;
                 document.body.appendChild(div);
-                
+
                 const form = div.querySelector('form');
                 if (form) {
                     form.submit();
@@ -278,4 +282,3 @@ export function useLifetimePurchase(userInfo: { usertoken?: string; usergroup?: 
         handlePay,
     };
 }
-

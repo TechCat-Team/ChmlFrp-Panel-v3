@@ -46,7 +46,10 @@ export function useFormValidation() {
             if (formData.domainNameLabel === '') {
                 message.error('请选择域名类型');
                 return null;
-            } else if (formData.domainNameLabel === '免费域名' && (formData.choose === '' || formData.recordValue === '')) {
+            } else if (
+                formData.domainNameLabel === '免费域名' &&
+                (formData.choose === '' || formData.recordValue === '')
+            ) {
                 message.error('请选择并填写免费域名');
                 return null;
             } else if (formData.domainNameLabel === '自定义') {
@@ -71,4 +74,3 @@ export function useFormValidation() {
         checkFormData,
     };
 }
-

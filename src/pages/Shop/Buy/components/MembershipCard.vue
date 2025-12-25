@@ -29,13 +29,7 @@
         <template #action>
             <n-flex justify="space-between">
                 <n-p>{{ priceText }}</n-p>
-                <n-button
-                    v-if="!disabled"
-                    @click="$emit('purchase')"
-                    round
-                    :type="buttonType"
-                    size="small"
-                >
+                <n-button v-if="!disabled" @click="$emit('purchase')" round :type="buttonType" size="small">
                     {{ buttonText }}
                 </n-button>
                 <n-button v-else round disabled type="error" size="small">{{ buttonText }}</n-button>
@@ -70,4 +64,3 @@ defineEmits<{
     purchase: [];
 }>();
 </script>
-

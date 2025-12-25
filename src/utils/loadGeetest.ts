@@ -27,13 +27,13 @@ export const loadGeetestScript = (): Promise<void> => {
     return new Promise((resolve, reject) => {
         const scriptUrl = 'https://static.geetest.com/v4/gt4.js';
         const existingScript = document.querySelector(`script[src="${scriptUrl}"]`);
-        
+
         const handleLoad = () => {
             geetestLoaded = true;
             geetestLoading = false;
             resolve();
             // 执行所有等待的回调并清空
-            loadCallbacks.forEach(callback => callback());
+            loadCallbacks.forEach((callback) => callback());
             loadCallbacks.clear();
         };
 
@@ -41,7 +41,7 @@ export const loadGeetestScript = (): Promise<void> => {
             geetestLoading = false;
             const error = new Error('Failed to load Geetest script');
             reject(error);
-            loadCallbacks.forEach(callback => callback());
+            loadCallbacks.forEach((callback) => callback());
             loadCallbacks.clear();
         };
 

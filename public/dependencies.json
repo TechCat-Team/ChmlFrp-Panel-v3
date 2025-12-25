@@ -10,6 +10,7 @@
     "dayjs": "^1.11.19",
     "echarts": "^5.6.0",
     "highlight.js": "^11.11.1",
+    "markdown-it": "^14.1.0",
     "naive-ui": "^2.43.2",
     "pinia": "^3.0.4",
     "pinyin-pro": "^3.27.0",
@@ -20,6 +21,7 @@
   },
   "devDependencies": {
     "@types/crypto-js": "^4.2.2",
+    "@types/markdown-it": "^14.1.2",
     "@types/node": "^22.19.1",
     "@typescript-eslint/eslint-plugin": "^8.47.0",
     "@typescript-eslint/parser": "^8.47.0",
@@ -36,6 +38,6 @@
     "unplugin-vue-components": "^28.8.0",
     "vite": "^6.4.1"
   },
-  "version": "0.5.3",
-  "buildTime": "2025/11/29 20:14:51"
+  "version": "0.10.0",
+  "buildTime": "2025/12/26 01:03:48"
 }

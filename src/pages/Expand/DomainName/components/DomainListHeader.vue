@@ -7,13 +7,7 @@
                 </template>
                 刷新
             </n-button>
-            <n-button
-                @click="$emit('create')"
-                :loading="createLoading"
-                type="primary"
-                round
-                quaternary
-            >
+            <n-button @click="$emit('create')" :loading="createLoading" type="primary" round quaternary>
                 <template #icon>
                     <n-icon :component="AddOutline" />
                 </template>
@@ -37,4 +31,3 @@ defineEmits<{
     create: [];
 }>();
 </script>
-

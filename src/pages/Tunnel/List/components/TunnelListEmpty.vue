@@ -26,4 +26,3 @@ defineEmits<{
     create: [];
 }>();
 </script>
-

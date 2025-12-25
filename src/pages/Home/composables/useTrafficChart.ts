@@ -214,4 +214,3 @@ export function useTrafficChart(userToken?: string) {
         cleanup,
     };
 }
-

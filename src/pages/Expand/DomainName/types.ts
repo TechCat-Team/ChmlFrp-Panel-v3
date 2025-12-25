@@ -79,4 +79,3 @@ export interface RecordTypeOption {
     label: string;
     value: string;
 }
-

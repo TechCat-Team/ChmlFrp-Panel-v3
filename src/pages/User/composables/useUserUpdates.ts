@@ -150,4 +150,3 @@ export function useUserUpdates(userInfo: { usertoken?: string }) {
         resetEmail,
     };
 }
-

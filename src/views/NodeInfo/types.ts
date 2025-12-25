@@ -53,4 +53,3 @@ export interface TunnelTypeData {
     HTTP: number;
     HTTPS: number;
 }
-

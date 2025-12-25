@@ -7,10 +7,7 @@ import { INFO_MESSAGES, REMARKS } from '../constants';
 /**
  * 编辑域名 composable
  */
-export function useDomainEdit(
-    userInfo: { usertoken?: string } | undefined,
-    onSuccess: () => void
-) {
+export function useDomainEdit(userInfo: { usertoken?: string } | undefined, onSuccess: () => void) {
     const message = useMessage();
     const dialog = useDialog();
     const loading = ref(false);
@@ -50,4 +47,3 @@ export function useDomainEdit(
         updateDomain,
     };
 }
-

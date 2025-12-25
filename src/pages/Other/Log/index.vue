@@ -2,36 +2,68 @@
     <n-back-top :right="100" />
     <n-card title="用户日志">
         <n-alert title="提示" type="info">
-            平台仅保留近180天的操作日志供在线查询。超出此期限的日志已被归档封存。若有审计或合规等需要，请向 support@chcat.cn 发送邮件提交查询申请。
+            平台仅保留近180天的操作日志供在线查询。超出此期限的日志已被归档封存。若有审计或合规等需要，请向
+            support@chcat.cn 发送邮件提交查询申请。
         </n-alert>
         <!-- 搜索筛选区域 -->
         <div style="margin-bottom: 16px; margin-top: 16px">
             <n-space>
-                <n-date-picker v-model:value="dateRange" type="datetimerange" clearable placeholder="选择时间范围"
-                    :is-date-disabled="disablePreviousDate" />
-                <n-select v-model:value="selectedCategory" :options="categoryOptions" placeholder="选择操作分类" clearable
-                    style="width: 150px" />
-                <n-select v-model:value="selectedAction" :options="actionOptions" placeholder="选择操作类型" clearable
-                    style="width: 200px" :disabled="!selectedCategory" />
-                <n-button type="primary" @click="handleSearch" :loading="loading">
-                    查询
-                </n-button>
-                <n-button @click="handleReset">
-                    重置
-                </n-button>
+                <n-date-picker
+                    v-model:value="dateRange"
+                    type="datetimerange"
+                    clearable
+                    placeholder="选择时间范围"
+                    :is-date-disabled="disablePreviousDate"
+                />
+                <n-select
+                    v-model:value="selectedCategory"
+                    :options="categoryOptions"
+                    placeholder="选择操作分类"
+                    clearable
+                    style="width: 150px"
+                />
+                <n-select
+                    v-model:value="selectedAction"
+                    :options="actionOptions"
+                    placeholder="选择操作类型"
+                    clearable
+                    style="width: 200px"
+                    :disabled="!selectedCategory"
+                />
+                <n-button type="primary" @click="handleSearch" :loading="loading"> 查询 </n-button>
+                <n-button @click="handleReset"> 重置 </n-button>
             </n-space>
         </div>
 
         <!-- 数据表格 -->
-        <n-data-table :columns="columns" :data="logs" :pagination="pagination" :loading="loading"
-            @update:page="handlePageChange" @update:page-size="handlePageSizeChange" :remote="true" :scroll-x="1200"
-            striped />
+        <n-data-table
+            :columns="columns"
+            :data="logs"
+            :pagination="pagination"
+            :loading="loading"
+            @update:page="handlePageChange"
+            @update:page-size="handlePageSizeChange"
+            :remote="true"
+            :scroll-x="1200"
+            striped
+        />
     </n-card>
 </template>
 
 <script lang="ts" setup>
 import { ref, reactive, onMounted, h, computed, watch } from 'vue';
-import { NDataTable, NDatePicker, NSelect, NButton, NSpace, NCard, NTag, NBackTop, useMessage, NTooltip } from 'naive-ui';
+import {
+    NDataTable,
+    NDatePicker,
+    NSelect,
+    NButton,
+    NSpace,
+    NCard,
+    NTag,
+    NBackTop,
+    useMessage,
+    NTooltip,
+} from 'naive-ui';
 import type { DataTableColumns, PaginationProps } from 'naive-ui';
 import api from '@/api';
 import { useUserStore } from '@/stores/user';

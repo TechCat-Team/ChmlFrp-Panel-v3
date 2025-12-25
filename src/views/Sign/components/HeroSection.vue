@@ -1,36 +1,36 @@
 <template>
     <transition name="hero-fade" mode="out-in">
         <div class="hero" @click="isMobile && $emit('toggle-register')">
-                <transition name="text-fade" mode="out-in">
-                    <div :key="mode">
-                        <template v-if="mode === 'login'">
-                            <h1>Sign In to<br />ChmlFrp Panel</h1>
-                            <p>
-                                如果您还没有账号<br />请
-                                <n-button text type="primary" @click.stop="$emit('toggle-register')">点击这里</n-button>
-                                进行注册.
-                            </p>
-                        </template>
-                        <template v-else-if="mode === 'register'">
-                            <h1>Sign Up to<br />ChmlFrp Panel</h1>
-                            <p>
-                                已经有账号了?<br />请
-                                <n-button text type="primary" @click.stop="$emit('toggle-register')">点击这里</n-button>
-                                进行登录.
-                            </p>
-                        </template>
-                        <template v-else>
-                            <h1>Reset Your PW<br />ChmlFrp Panel</h1>
-                            <p>
-                                想起密码了?<br />请
-                                <n-button text type="primary" @click.stop="$emit('to-login')">点击这里</n-button>
-                                返回登录
-                            </p>
-                        </template>
-                    </div>
-                </transition>
-            </div>
-        </transition>
+            <transition name="text-fade" mode="out-in">
+                <div :key="mode">
+                    <template v-if="mode === 'login'">
+                        <h1>Sign In to<br />ChmlFrp Panel</h1>
+                        <p>
+                            如果您还没有账号<br />请
+                            <n-button text type="primary" @click.stop="$emit('toggle-register')">点击这里</n-button>
+                            进行注册.
+                        </p>
+                    </template>
+                    <template v-else-if="mode === 'register'">
+                        <h1>Sign Up to<br />ChmlFrp Panel</h1>
+                        <p>
+                            已经有账号了?<br />请
+                            <n-button text type="primary" @click.stop="$emit('toggle-register')">点击这里</n-button>
+                            进行登录.
+                        </p>
+                    </template>
+                    <template v-else>
+                        <h1>Reset Your PW<br />ChmlFrp Panel</h1>
+                        <p>
+                            想起密码了?<br />请
+                            <n-button text type="primary" @click.stop="$emit('to-login')">点击这里</n-button>
+                            返回登录
+                        </p>
+                    </template>
+                </div>
+            </transition>
+        </div>
+    </transition>
 </template>
 
 <script lang="ts" setup>
@@ -143,4 +143,3 @@ h1 {
     }
 }
 </style>
-

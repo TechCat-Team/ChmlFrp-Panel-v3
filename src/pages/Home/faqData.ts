@@ -142,4 +142,3 @@ export const FAQ_DATA: FAQItem[] = [
         `,
     },
 ];
-

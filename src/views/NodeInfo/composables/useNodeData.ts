@@ -35,4 +35,3 @@ export function useNodeData(node: string | string[] | undefined) {
         fetchNodeData,
     };
 }
-

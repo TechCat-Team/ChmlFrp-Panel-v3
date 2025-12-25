@@ -74,8 +74,12 @@
         @cancel="editTunnelModal = false"
         @submit="handleEditTunnelSubmit"
     />
-    <TunnelListHeader :loading="loadingTunnel" :adding="addTheTunnelButtonShow" @refresh="fetchTunnelCards"
-        @add="createNodes" />
+    <TunnelListHeader
+        :loading="loadingTunnel"
+        :adding="addTheTunnelButtonShow"
+        @refresh="fetchTunnelCards"
+        @add="createNodes"
+    />
     <n-grid v-if="!loadingTunnel" cols="1 m:2 l:3 xl:4 2xl:5" :x-gap="12" :y-gap="12" responsive="screen">
         <n-grid-item v-for="(card, index) in tunnelCards" :key="index">
             <TunnelCardComponent
@@ -192,10 +196,11 @@ const {
 } = useTunnelConfig(userInfo || {});
 
 const trafficChartModalRef = ref<InstanceType<typeof TrafficChartModal> | null>(null);
-const { showModal: last7daysModal, loading: chartLoading, getTunnelLast7days } = useTunnelChart(
-    userInfo || {},
-    () => trafficChartModalRef.value?.chartRef || null
-);
+const {
+    showModal: last7daysModal,
+    loading: chartLoading,
+    getTunnelLast7days,
+} = useTunnelChart(userInfo || {}, () => trafficChartModalRef.value?.chartRef || null);
 
 const { loading: loadingTunnelInfo, nodeInfo: nodeInfoRef, fetchNodeInfo } = useNodeInfo(userInfo || {});
 // 为了兼容 useTunnelForm 的接口，创建一个包装对象
@@ -223,9 +228,9 @@ const handleLoad = () => {
 // 隧道操作处理函数
 
 const handleRefreshTunnel = (card: TunnelCard) => {
-            if (card.state === 'true') {
-                refreshTunnelData(card);
-            } else {
+    if (card.state === 'true') {
+        refreshTunnelData(card);
+    } else {
         message.warning('隧道不在线，无法刷新数据');
     }
 };
@@ -237,9 +242,9 @@ const handleGetStats = (card: TunnelCard) => {
 const handleOfflineTunnel = (card: TunnelCard) => {
     if (card.state === 'true') {
         handleOfflineTunnelOp(card);
-                } else {
+    } else {
         message.warning('隧道不在线，无法强制下线');
-            }
+    }
 };
 
 const handleCopyAddress = (address: string) => {
@@ -384,12 +389,12 @@ const updateTypeTrig = async () => {
 const updateNodeTrig = async () => {
     const nodeDetails = await fetchNodeInfo(formData.node);
     if (nodeDetails) {
-    // 更新免费域名可选项
-    if (formData.domainNameLabel === '免费域名') {
+        // 更新免费域名可选项
+        if (formData.domainNameLabel === '免费域名') {
             subDomainDataWrapper();
-    }
-    // 检查现在的填写值是否合规
-    updatePortTrig();
+        }
+        // 检查现在的填写值是否合规
+        updatePortTrig();
     } else {
         message.error('获取节点详情失败, 节点可能离线, 请更换节点');
     }
@@ -406,29 +411,29 @@ const updateDomainTypeTrig = () => {
 
 const subDomainDataWrapper = async () => {
     await subDomainData();
-        // 如果当前节点没有可选的域名，给出提示
-        if (domainNameOptions.value.length === 0) {
-            dialog.error({
-                title: '此节点没有可选的免费域名',
-                content: '当前节点为中国境内节点，禁止使用免费域名，请更换为中国境外节点（允许港澳台节点，无需备案）',
-                positiveText: '确定',
-                onPositiveClick: () => {
-                    if (editTunnelModal.value) {
-                        formData.node = formData.nodeOld;
-                    } else if (tunnelInfoModal.value) {
-                        formData.domainNameLabel = '自定义';
-                        formData.domain = '';
-                    }
-                },
-                onClose: () => {
-                    if (editTunnelModal.value) {
-                        formData.node = formData.nodeOld;
-                    } else if (tunnelInfoModal.value) {
-                        formData.domainNameLabel = '自定义';
-                        formData.domain = '';
-                    }
-                },
-            });
+    // 如果当前节点没有可选的域名，给出提示
+    if (domainNameOptions.value.length === 0) {
+        dialog.error({
+            title: '此节点没有可选的免费域名',
+            content: '当前节点为中国境内节点，禁止使用免费域名，请更换为中国境外节点（允许港澳台节点，无需备案）',
+            positiveText: '确定',
+            onPositiveClick: () => {
+                if (editTunnelModal.value) {
+                    formData.node = formData.nodeOld;
+                } else if (tunnelInfoModal.value) {
+                    formData.domainNameLabel = '自定义';
+                    formData.domain = '';
+                }
+            },
+            onClose: () => {
+                if (editTunnelModal.value) {
+                    formData.node = formData.nodeOld;
+                } else if (tunnelInfoModal.value) {
+                    formData.domainNameLabel = '自定义';
+                    formData.domain = '';
+                }
+            },
+        });
     }
 };
 
@@ -437,13 +442,12 @@ const handleCreateTunnel = async () => {
     await createTunnel();
 };
 
-
 const createNodes = async () => {
     addTheTunnelButtonShow.value = true;
-            try {
+    try {
         await fetchNodeList();
         nodeListModal.value = true;
-            } finally {
+    } finally {
         addTheTunnelButtonShow.value = false;
     }
 };
@@ -468,7 +472,7 @@ const handleTabChange = async (activeName: string) => {
     loadingNodeMap.value = true;
     if (activeName === '节点地图') {
         try {
-            const response = await axios.get('https://api.uapis.cn/localaddr');
+            const response = await axios.get('https://uapis.cn/api/v1/network/myip');
             const { latitude, longitude } = response.data;
             markers.value[0] = { position: [longitude, latitude], title: '我的位置' };
             const nodeCoordinates = nodeInfoValue.value.coordinates.split(',').map(Number);
@@ -520,28 +524,21 @@ watch(
 );
 
 // 监听创建隧道弹窗打开，自动生成随机隧道名
-watch(
-    tunnelInfoModal,
-    (isOpen) => {
-        if (isOpen) {
-            // 当弹窗打开时，如果隧道名为空，生成随机隧道名
-            if (!formData.name) {
-                generateRandomTunnelName();
-            }
-            // 如果有节点信息且有rport，生成随机端口（仅TCP/UDP类型）
-            if (
-                nodeInfoValue.value?.rport &&
-                (formData.type === 'TCP' || formData.type === 'UDP')
-            ) {
-                generateRandomPort();
-            }
+watch(tunnelInfoModal, (isOpen) => {
+    if (isOpen) {
+        // 当弹窗打开时，如果隧道名为空，生成随机隧道名
+        if (!formData.name) {
+            generateRandomTunnelName();
+        }
+        // 如果有节点信息且有rport，生成随机端口（仅TCP/UDP类型）
+        if (nodeInfoValue.value?.rport && (formData.type === 'TCP' || formData.type === 'UDP')) {
+            generateRandomPort();
         }
     }
-);
+});
 
 onMounted(() => {
     fetchTunnelCards();
     initExpandedPanels();
 });
-
 </script>

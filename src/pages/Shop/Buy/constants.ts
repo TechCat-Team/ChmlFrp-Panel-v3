@@ -102,4 +102,3 @@ export const BUTTON_TEXT = {
     REGISTER_FREE: '注册即得',
     PURCHASE_NOW: '立即购买',
 } as const;
-

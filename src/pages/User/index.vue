@@ -140,7 +140,9 @@
     />
 
     <!-- 模糊遮罩 -->
-    <div v-show="showBlurOverlay" style="
+    <div
+        v-show="showBlurOverlay"
+        style="
             position: fixed;
             top: 0;
             left: 0;
@@ -149,7 +151,8 @@
             backdrop-filter: blur(var(--modal-filter));
             z-index: 9998;
             pointer-events: all;
-        "></div>
+        "
+    ></div>
 </template>
 
 <script setup lang="ts">
@@ -196,11 +199,7 @@ const {
     onSignButtonClick,
 } = useSignIn(userInfo || {});
 
-const {
-    loading: loadingRealName,
-    model: realNameModel,
-    submit: submitRealName,
-} = useRealName(userInfo || {});
+const { loading: loadingRealName, model: realNameModel, submit: submitRealName } = useRealName(userInfo || {});
 
 const {
     loading: loadingGiftCode,
@@ -208,11 +207,7 @@ const {
     submit: submitExchangeCode,
 } = useExchangeCode(userInfo || {});
 
-const {
-    loading: loadingGiftcardHistory,
-    historyData,
-    loadHistory,
-} = useGiftcardHistory(userInfo || {});
+const { loading: loadingGiftcardHistory, historyData, loadHistory } = useGiftcardHistory(userInfo || {});
 
 const {
     oldButtonText,
@@ -241,9 +236,7 @@ const newEmail = ref('');
 
 // User Settings & Updates
 const { loadingOfflineAllTunnels, resetToken, offlineAllTunnels } = useUserSettings(userInfo || {});
-const { QQImg, CravatarImg } = useUserProfile(
-    userInfo ? { qq: userInfo.qq, email: userInfo.email } : undefined
-);
+const { QQImg, CravatarImg } = useUserProfile(userInfo ? { qq: userInfo.qq, email: userInfo.email } : undefined);
 const {
     loadingUpdateImg,
     loadingUpdateUserName,
@@ -316,9 +309,6 @@ const handleGeeTest = async (type: 'old' | 'new') => {
 watch(newEmail, (newVal) => {
     newButtonDisabled.value = !newVal;
 });
-
-
-
 
 const openChangeTheUsernameModal = () => {
     changeTheUsernameModal.value = true;

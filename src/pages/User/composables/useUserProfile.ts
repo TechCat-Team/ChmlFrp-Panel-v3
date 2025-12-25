@@ -9,9 +9,7 @@ export function useUserProfile(userInfo?: { qq?: string; email?: string }) {
         userInfo?.qq ? `https://q.qlogo.cn/headimg_dl?dst_uin=${userInfo.qq}&spec=640&img_type=jpg` : ''
     );
 
-    const emailHash = computed(() =>
-        CryptoJS.MD5(userInfo?.email || 'chaoji@chcat.cn').toString()
-    );
+    const emailHash = computed(() => CryptoJS.MD5(userInfo?.email || 'chaoji@chcat.cn').toString());
 
     const CravatarImg = computed(() => `https://cravatar.cn/avatar/${emailHash.value}`);
 
@@ -20,4 +18,3 @@ export function useUserProfile(userInfo?: { qq?: string; email?: string }) {
         CravatarImg,
     };
 }
-

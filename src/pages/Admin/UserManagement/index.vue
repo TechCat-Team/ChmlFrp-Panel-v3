@@ -15,71 +15,55 @@
                     style="width: 200px"
                     @keyup.enter="handleSearch"
                 />
-                <n-button type="primary" @click="handleSearch" :loading="loading">
-                    搜索
-                </n-button>
-                <n-button @click="handleReset">
-                    重置
-                </n-button>
+                <n-button type="primary" @click="handleSearch" :loading="loading"> 搜索 </n-button>
+                <n-button @click="handleReset"> 重置 </n-button>
             </n-space>
         </div>
 
         <!-- 搜索结果提示 -->
         <div v-if="isSearchMode" style="margin-bottom: 16px">
             <n-alert type="info" :show-icon="false">
-                搜索结果：{{ getSearchTypeLabel() }}包含"{{ searchForm.value }}"的用户，共找到 {{ pagination.itemCount }} 个
-                <n-button text type="primary" @click="handleReset" style="margin-left: 8px">
-                    查看全部用户
-                </n-button>
+                搜索结果：{{ getSearchTypeLabel() }}包含"{{ searchForm.value }}"的用户，共找到
+                {{ pagination.itemCount }} 个
+                <n-button text type="primary" @click="handleReset" style="margin-left: 8px"> 查看全部用户 </n-button>
             </n-alert>
         </div>
         <n-watermark
-    :content="`禁止截图\n${userInfoStore?.username}`"
-    cross
-    selectable
-    :font-size="16"
-    :line-height="16"
-    :width="192"
-    :height="128"
-    :x-offset="12"
-    :y-offset="28"
-    :rotate="-15"
-    :font-color="'rgba(128, 128, 128, 0.1)'"
-  >
-        <n-data-table
-            :columns="columns"
-            :data="users"
-            :pagination="pagination"
-            :loading="loading"
-            @update:page="handlePageChange"
-            @update:page-size="handlePageSizeChange"
-            :remote="true"
-            :scroll-x="1200"
-        />
+            :content="`禁止截图\n${userInfoStore?.username}`"
+            cross
+            selectable
+            :font-size="16"
+            :line-height="16"
+            :width="192"
+            :height="128"
+            :x-offset="12"
+            :y-offset="28"
+            :rotate="-15"
+            :font-color="'rgba(128, 128, 128, 0.1)'"
+        >
+            <n-data-table
+                :columns="columns"
+                :data="users"
+                :pagination="pagination"
+                :loading="loading"
+                @update:page="handlePageChange"
+                @update:page-size="handlePageSizeChange"
+                :remote="true"
+                :scroll-x="1200"
+            />
         </n-watermark>
     </n-card>
 
-    <n-modal 
-        v-model:show="showEditModal" 
-        preset="card" 
-        style="width: 700px" 
-        :bordered="false"
-        size="large"
-    >
+    <n-modal v-model:show="showEditModal" preset="card" style="width: 700px" :bordered="false" size="large">
         <template #header>
-            <div style="display: flex; align-items: center; gap: 12px;">
-                <n-avatar
-                    v-if="currentUser.userimg"
-                    round
-                    size="medium"
-                    :src="currentUser.userimg"
-                />
+            <div style="display: flex; align-items: center; gap: 12px">
+                <n-avatar v-if="currentUser.userimg" round size="medium" :src="currentUser.userimg" />
                 <n-avatar v-else round size="medium">
                     {{ currentUser.username?.[0]?.toUpperCase() || 'U' }}
                 </n-avatar>
                 <div>
-                    <div style="font-size: 18px; font-weight: 600;">编辑用户信息</div>
-                    <div style="font-size: 12px; opacity: 0.6; margin-top: 2px;">
+                    <div style="font-size: 18px; font-weight: 600">编辑用户信息</div>
+                    <div style="font-size: 12px; opacity: 0.6; margin-top: 2px">
                         {{ currentUser.username || '用户' }}
                     </div>
                 </div>
@@ -87,7 +71,7 @@
         </template>
 
         <n-divider />
-        
+
         <n-form ref="formRef" :model="currentUser" :rules="rules" label-placement="left" label-width="120">
             <!-- 基本信息 -->
             <div class="form-section">
@@ -95,31 +79,23 @@
                     <n-col :span="12">
                         <n-form-item path="username" label="用户名">
                             <template #label>
-                                <div style="display: flex; align-items: center; gap: 6px;">
+                                <div style="display: flex; align-items: center; gap: 6px">
                                     <n-icon :component="PersonOutline" :size="16" />
                                     <span>用户名</span>
                                 </div>
                             </template>
-                            <n-input 
-                                v-model:value="currentUser.username" 
-                                placeholder="请输入用户名"
-                                clearable
-                            />
+                            <n-input v-model:value="currentUser.username" placeholder="请输入用户名" clearable />
                         </n-form-item>
                     </n-col>
                     <n-col :span="12">
                         <n-form-item path="email" label="邮箱">
                             <template #label>
-                                <div style="display: flex; align-items: center; gap: 6px;">
+                                <div style="display: flex; align-items: center; gap: 6px">
                                     <n-icon :component="MailOutline" :size="16" />
                                     <span>邮箱</span>
                                 </div>
                             </template>
-                            <n-input 
-                                v-model:value="currentUser.email" 
-                                placeholder="请输入邮箱地址"
-                                clearable
-                            />
+                            <n-input v-model:value="currentUser.email" placeholder="请输入邮箱地址" clearable />
                         </n-form-item>
                     </n-col>
                 </n-row>
@@ -127,22 +103,18 @@
                     <n-col :span="12">
                         <n-form-item path="qq" label="QQ">
                             <template #label>
-                                <div style="display: flex; align-items: center; gap: 6px;">
+                                <div style="display: flex; align-items: center; gap: 6px">
                                     <n-icon :component="ChatbubbleOutline" :size="16" />
                                     <span>QQ</span>
                                 </div>
                             </template>
-                            <n-input 
-                                v-model:value="currentUser.qq" 
-                                placeholder="请输入QQ号"
-                                clearable
-                            />
+                            <n-input v-model:value="currentUser.qq" placeholder="请输入QQ号" clearable />
                         </n-form-item>
                     </n-col>
                     <n-col :span="12">
                         <n-form-item path="usergroup" label="用户组">
                             <template #label>
-                                <div style="display: flex; align-items: center; gap: 6px;">
+                                <div style="display: flex; align-items: center; gap: 6px">
                                     <n-icon :component="PeopleOutline" :size="16" />
                                     <span>用户组</span>
                                 </div>
@@ -160,7 +132,7 @@
                 </n-row>
             </div>
 
-            <n-divider/>
+            <n-divider />
 
             <!-- 资源配额 -->
             <div class="form-section">
@@ -168,71 +140,77 @@
                     <n-col :span="12">
                         <n-form-item path="integral" label="积分">
                             <template #label>
-                                <div style="display: flex; align-items: center; gap: 6px;">
+                                <div style="display: flex; align-items: center; gap: 6px">
                                     <n-icon :component="StarOutline" :size="16" />
                                     <span>积分</span>
                                 </div>
                             </template>
-                            <n-input-number 
-                                v-model:value="currentUser.integral" 
-                                :min="0" 
+                            <n-input-number
+                                v-model:value="currentUser.integral"
+                                :min="0"
                                 placeholder="积分数量"
                                 :show-button="false"
                                 :precision="0"
                                 style="width: 100%"
-                                :format="(value: number | null) => value !== null ? value.toLocaleString() : ''"
-                                :parse="(input: string) => {
-                                    const num = Number(input.replace(/,/g, ''));
-                                    return isNaN(num) ? null : num;
-                                }"
+                                :format="(value: number | null) => (value !== null ? value.toLocaleString() : '')"
+                                :parse="
+                                    (input: string) => {
+                                        const num = Number(input.replace(/,/g, ''));
+                                        return isNaN(num) ? null : num;
+                                    }
+                                "
                             />
                         </n-form-item>
                     </n-col>
                     <n-col :span="12">
                         <n-form-item path="bandwidth" label="带宽">
                             <template #label>
-                                <div style="display: flex; align-items: center; gap: 6px;">
+                                <div style="display: flex; align-items: center; gap: 6px">
                                     <n-icon :component="SpeedometerOutline" :size="16" />
                                     <span>带宽</span>
                                 </div>
                             </template>
-                            <n-input-number 
-                                v-model:value="currentUser.bandwidth" 
-                                :min="0" 
+                            <n-input-number
+                                v-model:value="currentUser.bandwidth"
+                                :min="0"
                                 placeholder="带宽限制"
                                 :show-button="false"
                                 :precision="0"
                                 style="width: 100%"
-                                :format="(value: number | null) => value !== null ? value.toLocaleString() : ''"
-                                :parse="(input: string) => {
-                                    const num = Number(input.replace(/,/g, ''));
-                                    return isNaN(num) ? null : num;
-                                }"
+                                :format="(value: number | null) => (value !== null ? value.toLocaleString() : '')"
+                                :parse="
+                                    (input: string) => {
+                                        const num = Number(input.replace(/,/g, ''));
+                                        return isNaN(num) ? null : num;
+                                    }
+                                "
                             />
                         </n-form-item>
                     </n-col>
                 </n-row>
-                <n-row :gutter="[16, 16]" style="margin-top: 16px;">
+                <n-row :gutter="[16, 16]" style="margin-top: 16px">
                     <n-col :span="12">
                         <n-form-item path="tunnel" label="隧道数量">
                             <template #label>
-                                <div style="display: flex; align-items: center; gap: 6px;">
+                                <div style="display: flex; align-items: center; gap: 6px">
                                     <n-icon :component="GitBranchOutline" :size="16" />
                                     <span>隧道数</span>
                                 </div>
                             </template>
-                            <n-input-number 
-                                v-model:value="currentUser.tunnel" 
-                                :min="0" 
+                            <n-input-number
+                                v-model:value="currentUser.tunnel"
+                                :min="0"
                                 placeholder="隧道数量"
                                 :show-button="false"
                                 :precision="0"
                                 style="width: 100%"
-                                :format="(value: number | null) => value !== null ? value.toLocaleString() : ''"
-                                :parse="(input: string) => {
-                                    const num = Number(input.replace(/,/g, ''));
-                                    return isNaN(num) ? null : num;
-                                }"
+                                :format="(value: number | null) => (value !== null ? value.toLocaleString() : '')"
+                                :parse="
+                                    (input: string) => {
+                                        const num = Number(input.replace(/,/g, ''));
+                                        return isNaN(num) ? null : num;
+                                    }
+                                "
                             />
                         </n-form-item>
                     </n-col>
@@ -247,7 +225,7 @@
                     <n-col :span="12">
                         <n-form-item path="term" label="会员到期时间">
                             <template #label>
-                                <div style="display: flex; align-items: center; gap: 6px;">
+                                <div style="display: flex; align-items: center; gap: 6px">
                                     <n-icon :component="CalendarOutline" :size="16" />
                                     <span>到期时间</span>
                                 </div>
@@ -265,14 +243,14 @@
                     <n-col :span="12">
                         <n-form-item path="password" label="新密码">
                             <template #label>
-                                <div style="display: flex; align-items: center; gap: 6px;">
+                                <div style="display: flex; align-items: center; gap: 6px">
                                     <n-icon :component="LockClosedOutline" :size="16" />
                                     <span>新密码</span>
                                 </div>
                             </template>
-                            <n-input 
-                                type="password" 
-                                v-model:value="currentUser.password" 
+                            <n-input
+                                type="password"
+                                v-model:value="currentUser.password"
                                 placeholder="留空则不修改密码"
                                 show-password-on="click"
                                 clearable
@@ -287,13 +265,9 @@
             <n-divider />
 
             <!-- 操作按钮 -->
-            <div style="display: flex; justify-content: flex-end; gap: 12px; padding-top: 8px;">
-                <n-button size="large" @click="showEditModal = false">
-                    取消
-                </n-button>
-                <n-button type="primary" size="large" @click="handleSave" :loading="saving">
-                    保存更改
-                </n-button>
+            <div style="display: flex; justify-content: flex-end; gap: 12px; padding-top: 8px">
+                <n-button size="large" @click="showEditModal = false"> 取消 </n-button>
+                <n-button type="primary" size="large" @click="handleSave" :loading="saving"> 保存更改 </n-button>
             </div>
         </n-form>
     </n-modal>
@@ -303,9 +277,39 @@
 <script lang="ts" setup>
 import { ref, onMounted, h, reactive, watch, nextTick } from 'vue';
 import { useRoute } from 'vue-router';
-import { NDataTable, NButton, NCard, NModal, NForm, NFormItem, NInput, NInputNumber, NRow, NCol, useMessage, NBackTop, NSpace, NSelect, NAlert, NAvatar, NDatePicker, NDivider, NIcon } from 'naive-ui';
+import {
+    NDataTable,
+    NButton,
+    NCard,
+    NModal,
+    NForm,
+    NFormItem,
+    NInput,
+    NInputNumber,
+    NRow,
+    NCol,
+    useMessage,
+    NBackTop,
+    NSpace,
+    NSelect,
+    NAlert,
+    NAvatar,
+    NDatePicker,
+    NDivider,
+    NIcon,
+} from 'naive-ui';
 import type { DataTableColumns, FormInst, FormRules } from 'naive-ui';
-import { PersonOutline, MailOutline, ChatbubbleOutline, PeopleOutline, StarOutline, SpeedometerOutline, GitBranchOutline, CalendarOutline, LockClosedOutline } from '@vicons/ionicons5';
+import {
+    PersonOutline,
+    MailOutline,
+    ChatbubbleOutline,
+    PeopleOutline,
+    StarOutline,
+    SpeedometerOutline,
+    GitBranchOutline,
+    CalendarOutline,
+    LockClosedOutline,
+} from '@vicons/ionicons5';
 import api from '@/api';
 import { useUserStore } from '@/stores/user';
 
@@ -353,11 +357,13 @@ const defaultUserGroupOptions = [
 // 计算用户组选项，包含当前值（如果不在预设选项中）
 const userGroupOptions = computed(() => {
     const options = [...defaultUserGroupOptions];
-    if (currentUser.value.usergroup && 
-        !defaultUserGroupOptions.some(opt => opt.value === currentUser.value.usergroup)) {
-        options.push({ 
-            label: currentUser.value.usergroup, 
-            value: currentUser.value.usergroup 
+    if (
+        currentUser.value.usergroup &&
+        !defaultUserGroupOptions.some((opt) => opt.value === currentUser.value.usergroup)
+    ) {
+        options.push({
+            label: currentUser.value.usergroup,
+            value: currentUser.value.usergroup,
         });
     }
     return options;
@@ -366,14 +372,14 @@ const userGroupOptions = computed(() => {
 // 搜索表单
 const searchForm = reactive({
     type: 'id',
-    value: ''
+    value: '',
 });
 
 // 搜索类型选项
 const searchTypeOptions = [
     { label: '用户ID', value: 'id' },
     { label: '用户名', value: 'username' },
-    { label: '邮箱', value: 'email' }
+    { label: '邮箱', value: 'email' },
 ];
 
 // 分页配置
@@ -393,7 +399,7 @@ const rules: FormRules = {
 
 // 获取搜索类型标签
 const getSearchTypeLabel = () => {
-    const option = searchTypeOptions.find(opt => opt.value === searchForm.type);
+    const option = searchTypeOptions.find((opt) => opt.value === searchForm.type);
     return option?.label || '搜索';
 };
 
@@ -414,11 +420,7 @@ const fetchUsers = async () => {
             );
             data = res.data;
         } else {
-            const res = await api.v2.admin.getUsers(
-                adminToken,
-                pagination.page,
-                pagination.pageSize
-            );
+            const res = await api.v2.admin.getUsers(adminToken, pagination.page, pagination.pageSize);
             data = res.data;
         }
 
@@ -482,19 +484,18 @@ const handleEdit = (user: User) => {
     currentUser.value = { ...user };
     // 清空密码字段，避免显示旧密码的hash
     currentUser.value.password = '';
-    
+
     // 先重置日期选择器，避免闪烁
     termTimestamp.value = null;
-    
+
     // 先打开模态框
     showEditModal.value = true;
-    
+
     // 在模态框完全渲染后再设置日期值，避免日期选择器闪烁
     nextTick(() => {
         // 处理 term 字段，转换为时间戳用于日期选择器
         // 处理 9999-09-09 格式（终身会员）
-        if (currentUser.value.term && 
-            currentUser.value.term !== '9999-09-09') {
+        if (currentUser.value.term && currentUser.value.term !== '9999-09-09') {
             try {
                 const date = new Date(currentUser.value.term);
                 if (!isNaN(date.getTime())) {
@@ -551,9 +552,9 @@ const handleSave = () => {
 // 定义表格列
 const columns: DataTableColumns<User> = [
     { title: 'ID', key: 'id', width: 80, sorter: 'default' },
-    { 
-        title: '用户名', 
-        key: 'username', 
+    {
+        title: '用户名',
+        key: 'username',
         sorter: 'default',
         minWidth: 150,
         width: 180,
@@ -562,48 +563,48 @@ const columns: DataTableColumns<User> = [
                 h(NAvatar, {
                     size: 'small',
                     src: row.userimg || undefined,
-                    fallbackSrc: '/default-avatar.png'
-                    }),
-                h('span', { style: 'white-space: nowrap; overflow: hidden; text-overflow: ellipsis;' }, row.username)
+                    fallbackSrc: '/default-avatar.png',
+                }),
+                h('span', { style: 'white-space: nowrap; overflow: hidden; text-overflow: ellipsis;' }, row.username),
             ]);
-        }
+        },
     },
-    { 
-        title: '邮箱', 
+    {
+        title: '邮箱',
         key: 'email',
         minWidth: 180,
         width: 220,
         ellipsis: {
-            tooltip: true
-        }
+            tooltip: true,
+        },
     },
-    { 
-        title: '用户组', 
-        key: 'usergroup', 
+    {
+        title: '用户组',
+        key: 'usergroup',
         sorter: 'default',
         minWidth: 100,
-        width: 120
+        width: 120,
     },
-    { 
-        title: '积分', 
-        key: 'integral', 
+    {
+        title: '积分',
+        key: 'integral',
         sorter: 'default',
         width: 100,
-        align: 'right'
+        align: 'right',
     },
-    { 
-        title: '带宽', 
-        key: 'bandwidth', 
+    {
+        title: '带宽',
+        key: 'bandwidth',
         sorter: 'default',
         width: 100,
-        align: 'right'
+        align: 'right',
     },
-    { 
-        title: '隧道数', 
-        key: 'tunnel', 
+    {
+        title: '隧道数',
+        key: 'tunnel',
         sorter: 'default',
         width: 100,
-        align: 'right'
+        align: 'right',
     },
     {
         title: '操作',
@@ -635,16 +636,15 @@ onMounted(() => {
     // 检查路由参数，支持从其他页面跳转过来并自动搜索
     const searchType = route.query.searchType as string;
     const searchValue = route.query.searchValue as string;
-    
+
     if (searchType && searchValue) {
         searchForm.type = searchType;
         searchForm.value = searchValue;
         isSearchMode.value = true;
     }
-    
+
     fetchUsers();
 });
-
 </script>
 
 <style scoped>

@@ -29,4 +29,3 @@ export function useDomainList(userInfo: { usertoken?: string } | undefined) {
         fetchDomainData,
     };
 }
-

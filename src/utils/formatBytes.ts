@@ -1,10 +1,10 @@
 /**
  * 流量/存储单位换算工具函数
  * 将字节数转换为可读的格式（Bytes, KiB, MiB, GiB, TiB, PiB）
- * 
+ *
  * @param bytes - 字节数，支持 number、string、undefined、null
  * @returns 包含格式化后的数值和单位的对象
- * 
+ *
  * @example
  * formatBytes(1024) // { value: 1, suffix: 'KiB' }
  * formatBytes('2048') // { value: 2, suffix: 'KiB' }
@@ -49,4 +49,3 @@ export function formatBytes(bytes: number | string | undefined | null): { value:
         suffix: units[index],
     };
 }
-

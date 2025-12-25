@@ -32,19 +32,14 @@ export interface NodesListResponse extends BaseResponse {
 }
 
 /** 获取节点列表（管理员） */
-export const getNodes = async (
-    admin_token: string
-): Promise<NodesListResponse> => {
+export const getNodes = async (admin_token: string): Promise<NodesListResponse> => {
     return axiosInstance.get('/admin/nodes', {
         params: { admin_token },
     });
 };
 
 /** 创建节点（管理员） */
-export const createNode = async (
-    admin_token: string,
-    payload: Record<string, unknown>
-): Promise<BaseResponse> => {
+export const createNode = async (admin_token: string, payload: Record<string, unknown>): Promise<BaseResponse> => {
     return axiosInstance.post('/admin/nodes', payload, {
         params: { admin_token },
     });
@@ -62,10 +57,7 @@ export const updateNode = async (
 };
 
 /** 删除节点（管理员） */
-export const deleteNode = async (
-    admin_token: string,
-    nodeId: number
-): Promise<BaseResponse> => {
+export const deleteNode = async (admin_token: string, nodeId: number): Promise<BaseResponse> => {
     return axiosInstance.delete(`/admin/nodes/${nodeId}`, {
         params: { admin_token },
     });
@@ -74,11 +66,7 @@ export const deleteNode = async (
 /**
  * 获取用户列表（管理员）
  */
-export const getUsers = async (
-    admin_token: string,
-    page: number,
-    size: number
-): Promise<UsersListResponse> => {
+export const getUsers = async (admin_token: string, page: number, size: number): Promise<UsersListResponse> => {
     return axiosInstance.get('/admin/users', {
         params: { admin_token, page, size },
     });
@@ -175,11 +163,7 @@ export interface TunnelSearchResponse extends BaseResponse {
 /**
  * 获取隧道列表（管理员）
  */
-export const getTunnels = async (
-    admin_token: string,
-    page: number,
-    size: number
-): Promise<TunnelsListResponse> => {
+export const getTunnels = async (admin_token: string, page: number, size: number): Promise<TunnelsListResponse> => {
     return axiosInstance.get('/admin/tunnels', {
         params: { admin_token, page, size },
     });
@@ -203,10 +187,7 @@ export const searchTunnels = async (
 /**
  * 获取隧道详情（管理员）
  */
-export const getTunnelById = async (
-    admin_token: string,
-    tunnelId: number
-): Promise<TunnelDetailResponse> => {
+export const getTunnelById = async (admin_token: string, tunnelId: number): Promise<TunnelDetailResponse> => {
     return axiosInstance.get(`/admin/tunnels/${tunnelId}`, {
         params: { admin_token },
     });
@@ -221,10 +202,10 @@ export const offlineTunnel = async (
     identifierType: 'id' | 'name' = 'name'
 ): Promise<BaseResponse> => {
     return axiosInstance.post('/admin/tunnels/offline', null, {
-        params: { 
-            admin_token, 
-            identifier, 
-            type: identifierType 
+        params: {
+            admin_token,
+            identifier,
+            type: identifierType,
         },
     });
 };
@@ -357,19 +338,14 @@ export interface ToggleGiftCardStatusResponse extends BaseResponse {
 /**
  * 创建礼品卡（管理员）
  */
-export const createGiftCard = async (
-    request: CreateGiftCardRequest
-): Promise<CreateGiftCardResponse> => {
+export const createGiftCard = async (request: CreateGiftCardRequest): Promise<CreateGiftCardResponse> => {
     return axiosInstance.post('/admin/giftcard/create', request);
 };
 
 /**
  * 删除礼品卡（管理员）
  */
-export const deleteGiftCard = async (
-    admin_token: string,
-    card_code: string
-): Promise<BaseResponse> => {
+export const deleteGiftCard = async (admin_token: string, card_code: string): Promise<BaseResponse> => {
     return axiosInstance.delete('/admin/giftcard/delete', {
         params: { admin_token, card_code },
     });
@@ -407,10 +383,7 @@ export const getGiftCards = async (
 /**
  * 查询礼品卡详情（管理员）
  */
-export const getGiftCardDetail = async (
-    admin_token: string,
-    card_code: string
-): Promise<GiftCardDetailResponse> => {
+export const getGiftCardDetail = async (admin_token: string, card_code: string): Promise<GiftCardDetailResponse> => {
     return axiosInstance.get('/admin/giftcard/detail', {
         params: { admin_token, card_code },
     });
@@ -439,5 +412,3 @@ export const getGiftCardUsageByUser = async (
         params: { admin_token, user_id },
     });
 };
-
-

@@ -5,7 +5,10 @@
                 <n-tab-pane name="1" tab="会员购买">
                     <n-space vertical size="large">
                         <n-card title="选择会员类型">
-                            <n-radio-group :value="selectedMembership" @update:value="$emit('update:selectedMembership', $event)">
+                            <n-radio-group
+                                :value="selectedMembership"
+                                @update:value="$emit('update:selectedMembership', $event)"
+                            >
                                 <n-space justify="space-between" size="large">
                                     <n-radio value="普通会员" label="普通会员">
                                         <n-space align="center">
@@ -27,7 +30,10 @@
                         </n-card>
 
                         <n-card title="选择购买时长">
-                            <n-radio-group :value="selectedDuration" @update:value="$emit('update:selectedDuration', $event)">
+                            <n-radio-group
+                                :value="selectedDuration"
+                                @update:value="$emit('update:selectedDuration', $event)"
+                            >
                                 <n-space justify="space-between">
                                     <n-radio value="1" label="1个月"></n-radio>
                                     <n-radio value="3" label="3个月"></n-radio>
@@ -69,11 +75,7 @@
 
                 <n-tab-pane name="2" tab="会员升级">
                     <n-space vertical size="large">
-                        <n-alert
-                            v-if="showUpgradeAlert"
-                            type="info"
-                            title="会员升级说明"
-                        >
+                        <n-alert v-if="showUpgradeAlert" type="info" title="会员升级说明">
                             您当前是{{ userGroup }}，剩余 {{ remainingDays }} 天，升级可享受更多权益
                         </n-alert>
 
@@ -86,7 +88,10 @@
                                     <n-text>您当前为终身会员，无法进行常规升级</n-text>
                                 </template>
                                 <template v-else-if="userGroup === '普通会员'">
-                                    <n-radio-group :value="upgradeOption" @update:value="$emit('update:upgradeOption', $event)">
+                                    <n-radio-group
+                                        :value="upgradeOption"
+                                        @update:value="$emit('update:upgradeOption', $event)"
+                                    >
                                         <n-space justify="space-between">
                                             <n-radio value="高级会员" label="升级到高级会员">
                                                 <n-space align="center">
@@ -102,7 +107,10 @@
                                     </n-radio-group>
                                 </template>
                                 <template v-else-if="userGroup === '高级会员'">
-                                    <n-radio-group :value="upgradeOption" @update:value="$emit('update:upgradeOption', $event)">
+                                    <n-radio-group
+                                        :value="upgradeOption"
+                                        @update:value="$emit('update:upgradeOption', $event)"
+                                    >
                                         <n-space justify="space-between">
                                             <n-radio value="超级会员" label="升级到超级会员">
                                                 <n-space align="center">
@@ -187,4 +195,3 @@ defineEmits<{
     upgrade: [];
 }>();
 </script>
-

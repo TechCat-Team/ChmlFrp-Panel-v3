@@ -101,4 +101,3 @@ export interface Marker {
     position: [number, number];
     title: string;
 }
-

@@ -1,5 +1,12 @@
 <template>
-    <n-modal :show="show" @update:show="$emit('update:show', $event)" preset="card" title="近七日流量" style="max-width: 800px" :loading="loading">
+    <n-modal
+        :show="show"
+        @update:show="$emit('update:show', $event)"
+        preset="card"
+        title="近七日流量"
+        style="max-width: 800px"
+        :loading="loading"
+    >
         <div ref="chartRefElement" style="width: 100%; height: 400px"></div>
     </n-modal>
 </template>
@@ -25,4 +32,3 @@ defineExpose({
     chartRef: chartRefElement,
 });
 </script>
-

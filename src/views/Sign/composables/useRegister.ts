@@ -7,11 +7,7 @@ import { MESSAGES } from '../constants';
 /**
  * 注册 composable
  */
-export function useRegister(
-    formModel: { value: RegisterModel },
-    clause: { value: boolean },
-    onSuccess: () => void
-) {
+export function useRegister(formModel: { value: RegisterModel }, clause: { value: boolean }, onSuccess: () => void) {
     const message = useMessage();
     const RegLoading = ref(false);
     const currentStep = ref(1);
@@ -36,7 +32,10 @@ export function useRegister(
         }
         if (currentStep.value === 3) {
             return (
-                !formModel.value.verificationCode || !clause.value || RegLoading.value === true || !formModel.value.username
+                !formModel.value.verificationCode ||
+                !clause.value ||
+                RegLoading.value === true ||
+                !formModel.value.username
             );
         }
         return false;
@@ -84,4 +83,3 @@ export function useRegister(
         prevStep,
     };
 }
-

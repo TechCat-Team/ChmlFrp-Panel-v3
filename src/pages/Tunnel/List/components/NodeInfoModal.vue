@@ -1,12 +1,21 @@
 <template>
     <n-modal :show="show" @update:show="$emit('update:show', $event)">
-        <n-card :style="widthStyle" size="small" :bordered="false" transform-origin="center" role="dialog"
-            aria-modal="true">
+        <n-card
+            :style="widthStyle"
+            size="small"
+            :bordered="false"
+            transform-origin="center"
+            role="dialog"
+            aria-modal="true"
+        >
             <n-tabs type="line" size="large" :tabs-padding="20" @update:value="$emit('tab-change', $event)">
                 <n-tab-pane name="节点详情">
                     <n-p>节点负载</n-p>
-                    <n-progress type="line" :percentage="nodeInfo.bandwidth_usage_percent"
-                        :indicator-placement="'inside'" />
+                    <n-progress
+                        type="line"
+                        :percentage="nodeInfo.bandwidth_usage_percent"
+                        :indicator-placement="'inside'"
+                    />
                     <n-p style="margin-top: 12px">节点详情</n-p>
                     <n-descriptions label-placement="left" size="medium" :column="screenWidth >= 600 ? 3 : 1" bordered>
                         <n-descriptions-item label="节点名">
@@ -79,9 +88,7 @@
                             <n-skeleton v-if="loading" text style="width: 100%" />
                             <n-tooltip v-else-if="nodeInfo.china === 'no'" trigger="hover">
                                 <template #trigger> 国外带宽 </template>
-                                此节点走ChmlFrp国外带宽，您的国外带宽上限为{{
-                                    userBandwidth ? userBandwidth * 4 : 32
-                                }}m
+                                此节点走ChmlFrp国外带宽，您的国外带宽上限为{{ userBandwidth ? userBandwidth * 4 : 32 }}m
                             </n-tooltip>
                             <n-tooltip v-else trigger="hover">
                                 <template #trigger> 国内带宽 </template>
@@ -99,7 +106,13 @@
                         地图来自中国地理信息公共服务平台，"我的位置"信息通过IP获取，有较大误差。另外请不要使用代理软件，否则您可能会被定位到月球。
                     </n-alert>
                     <n-skeleton v-if="loadingMap" text style="width: 100%; margin-top: 16px" height="500px" />
-                    <MapComponent v-else style="margin-top: 16px" :width="'100%'" :height="'500px'" :markers="markers" />
+                    <MapComponent
+                        v-else
+                        style="margin-top: 16px"
+                        :width="'100%'"
+                        :height="'500px'"
+                        :markers="markers"
+                    />
                 </n-tab-pane>
             </n-tabs>
             <template #footer>
@@ -139,4 +152,3 @@ defineEmits<{
     continue: [];
 }>();
 </script>
-

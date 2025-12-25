@@ -53,12 +53,7 @@
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
 import { useMessage } from 'naive-ui';
 import { useUserStore } from '@/stores/user';
-import {
-    LinkOutline,
-    ServerOutline,
-    ArrowUpCircleOutline,
-    ArrowDownCircleOutline,
-} from '@vicons/ionicons5';
+import { LinkOutline, ServerOutline, ArrowUpCircleOutline, ArrowDownCircleOutline } from '@vicons/ionicons5';
 import wxImage from '@/assets/wx.jpg';
 
 // Components
@@ -85,8 +80,8 @@ const userInfo = userStore.userInfo;
 const message = useMessage();
 
 // 将 null 转换为 undefined 以匹配组件类型
-const userInfoForGreeting = computed(() => userInfo?.userimg ? { userimg: userInfo.userimg } : undefined);
-const userInfoForAlerts = computed(() => 
+const userInfoForGreeting = computed(() => (userInfo?.userimg ? { userimg: userInfo.userimg } : undefined));
+const userInfoForAlerts = computed(() =>
     userInfo ? { usergroup: userInfo.usergroup, realname: userInfo.realname } : undefined
 );
 
@@ -112,20 +107,20 @@ const cards = computed(() => {
 
     return [
         { title: '连接数', value: userInfo?.totalCurConns || 0, icon: markRaw(LinkOutline), precision: 0 },
-    {
-        title: '总上传',
+        {
+            title: '总上传',
             value: uploadFormatted.value,
-        icon: markRaw(ArrowUpCircleOutline),
-        precision: 2,
+            icon: markRaw(ArrowUpCircleOutline),
+            precision: 2,
             suffix: uploadFormatted.suffix,
-    },
-    {
-        title: '总下载',
+        },
+        {
+            title: '总下载',
             value: downloadFormatted.value,
-        icon: markRaw(ArrowDownCircleOutline),
-        precision: 2,
+            icon: markRaw(ArrowDownCircleOutline),
+            precision: 2,
             suffix: downloadFormatted.suffix,
-    },
+        },
         { title: '积分数', value: userInfo?.integral || 0, icon: markRaw(ServerOutline), precision: 0 },
     ];
 });
