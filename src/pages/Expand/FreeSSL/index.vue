@@ -3,14 +3,6 @@
     <n-card style="margin-bottom: 20px" title="免费SSL">
         <template #header-extra>
             <n-space>
-                <n-select
-                    v-model:value="statusFilter"
-                    :options="statusOptions"
-                    style="width: 150px"
-                    placeholder="筛选状态"
-                    clearable
-                    @update:value="handleStatusFilterChange"
-                />
                 <n-button round quaternary @click="fetchCertificateData" :loading="loading">
                     <template #icon>
                         <n-icon :component="RefreshOutline" />
@@ -48,11 +40,13 @@
             />
         </n-grid-item>
     </n-grid>
-    <n-empty v-if="!loading && certificateData.length === 0" description="暂无证书" style="margin-top: 40px">
+    <n-card v-if="!loading && certificateData.length === 0">
+    <n-empty description="您似乎还没创建免费SSL证书">
         <template #extra>
             <n-button type="primary" @click="handleCreateCertificate">申请证书</n-button>
         </template>
     </n-empty>
+    </n-card>
     <CreateCertificateModal
         :show="createCertificateModal"
         :model="certificateFormModel"
@@ -81,14 +75,13 @@ import CreateCertificateModal from './components/CreateCertificateModal.vue';
 import CertificateCard from './components/CertificateCard.vue';
 import CertificateDetailModal from './components/CertificateDetailModal.vue';
 import type { CertificateFormModel } from './types';
-import { STATUS_OPTIONS } from './constants';
 import type { PendingCertificateDetail, IssuedCertificateDetail } from '@/api/v2/ssl/ssl';
 
 const userStore = useUserStore();
 const userInfo = userStore.userInfo;
 
 // 证书列表
-const { loading, certificateData, statusFilter, fetchCertificateData } = useCertificateList(userInfo || undefined);
+const { loading, certificateData, fetchCertificateData } = useCertificateList(userInfo || undefined);
 
 // 证书表单
 const certificateFormModel = ref<CertificateFormModel>({
@@ -120,9 +113,6 @@ const detailModal = ref(false);
 const certificateDetail = ref<PendingCertificateDetail | IssuedCertificateDetail | null>(null);
 const selectedCertificateId = ref<number | null>(null);
 
-// 状态筛选选项
-const statusOptions = STATUS_OPTIONS;
-
 // 无限滚动
 const count = ref(16);
 const handleLoad = () => {
@@ -139,11 +129,6 @@ watch(
     },
     { immediate: true }
 );
-
-// 状态筛选变化
-const handleStatusFilterChange = () => {
-    fetchCertificateData();
-};
 
 // 创建证书
 const handleCreateCertificate = () => {

@@ -133,7 +133,7 @@ export interface DeleteCertificateParams {
  * @returns 申请证书响应
  */
 export const requestCertificate = async (params: RequestCertificateParams): Promise<RequestCertificateResponse> => {
-    return axiosInstance.post('/api/ssl/request', params);
+    return axiosInstance.post('/ssl/request', params);
 };
 
 /**
@@ -146,7 +146,7 @@ export const verifyCertificate = async (
     id: number,
     params: VerifyCertificateParams
 ): Promise<VerifyCertificateResponse> => {
-    return axiosInstance.post(`/api/ssl/verify/${id}`, params);
+    return axiosInstance.post(`/ssl/verify/${id}`, params);
 };
 
 /**
@@ -163,7 +163,7 @@ export const getCertificateList = async (
     if (status) {
         params.status = status;
     }
-    return axiosInstance.get('/api/ssl/list', { params });
+    return axiosInstance.get('/ssl/list', { params });
 };
 
 /**
@@ -173,7 +173,7 @@ export const getCertificateList = async (
  * @returns 证书详情响应
  */
 export const getCertificateDetail = async (id: number, usertoken: string): Promise<CertificateDetailResponse> => {
-    return axiosInstance.get(`/api/ssl/detail/${id}`, {
+    return axiosInstance.get(`/ssl/detail/${id}`, {
         params: { usertoken },
     });
 };
@@ -191,7 +191,7 @@ export const downloadCertificate = async (
     type: 'certificate' | 'privatekey' | 'chain' | 'full' = 'full'
 ): Promise<string> => {
     // 对于文本响应，使用原生axios以避免响应拦截器的JSON解析
-    const response = await axios.get(`${axiosInstance.defaults.baseURL}/api/ssl/download/${id}`, {
+    const response = await axios.get(`${axiosInstance.defaults.baseURL}/ssl/download/${id}`, {
         params: { usertoken, type },
         responseType: 'text',
     });
@@ -205,5 +205,5 @@ export const downloadCertificate = async (
  * @returns 删除证书响应
  */
 export const deleteCertificate = async (id: number, params: DeleteCertificateParams): Promise<BaseResponse> => {
-    return axiosInstance.delete(`/api/ssl/delete/${id}`, { data: params });
+    return axiosInstance.delete(`/ssl/delete/${id}`, { data: params });
 };

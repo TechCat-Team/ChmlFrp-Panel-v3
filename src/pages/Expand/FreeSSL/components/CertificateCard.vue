@@ -69,7 +69,6 @@ import {
     CheckmarkCircleOutline,
     DownloadOutline,
     TrashOutline,
-    InformationCircleOutline,
 } from '@vicons/ionicons5';
 import type { Certificate } from '../types';
 import { STATUS_CONFIG, PROVIDER_NAMES } from '../constants';

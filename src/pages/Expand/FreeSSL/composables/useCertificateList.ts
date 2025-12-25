@@ -1,8 +1,7 @@
-import { ref, computed } from 'vue';
+import { ref } from 'vue';
 import { useMessage } from 'naive-ui';
 import api from '@/api';
 import type { Certificate } from '../types';
-import type { CertificateStatus } from '@/api/v2/ssl/ssl';
 
 /**
  * 证书列表管理 composable
@@ -11,7 +10,6 @@ export function useCertificateList(userInfo: { usertoken?: string } | undefined)
     const message = useMessage();
     const loading = ref(false);
     const certificateData = ref<Certificate[]>([]);
-    const statusFilter = ref<CertificateStatus | 'all'>('all');
 
     // 处理证书数据，解析域名列表等
     const processCertificate = (cert: any): Certificate => {
@@ -40,8 +38,7 @@ export function useCertificateList(userInfo: { usertoken?: string } | undefined)
 
         loading.value = true;
         try {
-            const status = statusFilter.value === 'all' ? undefined : statusFilter.value;
-            const response = await api.v2.ssl.getCertificateList(userInfo.usertoken, status);
+            const response = await api.v2.ssl.getCertificateList(userInfo.usertoken, undefined);
             certificateData.value = response.data.certificates.map(processCertificate);
         } catch (error) {
             message.error('获取证书列表失败: ' + (error as Error).message);
@@ -53,7 +50,6 @@ export function useCertificateList(userInfo: { usertoken?: string } | undefined)
     return {
         loading,
         certificateData,
-        statusFilter,
         fetchCertificateData,
     };
 }
