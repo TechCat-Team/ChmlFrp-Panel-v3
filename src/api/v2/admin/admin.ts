@@ -1,6 +1,5 @@
 import axiosInstance from '../axios/axiosInstance';
 import { BaseResponse } from '../axios/axiosInstance';
-
 interface UsersListData {
     users: Array<{
         id: number;
@@ -67,7 +66,7 @@ export const getUsers = async (page: number, size: number): Promise<UsersListRes
  * 搜索用户（管理员）
  */
 export const searchUsers = async (
-    type: 'username' | 'email' | 'id',
+    type: 'username' | 'email' | 'id' | 'token',
     value: string,
     page: number,
     size: number
@@ -387,4 +386,164 @@ export const getGiftCardUsageByUser = async (
     return axiosInstance.get('/admin/giftcard/usage/by-user', {
         params: { user_id },
     });
+};
+
+// ---------------- System Messages (Admin) ----------------
+
+/**
+ * 系统消息数据接口（详情）
+ */
+export interface SystemMessage {
+    id: number;
+    title: string;
+    contentMd: string;
+    priority: number;
+    targetUsers: string[] | null;
+    publishTime: string;
+    createdAt: string;
+}
+
+/**
+ * 系统消息列表项接口（列表API不包含contentMd）
+ */
+export interface SystemMessageListItem {
+    id: number;
+    title: string;
+    priority: number;
+    targetUsers: string[] | string | null; // 可能是数组或JSON字符串
+    publishTime: string;
+    createdAt: string;
+}
+
+/**
+ * 创建系统消息请求参数
+ */
+export interface CreateSystemMessageRequest {
+    title: string;
+    contentMd: string;
+    priority?: number;
+    targetUsers?: string[] | null;
+    publishTime?: string;
+}
+
+/**
+ * 更新系统消息请求参数
+ */
+export interface UpdateSystemMessageRequest {
+    id: number;
+    title?: string;
+    contentMd?: string;
+    priority?: number;
+    targetUsers?: string[] | null;
+    publishTime?: string;
+}
+
+/**
+ * 创建系统消息响应
+ */
+export interface CreateSystemMessageResponse extends BaseResponse {
+    data: SystemMessage;
+}
+
+/**
+ * 更新系统消息响应
+ */
+export interface UpdateSystemMessageResponse extends BaseResponse {
+    data: SystemMessage;
+}
+
+/**
+ * 创建系统消息（管理员）
+ */
+export const createSystemMessage = async (
+    request: CreateSystemMessageRequest
+): Promise<CreateSystemMessageResponse> => {
+    return axiosInstance.post('/admin/message/create', {
+        ...request,
+    });
+};
+
+/**
+ * 更新系统消息（管理员）
+ */
+export const updateSystemMessage = async (
+    request: UpdateSystemMessageRequest
+): Promise<UpdateSystemMessageResponse> => {
+    return axiosInstance.post('/admin/message/update', {
+        ...request,
+    });
+};
+
+/**
+ * 删除系统消息（管理员）
+ */
+export const deleteSystemMessage = async (id: number): Promise<BaseResponse> => {
+    return axiosInstance.post('/admin/message/delete', {
+        id,
+    });
+};
+
+/**
+ * 消息列表数据
+ */
+interface SystemMessagesListData {
+    messages: SystemMessageListItem[];
+    total: number;
+    page: number;
+    size: number;
+    totalPages: number;
+}
+
+/**
+ * 消息列表响应
+ */
+export interface SystemMessagesListResponse extends BaseResponse {
+    data: SystemMessagesListData;
+}
+
+/**
+ * 获取消息列表参数
+ */
+export interface GetSystemMessagesListParams {
+    page?: number;
+    size?: number;
+    type?: 'all' | 'title' | 'content' | 'id';
+    value?: string;
+}
+
+/**
+ * 消息详情响应
+ */
+export interface SystemMessageDetailResponse extends BaseResponse {
+    data: SystemMessage;
+}
+
+/**
+ * 获取所有消息列表（管理员）- 支持分页和检索
+ */
+export const getSystemMessagesList = async (
+    params: GetSystemMessagesListParams = {}
+): Promise<SystemMessagesListResponse> => {
+    const { page = 1, size = 10, type = 'all', value } = params;
+
+    const queryParams: Record<string, string | number> = {
+        page,
+        size,
+        type,
+    };
+
+    if (value && type !== 'all') {
+        queryParams.value = value;
+    }
+
+    return axiosInstance.get('/admin/message/list', {
+        params: queryParams,
+    });
+};
+
+/**
+ * 获取消息详情（管理员）
+ */
+export const getSystemMessageDetail = async (id: number): Promise<SystemMessageDetailResponse> => {
+    return axiosInstance.get(`/admin/message/detail/${id}`);
 };

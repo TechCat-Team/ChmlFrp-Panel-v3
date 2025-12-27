@@ -275,7 +275,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted, h, reactive, watch, nextTick } from 'vue';
+import { ref, onMounted, h, reactive, watch, nextTick, computed } from 'vue';
 import { useRoute } from 'vue-router';
 import {
     NDataTable,
@@ -380,6 +380,7 @@ const searchTypeOptions = [
     { label: '用户ID', value: 'id' },
     { label: '用户名', value: 'username' },
     { label: '邮箱', value: 'email' },
+    { label: 'Token', value: 'token' },
 ];
 
 // 分页配置
@@ -407,12 +408,11 @@ const getSearchTypeLabel = () => {
 const fetchUsers = async () => {
     loading.value = true;
     try {
-        const adminToken = userInfoStore?.usertoken || '';
         let data;
 
         if (isSearchMode.value && searchForm.value.trim()) {
             const res = await api.v2.admin.searchUsers(
-                searchForm.type as 'username' | 'email' | 'id',
+                searchForm.type as 'username' | 'email' | 'id' | 'token',
                 searchForm.value.trim(),
                 pagination.page,
                 pagination.pageSize
@@ -517,7 +517,6 @@ const handleSave = () => {
         if (!errors) {
             saving.value = true;
             try {
-                const adminToken = userInfoStore?.usertoken || '';
                 const userId = currentUser.value.id;
 
                 // 构造请求体，只包含需要更新的字段
