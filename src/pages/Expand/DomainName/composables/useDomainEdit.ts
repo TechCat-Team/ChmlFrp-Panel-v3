@@ -7,7 +7,7 @@ import { INFO_MESSAGES, REMARKS } from '../constants';
 /**
  * 编辑域名 composable
  */
-export function useDomainEdit(userInfo: { usertoken?: string } | undefined, onSuccess: () => void) {
+export function useDomainEdit(onSuccess: () => void) {
     const message = useMessage();
     const dialog = useDialog();
     const loading = ref(false);
@@ -16,7 +16,6 @@ export function useDomainEdit(userInfo: { usertoken?: string } | undefined, onSu
         loading.value = true;
         try {
             await api.v2.domain.updateFreeSubdomain({
-                token: userInfo?.usertoken || '',
                 domain: formData.selectedDomain,
                 record: formData.recordValue,
                 ttl: formData.TTLValue,

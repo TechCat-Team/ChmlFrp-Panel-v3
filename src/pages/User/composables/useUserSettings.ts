@@ -56,7 +56,7 @@ export function useUserSettings(userInfo: { usertoken?: string; qq?: string; ema
                 d.loading = true;
                 loadingOfflineAllTunnels.value = true;
                 try {
-                    const response = await api.v2.user.offlineUserNodes(userInfo?.usertoken || '');
+                    const response = await api.v2.user.offlineUserNodes();
 
                     const { totalNodes, successCount, failCount, results } = response.data;
                     let messageText = `下线完成！总计: ${totalNodes} 个节点，成功: ${successCount} 个，失败: ${failCount} 个`;

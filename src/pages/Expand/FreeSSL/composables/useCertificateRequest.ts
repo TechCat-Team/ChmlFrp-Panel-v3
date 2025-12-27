@@ -2,20 +2,16 @@ import { ref } from 'vue';
 import { useMessage } from 'naive-ui';
 import api from '@/api';
 import type { CertificateFormModel } from '../types';
-import type { SSLProvider, ChallengeType } from '@/api/v2/ssl/ssl';
+import type { SSLProvider } from '@/api/v2/ssl/ssl';
 
 /**
  * 申请证书 composable
  */
-export function useCertificateRequest(userInfo: { usertoken?: string } | undefined, onSuccess: () => void) {
+export function useCertificateRequest(onSuccess: () => void) {
     const message = useMessage();
     const loading = ref(false);
 
     const requestCertificate = async (model: CertificateFormModel) => {
-        if (!userInfo?.usertoken) {
-            message.error('用户信息不完整');
-            return;
-        }
 
         if (!model.provider) {
             message.error('请选择证书提供商');
@@ -38,7 +34,6 @@ export function useCertificateRequest(userInfo: { usertoken?: string } | undefin
             }
 
             await api.v2.ssl.requestCertificate({
-                usertoken: userInfo.usertoken,
                 provider: model.provider as SSLProvider,
                 domains: domains,
                 challengeType: model.challengeType || 'http01',

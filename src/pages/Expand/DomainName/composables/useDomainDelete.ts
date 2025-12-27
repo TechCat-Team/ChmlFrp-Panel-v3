@@ -12,7 +12,6 @@ export function useDomainDelete(userInfo: { usertoken?: string } | undefined, on
     const deleteDomain = async (domain: FreeDomain, index: number) => {
         try {
             await api.v2.domain.deleteFreeSubdomain({
-                token: userInfo?.usertoken || '',
                 domain: domain.domain,
                 record: domain.record,
             });

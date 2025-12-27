@@ -1,5 +1,6 @@
 import axios from 'axios';
 import axiosInstance from '../axios/axiosInstance';
+import { useUserStore } from '@/stores/user';
 const PAYMENT_BASE_URL = axiosInstance.defaults.baseURL + '/api/payment';
 
 /**
@@ -18,7 +19,6 @@ export type TradeStatus = 'pending' | 'success' | 'closed' | 'refund';
 export interface CreatePaymentRequest {
     name: string;
     money: number;
-    usertoken: string;
     /** 支付类型，wxpay（微信支付，默认）或 alipay（支付宝支付） */
     type?: PaymentType;
 }
@@ -83,15 +83,22 @@ export const createPayment = async (request: CreatePaymentRequest): Promise<Crea
         const formData = new URLSearchParams();
         formData.append('name', request.name);
         formData.append('money', request.money.toString());
-        formData.append('usertoken', request.usertoken);
         if (request.type) {
             formData.append('type', request.type);
         }
 
+        // 需要手动添加 Authorization header
+        const userStore = useUserStore();
+        const token = userStore.userInfo?.usertoken;
+        const headers: Record<string, string> = {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        };
+        if (token) {
+            headers['Authorization'] = `Bearer ${token}`;
+        }
+
         const response = await axios.post<CreatePaymentResponse>(`${PAYMENT_BASE_URL}/create`, formData, {
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-            },
+            headers,
         });
 
         return response.data;

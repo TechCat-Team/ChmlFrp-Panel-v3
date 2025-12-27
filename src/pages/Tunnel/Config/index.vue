@@ -32,7 +32,7 @@
         <template #footer>
             <n-grid cols="1 m:3" item-responsive responsive="screen" :x-gap="12" :y-gap="12">
                 <n-grid-item span="1 m:2">
-                    <n-card title="Frpc.ini" style="min-height: 334px">
+                    <n-card title="Frpc.ini">
                         <template #header-extra>
                             <n-space>
                                 <n-button text @click="handleCopy('tunnelConfig')">
@@ -89,23 +89,6 @@
                         </div>
                         <n-empty v-else description="请生成配置文件" />
                     </n-card>
-                    <n-card style="margin-top: 16px" title="Linux脚本">
-                        <template #header-extra>
-                            <n-tooltip trigger="hover">
-                                <template #trigger>
-                                    <n-button text @click="handleCopy('LinuxScript')">
-                                        <n-icon :component="CopyOutline" />
-                                    </n-button>
-                                </template>
-                                不建议使用，问题很多，建议后续更新
-                            </n-tooltip>
-                        </template>
-                        <n-code :code="LinuxScript" language="powershell" word-wrap v-if="LinuxScript !== ''" />
-                        <div v-else-if="loadingGenerate">
-                            <n-skeleton text :repeat="3" /> <n-skeleton text style="width: 60%" />
-                        </div>
-                        <n-empty v-else description="请生成配置文件" />
-                    </n-card>
                 </n-grid-item>
             </n-grid>
         </template>
@@ -114,7 +97,7 @@
         <n-grid-item :span="3">
             <n-card title="常见教程">
                 <template #header-extra>
-                    <n-button text tag="a" href="https://docs.chmlfrp.cn" target="_blank" type="primary">
+                    <n-button text tag="a" href="https://docs.chmlfrp.net" target="_blank" type="primary">
                         更多教程
                     </n-button>
                 </template>
@@ -150,7 +133,7 @@
                     <n-button
                         text
                         tag="a"
-                        href="https://docs.chmlfrp.cn/docs/use/mapping.html"
+                        href="https://docs.chmlfrp.net/docs/use/mapping.html"
                         target="_blank"
                         type="primary"
                     >
@@ -253,7 +236,7 @@ const loadingGenerate = ref(false);
 // 获取隧道列表 API
 const getTunnelList = async () => {
     try {
-        const response = await api.v2.tunnel.getTunnelList(userInfo?.usertoken || '');
+        const response = await api.v2.tunnel.getTunnelList();
 
         const tunnels: Tunnel[] = response.data || [];
 
@@ -301,11 +284,9 @@ const getConfigFile = async () => {
     loadingGenerate.value = true;
     try {
         const params: {
-            token: string | undefined;
             node: string | null;
             tunnel_names?: string;
         } = {
-            token: userInfo?.usertoken,
             node: nodeValue.value,
         };
 
@@ -330,7 +311,6 @@ const getConfigFile = async () => {
         }
 
         const response = await api.v2.tunnel.getTunnelConfig(
-            userInfo?.usertoken || '',
             params.node || '',
             params.tunnel_names
         );

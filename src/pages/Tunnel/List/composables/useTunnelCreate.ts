@@ -76,7 +76,6 @@ export function useTunnelCreate(
             if (isHttp && isFreeDomain) {
                 try {
                     await api.v2.domain.createFreeSubdomain({
-                        token: userInfo?.usertoken || '',
                         domain: formData.choose,
                         record: formData.recordValue,
                         type: 'CNAME',
@@ -100,7 +99,6 @@ export function useTunnelCreate(
                 if (isHttp && isFreeDomain) {
                     try {
                         await api.v2.domain.deleteFreeSubdomain({
-                            token: userInfo?.usertoken || '',
                             domain: formData.choose,
                             record: formData.recordValue,
                         });

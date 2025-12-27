@@ -138,7 +138,7 @@ export const FAQ_DATA: FAQItem[] = [
             <br />
             友链的期限不固定，如发现违规，我们有权直接删除友链。需要注意的是友链的期限不是永久，我们可能会在不通知您的情况下直接删除。
             <br />
-            友链申请详情规则请前往：https://docs.chmlfrp.cn/docs/guide/friends.html
+            友链申请详情规则请前往：https://docs.chmlfrp.net/docs/guide/friends.html
         `,
     },
 ];

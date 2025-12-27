@@ -1,6 +1,5 @@
 import axiosInstance from '../axios/axiosInstance';
 import { BaseResponse } from '../axios/axiosInstance';
-
 interface UsersListData {
     users: Array<{
         id: number;
@@ -32,43 +31,34 @@ export interface NodesListResponse extends BaseResponse {
 }
 
 /** 获取节点列表（管理员） */
-export const getNodes = async (admin_token: string): Promise<NodesListResponse> => {
-    return axiosInstance.get('/admin/nodes', {
-        params: { admin_token },
-    });
+export const getNodes = async (): Promise<NodesListResponse> => {
+    return axiosInstance.get('/admin/nodes');
 };
 
 /** 创建节点（管理员） */
-export const createNode = async (admin_token: string, payload: Record<string, unknown>): Promise<BaseResponse> => {
-    return axiosInstance.post('/admin/nodes', payload, {
-        params: { admin_token },
-    });
+export const createNode = async (payload: Record<string, unknown>): Promise<BaseResponse> => {
+    return axiosInstance.post('/admin/nodes', payload);
 };
 
 /** 更新节点（管理员） */
 export const updateNode = async (
-    admin_token: string,
     nodeId: number,
     payload: Record<string, unknown>
 ): Promise<BaseResponse> => {
-    return axiosInstance.put(`/admin/nodes/${nodeId}`, payload, {
-        params: { admin_token },
-    });
+    return axiosInstance.put(`/admin/nodes/${nodeId}`, payload);
 };
 
 /** 删除节点（管理员） */
-export const deleteNode = async (admin_token: string, nodeId: number): Promise<BaseResponse> => {
-    return axiosInstance.delete(`/admin/nodes/${nodeId}`, {
-        params: { admin_token },
-    });
+export const deleteNode = async (nodeId: number): Promise<BaseResponse> => {
+    return axiosInstance.delete(`/admin/nodes/${nodeId}`);
 };
 
 /**
  * 获取用户列表（管理员）
  */
-export const getUsers = async (admin_token: string, page: number, size: number): Promise<UsersListResponse> => {
+export const getUsers = async (page: number, size: number): Promise<UsersListResponse> => {
     return axiosInstance.get('/admin/users', {
-        params: { admin_token, page, size },
+        params: { page, size },
     });
 };
 
@@ -76,14 +66,13 @@ export const getUsers = async (admin_token: string, page: number, size: number):
  * 搜索用户（管理员）
  */
 export const searchUsers = async (
-    admin_token: string,
-    type: 'username' | 'email' | 'id',
+    type: 'username' | 'email' | 'id' | 'token',
     value: string,
     page: number,
     size: number
 ): Promise<UsersListResponse> => {
     return axiosInstance.get('/admin/search/users', {
-        params: { admin_token, type, value, page, size },
+        params: { type, value, page, size },
     });
 };
 
@@ -91,13 +80,10 @@ export const searchUsers = async (
  * 更新用户（管理员）
  */
 export const updateUser = async (
-    admin_token: string,
     userId: number,
     payload: Record<string, unknown>
 ): Promise<BaseResponse> => {
-    return axiosInstance.put(`/admin/users/${userId}`, payload, {
-        params: { admin_token },
-    });
+    return axiosInstance.put(`/admin/users/${userId}`, payload);
 };
 
 // ---------------- Tunnels (Admin) ----------------
@@ -163,9 +149,9 @@ export interface TunnelSearchResponse extends BaseResponse {
 /**
  * 获取隧道列表（管理员）
  */
-export const getTunnels = async (admin_token: string, page: number, size: number): Promise<TunnelsListResponse> => {
+export const getTunnels = async (page: number, size: number): Promise<TunnelsListResponse> => {
     return axiosInstance.get('/admin/tunnels', {
-        params: { admin_token, page, size },
+        params: { page, size },
     });
 };
 
@@ -173,37 +159,32 @@ export const getTunnels = async (admin_token: string, page: number, size: number
  * 搜索隧道（管理员）
  */
 export const searchTunnels = async (
-    admin_token: string,
     type: 'user_id' | 'name' | 'tunnel_id' | 'dorp',
     value: string,
     page: number,
     size: number
 ): Promise<TunnelSearchResponse> => {
     return axiosInstance.get('/admin/tunnels/search', {
-        params: { admin_token, type, value, page, size },
+        params: { type, value, page, size },
     });
 };
 
 /**
  * 获取隧道详情（管理员）
  */
-export const getTunnelById = async (admin_token: string, tunnelId: number): Promise<TunnelDetailResponse> => {
-    return axiosInstance.get(`/admin/tunnels/${tunnelId}`, {
-        params: { admin_token },
-    });
+export const getTunnelById = async (tunnelId: number): Promise<TunnelDetailResponse> => {
+    return axiosInstance.get(`/admin/tunnels/${tunnelId}`);
 };
 
 /**
  * 管理员强制下线隧道
  */
 export const offlineTunnel = async (
-    admin_token: string,
     identifier: string,
     identifierType: 'id' | 'name' = 'name'
 ): Promise<BaseResponse> => {
     return axiosInstance.post('/admin/tunnels/offline', null, {
         params: {
-            admin_token,
             identifier,
             type: identifierType,
         },
@@ -251,7 +232,6 @@ export interface GiftCardUsageRecord {
  * 创建礼品卡请求参数
  */
 export interface CreateGiftCardRequest {
-    admin_token: string;
     card_code: string;
     card_name?: string;
     reward_type: '会员' | '积分';
@@ -345,9 +325,9 @@ export const createGiftCard = async (request: CreateGiftCardRequest): Promise<Cr
 /**
  * 删除礼品卡（管理员）
  */
-export const deleteGiftCard = async (admin_token: string, card_code: string): Promise<BaseResponse> => {
+export const deleteGiftCard = async (card_code: string): Promise<BaseResponse> => {
     return axiosInstance.delete('/admin/giftcard/delete', {
-        params: { admin_token, card_code },
+        params: { card_code },
     });
 };
 
@@ -355,12 +335,10 @@ export const deleteGiftCard = async (admin_token: string, card_code: string): Pr
  * 启用/禁用礼品卡（管理员）
  */
 export const toggleGiftCardStatus = async (
-    admin_token: string,
     card_code: string,
     is_active: boolean
 ): Promise<ToggleGiftCardStatusResponse> => {
     return axiosInstance.put('/admin/giftcard/toggle-status', {
-        admin_token,
         card_code,
         is_active,
     });
@@ -370,22 +348,21 @@ export const toggleGiftCardStatus = async (
  * 查询礼品卡列表（管理员）
  */
 export const getGiftCards = async (
-    admin_token: string,
     page: number = 1,
     size: number = 20,
     keyword?: string
 ): Promise<GiftCardsListResponse> => {
     return axiosInstance.get('/admin/giftcard/list', {
-        params: { admin_token, page, size, keyword },
+        params: { page, size, keyword },
     });
 };
 
 /**
  * 查询礼品卡详情（管理员）
  */
-export const getGiftCardDetail = async (admin_token: string, card_code: string): Promise<GiftCardDetailResponse> => {
+export const getGiftCardDetail = async (card_code: string): Promise<GiftCardDetailResponse> => {
     return axiosInstance.get('/admin/giftcard/detail', {
-        params: { admin_token, card_code },
+        params: { card_code },
     });
 };
 
@@ -393,11 +370,10 @@ export const getGiftCardDetail = async (admin_token: string, card_code: string):
  * 查询某个礼品卡的所有使用记录（管理员）
  */
 export const getGiftCardUsageByCard = async (
-    admin_token: string,
     card_code: string
 ): Promise<GiftCardUsageByCardResponse> => {
     return axiosInstance.get('/admin/giftcard/usage/by-card', {
-        params: { admin_token, card_code },
+        params: { card_code },
     });
 };
 
@@ -405,10 +381,169 @@ export const getGiftCardUsageByCard = async (
  * 查询某个用户的领取记录（管理员）
  */
 export const getGiftCardUsageByUser = async (
-    admin_token: string,
     user_id: number
 ): Promise<GiftCardUsageByUserResponse> => {
     return axiosInstance.get('/admin/giftcard/usage/by-user', {
-        params: { admin_token, user_id },
+        params: { user_id },
     });
+};
+
+// ---------------- System Messages (Admin) ----------------
+
+/**
+ * 系统消息数据接口（详情）
+ */
+export interface SystemMessage {
+    id: number;
+    title: string;
+    contentMd: string;
+    priority: number;
+    targetUsers: string[] | null;
+    publishTime: string;
+    createdAt: string;
+}
+
+/**
+ * 系统消息列表项接口（列表API不包含contentMd）
+ */
+export interface SystemMessageListItem {
+    id: number;
+    title: string;
+    priority: number;
+    targetUsers: string[] | string | null; // 可能是数组或JSON字符串
+    publishTime: string;
+    createdAt: string;
+}
+
+/**
+ * 创建系统消息请求参数
+ */
+export interface CreateSystemMessageRequest {
+    title: string;
+    contentMd: string;
+    priority?: number;
+    targetUsers?: string[] | null;
+    publishTime?: string;
+}
+
+/**
+ * 更新系统消息请求参数
+ */
+export interface UpdateSystemMessageRequest {
+    id: number;
+    title?: string;
+    contentMd?: string;
+    priority?: number;
+    targetUsers?: string[] | null;
+    publishTime?: string;
+}
+
+/**
+ * 创建系统消息响应
+ */
+export interface CreateSystemMessageResponse extends BaseResponse {
+    data: SystemMessage;
+}
+
+/**
+ * 更新系统消息响应
+ */
+export interface UpdateSystemMessageResponse extends BaseResponse {
+    data: SystemMessage;
+}
+
+/**
+ * 创建系统消息（管理员）
+ */
+export const createSystemMessage = async (
+    request: CreateSystemMessageRequest
+): Promise<CreateSystemMessageResponse> => {
+    return axiosInstance.post('/admin/message/create', {
+        ...request,
+    });
+};
+
+/**
+ * 更新系统消息（管理员）
+ */
+export const updateSystemMessage = async (
+    request: UpdateSystemMessageRequest
+): Promise<UpdateSystemMessageResponse> => {
+    return axiosInstance.post('/admin/message/update', {
+        ...request,
+    });
+};
+
+/**
+ * 删除系统消息（管理员）
+ */
+export const deleteSystemMessage = async (id: number): Promise<BaseResponse> => {
+    return axiosInstance.post('/admin/message/delete', {
+        id,
+    });
+};
+
+/**
+ * 消息列表数据
+ */
+interface SystemMessagesListData {
+    messages: SystemMessageListItem[];
+    total: number;
+    page: number;
+    size: number;
+    totalPages: number;
+}
+
+/**
+ * 消息列表响应
+ */
+export interface SystemMessagesListResponse extends BaseResponse {
+    data: SystemMessagesListData;
+}
+
+/**
+ * 获取消息列表参数
+ */
+export interface GetSystemMessagesListParams {
+    page?: number;
+    size?: number;
+    type?: 'all' | 'title' | 'content' | 'id';
+    value?: string;
+}
+
+/**
+ * 消息详情响应
+ */
+export interface SystemMessageDetailResponse extends BaseResponse {
+    data: SystemMessage;
+}
+
+/**
+ * 获取所有消息列表（管理员）- 支持分页和检索
+ */
+export const getSystemMessagesList = async (
+    params: GetSystemMessagesListParams = {}
+): Promise<SystemMessagesListResponse> => {
+    const { page = 1, size = 10, type = 'all', value } = params;
+
+    const queryParams: Record<string, string | number> = {
+        page,
+        size,
+        type,
+    };
+
+    if (value && type !== 'all') {
+        queryParams.value = value;
+    }
+
+    return axiosInstance.get('/admin/message/list', {
+        params: queryParams,
+    });
+};
+
+/**
+ * 获取消息详情（管理员）
+ */
+export const getSystemMessageDetail = async (id: number): Promise<SystemMessageDetailResponse> => {
+    return axiosInstance.get(`/admin/message/detail/${id}`);
 };

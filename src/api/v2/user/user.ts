@@ -36,8 +36,9 @@ interface LoginResponse extends BaseResponse {
  * @returns {Promise<LoginResponse>} 登录响应
  */
 export const login = async (username: string, password: string): Promise<LoginResponse> => {
-    return axiosInstance.get('/login', {
-        params: { username, password },
+    return axiosInstance.post('/login', {
+        username,
+        password,
     });
 };
 
@@ -132,29 +133,22 @@ interface UserInfoResponse extends BaseResponse {
 
 /**
  * 获取用户信息
- * @param {string} token - 用户令牌
  * @returns {Promise<UserInfoResponse>} 用户信息响应
  */
-export const getUserInfo = async (token: string): Promise<UserInfoResponse> => {
-    return axiosInstance.get('/userinfo', {
-        params: { token },
-    });
+export const getUserInfo = async (): Promise<UserInfoResponse> => {
+    return axiosInstance.get('/userinfo');
 };
 
 /**
  * 重置令牌
- * @param {string} token - 用户令牌
  * @returns {Promise<BaseResponse>} 重置令牌响应
  */
-export const resetToken = async (token: string): Promise<BaseResponse> => {
-    return axiosInstance.get('/retoken', {
-        params: { token },
-    });
+export const resetToken = async (): Promise<BaseResponse> => {
+    return axiosInstance.get('/retoken');
 };
 
 /**
  * 用户签到
- * @param {string} token - 用户令牌
  * @param {string} lot_number - 验证码批次号
  * @param {string} captcha_output - 验证码输出
  * @param {string} pass_token - 验证通过的令牌
@@ -162,14 +156,12 @@ export const resetToken = async (token: string): Promise<BaseResponse> => {
  * @returns {Promise<BaseResponse>} 签到响应
  */
 export const signIn = async (
-    token: string,
     lot_number: string,
     captcha_output: string,
     pass_token: string,
     gen_time: string
 ): Promise<BaseResponse> => {
     return axiosInstance.post('/qiandao', {
-        token,
         lot_number,
         captcha_output,
         pass_token,
@@ -181,52 +173,47 @@ export const signIn = async (
  * 重置密码
  * @param {string} original_password - 原密码
  * @param {string} new_password - 新密码
- * @param {string} token - 用户令牌
  * @returns {Promise<BaseResponse>} 重置密码响应
  */
 export const resetPassword = async (
     original_password: string,
-    new_password: string,
-    token: string
+    new_password: string
 ): Promise<BaseResponse> => {
     return axiosInstance.get('/reset_password', {
-        params: { original_password, new_password, token },
+        params: { original_password, new_password },
     });
 };
 
 /**
  * 修改用户名
- * @param {string} token - 用户令牌
  * @param {string} new_username - 新用户名
  * @returns {Promise<BaseResponse>} 修改用户名响应
  */
-export const updateUserName = async (token: string, new_username: string): Promise<BaseResponse> => {
+export const updateUserName = async (new_username: string): Promise<BaseResponse> => {
     return axiosInstance.get('/update_username', {
-        params: { token, new_username },
+        params: { new_username },
     });
 };
 
 /**
  * 修改QQ
- * @param {string} token - 用户令牌
  * @param {string} new_qq - 新QQ号
  * @returns {Promise<BaseResponse>} 修改QQ响应
  */
-export const updateQQ = async (token: string, new_qq: string): Promise<BaseResponse> => {
+export const updateQQ = async (new_qq: string): Promise<BaseResponse> => {
     return axiosInstance.get('/update_qq', {
-        params: { token, new_qq },
+        params: { new_qq },
     });
 };
 
 /**
  * 重置头像
- * @param {string} token - 用户令牌
  * @param {string} new_userimg - 新头像URL
  * @returns {Promise<BaseResponse>} 重置头像响应
  */
-export const updateUserImage = async (token: string, new_userimg: string): Promise<BaseResponse> => {
+export const updateUserImage = async (new_userimg: string): Promise<BaseResponse> => {
     return axiosInstance.get('/update_userimg', {
-        params: { token, new_userimg },
+        params: { new_userimg },
     });
 };
 
@@ -243,43 +230,37 @@ interface GetMessageResponse extends BaseResponse {
 
 /**
  * 获取消息
- * @param {string} token - 用户令牌
  * @returns {Promise<GetMessageResponse>} 消息响应
  */
-export const getMessages = async (token: string): Promise<GetMessageResponse> => {
-    return axiosInstance.get('/messages', {
-        params: { token },
-    });
+export const getMessages = async (): Promise<GetMessageResponse> => {
+    return axiosInstance.get('/messages');
 };
 
 /**
  * 重置邮箱
- * @param {string} token - 用户令牌
  * @param {string} new_email - 新邮箱地址
  * @param {string} email_code - 邮箱验证码
  * @param {string} new_email_code - 新邮箱验证码
  * @returns {Promise<BaseResponse>} 重置邮箱响应
  */
 export const resetEmail = async (
-    token: string,
     new_email: string,
     email_code: string,
     new_email_code: string
 ): Promise<BaseResponse> => {
     return axiosInstance.get('/reset_email', {
-        params: { token, new_email, email_code, new_email_code },
+        params: { new_email, email_code, new_email_code },
     });
 };
 
 /**
  *
- * @param token 用户令牌
  * @param email_code 邮箱验证码
  * @returns {Promise<BaseResponse>} 删除账户响应
  */
-export const deleteAccount = async (token: string, email_code: string): Promise<BaseResponse> => {
+export const deleteAccount = async (email_code: string): Promise<BaseResponse> => {
     return axiosInstance.get('/delete_account', {
-        params: { token, email_code },
+        params: { email_code },
     });
 };
 
@@ -314,18 +295,14 @@ interface OfflineUserNodesResponse extends BaseResponse {
 
 /**
  * 下线用户所有节点
- * @param {string} token - 用户认证token
  * @returns {Promise<OfflineUserNodesResponse>} 下线用户所有节点响应
  */
-export const offlineUserNodes = async (token: string): Promise<OfflineUserNodesResponse> => {
-    return axiosInstance.get('/offline_user_nodes', {
-        params: { token },
-    });
+export const offlineUserNodes = async (): Promise<OfflineUserNodesResponse> => {
+    return axiosInstance.get('/offline_user_nodes');
 };
 
 // 日志查询参数接口
 export interface GetUserLogsParams {
-    token: string;
     page?: number;
     size?: number;
     action?: string;
@@ -387,7 +364,6 @@ export interface GetSystemMessagesParams {
     page?: number;
     size?: number;
     priority?: number; // 1-普通，2-重要，3-紧急
-    usertoken?: string; // 用户令牌（可选）
 }
 
 // 获取系统消息列表响应
@@ -407,7 +383,7 @@ interface GetSystemMessagesResponse extends BaseResponse {
  * @returns {Promise<GetSystemMessagesResponse>} 系统消息列表响应
  */
 export const getSystemMessages = async (params: GetSystemMessagesParams = {}): Promise<GetSystemMessagesResponse> => {
-    return axiosInstance.get('/system-message/list', {
+    return axiosInstance.get('/message/list', {
         params,
     });
 };
@@ -423,7 +399,7 @@ interface GetSystemMessageDetailResponse extends BaseResponse {
  * @returns {Promise<GetSystemMessageDetailResponse>} 系统消息详情响应
  */
 export const getSystemMessageDetail = async (id: number): Promise<GetSystemMessageDetailResponse> => {
-    return axiosInstance.get('/system-message/detail', {
+    return axiosInstance.get('/message/detail', {
         params: { id },
     });
 };
@@ -455,7 +431,7 @@ interface SearchSystemMessagesResponse extends BaseResponse {
 export const searchSystemMessages = async (
     params: SearchSystemMessagesParams
 ): Promise<SearchSystemMessagesResponse> => {
-    return axiosInstance.get('/system-message/search', {
+    return axiosInstance.get('/message/search', {
         params,
     });
 };

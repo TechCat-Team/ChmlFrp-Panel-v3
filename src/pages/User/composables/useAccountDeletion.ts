@@ -52,7 +52,7 @@ export function useAccountDeletion(userInfo: { email?: string; usertoken?: strin
     const deleteAccount = async () => {
         loading.value = true;
         try {
-            const response = await api.v2.user.deleteAccount(userInfo?.usertoken || '', code.value);
+            const response = await api.v2.user.deleteAccount(code.value);
             message.success(response.msg + '，账户注销成功');
             dialog.success({
                 title: '账户注销成功',

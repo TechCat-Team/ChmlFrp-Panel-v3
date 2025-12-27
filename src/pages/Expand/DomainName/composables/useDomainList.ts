@@ -14,7 +14,7 @@ export function useDomainList(userInfo: { usertoken?: string } | undefined) {
     const fetchDomainData = async () => {
         loading.value = true;
         try {
-            const response = await api.v2.domain.getUserFreeSubdomains(userInfo?.usertoken || '');
+            const response = await api.v2.domain.getUserFreeSubdomains();
             domainData.value = response.data;
         } catch (error) {
             message.error('获取创建的免费域名数据失败: ' + (error as Error).message);

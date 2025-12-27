@@ -311,7 +311,6 @@ const fetchTunnels = async () => {
 
         if (isSearchMode.value && searchForm.value.trim()) {
             const res = await api.v2.admin.searchTunnels(
-                adminToken,
                 searchForm.type as 'user_id' | 'name' | 'tunnel_id' | 'dorp',
                 searchForm.value.trim(),
                 pagination.page,
@@ -319,7 +318,7 @@ const fetchTunnels = async () => {
             );
             data = res.data;
         } else {
-            const res = await api.v2.admin.getTunnels(adminToken, pagination.page, pagination.pageSize);
+            const res = await api.v2.admin.getTunnels(pagination.page, pagination.pageSize);
             data = res.data;
         }
 
@@ -371,8 +370,7 @@ const handleViewDetail = async (tunnel: Tunnel) => {
     detailLoading.value = true;
 
     try {
-        const adminToken = userInfoStore?.usertoken || '';
-        const res = await api.v2.admin.getTunnelById(adminToken, tunnel.id);
+        const res = await api.v2.admin.getTunnelById(tunnel.id);
         currentTunnel.value = res.data;
     } catch (error: any) {
         const msg = error?.message || '请求失败，请检查网络或联系管理员';
@@ -393,8 +391,7 @@ const handleOfflineTunnel = (tunnel: Tunnel) => {
         negativeText: '取消',
         onPositiveClick: async () => {
             try {
-                const adminToken = userInfoStore?.usertoken || '';
-                await api.v2.admin.offlineTunnel(adminToken, String(tunnel.id), 'id');
+                await api.v2.admin.offlineTunnel(String(tunnel.id), 'id');
                 message.success('隧道下线成功');
                 // 刷新列表
                 fetchTunnels();

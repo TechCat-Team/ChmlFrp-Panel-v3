@@ -96,7 +96,7 @@ const { loading, domainData, fetchDomainData } = useDomainList(userInfo || undef
 const { model, fastModel, targetPlaceholder, resetForm, resetFastForm } = useDomainForm();
 
 // 域名选项
-const { domainNameOptions, loading: loadingDomainOptions, fetchDomainOptions } = useDomainOptions();
+const { domainNameOptions, fetchDomainOptions } = useDomainOptions();
 
 // 隧道列表
 const {
@@ -120,7 +120,7 @@ const {
 });
 
 // 编辑域名
-const { loading: editLoading, updateDomain } = useDomainEdit(userInfo || undefined, () => {
+const { loading: editLoading, updateDomain } = useDomainEdit(() => {
     editDomainNameModal.value = false;
     resetForm();
     fetchDomainData();

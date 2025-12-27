@@ -275,7 +275,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted, h, reactive, watch, nextTick } from 'vue';
+import { ref, onMounted, h, reactive, watch, nextTick, computed } from 'vue';
 import { useRoute } from 'vue-router';
 import {
     NDataTable,
@@ -380,6 +380,7 @@ const searchTypeOptions = [
     { label: '用户ID', value: 'id' },
     { label: '用户名', value: 'username' },
     { label: '邮箱', value: 'email' },
+    { label: 'Token', value: 'token' },
 ];
 
 // 分页配置
@@ -407,20 +408,18 @@ const getSearchTypeLabel = () => {
 const fetchUsers = async () => {
     loading.value = true;
     try {
-        const adminToken = userInfoStore?.usertoken || '';
         let data;
 
         if (isSearchMode.value && searchForm.value.trim()) {
             const res = await api.v2.admin.searchUsers(
-                adminToken,
-                searchForm.type as 'username' | 'email' | 'id',
+                searchForm.type as 'username' | 'email' | 'id' | 'token',
                 searchForm.value.trim(),
                 pagination.page,
                 pagination.pageSize
             );
             data = res.data;
         } else {
-            const res = await api.v2.admin.getUsers(adminToken, pagination.page, pagination.pageSize);
+            const res = await api.v2.admin.getUsers(pagination.page, pagination.pageSize);
             data = res.data;
         }
 
@@ -518,7 +517,6 @@ const handleSave = () => {
         if (!errors) {
             saving.value = true;
             try {
-                const adminToken = userInfoStore?.usertoken || '';
                 const userId = currentUser.value.id;
 
                 // 构造请求体，只包含需要更新的字段
@@ -533,7 +531,7 @@ const handleSave = () => {
                     requestBody.term = '9999-09-09';
                 }
 
-                await api.v2.admin.updateUser(adminToken, userId as number, requestBody as Record<string, unknown>);
+                await api.v2.admin.updateUser(userId as number, requestBody as Record<string, unknown>);
                 message.success('用户信息更新成功');
                 showEditModal.value = false;
                 termTimestamp.value = null;

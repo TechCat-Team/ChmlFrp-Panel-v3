@@ -16,7 +16,6 @@ export function useDomainCreate(userInfo: { usertoken?: string } | undefined, on
         loading.value = true;
         try {
             await api.v2.domain.createFreeSubdomain({
-                token: userInfo?.usertoken || '',
                 domain: formData.selectedDomain,
                 record: formData.recordValue,
                 type: formData.selectedRecordType,
@@ -62,7 +61,6 @@ export function useDomainCreate(userInfo: { usertoken?: string } | undefined, on
 
         try {
             await api.v2.domain.createFreeSubdomain({
-                token: userInfo?.usertoken || '',
                 domain: formData.selectedDomain,
                 record,
                 type,

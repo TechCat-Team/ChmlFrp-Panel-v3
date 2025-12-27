@@ -18,6 +18,7 @@
             <n-li>{{ features.tunnelCount }}</n-li>
             <n-li>{{ features.trafficLimit }}</n-li>
             <n-li>{{ features.subdomainCount }}</n-li>
+            <n-li>{{ features.sslCertificate }}</n-li>
             <n-tooltip v-if="features.supportTooltip" trigger="hover">
                 <template #trigger>
                     <n-li>{{ features.support }}</n-li>
@@ -50,6 +51,7 @@ interface Props {
         tunnelCount: string;
         trafficLimit: string;
         subdomainCount: string;
+        sslCertificate: string;
         support: string;
         supportTooltip?: string;
     };

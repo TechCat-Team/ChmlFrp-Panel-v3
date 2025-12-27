@@ -20,7 +20,7 @@
                     tag="a"
                     target="_blank"
                     type="primary"
-                    href="https://docs.chmlfrp.cn/docs/use/mapping.html"
+                    href="https://docs.chmlfrp.net/docs/use/mapping.html"
                 >
                     如果您是初次使用，请点击此链接查看教程！
                 </n-button>

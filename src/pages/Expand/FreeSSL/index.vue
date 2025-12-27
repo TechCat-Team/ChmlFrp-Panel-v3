@@ -91,7 +91,7 @@ const certificateFormModel = ref<CertificateFormModel>({
 });
 
 // 申请证书
-const { loading: createLoading, requestCertificate } = useCertificateRequest(userInfo || undefined, () => {
+const { loading: createLoading, requestCertificate } = useCertificateRequest(() => {
     createCertificateModal.value = false;
     certificateFormModel.value = {
         provider: null,

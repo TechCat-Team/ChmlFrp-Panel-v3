@@ -6,7 +6,7 @@ import type { TunnelCard } from '../types';
 /**
  * 隧道操作 composable
  */
-export function useTunnelOperations(userInfo: { usertoken?: string }, onRefresh: () => void) {
+export function useTunnelOperations(onRefresh: () => void) {
     const message = useMessage();
     const dialog = useDialog();
 
@@ -18,7 +18,7 @@ export function useTunnelOperations(userInfo: { usertoken?: string }, onRefresh:
     const refreshTunnelData = async (card: TunnelCard) => {
         loadingRefresh.value = true;
         try {
-            const response = await api.v2.tunnel.refreshTunnel(userInfo?.usertoken || '', card.name);
+            const response = await api.v2.tunnel.refreshTunnel(card.name);
             if (response.code === 200) {
                 message.success('隧道数据刷新成功');
                 onRefresh();
@@ -43,7 +43,7 @@ export function useTunnelOperations(userInfo: { usertoken?: string }, onRefresh:
                 try {
                     d.loading = true;
                     loadingOffline.value = true;
-                    const response = await api.v2.tunnel.offlineTunnel(userInfo?.usertoken || '', card.name);
+                    const response = await api.v2.tunnel.offlineTunnel(card.name);
                     if (response.code === 200) {
                         message.success('隧道强制下线成功');
                         onRefresh();
@@ -64,7 +64,7 @@ export function useTunnelOperations(userInfo: { usertoken?: string }, onRefresh:
     const handleDeleteTunnel = async (card: TunnelCard) => {
         deletetTunnelSuccess.value = false;
         try {
-            const response = await api.v2.tunnel.deleteTunnel(userInfo?.usertoken || '', card.id);
+            const response = await api.v2.tunnel.deleteTunnel(card.id);
 
             if (response.code === 200) {
                 message.success('成功删除隧道：' + card.name);
@@ -73,7 +73,7 @@ export function useTunnelOperations(userInfo: { usertoken?: string }, onRefresh:
                 // 如果是 HTTP/HTTPS 隧道，检查是否需要删除免费域名
                 if (card.type === 'http' || card.type === 'https') {
                     try {
-                        const domainData = await api.v2.domain.getUserFreeSubdomains(userInfo?.usertoken || '');
+                        const domainData = await api.v2.domain.getUserFreeSubdomains();
                         const domainRecord = domainData.data.find(
                             (item: { record: string; domain: string }) => item.record + '.' + item.domain === card.dorp
                         );
@@ -88,7 +88,6 @@ export function useTunnelOperations(userInfo: { usertoken?: string }, onRefresh:
                                     domainDialog.loading = true;
                                     try {
                                         await api.v2.domain.deleteFreeSubdomain({
-                                            token: userInfo?.usertoken || '',
                                             domain: domainRecord.domain,
                                             record: domainRecord.record,
                                         });
