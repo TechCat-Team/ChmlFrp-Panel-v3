@@ -114,7 +114,7 @@
         <n-grid-item :span="3">
             <n-card title="常见教程">
                 <template #header-extra>
-                    <n-button text tag="a" href="https://docs.chmlfrp.cn" target="_blank" type="primary">
+                    <n-button text tag="a" href="https://docs.chmlfrp.net" target="_blank" type="primary">
                         更多教程
                     </n-button>
                 </template>
@@ -150,7 +150,7 @@
                     <n-button
                         text
                         tag="a"
-                        href="https://docs.chmlfrp.cn/docs/use/mapping.html"
+                        href="https://docs.chmlfrp.net/docs/use/mapping.html"
                         target="_blank"
                         type="primary"
                     >

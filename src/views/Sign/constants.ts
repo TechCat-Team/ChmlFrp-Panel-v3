@@ -31,9 +31,9 @@ export const MAX_LENGTH = {
 
 // 服务条款链接
 export const TERMS_LINKS = {
-    TERMS_OF_SERVICE: 'https://docs.chmlfrp.cn/terms/terms-of-service.html',
-    PRIVACY_POLICY: 'https://docs.chmlfrp.cn/terms/privacy-policy.html',
-    DISCLAIMER: 'https://docs.chmlfrp.cn/terms/disclaimer.html',
+    TERMS_OF_SERVICE: 'https://docs.chmlfrp.net/terms/terms-of-service.html',
+    PRIVACY_POLICY: 'https://docs.chmlfrp.net/terms/privacy-policy.html',
+    DISCLAIMER: 'https://docs.chmlfrp.net/terms/disclaimer.html',
 } as const;
 
 // Logo URL

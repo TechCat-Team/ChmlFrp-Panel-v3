@@ -219,7 +219,7 @@ export const computedMenuOptionsUser = computed(() => [
                     h(
                         'a',
                         {
-                            href: 'https://docs.chmlfrp.cn',
+                            href: 'https://docs.chmlfrp.net',
                             target: '_blank',
                             rel: 'noopenner noreferrer',
                         },
@@ -439,7 +439,7 @@ export const computedMenuOptionsGuest = computed(() => [
                     h(
                         'a',
                         {
-                            href: 'https://docs.chmlfrp.cn',
+                            href: 'https://docs.chmlfrp.net',
                             target: '_blank',
                             rel: 'noopenner noreferrer',
                         },
