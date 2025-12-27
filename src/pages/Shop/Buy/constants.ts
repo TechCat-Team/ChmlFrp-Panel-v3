@@ -46,6 +46,7 @@ export const FREE_USER_FEATURES = {
     tunnelCount: '隧道数量：4条',
     trafficLimit: '流量限制：无限制',
     subdomainCount: '二级域名数量：2条',
+    sslCertificate: '免费SSL证书：2个',
     support: '官方技术支持：不支持',
 } as const;
 
@@ -56,6 +57,7 @@ export const NORMAL_MEMBER_FEATURES = {
     tunnelCount: '隧道数量：8条',
     trafficLimit: '流量限制：无限制',
     subdomainCount: '二级域名数量：4条',
+    sslCertificate: '免费SSL证书：4个',
     support: '官方技术支持：不支持',
 } as const;
 
@@ -66,6 +68,7 @@ export const ADVANCED_MEMBER_FEATURES = {
     tunnelCount: '隧道数量：12条',
     trafficLimit: '流量限制：无限制',
     subdomainCount: '二级域名数量：8条',
+    sslCertificate: '免费SSL证书：8个',
     support: '官方技术支持：每月1次',
     supportTooltip: TECHNICAL_SUPPORT_TIP,
 } as const;
@@ -77,6 +80,7 @@ export const SUPER_MEMBER_FEATURES = {
     tunnelCount: '隧道数量：16条',
     trafficLimit: '流量限制：无限制',
     subdomainCount: '二级域名数量：16条',
+    sslCertificate: '免费SSL证书：16个',
     support: '官方技术支持：每月2次',
     supportTooltip: TECHNICAL_SUPPORT_TIP,
 } as const;

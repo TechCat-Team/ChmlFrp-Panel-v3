@@ -19,6 +19,7 @@ export interface MembershipFeatures {
     tunnelCount: string;
     trafficLimit: string;
     subdomainCount: string;
+    sslCertificate: string;
     support: string;
 }
 
