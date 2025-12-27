@@ -1004,8 +1004,7 @@ const handleOpenCreateModal = () => {
 const fetchNodes = async () => {
     loading.value = true;
     try {
-        const adminToken = userInfoStore?.usertoken || '';
-        const res = await api.v2.admin.getNodes(adminToken);
+        const res = await api.v2.admin.getNodes();
         nodes.value = (res.data?.nodes as any[]) || [];
     } catch (error: any) {
         const msg = error?.message || '请求失败，请检查网络或联系管理员';
@@ -1048,8 +1047,7 @@ const handleCreate = async () => {
             ipv6: createForm.ipv6,
         };
 
-        const adminToken = userInfoStore?.usertoken || '';
-        await api.v2.admin.createNode(adminToken, requestData as unknown as Record<string, unknown>);
+        await api.v2.admin.createNode(requestData as unknown as Record<string, unknown>);
         message.success('节点创建成功');
         showCreateModal.value = false;
         resetCreateForm();
@@ -1141,9 +1139,7 @@ const handleEdit = async () => {
             ipv6: editForm.ipv6,
         };
 
-        const adminToken = userInfoStore?.usertoken || '';
         await api.v2.admin.updateNode(
-            adminToken,
             currentEditNode.value.id,
             requestData as unknown as Record<string, unknown>
         );
@@ -1282,8 +1278,7 @@ const handleDelete = async (node: Node) => {
     const loadingMessage = message.loading('正在删除节点...', { duration: 0 });
 
     try {
-        const adminToken = userInfoStore?.usertoken || '';
-        const res = await api.v2.admin.deleteNode(adminToken, node.id);
+        const res = await api.v2.admin.deleteNode(node.id);
         loadingMessage.destroy();
         const data: any = (res as any).data;
         if (data && typeof data === 'object') {

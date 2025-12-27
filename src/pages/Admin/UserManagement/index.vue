@@ -412,7 +412,6 @@ const fetchUsers = async () => {
 
         if (isSearchMode.value && searchForm.value.trim()) {
             const res = await api.v2.admin.searchUsers(
-                adminToken,
                 searchForm.type as 'username' | 'email' | 'id',
                 searchForm.value.trim(),
                 pagination.page,
@@ -420,7 +419,7 @@ const fetchUsers = async () => {
             );
             data = res.data;
         } else {
-            const res = await api.v2.admin.getUsers(adminToken, pagination.page, pagination.pageSize);
+            const res = await api.v2.admin.getUsers(pagination.page, pagination.pageSize);
             data = res.data;
         }
 
@@ -533,7 +532,7 @@ const handleSave = () => {
                     requestBody.term = '9999-09-09';
                 }
 
-                await api.v2.admin.updateUser(adminToken, userId as number, requestBody as Record<string, unknown>);
+                await api.v2.admin.updateUser(userId as number, requestBody as Record<string, unknown>);
                 message.success('用户信息更新成功');
                 showEditModal.value = false;
                 termTimestamp.value = null;

@@ -28,7 +28,7 @@ export function useTunnelEdit(
     // 获取免费节点详情
     const apiGetFreeNodeInfo = async () => {
         try {
-            const data = await api.v2.domain.getUserFreeSubdomains(userInfo?.usertoken || '');
+            const data = await api.v2.domain.getUserFreeSubdomains();
             return data.data;
         } catch (error) {
             message.error('节点详情获取失败: ' + (error as Error).message);
@@ -46,7 +46,6 @@ export function useTunnelEdit(
     ) => {
         try {
             const data = await api.v2.domain.createFreeSubdomain({
-                token: userInfo?.usertoken || '',
                 domain: domain,
                 record: record,
                 type: 'CNAME',
@@ -66,7 +65,6 @@ export function useTunnelEdit(
     const apiDeleteFreeDomain = async (domain: string, record: string, flag = true) => {
         try {
             const data = await api.v2.domain.deleteFreeSubdomain({
-                token: userInfo?.usertoken || '',
                 domain: domain,
                 record: record,
             });
@@ -134,7 +132,7 @@ export function useTunnelEdit(
     // 获取节点详情
     const apiGetNodeInfo = async (node: string) => {
         try {
-            const data = await api.v2.node.getNodeInfo(userInfo?.usertoken || '', node);
+            const data = await api.v2.node.getNodeInfo(node);
             return data.data;
         } catch (error) {
             message.error('节点详情获取失败: ' + (error as Error).message);
@@ -188,7 +186,6 @@ export function useTunnelEdit(
         try {
             const data = await api.v2.tunnel.updateTunnel({
                 tunnelid: formData.tunnelid,
-                token: userInfo?.usertoken || '',
                 tunnelname: formData.name,
                 node: formData.node,
                 localip: formData.localip,

@@ -1,6 +1,7 @@
 import axiosInstance from '../axios/axiosInstance';
 import axios from 'axios';
 import { BaseResponse } from '../axios/axiosInstance';
+import { useUserStore } from '@/stores/user';
 
 // SSL证书提供商类型
 export type SSLProvider = 'letsencrypt' | 'zerossl' | 'google';
@@ -13,7 +14,6 @@ export type CertificateStatus = 'pending' | 'processing' | 'issued' | 'failed' |
 
 // 申请证书请求参数
 export interface RequestCertificateParams {
-    usertoken: string;
     provider: SSLProvider;
     domains: string[] | string; // 可以是数组或逗号分隔的字符串
     challengeType?: ChallengeType; // 可选，默认为http01
@@ -53,7 +53,7 @@ export interface RequestCertificateResponse extends BaseResponse {
 
 // 验证证书请求参数
 export interface VerifyCertificateParams {
-    usertoken: string;
+    // 无参数，token 通过 Bearer header 传递
 }
 
 // 验证证书响应数据
@@ -122,9 +122,9 @@ export interface CertificateDetailResponse extends BaseResponse {
     data: IssuedCertificateDetail | PendingCertificateDetail;
 }
 
-// 删除证书请求参数
+// 删除证书请求参数（已废弃，token 通过 Bearer header 传递）
 export interface DeleteCertificateParams {
-    usertoken: string;
+    // 无参数，token 通过 Bearer header 传递
 }
 
 /**
@@ -139,27 +139,19 @@ export const requestCertificate = async (params: RequestCertificateParams): Prom
 /**
  * 验证并签发证书
  * @param id 证书ID
- * @param params 验证证书参数
  * @returns 验证证书响应
  */
-export const verifyCertificate = async (
-    id: number,
-    params: VerifyCertificateParams
-): Promise<VerifyCertificateResponse> => {
-    return axiosInstance.post(`/ssl/verify/${id}`, params);
+export const verifyCertificate = async (id: number): Promise<VerifyCertificateResponse> => {
+    return axiosInstance.post(`/ssl/verify/${id}`, {});
 };
 
 /**
  * 查询证书列表
- * @param usertoken 用户token
  * @param status 证书状态筛选（可选）
  * @returns 证书列表响应
  */
-export const getCertificateList = async (
-    usertoken: string,
-    status?: CertificateStatus
-): Promise<CertificateListResponse> => {
-    const params: Record<string, string> = { usertoken };
+export const getCertificateList = async (status?: CertificateStatus): Promise<CertificateListResponse> => {
+    const params: Record<string, string> = {};
     if (status) {
         params.status = status;
     }
@@ -169,30 +161,34 @@ export const getCertificateList = async (
 /**
  * 获取证书详情
  * @param id 证书ID
- * @param usertoken 用户token
  * @returns 证书详情响应
  */
-export const getCertificateDetail = async (id: number, usertoken: string): Promise<CertificateDetailResponse> => {
-    return axiosInstance.get(`/ssl/detail/${id}`, {
-        params: { usertoken },
-    });
+export const getCertificateDetail = async (id: number): Promise<CertificateDetailResponse> => {
+    return axiosInstance.get(`/ssl/detail/${id}`);
 };
 
 /**
  * 下载证书
  * @param id 证书ID
- * @param usertoken 用户token
  * @param type 下载类型（可选，默认为full）
  * @returns 证书文件内容
  */
 export const downloadCertificate = async (
     id: number,
-    usertoken: string,
     type: 'certificate' | 'privatekey' | 'chain' | 'full' = 'full'
 ): Promise<string> => {
     // 对于文本响应，使用原生axios以避免响应拦截器的JSON解析
+    // 需要手动添加 Authorization header
+    const userStore = useUserStore();
+    const token = userStore.userInfo?.usertoken;
+    const headers: Record<string, string> = {};
+    if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+    }
+    
     const response = await axios.get(`${axiosInstance.defaults.baseURL}/ssl/download/${id}`, {
-        params: { usertoken, type },
+        params: { type },
+        headers,
         responseType: 'text',
     });
     return response.data;
@@ -201,9 +197,8 @@ export const downloadCertificate = async (
 /**
  * 删除证书
  * @param id 证书ID
- * @param params 删除证书参数
  * @returns 删除证书响应
  */
-export const deleteCertificate = async (id: number, params: DeleteCertificateParams): Promise<BaseResponse> => {
-    return axiosInstance.delete(`/ssl/delete/${id}`, { data: params });
+export const deleteCertificate = async (id: number): Promise<BaseResponse> => {
+    return axiosInstance.delete(`/ssl/delete/${id}`);
 };

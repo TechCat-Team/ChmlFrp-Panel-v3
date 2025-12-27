@@ -34,7 +34,6 @@ export function useExchangeCode(userInfo: { id?: number; usertoken?: string }) {
         loading.value = true;
         try {
             const response: RedeemGiftcardResponse = await redeemGiftcard({
-                usertoken: userInfo.usertoken,
                 giftcode: model.value.exchangeCode,
             });
 

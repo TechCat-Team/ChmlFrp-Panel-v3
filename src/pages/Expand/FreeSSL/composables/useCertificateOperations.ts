@@ -35,9 +35,7 @@ export function useCertificateOperations(
         verifying.value = certificate.id;
         message.info('正在进行验证，这可能需要些时间，请耐心等待');
         try {
-            await api.v2.ssl.verifyCertificate(certificate.id, {
-                usertoken: userInfo.usertoken,
-            });
+            await api.v2.ssl.verifyCertificate(certificate.id);
             message.success('证书验证成功，已自动签发');
             onRefresh();
         } catch (error) {
@@ -91,9 +89,7 @@ export function useCertificateOperations(
 
                     deleting.value = certificate.id;
                     try {
-                        await api.v2.ssl.deleteCertificate(certificate.id, {
-                            usertoken: userInfo.usertoken,
-                        });
+                        await api.v2.ssl.deleteCertificate(certificate.id);
                         message.success('证书删除成功');
                         onRefresh();
                     } catch (error) {
@@ -117,9 +113,7 @@ export function useCertificateOperations(
                     }
                     deleting.value = certificate.id;
                     try {
-                        await api.v2.ssl.deleteCertificate(certificate.id, {
-                            usertoken: userInfo.usertoken,
-                        });
+                        await api.v2.ssl.deleteCertificate(certificate.id);
                         message.success('证书删除成功');
                         onRefresh();
                     } catch (error) {
@@ -144,7 +138,7 @@ export function useCertificateOperations(
 
         downloading.value = certificate.id;
         try {
-            const content = await api.v2.ssl.downloadCertificate(certificate.id, userInfo.usertoken, type);
+            const content = await api.v2.ssl.downloadCertificate(certificate.id, type);
 
             // 创建下载链接
             const blob = new Blob([content], { type: 'text/plain' });
@@ -183,7 +177,7 @@ export function useCertificateOperations(
         }
 
         try {
-            const response = await api.v2.ssl.getCertificateDetail(certificate.id, userInfo.usertoken);
+            const response = await api.v2.ssl.getCertificateDetail(certificate.id);
             return response.data;
         } catch (error) {
             message.error('获取证书详情失败: ' + (error as Error).message);

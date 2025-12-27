@@ -15,7 +15,7 @@ export function useTunnelList(userInfo: { usertoken?: string } | undefined) {
     const fetchTunnelList = async () => {
         loading.value = true;
         try {
-            const response = await api.v2.tunnel.getTunnelList(userInfo?.usertoken || '');
+            const response = await api.v2.tunnel.getTunnelList();
 
             tunnelOptions.value = response.data!.map(
                 (tunnel: { id: number; name: string; node: string; ip: string | null; dorp: string }) => ({

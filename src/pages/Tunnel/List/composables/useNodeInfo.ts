@@ -32,7 +32,7 @@ export function useNodeInfo(userInfo: { usertoken?: string }) {
     const fetchNodeInfo = async (nodeName: string) => {
         loading.value = true;
         try {
-            const data = await api.v2.node.getNodeInfo(userInfo?.usertoken || '', nodeName);
+            const data = await api.v2.node.getNodeInfo(nodeName);
             nodeInfo.value = {
                 ...data.data,
                 udp: data.data.udp === 'true',

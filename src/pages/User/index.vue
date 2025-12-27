@@ -252,7 +252,7 @@ const {
     resetQQ,
     resetPassword,
     resetEmail: resetEmailAPI,
-} = useUserUpdates(userInfo || {});
+} = useUserUpdates();
 
 const changeTheUsernameModal = ref(false);
 const modifyAvatarModal = ref(false);

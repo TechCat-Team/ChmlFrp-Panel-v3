@@ -23,16 +23,52 @@ export class ApiError extends Error {
 
 // 创建 Axios 实例
 const axiosInstance = axios.create({
-    baseURL: 'https://cf-v2.uapis.cn',
+    baseURL: 'http://localhost:8111',
     timeout: 30000,
     headers: {
         'Content-Type': 'application/json',
     },
 });
 
+// 公开的 API 路径列表（不需要认证）
+const publicApiPaths = [
+    '/login',
+    '/register',
+    '/login_by_email_code',
+    '/sendmailcode',
+    '/email_reset_password',
+    '/node',
+    '/list_available_domains',
+    '/panelinfo',
+    '/api/server-status',
+    '/node_stats',
+];
+
 // 请求拦截器
 axiosInstance.interceptors.request.use(
     (config) => {
+        // 检查是否为公开 API
+        const url = config.url || '';
+        // 使用精确匹配或路径开头匹配，避免误判（如 /nodeinfo 不应该匹配 /node）
+        const isPublicApi = publicApiPaths.some((path) => {
+            // 精确匹配
+            if (url === path) return true;
+            // 路径开头匹配（确保是完整的路径段）
+            if (url.startsWith(path + '/') || url.startsWith(path + '?')) return true;
+            return false;
+        });
+
+        // 如果不是公开 API，则添加 Authorization Bearer token
+        if (!isPublicApi) {
+            const userStore = useUserStore();
+            const token = userStore.userInfo?.usertoken;
+
+            if (token) {
+                config.headers = config.headers || {};
+                config.headers['Authorization'] = `Bearer ${token}`;
+            }
+        }
+
         return config;
     },
     (error) => {

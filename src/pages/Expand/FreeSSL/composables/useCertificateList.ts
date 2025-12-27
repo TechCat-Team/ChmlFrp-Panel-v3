@@ -65,7 +65,7 @@ export function useCertificateList(userInfo: { usertoken?: string } | undefined)
 
         loading.value = true;
         try {
-            const response = await api.v2.ssl.getCertificateList(userInfo.usertoken, undefined);
+            const response = await api.v2.ssl.getCertificateList(undefined);
             certificateData.value = response.data.certificates.map(processCertificate);
         } catch (error) {
             message.error('获取证书列表失败: ' + (error as Error).message);

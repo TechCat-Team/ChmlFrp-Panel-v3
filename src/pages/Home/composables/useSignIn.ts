@@ -54,7 +54,6 @@ export function useSignIn(userInfo: { id?: number; usertoken?: string }) {
 
         try {
             const data = await api.v2.user.signIn(
-                userInfo?.usertoken || '',
                 geetestResult.lot_number,
                 geetestResult.captcha_output,
                 geetestResult.pass_token,

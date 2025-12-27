@@ -164,7 +164,6 @@ export function useLifetimePurchase(userInfo: { usertoken?: string; usergroup?: 
             const response = await api.payment.createPayment({
                 name: '永久会员购买',
                 money: payAmount.value,
-                usertoken: userInfo?.usertoken || '',
                 type: paymentType,
             });
 

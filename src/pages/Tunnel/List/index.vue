@@ -183,7 +183,7 @@ const {
     refreshTunnelData,
     handleOfflineTunnel: handleOfflineTunnelOp,
     handleConfirmDelete,
-} = useTunnelOperations(userInfo || {}, fetchTunnelCards);
+} = useTunnelOperations(fetchTunnelCards);
 
 const {
     showModal: configModalShow,
@@ -329,7 +329,7 @@ const editTunnel = async (card: TunnelCard) => {
     if (card.type === 'http' || card.type === 'https') {
         // 调用API获取用户的免费二级域名
         api.v2.domain
-            .getUserFreeSubdomains(userInfo?.usertoken as string)
+            .getUserFreeSubdomains()
             .then((data) => {
                 const domainRecord = data.data.find(
                     (item: { record: string; domain: string }) => item.record + '.' + item.domain === card.dorp

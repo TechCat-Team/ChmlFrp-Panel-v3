@@ -23,7 +23,6 @@ export const listAvailableDomains = async (): Promise<AvailableDomainsResponse> 
 /**
  * 创建免费二级域名
  * @param {Object} param 请求参数
- * @param {string} param.token 用户Token
  * @param {string} param.domain 主域名
  * @param {string} param.record 记录
  * @param {string} param.type 类型，仅允许A' | 'AAAA' | 'CNAME' | 'SRV
@@ -33,7 +32,6 @@ export const listAvailableDomains = async (): Promise<AvailableDomainsResponse> 
  * @returns {Promise<BaseResponse>} 包含创建结果的响应数据
  */
 export const createFreeSubdomain = async (param: {
-    token: string; // 用户Token
     domain: string; // 主域名
     record: string; // 记录
     type: string; // 类型，仅允许A' | 'AAAA' | 'CNAME' | 'SRV
@@ -47,13 +45,11 @@ export const createFreeSubdomain = async (param: {
 /**
  * 删除免费二级域名
  * @param {Object} param 请求参数
- * @param {string} param.token 用户Token
  * @param {string} param.domain 主域名
  * @param {string} param.record 记录
  * @returns {Promise<BaseResponse>} 包含删除结果的响应数据
  */
 export const deleteFreeSubdomain = async (param: {
-    token: string; // 用户Token
     domain: string; // 主域名
     record: string; // 记录
 }): Promise<BaseResponse> => {
@@ -63,7 +59,6 @@ export const deleteFreeSubdomain = async (param: {
 /**
  * 修改免费二级域名
  * @param {Object} param 请求参数
- * @param {string} param.token 用户Token
  * @param {string} param.domain 主域名
  * @param {string} param.record 记录
  * @param {string} param.target 目标
@@ -71,7 +66,6 @@ export const deleteFreeSubdomain = async (param: {
  * @returns {Promise<BaseResponse>} 包含修改结果的响应数据
  */
 export const updateFreeSubdomain = async (param: {
-    token: string; // 用户Token
     domain: string; // 主域名
     record: string; // 记录
     target: string; // 目标
@@ -98,11 +92,8 @@ interface GetUserFreeSubdomainsResponse extends BaseResponse {
 
 /**
  * 获取用户免费二级域名
- * @param {string} token 用户Token
  * @returns {Promise<GetUserFreeSubdomainsResponse>} 包含用户免费二级域名列表的响应数据
  */
-export const getUserFreeSubdomains = async (token: string): Promise<GetUserFreeSubdomainsResponse> => {
-    return axiosInstance.get('/get_user_free_subdomains', {
-        params: { token },
-    });
+export const getUserFreeSubdomains = async (): Promise<GetUserFreeSubdomainsResponse> => {
+    return axiosInstance.get('/get_user_free_subdomains');
 };

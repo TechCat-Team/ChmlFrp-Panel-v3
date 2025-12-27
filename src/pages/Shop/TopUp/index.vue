@@ -374,7 +374,6 @@ const pay = async (ttype: 'wxpay' | 'alipay') => {
         const response = await api.payment.createPayment({
             name: '积分充值',
             money: amount,
-            usertoken: userInfo?.usertoken || '',
             type: ttype,
         });
 

@@ -20,7 +20,7 @@ export function useGiftcardHistory(userInfo: { usertoken?: string }) {
 
         loading.value = true;
         try {
-            const response = await getGiftcardHistory(userInfo.usertoken);
+            const response = await getGiftcardHistory();
 
             if (response.code === 200 && response.state === 'success' && response.data) {
                 historyData.value = response.data;

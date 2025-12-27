@@ -712,7 +712,6 @@ const loadGiftCards = async () => {
         }
 
         const response = await getGiftCards(
-            adminToken,
             pagination.page || 1,
             pagination.pageSize || 20,
             searchKeyword.value || undefined
@@ -748,7 +747,6 @@ const handleCreate = async () => {
 
         // 格式化日期
         const payload: CreateGiftCardRequest = {
-            admin_token: adminToken,
             card_code: createForm.value.card_code!,
             card_name: createForm.value.card_name || undefined,
             reward_type: createForm.value.reward_type!,
@@ -814,7 +812,7 @@ const handleDelete = async (cardCode: string) => {
             return;
         }
 
-        const response = await deleteGiftCard(adminToken, cardCode);
+        const response = await deleteGiftCard(cardCode);
 
         if (response.code === 200) {
             message.success('删除成功');
@@ -836,7 +834,7 @@ const handleToggleStatus = async (cardCode: string, isActive: boolean) => {
             return;
         }
 
-        const response = await toggleGiftCardStatus(adminToken, cardCode, isActive);
+        const response = await toggleGiftCardStatus(cardCode, isActive);
 
         if (response.code === 200) {
             message.success(`已${isActive ? '启用' : '禁用'}`);
@@ -862,14 +860,14 @@ const handleViewDetail = async (cardCode: string) => {
         }
 
         // 获取详情
-        const detailResponse = await getGiftCardDetail(adminToken, cardCode);
+        const detailResponse = await getGiftCardDetail(cardCode);
         if (detailResponse.code === 200 && detailResponse.data) {
             currentDetail.value = detailResponse.data;
         }
 
         // 获取使用记录
         usageLoading.value = true;
-        const usageResponse = await getGiftCardUsageByCard(adminToken, cardCode);
+        const usageResponse = await getGiftCardUsageByCard(cardCode);
         if (usageResponse.code === 200 && usageResponse.data) {
             usageRecords.value = usageResponse.data.usage_records;
         }

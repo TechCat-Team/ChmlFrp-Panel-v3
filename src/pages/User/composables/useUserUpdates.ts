@@ -8,7 +8,7 @@ import api from '@/api';
 /**
  * 用户信息更新 composable
  */
-export function useUserUpdates(userInfo: { usertoken?: string }) {
+export function useUserUpdates() {
     const router = useRouter();
     const message = useMessage();
     const userStore = useUserStore();
@@ -41,7 +41,7 @@ export function useUserUpdates(userInfo: { usertoken?: string }) {
         }
         loadingUpdateImg.value = true;
         try {
-            const response = await api.v2.user.updateUserImage(userInfo?.usertoken || '', userImageModel.newUserImage);
+            const response = await api.v2.user.updateUserImage(userImageModel.newUserImage);
             message.success(response.msg);
             userStore.setUser({ userimg: userImageModel.newUserImage });
             return true;
@@ -63,7 +63,7 @@ export function useUserUpdates(userInfo: { usertoken?: string }) {
         }
         loadingUpdateUserName.value = true;
         try {
-            const response = await api.v2.user.updateUserName(userInfo?.usertoken || '', userNameModel.newUserName);
+            const response = await api.v2.user.updateUserName(userNameModel.newUserName);
             message.success(response.msg);
             userStore.setUser({ username: userNameModel.newUserName });
             return true;
@@ -84,7 +84,7 @@ export function useUserUpdates(userInfo: { usertoken?: string }) {
         }
         loadingUpdateQQ.value = true;
         try {
-            const response = await api.v2.user.updateQQ(userInfo?.usertoken || '', qqModel.newQQ);
+            const response = await api.v2.user.updateQQ(qqModel.newQQ);
             message.success(response.msg);
             userStore.setUser({ qq: qqModel.newQQ });
             return true;
@@ -101,8 +101,7 @@ export function useUserUpdates(userInfo: { usertoken?: string }) {
         try {
             const response = await api.v2.user.resetPassword(
                 resetPasswordValue.original_password,
-                resetPasswordValue.new_password,
-                userInfo?.usertoken || ''
+                resetPasswordValue.new_password
             );
 
             message.success(response.msg);
@@ -118,7 +117,7 @@ export function useUserUpdates(userInfo: { usertoken?: string }) {
     const resetEmail = async (newEmail: string, oldCode: string, newCode: string) => {
         loadingResetEmail.value = true;
         try {
-            const response = await api.v2.user.resetEmail(userInfo?.usertoken || '', newEmail, oldCode, newCode);
+            const response = await api.v2.user.resetEmail(newEmail, oldCode, newCode);
 
             message.success(response.msg);
             userStore.clearUser();

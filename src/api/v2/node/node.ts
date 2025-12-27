@@ -67,10 +67,11 @@ interface NodeInfoResponse extends BaseResponse {
 
 /**
  * 获取节点详情
+ * @param node 节点名称
  * @returns {Promise<NodeInfoResponse>} 节点详情数据
  */
-export const getNodeInfo = async (token: string, node: string): Promise<NodeInfoResponse> => {
-    return axiosInstance.get('/nodeinfo', { params: { token, node } });
+export const getNodeInfo = async (node: string): Promise<NodeInfoResponse> => {
+    return axiosInstance.get('/nodeinfo', { params: { node } });
 };
 
 interface NodeStats {
