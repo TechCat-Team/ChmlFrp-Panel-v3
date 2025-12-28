@@ -9,7 +9,7 @@ import { SUCCESS_MESSAGES } from '../constants';
 export function useDomainDelete(onSuccess: () => void) {
     const message = useMessage();
 
-    const deleteDomain = async (domain: FreeDomain, index: number) => {
+    const deleteDomain = async (domain: FreeDomain) => {
         try {
             await api.v2.domain.deleteFreeSubdomain({
                 domain: domain.domain,

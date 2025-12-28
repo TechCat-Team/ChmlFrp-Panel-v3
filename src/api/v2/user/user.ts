@@ -169,6 +169,28 @@ export const signIn = async (
     });
 };
 
+// 签到信息数据接口
+export interface QiandaoInfoData {
+    last_sign_in_time: string;
+    total_points: number;
+    total_sign_ins: number;
+    count_of_matching_records: number;
+    is_signed_in_today: boolean;
+}
+
+// 获取签到信息响应接口
+interface GetQiandaoInfoResponse extends BaseResponse {
+    data: QiandaoInfoData;
+}
+
+/**
+ * 获取签到信息
+ * @returns {Promise<GetQiandaoInfoResponse>} 签到信息响应
+ */
+export const getQiandaoInfo = async (): Promise<GetQiandaoInfoResponse> => {
+    return axiosInstance.get('/qiandao_info');
+};
+
 /**
  * 重置密码
  * @param {string} original_password - 原密码
