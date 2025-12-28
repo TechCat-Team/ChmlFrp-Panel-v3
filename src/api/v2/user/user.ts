@@ -435,3 +435,23 @@ export const searchSystemMessages = async (
         params,
     });
 };
+
+// 流量数据项接口
+export interface FlowDataItem {
+    time: string;
+    traffic_in: number | string;
+    traffic_out: number | string;
+}
+
+// 获取近七日流量数据响应接口
+interface GetFlowLast7daysResponse extends BaseResponse {
+    data: FlowDataItem[];
+}
+
+/**
+ * 获取近七日流量数据
+ * @returns {Promise<GetFlowLast7daysResponse>} 近七日流量数据响应
+ */
+export const getFlowLast7days = async (): Promise<GetFlowLast7daysResponse> => {
+    return axiosInstance.get('/flow_last_7_days');
+};

@@ -21,7 +21,6 @@
 <script lang="ts" setup>
 import { computed } from 'vue';
 import { useStyleStore } from '@/stores/style';
-import { LinkOutline, ServerOutline, ArrowUpCircleOutline, ArrowDownCircleOutline } from '@vicons/ionicons5';
 
 interface Card {
     title: string;

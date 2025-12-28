@@ -3,9 +3,7 @@
     <n-flex vertical>
         <n-grid cols="1 s:5" responsive="screen" :x-gap="15" :y-gap="20">
             <n-gi :span="3">
-                <SystemMessagesCard
-                    :user-info="userInfo ? { usertoken: userInfo.usertoken, username: userInfo.username } : undefined"
-                />
+                <SystemMessagesCard />
                 <UserSettingsCard :settings="settingCard">
                     <template #header-extra>
                         <n-skeleton v-if="loadingQianDao" :width="56" round :sharp="false" size="medium" />

@@ -17,15 +17,12 @@ import { LineChart } from 'echarts/charts';
 import { TooltipComponent, LegendComponent, TitleComponent, GridComponent } from 'echarts/components';
 import { CanvasRenderer } from 'echarts/renderers';
 import { useStyleStore } from '@/stores/style';
-import axios from 'axios';
-import { useUserStore } from '@/stores/user';
+import api from '@/api';
+import type { FlowDataItem } from '@/api/v2/user/user';
 import { BYTES_TO_MB } from '../constants';
-import type { ApiData, ApiDataItem } from '../types';
 
 echarts.use([LineChart, TooltipComponent, LegendComponent, TitleComponent, GridComponent, CanvasRenderer]);
 
-const userStore = useUserStore();
-const userInfo = userStore.userInfo;
 const themeVars = useThemeVars();
 const styleStore = useStyleStore();
 const chartContainer = ref<HTMLDivElement | null>(null);
@@ -34,12 +31,12 @@ const loading = ref(true);
 let myChart: echarts.ECharts | null = null;
 let unwatchTheme: (() => void) | null = null;
 let resizeHandler: (() => void) | null = null;
-let chartData: ApiData | null = null;
+let chartData: FlowDataItem[] | null = null;
 
-const getChartOption = (apiData: ApiData, reverse: boolean) => {
-    const times = apiData.data.map((item) => item.time);
-    const trafficInMB = apiData.data.map((item) => (Number(item.traffic_in) / BYTES_TO_MB).toFixed(2));
-    const trafficOutMB = apiData.data.map((item) => (Number(item.traffic_out) / BYTES_TO_MB).toFixed(2));
+const getChartOption = (data: FlowDataItem[], reverse: boolean) => {
+    const times = data.map((item) => item.time);
+    const trafficInMB = data.map((item) => (Number(item.traffic_in) / BYTES_TO_MB).toFixed(2));
+    const trafficOutMB = data.map((item) => (Number(item.traffic_out) / BYTES_TO_MB).toFixed(2));
 
     const textColor = reverse
         ? themeVars.value.textColorBase === '#000'
@@ -141,7 +138,7 @@ const getChartOption = (apiData: ApiData, reverse: boolean) => {
     };
 };
 
-const updateChart = (apiData: ApiData) => {
+const updateChart = (data: FlowDataItem[]) => {
     if (!chartContainer.value) {
         console.error('[首页]找不到图表容器元素。');
         return;
@@ -152,7 +149,7 @@ const updateChart = (apiData: ApiData) => {
     }
 
     myChart = echarts.init(chartContainer.value);
-    let option = getChartOption(apiData, false);
+    let option = getChartOption(data, false);
     myChart.setOption(option);
 
     // 添加窗口大小变化监听器
@@ -180,24 +177,23 @@ const updateChart = (apiData: ApiData) => {
 const fetchTrafficInfo = async () => {
     loading.value = true;
     try {
-        const response = await axios.get(`https://cf-v1.uapis.cn/api/flow_zong.php?usertoken=${userInfo?.usertoken}`);
-        const apiData = response.data;
-
-        if (apiData.status === 'success') {
+        const response = await api.v2.user.getFlowLast7days();
+        
+        if (response.code === 200) {
             // 对 data 按日期排序
-            apiData.data.sort((a: ApiDataItem, b: ApiDataItem) => {
+            const sortedData = [...response.data].sort((a: FlowDataItem, b: FlowDataItem) => {
                 const year = new Date().getFullYear();
                 const dateA = new Date(`${year}-${a.time}`);
                 const dateB = new Date(`${year}-${b.time}`);
                 return dateA.getTime() - dateB.getTime();
             });
 
-            chartData = apiData;
+            chartData = sortedData;
             loading.value = false;
             await nextTick();
-            updateChart(apiData);
+            updateChart(sortedData);
         } else {
-            console.error('流量统计API返回状态不成功:', apiData);
+            console.error('流量统计API返回状态不成功:', response);
             loading.value = false;
         }
     } catch (error) {
