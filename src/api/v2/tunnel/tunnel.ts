@@ -120,11 +120,11 @@ export const updateTunnel = (params: {
     node?: string;
     localip?: string;
     porttype?: string;
-    localport?: number;
-    remoteport?: number;
+    localport?: number | string;
+    remoteport?: number | string;
     banddomain?: string;
-    encryption?: boolean;
-    compression?: boolean;
+    encryption?: boolean | string;
+    compression?: boolean | string;
     extraparams?: string;
 }): Promise<BaseResponse> => {
     return axiosInstance.post('/update_tunnel', params);

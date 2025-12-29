@@ -23,7 +23,7 @@ export class ApiError extends Error {
 
 // 创建 Axios 实例
 const axiosInstance = axios.create({
-    baseURL: 'https://cf-v2.uapis.cn',
+    baseURL: 'http://localhost:8111',
     timeout: 30000,
     headers: {
         'Content-Type': 'application/json',

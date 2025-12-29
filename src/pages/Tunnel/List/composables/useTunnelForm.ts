@@ -53,20 +53,6 @@ export function useTunnelForm(
         }))
     );
 
-    const typeOptionsTCPUDP = [
-        { label: 'TCP', value: 'TCP' },
-        { label: 'UDP', value: 'UDP' },
-        { label: 'HTTP', value: 'HTTP', disabled: true },
-        { label: 'HTTPS', value: 'HTTPS', disabled: true },
-    ];
-
-    const typeOptionsHTTPHTTPS = [
-        { label: 'TCP', value: 'TCP', disabled: true },
-        { label: 'UDP', value: 'UDP', disabled: true },
-        { label: 'HTTP', value: 'HTTP' },
-        { label: 'HTTPS', value: 'HTTPS' },
-    ];
-
     const domainTypeOptions = ['自定义', '免费域名'].map((v) => ({
         label: v,
         value: v,
@@ -181,8 +167,6 @@ export function useTunnelForm(
         domainNameOptions,
         updateNodeOptions,
         typeOptions,
-        typeOptionsTCPUDP,
-        typeOptionsHTTPHTTPS,
         domainTypeOptions,
         generateRandomPort,
         generateRandomTunnelName,

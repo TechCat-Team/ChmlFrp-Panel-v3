@@ -66,29 +66,7 @@
                         </n-form-item>
                     </n-col>
                     <n-col :span="12">
-                        <n-form-item
-                            v-if="isEdit && (formData.type === 'TCP' || formData.type === 'UDP')"
-                            label="端口类型"
-                            path="type"
-                        >
-                            <n-select
-                                v-model:value="formData.type"
-                                :options="typeOptionsTCPUDP"
-                                placeholder="请选择端口类型"
-                                clearable
-                                @update:value="$emit('type-change', $event)"
-                            />
-                        </n-form-item>
-                        <n-form-item v-else-if="isEdit" label="端口类型" path="type">
-                            <n-select
-                                v-model:value="formData.type"
-                                :options="typeOptionsHTTPHTTPS"
-                                placeholder="请选择端口类型"
-                                clearable
-                                @update:value="$emit('type-change', $event)"
-                            />
-                        </n-form-item>
-                        <n-form-item v-else label="端口类型" path="type">
+                        <n-form-item label="端口类型" path="type">
                             <n-select
                                 v-model:value="formData.type"
                                 :options="typeOptions"
@@ -118,7 +96,6 @@
                             path="domainNameLabel"
                         >
                             <n-select
-                                :disabled="isEdit"
                                 v-model:value="formData.domainNameLabel"
                                 :options="domainTypeOptions"
                                 placeholder="请选择域名类型"
@@ -227,8 +204,6 @@ interface Props {
     nodeInfo: NodeInfo;
     nodeOptions: { label: string; value: string }[];
     typeOptions: { label: string; value: string }[];
-    typeOptionsTCPUDP: { label: string; value: string; disabled?: boolean }[];
-    typeOptionsHTTPHTTPS: { label: string; value: string; disabled?: boolean }[];
     domainTypeOptions: { label: string; value: string }[];
     domainNameOptions: { label: string; value: string }[];
     loading: boolean;

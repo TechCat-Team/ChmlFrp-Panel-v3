@@ -68,7 +68,7 @@ interface DownloadInfoResponse extends BaseResponse {
 
 /**
  * 获取下载信息
- * @param {string} [link] 可选的下载链接，默认为 "https://cf-v1.uapis.cn/download/"
+ * @param {string} [link]
  * @returns {Promise<DownloadInfoResponse>} 下载信息数据
  */
 export const getDownloadInfo = async (link?: string): Promise<DownloadInfoResponse> => {
