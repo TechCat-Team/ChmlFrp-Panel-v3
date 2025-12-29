@@ -83,12 +83,12 @@
 </template>
 
 <script lang="ts" setup>
-import axios from 'axios';
 import { LogoWindows, LogoApple, LogoTux } from '@vicons/ionicons5';
 import { Freebsd } from '@vicons/fa';
 import { ref, onMounted, computed } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useScreenStore } from '@/stores/useScreen';
+import { getDownloadInfo } from '@/api/v2/panel/panel';
 // import { useRouter } from 'vue-router';
 
 // 获取路由实例
@@ -97,19 +97,6 @@ import { useScreenStore } from '@/stores/useScreen';
 // 基础的手机端适配
 const screenStore = useScreenStore();
 const { isHidden } = storeToRefs(screenStore);
-
-interface SystemData {
-    windows: Array<{ route: string; architecture: string }>;
-    linux: Array<{ route: string; architecture: string }>;
-    freebsd: Array<{ route: string; architecture: string }>;
-    darwin: Array<{ route: string; architecture: string }>;
-}
-
-interface ApiResponse {
-    system: SystemData;
-    up_time: string;
-    link: string;
-}
 
 // 无限滚动
 const count = ref(6);
@@ -159,12 +146,12 @@ const selectedOSData = computed(() => {
 
 onMounted(async () => {
     try {
-        const response = await axios.get<ApiResponse>('https://cf-v1.uapis.cn/api/dw.php');
+        const response = await getDownloadInfo();
         Windows.value = response.data.system.windows;
         Linux.value = response.data.system.linux;
         freeBSD.value = response.data.system.freebsd;
         Darwin.value = response.data.system.darwin;
-        time.value = response.data.up_time;
+        time.value = response.data.update_time;
         link.value = response.data.link;
         loading.value = false;
     } catch (error) {
