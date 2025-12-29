@@ -23,7 +23,7 @@ export class ApiError extends Error {
 
 // 创建 Axios 实例
 const axiosInstance = axios.create({
-    baseURL: 'http://localhost:8111',
+    baseURL: 'https://cf-v2.uapis.cn',
     timeout: 30000,
     headers: {
         'Content-Type': 'application/json',
@@ -50,9 +50,7 @@ axiosInstance.interceptors.request.use(
         // 检查是否为公开 API
         const url = config.url || '';
         const isPublicApi = publicApiPaths.some((path) => {
-            // 精确匹配
             if (url === path) return true;
-            // 路径开头匹配（确保是完整的路径段）
             if (url.startsWith(path + '/') || url.startsWith(path + '?')) return true;
             return false;
         });

@@ -4,7 +4,7 @@
 
 export type MembershipType = '免费用户' | '普通会员' | '高级会员' | '超级会员';
 
-export type DurationType = '1' | '3' | '6' | '12';
+export type DurationType = number;
 
 export interface MembershipCost {
     普通会员: number;

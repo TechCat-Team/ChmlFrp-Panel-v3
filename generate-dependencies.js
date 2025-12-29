@@ -10,7 +10,7 @@ function generateDependencies() {
     const packageJsonData = fs.readFileSync(packageJsonPath, 'utf-8');
     const packageJson = JSON.parse(packageJsonData);
 
-    // 获取北京时间（中国标准时间，CST）
+    // 获取北京时间
     const now = new Date();
     const options = {
         timeZone: 'Asia/Shanghai',

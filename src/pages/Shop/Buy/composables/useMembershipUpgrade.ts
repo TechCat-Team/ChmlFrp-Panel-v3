@@ -1,7 +1,7 @@
 import { ref, computed } from 'vue';
 import { useMessage, useDialog } from 'naive-ui';
 import { useUserStore } from '@/stores/user';
-import axios from 'axios';
+import api from '@/api';
 import type { MembershipType } from '../types';
 import { useMembershipPricing } from './useMembershipPricing';
 import { LIFETIME_TERM_DATE } from '../constants';
@@ -52,13 +52,9 @@ export function useMembershipUpgrade(
 
         loading.value = true;
         try {
-            const response = await axios.get('https://cf-v1.uapis.cn/api/tcsj.php', {
-                params: {
-                    usertoken: userInfo?.usertoken,
-                    package: upgradeOption.value,
-                },
-            });
+            const response = await api.v2.user.upgradePackage(upgradeOption.value);
             const data = response.data;
+
             if (data?.success === true) {
                 userStore.setUser({ integral: (userInfo?.integral ?? 0) - data.xhjf });
                 userStore.setUser({ usergroup: data.package });
@@ -73,7 +69,7 @@ export function useMembershipUpgrade(
                     },
                 });
             } else {
-                message.error(data?.message);
+                message.error(data?.message || response.msg);
             }
         } catch (error) {
             console.error('升级请求失败:', error);

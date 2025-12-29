@@ -30,17 +30,26 @@
                         </n-card>
 
                         <n-card title="选择购买时长">
-                            <n-radio-group
-                                :value="selectedDuration"
-                                @update:value="$emit('update:selectedDuration', $event)"
-                            >
-                                <n-space justify="space-between">
-                                    <n-radio value="1" label="1个月"></n-radio>
-                                    <n-radio value="3" label="3个月"></n-radio>
-                                    <n-radio value="6" label="6个月"></n-radio>
-                                    <n-radio value="12" label="1年"></n-radio>
-                                </n-space>
-                            </n-radio-group>
+                            <n-space vertical size="small">
+                                <n-radio-group :value="sliderValue" @update:value="setPreset">
+                                    <n-space justify="space-between">
+                                        <n-radio :value="1" label="一月"></n-radio>
+                                        <n-radio :value="3" label="一季"></n-radio>
+                                        <n-radio :value="6" label="半年"></n-radio>
+                                        <n-radio :value="12" label="一年"></n-radio>
+                                        <n-radio :value="24" label="两年"></n-radio>
+                                    </n-space>
+                                </n-radio-group>
+                                <n-slider
+                                    v-model:value="sliderValue"
+                                    :min="1"
+                                    :max="36"
+                                    :step="1"
+                                    :show-value="false"
+                                    :format-tooltip="formatTooltip"
+                                    style="margin-top: 12px;"
+                                />
+                            </n-space>
                         </n-card>
 
                         <n-card title="积分详情" hoverable>
@@ -186,7 +195,7 @@ const showUpgradeAlert = computed(() => {
     return !props.isLifetime && props.userGroup !== '免费用户' && props.userGroup !== '超级会员';
 });
 
-defineEmits<{
+const emits = defineEmits<{
     'update:show': [value: boolean];
     'update:selectedMembership': [value: MembershipType | ''];
     'update:selectedDuration': [value: DurationType | null];
@@ -194,4 +203,18 @@ defineEmits<{
     purchase: [];
     upgrade: [];
 }>();
+
+const sliderValue = computed<number>({
+    get: () => props.selectedDuration ?? 1,
+    set: (value: number) => {
+        const normalized = Math.max(1, Math.min(36, Math.floor(value)));
+        emits('update:selectedDuration', normalized);
+    },
+});
+
+const formatTooltip = (value: number) => `${value} 月`;
+
+const setPreset = (months: number) => {
+    sliderValue.value = months;
+};
 </script>

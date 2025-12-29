@@ -1,7 +1,7 @@
 import { ref } from 'vue';
 import { useMessage, useDialog } from 'naive-ui';
 import { useUserStore } from '@/stores/user';
-import axios from 'axios';
+import api from '@/api';
 import type { MembershipType, DurationType } from '../types';
 
 /**
@@ -21,17 +21,14 @@ export function useMembershipPurchase(userInfo: { usertoken?: string; integral?:
 
         loading.value = true;
         try {
-            const response = await axios.get('https://cf-v1.uapis.cn/api/jfsc.php', {
-                params: {
-                    usertoken: userInfo?.usertoken,
-                    package: selectedMembership.value,
-                    term: selectedDuration.value,
-                },
-            });
+            const termMonths = Number(selectedDuration.value);
+            const response = await api.v2.user.buyPackage(selectedMembership.value, termMonths);
             const data = response.data;
-            if (data?.status === 'success') {
+            if (response.code === 200 && response.state === 'success') {
                 userStore.setUser({ term: data.daoqi });
-                userStore.setUser({ integral: (userInfo?.integral ?? 0) - data.points });
+                userStore.setUser({
+                    integral: data.remaining_integral ?? (userInfo?.integral ?? 0) - data.cost,
+                });
                 userStore.setUser({ usergroup: data.package });
                 userStore.setUser({ tunnel: data.tunnel });
                 userStore.setUser({ bandwidth: data.bandwidth });
@@ -43,7 +40,7 @@ export function useMembershipPurchase(userInfo: { usertoken?: string; integral?:
                         '，到期日期为' +
                         data.daoqi +
                         '，消耗了' +
-                        data.points +
+                        data.cost +
                         '点积分，感谢您的支持！',
                     positiveText: '确认',
                     onPositiveClick: () => {
@@ -51,7 +48,7 @@ export function useMembershipPurchase(userInfo: { usertoken?: string; integral?:
                     },
                 });
             } else {
-                message.error(data?.message);
+                message.error(response.msg);
             }
         } catch (error) {
             console.error('购买请求失败:', error);

@@ -169,6 +169,59 @@ export const signIn = async (
     });
 };
 
+// 会员升级响应数据
+export interface UpgradePackageData {
+    success?: boolean;
+    message?: string;
+    xhjf: number;
+    package: string;
+    tunnel: number;
+    bandwidth: number;
+}
+
+interface UpgradePackageResponse extends BaseResponse {
+    data: UpgradePackageData;
+}
+
+/**
+ * 升级会员套餐
+ * @param {string} packageName - 目标会员类型
+ * @returns {Promise<UpgradePackageResponse>} 升级响应
+ */
+export const upgradePackage = (packageName: string): Promise<UpgradePackageResponse> => {
+    return axiosInstance.post('/upgrade_package', {
+        package: packageName,
+    });
+};
+
+// 会员购买响应数据
+export interface PurchasePackageData {
+    package: string;
+    term_months: number;
+    cost: number;
+    bandwidth: number;
+    tunnel: number;
+    daoqi: string;
+    remaining_integral?: number;
+}
+
+interface PurchasePackageResponse extends BaseResponse {
+    data: PurchasePackageData;
+}
+
+/**
+ * 会员购买
+ * @param {string} packageName - 目标套餐
+ * @param {number} termMonths - 购买周期（月数）
+ * @returns {Promise<PurchasePackageResponse>} 购买响应
+ */
+export const buyPackage = (packageName: string, termMonths: number): Promise<PurchasePackageResponse> => {
+    return axiosInstance.post('/buy_package', {
+        package: packageName,
+        term: termMonths,
+    });
+};
+
 // 签到信息数据接口
 export interface QiandaoInfoData {
     last_sign_in_time: string;

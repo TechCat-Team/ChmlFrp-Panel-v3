@@ -64,7 +64,6 @@ export default defineConfig({
             output: {
                 manualChunks: (id) => {
                     if (id.includes('node_modules')) {
-                        // 针对特定依赖进行分组
                         if (id.includes('naive-ui')) {
                             return 'vendor-naive-ui';
                         }
