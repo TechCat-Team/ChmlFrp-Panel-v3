@@ -43,6 +43,19 @@ export const login = async (username: string, password: string): Promise<LoginRe
 };
 
 /**
+ * 实名认证
+ * @param {string} name - 姓名
+ * @param {string} idcard - 身份证号码
+ * @returns {Promise<BaseResponse>} 实名认证结果
+ */
+export const realnameVerify = async (name: string, idcard: string): Promise<BaseResponse> => {
+    return axiosInstance.post('/realname_verify', {
+        name,
+        idcard,
+    });
+};
+
+/**
  * 发送邮箱验证码
  * @param {string} type - 验证码类型
  * @param {string} mail - 邮箱地址
