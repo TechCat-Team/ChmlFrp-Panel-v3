@@ -80,13 +80,7 @@
         :bordered="false"
         :segmented="{ content: 'soft' }"
     >
-        <n-form
-            ref="createFormRef"
-            :model="createForm"
-            :rules="createRules"
-            label-placement="left"
-            label-width="120"
-        >
+        <n-form ref="createFormRef" :model="createForm" :rules="createRules" label-placement="left" label-width="120">
             <n-form-item label="消息标题" path="title">
                 <n-input
                     v-model:value="createForm.title"
@@ -125,9 +119,7 @@
                     :rows="3"
                     clearable
                 />
-                <template #feedback>
-                    留空或输入 null 表示全体用户，否则输入 JSON 数组格式的用户名
-                </template>
+                <template #feedback> 留空或输入 null 表示全体用户，否则输入 JSON 数组格式的用户名 </template>
             </n-form-item>
 
             <n-form-item label="发布时间" path="publishTime">
@@ -158,13 +150,7 @@
         :bordered="false"
         :segmented="{ content: 'soft' }"
     >
-        <n-form
-            ref="editFormRef"
-            :model="editForm"
-            :rules="editRules"
-            label-placement="left"
-            label-width="120"
-        >
+        <n-form ref="editFormRef" :model="editForm" :rules="editRules" label-placement="left" label-width="120">
             <n-form-item label="消息标题" path="title">
                 <n-input
                     v-model:value="editForm.title"
@@ -219,9 +205,7 @@
                     :rows="3"
                     clearable
                 />
-                <template #feedback>
-                    留空则不修改，null 表示全体用户，否则输入 JSON 数组格式的用户名
-                </template>
+                <template #feedback> 留空则不修改，null 表示全体用户，否则输入 JSON 数组格式的用户名 </template>
             </n-form-item>
 
             <n-form-item label="发布时间" path="publishTime">
@@ -314,7 +298,10 @@
                         </n-descriptions-item>
                         <n-descriptions-item label="目标用户">
                             <div class="target-users">
-                                <span v-if="!currentDetail.targetUsers || getDetailTargetUsers().length === 0" class="all-users">
+                                <span
+                                    v-if="!currentDetail.targetUsers || getDetailTargetUsers().length === 0"
+                                    class="all-users"
+                                >
                                     全体用户
                                 </span>
                                 <n-tag

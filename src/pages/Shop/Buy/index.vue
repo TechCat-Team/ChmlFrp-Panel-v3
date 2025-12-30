@@ -160,6 +160,8 @@ watch(
             selectedMembership.value = '';
             selectedDuration.value = null;
             upgradeOption.value = '';
+        } else if (!selectedDuration.value) {
+            selectedDuration.value = 1;
         }
     }
 );

@@ -1,7 +1,7 @@
 import { ref } from 'vue';
-import axios from 'axios';
 import { useMessage } from 'naive-ui';
 import { useUserStore } from '@/stores/user';
+import api from '@/api';
 
 interface RealNameModel {
     name: string | null;
@@ -11,7 +11,7 @@ interface RealNameModel {
 /**
  * 实名认证 composable
  */
-export function useRealName(userInfo: { id?: number; usertoken?: string }) {
+export function useRealName(_userInfo: { id?: number; usertoken?: string }) {
     const message = useMessage();
     const userStore = useUserStore();
     const loading = ref(false);
@@ -23,26 +23,9 @@ export function useRealName(userInfo: { id?: number; usertoken?: string }) {
     const submit = async () => {
         loading.value = true;
         try {
-            const formData = new FormData();
-            formData.append('name', model.value.name || '');
-            formData.append('idcard', model.value.idCard || '');
-            formData.append('userid', userInfo?.id ? String(userInfo.id) : '');
-            formData.append('usertoken', userInfo?.usertoken || '');
-
-            const response = await axios.post('https://cf-v1.uapis.cn/api/realname.php', formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                },
-            });
-
-            const data = response.data;
-            if (data.status === 'success') {
-                message.success('实名认证成功');
-                userStore.setUser({ realname: '已实名' });
-            } else {
-                message.error(data.message);
-                console.error('实名认证失败:', data.message);
-            }
+            const resp = await api.v2.user.realnameVerify(model.value.name || '', model.value.idCard || '');
+            message.success(resp.msg || '实名认证成功');
+            userStore.setUser({ realname: '已实名' });
         } catch (error) {
             console.error('实名认证API调用失败:', error);
             const errorMessage = error instanceof Error ? error.message : String(error);

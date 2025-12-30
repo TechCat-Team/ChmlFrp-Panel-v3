@@ -1139,10 +1139,7 @@ const handleEdit = async () => {
             ipv6: editForm.ipv6,
         };
 
-        await api.v2.admin.updateNode(
-            currentEditNode.value.id,
-            requestData as unknown as Record<string, unknown>
-        );
+        await api.v2.admin.updateNode(currentEditNode.value.id, requestData as unknown as Record<string, unknown>);
         message.success('节点信息更新成功');
         showEditModal.value = false;
         await fetchNodes();

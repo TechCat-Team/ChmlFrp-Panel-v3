@@ -6,10 +6,10 @@ import { SUCCESS_MESSAGES } from '../constants';
 /**
  * 删除域名 composable
  */
-export function useDomainDelete(userInfo: { usertoken?: string } | undefined, onSuccess: () => void) {
+export function useDomainDelete(onSuccess: () => void) {
     const message = useMessage();
 
-    const deleteDomain = async (domain: FreeDomain, index: number) => {
+    const deleteDomain = async (domain: FreeDomain) => {
         try {
             await api.v2.domain.deleteFreeSubdomain({
                 domain: domain.domain,

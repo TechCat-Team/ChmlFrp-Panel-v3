@@ -12,7 +12,6 @@ export function useCertificateRequest(onSuccess: () => void) {
     const loading = ref(false);
 
     const requestCertificate = async (model: CertificateFormModel) => {
-
         if (!model.provider) {
             message.error('请选择证书提供商');
             return;

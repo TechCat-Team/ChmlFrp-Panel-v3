@@ -310,10 +310,7 @@ const getConfigFile = async () => {
             LinuxScript.value = `curl -O https://www.chmlfrp.net/script/linux/frpc_install.sh && chmod +x frpc_install.sh && sudo ./frpc_install.sh "${userInfo?.usertoken}" "${nodeValue.value}"`;
         }
 
-        const response = await api.v2.tunnel.getTunnelConfig(
-            params.node || '',
-            params.tunnel_names
-        );
+        const response = await api.v2.tunnel.getTunnelConfig(params.node || '', params.tunnel_names);
 
         tunnelConfig.value = response.data || '';
     } catch (error) {

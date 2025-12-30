@@ -43,6 +43,19 @@ export const login = async (username: string, password: string): Promise<LoginRe
 };
 
 /**
+ * 实名认证
+ * @param {string} name - 姓名
+ * @param {string} idcard - 身份证号码
+ * @returns {Promise<BaseResponse>} 实名认证结果
+ */
+export const realnameVerify = async (name: string, idcard: string): Promise<BaseResponse> => {
+    return axiosInstance.post('/realname_verify', {
+        name,
+        idcard,
+    });
+};
+
+/**
  * 发送邮箱验证码
  * @param {string} type - 验证码类型
  * @param {string} mail - 邮箱地址
@@ -169,16 +182,88 @@ export const signIn = async (
     });
 };
 
+// 会员升级响应数据
+export interface UpgradePackageData {
+    success?: boolean;
+    message?: string;
+    xhjf: number;
+    package: string;
+    tunnel: number;
+    bandwidth: number;
+}
+
+interface UpgradePackageResponse extends BaseResponse {
+    data: UpgradePackageData;
+}
+
+/**
+ * 升级会员套餐
+ * @param {string} packageName - 目标会员类型
+ * @returns {Promise<UpgradePackageResponse>} 升级响应
+ */
+export const upgradePackage = (packageName: string): Promise<UpgradePackageResponse> => {
+    return axiosInstance.post('/upgrade_package', {
+        package: packageName,
+    });
+};
+
+// 会员购买响应数据
+export interface PurchasePackageData {
+    package: string;
+    term_months: number;
+    cost: number;
+    bandwidth: number;
+    tunnel: number;
+    daoqi: string;
+    remaining_integral?: number;
+}
+
+interface PurchasePackageResponse extends BaseResponse {
+    data: PurchasePackageData;
+}
+
+/**
+ * 会员购买
+ * @param {string} packageName - 目标套餐
+ * @param {number} termMonths - 购买周期（月数）
+ * @returns {Promise<PurchasePackageResponse>} 购买响应
+ */
+export const buyPackage = (packageName: string, termMonths: number): Promise<PurchasePackageResponse> => {
+    return axiosInstance.post('/buy_package', {
+        package: packageName,
+        term: termMonths,
+    });
+};
+
+// 签到信息数据接口
+export interface QiandaoInfoData {
+    last_sign_in_time: string;
+    total_points: number;
+    total_sign_ins: number;
+    count_of_matching_records: number;
+    is_signed_in_today: boolean;
+}
+
+// 获取签到信息响应接口
+interface GetQiandaoInfoResponse extends BaseResponse {
+    data: QiandaoInfoData;
+}
+
+/**
+ * 获取签到信息
+ * @returns {Promise<GetQiandaoInfoResponse>} 签到信息响应
+ */
+export const getQiandaoInfo = async (): Promise<GetQiandaoInfoResponse> => {
+    return axiosInstance.get('/qiandao_info');
+};
+
 /**
  * 重置密码
  * @param {string} original_password - 原密码
  * @param {string} new_password - 新密码
  * @returns {Promise<BaseResponse>} 重置密码响应
  */
-export const resetPassword = async (
-    original_password: string,
-    new_password: string
-): Promise<BaseResponse> => {
+export const resetPassword = async (original_password: string, new_password: string): Promise<BaseResponse> => {
     return axiosInstance.get('/reset_password', {
         params: { original_password, new_password },
     });
@@ -434,4 +519,24 @@ export const searchSystemMessages = async (
     return axiosInstance.get('/message/search', {
         params,
     });
+};
+
+// 流量数据项接口
+export interface FlowDataItem {
+    time: string;
+    traffic_in: number | string;
+    traffic_out: number | string;
+}
+
+// 获取近七日流量数据响应接口
+interface GetFlowLast7daysResponse extends BaseResponse {
+    data: FlowDataItem[];
+}
+
+/**
+ * 获取近七日流量数据
+ * @returns {Promise<GetFlowLast7daysResponse>} 近七日流量数据响应
+ */
+export const getFlowLast7days = async (): Promise<GetFlowLast7daysResponse> => {
+    return axiosInstance.get('/flow_last_7_days');
 };

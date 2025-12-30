@@ -67,11 +67,7 @@
 <script lang="ts" setup>
 import { computed, h } from 'vue';
 import { NIcon } from 'naive-ui';
-import {
-    EyeOutline,
-    CheckmarkCircleOutline,
-    TrashOutline,
-} from '@vicons/ionicons5';
+import { EyeOutline, CheckmarkCircleOutline, TrashOutline } from '@vicons/ionicons5';
 import type { Certificate } from '../types';
 import { STATUS_CONFIG, PROVIDER_NAMES } from '../constants';
 

@@ -306,7 +306,6 @@ const isOnlineState = (state: string | boolean): boolean => {
 const fetchTunnels = async () => {
     loading.value = true;
     try {
-        const adminToken = userInfoStore?.usertoken || '';
         let data;
 
         if (isSearchMode.value && searchForm.value.trim()) {
@@ -392,7 +391,7 @@ const handleOfflineTunnel = (tunnel: Tunnel) => {
         onPositiveClick: async () => {
             try {
                 await api.v2.admin.offlineTunnel(String(tunnel.id), 'id');
-                message.success('隧道下线成功');
+                message.success('隧道下线成功，网页数据更新需要等待一段时间');
                 // 刷新列表
                 fetchTunnels();
             } catch (error: any) {

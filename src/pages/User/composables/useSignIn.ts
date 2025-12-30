@@ -1,5 +1,4 @@
 import { ref } from 'vue';
-import axios from 'axios';
 import { useDialog, useMessage } from 'naive-ui';
 import { loadGeetestScript } from '@/utils/loadGeetest';
 import api from '@/api';
@@ -24,7 +23,7 @@ interface SignInInfo {
 /**
  * 签到 composable
  */
-export function useSignIn(userInfo: { id?: number; usertoken?: string }) {
+export function useSignIn(_userInfo: { id?: number; usertoken?: string }) {
     const dialog = useDialog();
     const message = useMessage();
 
@@ -45,8 +44,8 @@ export function useSignIn(userInfo: { id?: number; usertoken?: string }) {
     const fetchSignInInfo = async () => {
         loading.value = true;
         try {
-            const response = await axios.get(`https://cf-v1.uapis.cn/api/qdxx.php?userid=${userInfo?.id}`);
-            if (response.data.code === 200) {
+            const response = await api.v2.user.getQiandaoInfo();
+            if (response.code === 200) {
                 signInInfo.value = {
                     last_sign_in_time: response.data.last_sign_in_time,
                     total_points: response.data.total_points,

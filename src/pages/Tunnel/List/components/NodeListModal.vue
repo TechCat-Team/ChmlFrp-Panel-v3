@@ -103,7 +103,6 @@
 </template>
 
 <script lang="ts" setup>
-import { computed } from 'vue';
 import type { NodeCard, NodeFilters } from '../types';
 import NodeCardComponent from './NodeCard.vue';
 

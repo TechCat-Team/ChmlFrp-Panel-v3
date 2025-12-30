@@ -50,9 +50,7 @@ axiosInstance.interceptors.request.use(
         // 检查是否为公开 API
         const url = config.url || '';
         const isPublicApi = publicApiPaths.some((path) => {
-            // 精确匹配
             if (url === path) return true;
-            // 路径开头匹配（确保是完整的路径段）
             if (url.startsWith(path + '/') || url.startsWith(path + '?')) return true;
             return false;
         });

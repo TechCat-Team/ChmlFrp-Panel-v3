@@ -41,10 +41,7 @@ export const createNode = async (payload: Record<string, unknown>): Promise<Base
 };
 
 /** 更新节点（管理员） */
-export const updateNode = async (
-    nodeId: number,
-    payload: Record<string, unknown>
-): Promise<BaseResponse> => {
+export const updateNode = async (nodeId: number, payload: Record<string, unknown>): Promise<BaseResponse> => {
     return axiosInstance.put(`/admin/nodes/${nodeId}`, payload);
 };
 
@@ -79,10 +76,7 @@ export const searchUsers = async (
 /**
  * 更新用户（管理员）
  */
-export const updateUser = async (
-    userId: number,
-    payload: Record<string, unknown>
-): Promise<BaseResponse> => {
+export const updateUser = async (userId: number, payload: Record<string, unknown>): Promise<BaseResponse> => {
     return axiosInstance.put(`/admin/users/${userId}`, payload);
 };
 
@@ -369,9 +363,7 @@ export const getGiftCardDetail = async (card_code: string): Promise<GiftCardDeta
 /**
  * 查询某个礼品卡的所有使用记录（管理员）
  */
-export const getGiftCardUsageByCard = async (
-    card_code: string
-): Promise<GiftCardUsageByCardResponse> => {
+export const getGiftCardUsageByCard = async (card_code: string): Promise<GiftCardUsageByCardResponse> => {
     return axiosInstance.get('/admin/giftcard/usage/by-card', {
         params: { card_code },
     });
@@ -380,9 +372,7 @@ export const getGiftCardUsageByCard = async (
 /**
  * 查询某个用户的领取记录（管理员）
  */
-export const getGiftCardUsageByUser = async (
-    user_id: number
-): Promise<GiftCardUsageByUserResponse> => {
+export const getGiftCardUsageByUser = async (user_id: number): Promise<GiftCardUsageByUserResponse> => {
     return axiosInstance.get('/admin/giftcard/usage/by-user', {
         params: { user_id },
     });

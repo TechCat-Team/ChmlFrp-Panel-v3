@@ -36,8 +36,6 @@
         :node-info="nodeInfoValue"
         :node-options="[]"
         :type-options="typeOptions"
-        :typeOptionsTCPUDP="typeOptionsTCPUDP"
-        :typeOptionsHTTPHTTPS="typeOptionsHTTPHTTPS"
         :domain-type-options="domainTypeOptions"
         :domain-name-options="domainNameOptions"
         :loading="loadingCreateTunnel"
@@ -60,8 +58,6 @@
         :node-info="nodeInfoValue"
         :node-options="updateNodeOptions"
         :type-options="typeOptions"
-        :typeOptionsTCPUDP="typeOptionsTCPUDP"
-        :typeOptionsHTTPHTTPS="typeOptionsHTTPHTTPS"
         :domain-type-options="domainTypeOptions"
         :domain-name-options="domainNameOptions"
         :loading="loadingEditTunnel"
@@ -265,8 +261,6 @@ const {
     domainNameOptions,
     updateNodeOptions,
     typeOptions,
-    typeOptionsTCPUDP,
-    typeOptionsHTTPHTTPS,
     domainTypeOptions,
     generateRandomPort,
     generateRandomTunnelName,

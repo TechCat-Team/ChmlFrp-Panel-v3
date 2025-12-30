@@ -47,3 +47,32 @@ interface ServerStatusResponse {
 export const getServerStatus = async (): Promise<ServerStatusResponse> => {
     return axiosInstance.get('/api/server-status');
 };
+
+interface SystemData {
+    windows: Array<{ route: string; architecture: string }>;
+    linux: Array<{ route: string; architecture: string }>;
+    freebsd: Array<{ route: string; architecture: string }>;
+    darwin: Array<{ route: string; architecture: string }>;
+}
+
+interface DownloadInfoData {
+    system: SystemData;
+    update_time: string;
+    link: string;
+    version: string;
+}
+
+interface DownloadInfoResponse extends BaseResponse {
+    data: DownloadInfoData;
+}
+
+/**
+ * 获取下载信息
+ * @param {string} [link]
+ * @returns {Promise<DownloadInfoResponse>} 下载信息数据
+ */
+export const getDownloadInfo = async (link?: string): Promise<DownloadInfoResponse> => {
+    return axiosInstance.get('/download_info', {
+        params: link ? { link } : undefined,
+    });
+};

@@ -6,7 +6,7 @@ import type { SystemMessage, GetSystemMessagesParams, SearchSystemMessagesParams
 /**
  * 系统消息 composable
  */
-export function useSystemMessages(userInfo?: { usertoken?: string; username?: string }) {
+export function useSystemMessages() {
     const message = useMessage();
 
     const loading = ref(false);
@@ -42,11 +42,6 @@ export function useSystemMessages(userInfo?: { usertoken?: string; username?: st
             // 添加优先级筛选
             if (selectedPriority.value !== undefined) {
                 params.priority = selectedPriority.value;
-            }
-
-            // 如果提供了用户token，则添加usertoken参数
-            if (userInfo?.usertoken) {
-                params.usertoken = userInfo.usertoken;
             }
 
             const response = await api.v2.user.getSystemMessages(params);
@@ -86,11 +81,6 @@ export function useSystemMessages(userInfo?: { usertoken?: string; username?: st
             // 添加优先级筛选
             if (selectedPriority.value !== undefined) {
                 params.priority = selectedPriority.value;
-            }
-
-            // 如果提供了用户token，则添加usertoken参数
-            if (userInfo?.usertoken) {
-                params.usertoken = userInfo.usertoken;
             }
 
             const response = await api.v2.user.getSystemMessages(params);

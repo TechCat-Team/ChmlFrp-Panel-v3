@@ -120,11 +120,11 @@ export const updateTunnel = (params: {
     node?: string;
     localip?: string;
     porttype?: string;
-    localport?: number;
-    remoteport?: number;
+    localport?: number | string;
+    remoteport?: number | string;
     banddomain?: string;
-    encryption?: boolean;
-    compression?: boolean;
+    encryption?: boolean | string;
+    compression?: boolean | string;
     extraparams?: string;
 }): Promise<BaseResponse> => {
     return axiosInstance.post('/update_tunnel', params);
@@ -140,10 +140,7 @@ interface GetTunnelConfigResponse extends BaseResponse {
  * @param {string} [tunnel_names] 隧道名称，多个名称用逗号分隔（可选）
  * @returns {Promise<GetTunnelConfigResponse>} 返回隧道配置文件的响应数据
  */
-export const getTunnelConfig = (
-    node: string,
-    tunnel_names?: string
-): Promise<GetTunnelConfigResponse> => {
+export const getTunnelConfig = (node: string, tunnel_names?: string): Promise<GetTunnelConfigResponse> => {
     return axiosInstance.get('/tunnel_config', {
         params: { node, tunnel_names },
     });

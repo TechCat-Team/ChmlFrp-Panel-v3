@@ -28,7 +28,7 @@ export function useCertificateList(userInfo: { usertoken?: string } | undefined)
         const domains = cert.domains.split(',').map((d: string) => d.trim());
         const isWildcard = domains.some((d: string) => d.startsWith('*.'));
         const isMultipleDomains = domains.length > 1;
-        
+
         // 检查是否包含根域名：只有当域名列表中同时包含子域名（或泛域名）和对应的根域名时，才为 true
         const hasRootDomain = domains.some((d: string) => {
             const domain = d.replace(/^\*\./, '');

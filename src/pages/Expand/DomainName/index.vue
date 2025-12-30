@@ -127,7 +127,7 @@ const { loading: editLoading, updateDomain } = useDomainEdit(() => {
 });
 
 // 删除域名
-const { deleteDomain } = useDomainDelete(userInfo || undefined, () => {
+const { deleteDomain } = useDomainDelete(() => {
     fetchDomainData();
 });
 
@@ -181,7 +181,7 @@ const handleEditDomain = (domain: FreeDomain) => {
 // 删除域名
 const handleDeleteDomain = async (domain: FreeDomain, index: number) => {
     domainLoading.value[index] = true;
-    await deleteDomain(domain, index);
+    await deleteDomain(domain);
     domainLoading.value[index] = false;
 };
 

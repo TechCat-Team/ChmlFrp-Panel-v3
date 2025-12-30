@@ -185,7 +185,7 @@ export const downloadCertificate = async (
     if (token) {
         headers['Authorization'] = `Bearer ${token}`;
     }
-    
+
     const response = await axios.get(`${axiosInstance.defaults.baseURL}/ssl/download/${id}`, {
         params: { type },
         headers,

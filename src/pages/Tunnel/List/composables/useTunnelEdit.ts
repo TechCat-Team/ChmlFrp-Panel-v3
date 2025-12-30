@@ -1,6 +1,5 @@
 import { ref, unref, type Ref } from 'vue';
 import { useMessage, useDialog } from 'naive-ui';
-import axios from 'axios';
 import api from '@/api';
 import type { TunnelFormData, NodeInfo } from '../types';
 
@@ -8,7 +7,7 @@ import type { TunnelFormData, NodeInfo } from '../types';
  * 隧道编辑 composable
  */
 export function useTunnelEdit(
-    userInfo: { usertoken?: string; id?: number },
+    _userInfo: { usertoken?: string; id?: number },
     formData: TunnelFormData,
     nodeInfo: { value: NodeInfo | Ref<NodeInfo> },
     checkFormData: (formData: TunnelFormData, nodeInfo: NodeInfo) => boolean | null,
@@ -129,6 +128,19 @@ export function useTunnelEdit(
         return null;
     };
 
+    const handleSuccessfulUpdate = (showFreeDomainDialog?: boolean) => {
+        message.success('隧道编辑成功');
+        if (showFreeDomainDialog) {
+            dialog.success({
+                title: '成功',
+                content:
+                    '隧道修改成功！此隧道使用的免费域名已同步更新解析，但是域名解析通常不会立即生效，需要等待DNS缓存更新，这个时间一般10分钟，慢的则需要48小时。请耐心等待，期间域名可能无法访问。',
+                positiveText: '我知道了',
+            });
+        }
+        onSuccess();
+    };
+
     // 获取节点详情
     const apiGetNodeInfo = async (node: string) => {
         try {
@@ -140,71 +152,35 @@ export function useTunnelEdit(
         return null;
     };
 
-    // 修改隧道apiv1
-    const apiChangeTunnelV1 = async () => {
-        try {
-            const response = await axios.post(
-                'https://cf-v1.uapis.cn/api/cztunnel.php',
-                {
-                    usertoken: userInfo?.usertoken,
-                    userid: userInfo?.id,
-                    type: formData.type.toLowerCase(),
-                    node: formData.node,
-                    name: formData.name,
-                    ap: formData.ap,
-                    dorp:
-                        formData.type.toLowerCase() === 'tcp' || formData.type.toLowerCase() === 'udp'
-                            ? Number(formData.dorp)
-                            : formData.domain,
-                    localip: formData.localip,
-                    nport: Number(formData.nport),
-                    tunnelid: formData.tunnelid,
-                    encryption: formData.encryption.toString(),
-                    compression: formData.compression.toString(),
-                },
-                {
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                }
-            );
-            const data = response.data;
-            if (response.status === 200 && data.code === 200) {
-                message.success('隧道编辑成功');
-                return data;
-            } else {
-                message.error('隧道编辑失败: ' + data.error);
-            }
-        } catch (error) {
-            message.error('隧道编辑API请求失败:' + error);
+    const buildUpdatePayload = () => {
+        const typeLower = formData.type.toLowerCase();
+
+        const payload: Parameters<typeof api.v2.tunnel.updateTunnel>[0] = {
+            tunnelid: formData.tunnelid,
+            tunnelname: formData.name,
+            node: formData.node,
+            porttype: typeLower,
+            localport: Number(formData.nport),
+            encryption: formData.encryption.toString(),
+            compression: formData.compression.toString(),
+            extraparams: formData.ap || undefined,
+        };
+
+        if (formData.localip?.trim()) {
+            payload.localip = formData.localip.trim();
         }
-        return null;
+
+        if (typeLower === 'http' || typeLower === 'https') {
+            payload.banddomain = formData.domain;
+        } else {
+            payload.remoteport = Number(formData.dorp);
+        }
+
+        return payload;
     };
 
-    // 修改隧道apiv2
-    const apiChangeTunnelV2 = async () => {
-        try {
-            const data = await api.v2.tunnel.updateTunnel({
-                tunnelid: formData.tunnelid,
-                tunnelname: formData.name,
-                node: formData.node,
-                localip: formData.localip,
-                porttype: formData.type.toLowerCase(),
-                localport: Number(formData.nport),
-                ...(formData.type.toUpperCase() === 'HTTP' || formData.type.toUpperCase() === 'HTTPS'
-                    ? { banddomain: formData.domain }
-                    : { remoteport: Number(formData.dorp) }),
-                encryption: formData.encryption,
-                compression: formData.compression,
-                extraparams: formData.ap,
-            });
-
-            message.success('隧道编辑成功');
-            return data;
-        } catch (error) {
-            message.error('隧道编辑失败: ' + (error as Error).message);
-        }
-        return null;
+    const apiChangeTunnel = () => {
+        return api.v2.tunnel.updateTunnel(buildUpdatePayload());
     };
 
     const editTunnel = async () => {
@@ -220,50 +196,62 @@ export function useTunnelEdit(
                 return;
             }
 
-            // HTTP 或 HTTPS 隧道
-            if (formData.type === 'HTTP' || formData.type === 'HTTPS') {
-                // 免费域名
-                if (formData.domainNameLabel === '免费域名') {
-                    const freeDomainChanged =
-                        formData.choose !== formData.chooseOld ||
-                        formData.recordValue !== formData.recordValueOld ||
-                        formData.node !== formData.nodeOld ||
-                        formData.name !== formData.nameOld;
+            const upperType = formData.type.toUpperCase();
+            const isHttpOrHttps = upperType === 'HTTP' || upperType === 'HTTPS';
 
-                    if (freeDomainChanged) {
-                        formData.domain = formData.recordValue + '.' + formData.choose;
-                        let nodeInfoData = await apiGetNodeInfo(formData.node);
-                        if (nodeInfoData === null) {
-                            loading.value = false;
-                            return;
-                        }
+            if (isHttpOrHttps) {
+                const freeDomainEnabled = formData.domainNameLabel === '免费域名';
+                const freeDomainChanged =
+                    formData.choose !== formData.chooseOld ||
+                    formData.recordValue !== formData.recordValueOld ||
+                    formData.node !== formData.nodeOld ||
+                    formData.name !== formData.nameOld;
 
-                        let err = await apiUpdateFreeDomain(
-                            formData.chooseOld,
-                            formData.recordValueOld,
-                            formData.choose,
-                            formData.recordValue,
-                            nodeInfoData.ip,
-                            '解析 网站 到 ' + formData.name + ' - ' + formData.node,
-                            true
-                        );
-                        if (err === null) {
-                            message.error('免费域名修改失败');
-                            loading.value = false;
-                            return;
-                        }
+                if (freeDomainEnabled && freeDomainChanged) {
+                    formData.domain = formData.recordValue + '.' + formData.choose;
+                    const nodeInfoData = await apiGetNodeInfo(formData.node);
+                    if (nodeInfoData === null) {
+                        loading.value = false;
+                        return;
                     }
 
-                    try {
-                        let err = await apiChangeTunnelV1();
-                        if (err === null) {
-                            let nodeInfoOld = await apiGetNodeInfo(formData.nodeOld);
-                            if (nodeInfoOld === null) {
-                                message.error('修改失败，回溯失败，请前往免费域名管理页面删除错误域名');
-                                loading.value = false;
-                                return;
-                            }
-                            let err = await apiUpdateFreeDomain(
+                    const hasOldFreeDomain = !!(formData.chooseOld && formData.recordValueOld);
+                    const updateResponse = hasOldFreeDomain
+                        ? await apiUpdateFreeDomain(
+                              formData.chooseOld,
+                              formData.recordValueOld,
+                              formData.choose,
+                              formData.recordValue,
+                              nodeInfoData.ip,
+                              '解析 网站 到 ' + formData.name + ' - ' + formData.node,
+                              true
+                          )
+                        : await apiCreateFreeDomain(
+                              formData.choose,
+                              formData.recordValue,
+                              nodeInfoData.ip,
+                              '解析 网站 到 ' + formData.name + ' - ' + formData.node,
+                              true
+                          );
+
+                    if (updateResponse === null) {
+                        message.error('免费域名修改失败');
+                        loading.value = false;
+                        return;
+                    }
+                }
+
+                try {
+                    await apiChangeTunnel();
+                    handleSuccessfulUpdate(freeDomainEnabled && freeDomainChanged);
+                } catch (error) {
+                    message.error('隧道编辑失败: ' + (error as Error).message);
+                    if (freeDomainEnabled && freeDomainChanged) {
+                        let nodeInfoOld = await apiGetNodeInfo(formData.nodeOld);
+                        if (nodeInfoOld === null) {
+                            message.error('修改失败，回溯失败，请前往免费域名管理页面删除错误域名');
+                        } else {
+                            let rollbackResponse = await apiUpdateFreeDomain(
                                 formData.choose,
                                 formData.recordValue,
                                 formData.chooseOld,
@@ -272,53 +260,29 @@ export function useTunnelEdit(
                                 '解析 网站 到 ' + formData.nameOld + ' - ' + formData.nodeOld,
                                 false
                             );
-                            if (err === null) {
+                            if (rollbackResponse === null) {
                                 message.error('修改失败，回溯失败，请前往免费域名管理页面删除错误域名');
-                                loading.value = false;
-                                return;
+                            } else {
+                                message.error('修改失败，回溯成功');
                             }
-                            message.error('修改失败，回溯成功');
+                        }
+                    }
+                }
+            } else {
+                try {
+                    if (formData.domainNameLabel === '免费域名' && formData.chooseOld && formData.recordValueOld) {
+                        const deleteRes = await apiDeleteFreeDomain(formData.chooseOld, formData.recordValueOld, true);
+                        if (deleteRes === null) {
+                            message.error('免费域名删除失败，请稍后重试');
                             loading.value = false;
                             return;
                         }
-
-                        const freeDomainChanged =
-                            formData.choose !== formData.chooseOld ||
-                            formData.recordValue !== formData.recordValueOld ||
-                            formData.node !== formData.nodeOld ||
-                            formData.name !== formData.nameOld;
-
-                        if (freeDomainChanged) {
-                            dialog.success({
-                                title: '成功',
-                                content:
-                                    '隧道修改成功！此隧道使用的免费域名已同步更新解析，但是域名解析通常不会立即生效，需要等待DNS缓存更新，这个时间一般10分钟，慢的则需要48小时。请耐心等待，期间域名可能无法访问。',
-                                positiveText: '我知道了',
-                            });
-                        }
-
-                        onSuccess();
-                    } catch (error) {
-                        message.error('隧道编辑API调用失败:' + error);
                     }
-                }
-                // 自定义域名
-                else {
-                    try {
-                        let err = await apiChangeTunnelV1();
-                        err === null ? null : onSuccess();
-                    } catch (error) {
-                        message.error('隧道编辑API调用失败:' + error);
-                    }
-                }
-            }
-            // TCP 或 UDP 隧道
-            else {
-                try {
-                    let err = await apiChangeTunnelV2();
-                    err === null ? null : onSuccess();
+
+                    await apiChangeTunnel();
+                    handleSuccessfulUpdate();
                 } catch (error) {
-                    message.error('隧道编辑API调用失败:' + error);
+                    message.error('隧道编辑失败: ' + (error as Error).message);
                 }
             }
         } finally {

@@ -169,15 +169,6 @@ const md = new MarkdownIt({
     typographer: true,
 });
 
-interface Props {
-    userInfo?: {
-        usertoken?: string;
-        username?: string;
-    };
-}
-
-const props = defineProps<Props>();
-
 const {
     loading,
     loadingMore,
@@ -197,7 +188,7 @@ const {
     handlePriorityChange,
     getPriorityLabel,
     getPriorityType,
-} = useSystemMessages(props.userInfo);
+} = useSystemMessages();
 
 const priorityOptions = [
     { label: '全部', value: undefined },
