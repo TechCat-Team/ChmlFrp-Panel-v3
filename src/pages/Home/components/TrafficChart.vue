@@ -178,7 +178,7 @@ const fetchTrafficInfo = async () => {
     loading.value = true;
     try {
         const response = await api.v2.user.getFlowLast7days();
-        
+
         if (response.code === 200) {
             // 对 data 按日期排序
             const sortedData = [...response.data].sort((a: FlowDataItem, b: FlowDataItem) => {

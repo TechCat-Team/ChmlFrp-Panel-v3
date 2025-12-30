@@ -4,7 +4,9 @@
         <n-grid cols="1 s:5" responsive="screen" :x-gap="15" :y-gap="20">
             <n-gi :span="3">
                 <n-card style="margin-bottom: 15px" v-if="userInfo?.realname === '未实名'">
-                    <n-alert title="提示" type="warning"> 您尚未实名，请在右侧（或下方）实名认证窗口进行实名认证，我们允许14岁以上人群实名。<br />根据中国法律规定，未实名将无法使用ChmlFrp提供的服务。 </n-alert>
+                    <n-alert title="提示" type="warning">
+                        您尚未实名，请在右侧（或下方）实名认证窗口进行实名认证，我们允许14岁以上人群实名。<br />根据中国法律规定，未实名将无法使用ChmlFrp提供的服务。
+                    </n-alert>
                 </n-card>
                 <SystemMessagesCard />
                 <UserSettingsCard :settings="settingCard">

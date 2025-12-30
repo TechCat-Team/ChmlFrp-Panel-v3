@@ -263,10 +263,7 @@ export const getQiandaoInfo = async (): Promise<GetQiandaoInfoResponse> => {
  * @param {string} new_password - 新密码
  * @returns {Promise<BaseResponse>} 重置密码响应
  */
-export const resetPassword = async (
-    original_password: string,
-    new_password: string
-): Promise<BaseResponse> => {
+export const resetPassword = async (original_password: string, new_password: string): Promise<BaseResponse> => {
     return axiosInstance.get('/reset_password', {
         params: { original_password, new_password },
     });

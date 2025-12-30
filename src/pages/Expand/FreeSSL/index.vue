@@ -41,11 +41,11 @@
         </n-grid-item>
     </n-grid>
     <n-card v-if="!loading && certificateData.length === 0">
-    <n-empty description="您似乎还没创建免费SSL证书">
-        <template #extra>
-            <n-button type="primary" @click="handleCreateCertificate">申请证书</n-button>
-        </template>
-    </n-empty>
+        <n-empty description="您似乎还没创建免费SSL证书">
+            <template #extra>
+                <n-button type="primary" @click="handleCreateCertificate">申请证书</n-button>
+            </template>
+        </n-empty>
     </n-card>
     <CreateCertificateModal
         :show="createCertificateModal"

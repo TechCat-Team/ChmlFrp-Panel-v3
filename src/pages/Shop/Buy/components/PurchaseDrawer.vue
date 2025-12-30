@@ -47,7 +47,7 @@
                                     :step="1"
                                     :show-value="false"
                                     :format-tooltip="formatTooltip"
-                                    style="margin-top: 12px;"
+                                    style="margin-top: 12px"
                                 />
                             </n-space>
                         </n-card>

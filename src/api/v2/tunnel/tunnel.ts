@@ -140,10 +140,7 @@ interface GetTunnelConfigResponse extends BaseResponse {
  * @param {string} [tunnel_names] 隧道名称，多个名称用逗号分隔（可选）
  * @returns {Promise<GetTunnelConfigResponse>} 返回隧道配置文件的响应数据
  */
-export const getTunnelConfig = (
-    node: string,
-    tunnel_names?: string
-): Promise<GetTunnelConfigResponse> => {
+export const getTunnelConfig = (node: string, tunnel_names?: string): Promise<GetTunnelConfigResponse> => {
     return axiosInstance.get('/tunnel_config', {
         params: { node, tunnel_names },
     });

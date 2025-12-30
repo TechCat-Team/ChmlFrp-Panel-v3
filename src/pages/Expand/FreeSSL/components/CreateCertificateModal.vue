@@ -20,9 +20,9 @@
                 <!-- Step 1: Domains -->
                 <template v-if="currentStep === 1">
                     <n-form-item label="域名" path="domains">
-                        <n-dynamic-input 
-                            v-model:value="model.domains" 
-                            :min="1" 
+                        <n-dynamic-input
+                            v-model:value="model.domains"
+                            :min="1"
                             :max="20"
                             @update:value="handleDomainsChange"
                         >
@@ -146,16 +146,16 @@ const providerOptions = [
     { label: 'Google', value: 'google', description: 'Google Trust Services', disabled: true },
 ];
 
-const hasWildcard = computed(() => 
-    props.model.domains.some((d: string | null | undefined) => 
-        d && typeof d === 'string' && d.trim().length > 0 && d.trim().startsWith('*.')
+const hasWildcard = computed(() =>
+    props.model.domains.some(
+        (d: string | null | undefined) => d && typeof d === 'string' && d.trim().length > 0 && d.trim().startsWith('*.')
     )
 );
 
-const hasMultipleDomains = computed(() => 
-    props.model.domains.filter((d: string | null | undefined) => 
-        d && typeof d === 'string' && d.trim().length > 0
-    ).length > 1
+const hasMultipleDomains = computed(
+    () =>
+        props.model.domains.filter((d: string | null | undefined) => d && typeof d === 'string' && d.trim().length > 0)
+            .length > 1
 );
 
 const http01Disabled = computed(() => hasWildcard.value || hasMultipleDomains.value);
@@ -195,17 +195,16 @@ const rules = {
 
 const handleDomainsChange = (domains: (string | null)[]) => {
     // 将 null 值转换为空字符串，保持类型一致性
-    const validDomains: string[] = domains.length > 0 
-        ? domains.map(d => (d === null || d === undefined) ? '' : String(d))
-        : [''];
+    const validDomains: string[] =
+        domains.length > 0 ? domains.map((d) => (d === null || d === undefined ? '' : String(d))) : [''];
     emit('update:model', { ...props.model, domains: validDomains });
 };
 
 const updateDomain = (oldValue: string | null, newValue: string | null) => {
     const domains = [...props.model.domains];
-    const index = domains.findIndex(d => d === oldValue);
+    const index = domains.findIndex((d) => d === oldValue);
     if (index !== -1) {
-        domains[index] = (newValue === null || newValue === undefined) ? '' : String(newValue);
+        domains[index] = newValue === null || newValue === undefined ? '' : String(newValue);
         emit('update:model', { ...props.model, domains });
     }
 };
@@ -222,9 +221,7 @@ const canNext = computed(() => {
     const m = props.model;
     if (currentStep.value === 1) {
         // 检查至少有一个非空域名
-        return m.domains.some((d: string | null | undefined) => 
-            d && typeof d === 'string' && d.trim().length > 0
-        );
+        return m.domains.some((d: string | null | undefined) => d && typeof d === 'string' && d.trim().length > 0);
     }
     if (currentStep.value === 2) return !!m.provider;
     if (currentStep.value === 3) return !!m.challengeType;
