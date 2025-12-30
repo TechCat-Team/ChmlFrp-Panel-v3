@@ -50,9 +50,11 @@ export function useMembershipPurchase(userInfo: { usertoken?: string; integral?:
             } else {
                 message.error(response.msg);
             }
-        } catch (error) {
+        } catch (error: any) {
             console.error('购买请求失败:', error);
-            message.error('购买请求异常，请检查网络或稍后再试');
+            // 尝试获取API返回的错误信息
+            const errorMsg = error?.response?.data?.msg || error?.message || '购买请求异常，请检查网络或稍后再试';
+            message.error(errorMsg);
         } finally {
             loading.value = false;
         }
