@@ -104,7 +104,25 @@ const handleLoad = () => {
     count.value += 1;
 };
 
-const selectedOS = ref<string>('Windows');
+// 检测操作系统
+const detectOS = (): string => {
+    const platform = navigator.platform.toLowerCase();
+    const userAgent = navigator.userAgent.toLowerCase();
+    
+    if (platform.includes('win') || userAgent.includes('windows')) {
+        return 'Windows';
+    } else if (platform.includes('mac') || userAgent.includes('mac')) {
+        return 'Darwin';
+    } else if (platform.includes('linux') || userAgent.includes('linux')) {
+        return 'Linux';
+    } else if (platform.includes('freebsd') || userAgent.includes('freebsd')) {
+        return 'freeBSD';
+    }
+    // 默认返回 Windows
+    return 'Windows';
+};
+
+const selectedOS = ref<string>(detectOS());
 const link = ref<string>('');
 const time = ref<string>('');
 const Windows = ref<Array<{ route: string; architecture: string }>>([]);
