@@ -239,6 +239,19 @@
                                 @update:value="handleOpacityChange"
                             />
                         </div>
+                        <div class="slider-control">
+                            <div class="slider-label">
+                                <n-icon :component="LayersOutline" :size="16" />
+                                <span>遮罩透明度: {{ backgroundMaskOpacity || 30 }}%</span>
+                            </div>
+                            <n-slider
+                                v-model:value="backgroundMaskOpacity"
+                                :min="0"
+                                :max="100"
+                                :step="1"
+                                @update:value="handleMaskOpacityChange"
+                            />
+                        </div>
                         <div class="setting-item" style="margin-top: 12px">
                             <div class="setting-label">
                                 <n-icon :component="LayersOutline" :size="18" />
@@ -293,6 +306,7 @@ const backgroundImage = ref(themeStore.backgroundImage);
 const backgroundImageUrl = ref(themeStore.backgroundImage);
 const backgroundBlur = ref(themeStore.backgroundBlur);
 const backgroundOpacity = ref(themeStore.backgroundOpacity || 100);
+const backgroundMaskOpacity = ref(themeStore.backgroundMaskOpacity || 30);
 const colorBlindMode = ref(themeStore.colorBlindMode);
 const highContrastMode = ref(themeStore.highContrastMode);
 const frostedGlassMode = ref(themeStore.frostedGlassMode);
@@ -560,6 +574,12 @@ const handleOpacityChange = (opacity: number) => {
     updateBackgroundStyle();
 };
 
+const handleMaskOpacityChange = (opacity: number) => {
+    backgroundMaskOpacity.value = opacity;
+    themeStore.setBackgroundMaskOpacity(opacity);
+    updateBackgroundStyle();
+};
+
 const handleFrostedGlassChange = (enabled: boolean) => {
     frostedGlassMode.value = enabled;
     themeStore.setFrostedGlassMode(enabled);
@@ -627,19 +647,13 @@ const updateBackgroundStyle = () => {
             root.style.setProperty('--background-image', imageUrl);
             root.style.setProperty('--background-blur', `${backgroundBlur.value}px`);
             root.style.setProperty('--background-opacity', `${opacity / 100}`);
+            root.style.setProperty('--background-mask-opacity', `${backgroundMaskOpacity.value / 100}`);
 
             // 验证是否设置成功
             const setValue = root.style.getPropertyValue('--background-image');
             if (!setValue || setValue === 'none') {
                 console.warn('背景图 CSS 变量设置可能失败，图片可能太大');
             }
-
-            // 调试信息
-            console.log('背景图已设置:', {
-                length: backgroundImage.value.length,
-                blur: backgroundBlur.value,
-                opacity: opacity,
-            });
         } catch (error) {
             console.error('设置背景图失败:', error);
         }
@@ -648,6 +662,7 @@ const updateBackgroundStyle = () => {
         root.style.removeProperty('--background-image');
         root.style.removeProperty('--background-blur');
         root.style.removeProperty('--background-opacity');
+        root.style.removeProperty('--background-mask-opacity');
         console.log('背景图已清除');
     }
 };
@@ -690,6 +705,16 @@ watch(
 );
 
 watch(
+    () => themeStore.backgroundMaskOpacity,
+    (newMaskOpacity) => {
+        if (newMaskOpacity !== backgroundMaskOpacity.value) {
+            backgroundMaskOpacity.value = newMaskOpacity;
+            updateBackgroundStyle();
+        }
+    }
+);
+
+watch(
     () => themeStore.frostedGlassMode,
     (newMode) => {
         if (newMode !== frostedGlassMode.value) {
@@ -717,6 +742,11 @@ onMounted(() => {
         // 如果值小于20%，自动调整为20%
         backgroundOpacity.value = 20;
         themeStore.setBackgroundOpacity(20);
+    }
+    // 确保 backgroundMaskOpacity 有默认值
+    if (!backgroundMaskOpacity.value || isNaN(backgroundMaskOpacity.value)) {
+        backgroundMaskOpacity.value = 30;
+        themeStore.setBackgroundMaskOpacity(30);
     }
     // 如果启用了毛玻璃模式，确保不透明度为100%
     if (frostedGlassMode.value) {

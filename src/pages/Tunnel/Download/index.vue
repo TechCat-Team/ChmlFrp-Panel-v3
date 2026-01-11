@@ -118,7 +118,6 @@ const detectOS = (): string => {
     } else if (platform.includes('freebsd') || userAgent.includes('freebsd')) {
         return 'freeBSD';
     }
-    // 默认返回 Windows
     return 'Windows';
 };
 

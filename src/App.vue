@@ -177,6 +177,36 @@ watch(
     () => {
         // 触发 themeOverrides 重新计算
         // 由于 themeOverrides 是 computed，会自动更新
+        // 同时更新遮罩透明度
+        if (themeStore.backgroundImage) {
+            const maskOpacity = themeStore.backgroundMaskOpacity || 30;
+            document.documentElement.style.setProperty('--background-mask-opacity', `${maskOpacity / 100}`);
+        } else {
+            document.documentElement.style.removeProperty('--background-mask-opacity');
+        }
+    }
+);
+
+// 监听遮罩透明度变化
+watch(
+    () => themeStore.backgroundMaskOpacity,
+    (newMaskOpacity) => {
+        if (themeStore.backgroundImage) {
+            document.documentElement.style.setProperty('--background-mask-opacity', `${newMaskOpacity / 100}`);
+        }
+    }
+);
+
+// 监听主题变化，确保遮罩颜色正确更新
+watch(
+    () => themeStore.theme,
+    () => {
+        // 主题变化时，遮罩颜色会自动通过 CSS 更新
+        // 这里只需要确保遮罩透明度仍然正确
+        if (themeStore.backgroundImage) {
+            const maskOpacity = themeStore.backgroundMaskOpacity || 30;
+            document.documentElement.style.setProperty('--background-mask-opacity', `${maskOpacity / 100}`);
+        }
     }
 );
 
@@ -207,14 +237,17 @@ onMounted(() => {
     if (themeStore.backgroundImage) {
         // 确保不透明度不低于20%
         const opacity = Math.max(20, themeStore.backgroundOpacity || 100);
+        const maskOpacity = themeStore.backgroundMaskOpacity || 30;
         document.documentElement.style.setProperty('--background-image', `url(${themeStore.backgroundImage})`);
         document.documentElement.style.setProperty('--background-blur', `${themeStore.backgroundBlur}px`);
         document.documentElement.style.setProperty('--background-opacity', `${opacity / 100}`);
+        document.documentElement.style.setProperty('--background-mask-opacity', `${maskOpacity / 100}`);
     } else {
         // 移除 CSS 变量以恢复默认样式
         document.documentElement.style.removeProperty('--background-image');
         document.documentElement.style.removeProperty('--background-blur');
         document.documentElement.style.removeProperty('--background-opacity');
+        document.documentElement.style.removeProperty('--background-mask-opacity');
     }
     // 初始化无障碍模式
     if (themeStore.colorBlindMode) {
@@ -274,14 +307,46 @@ html {
         will-change: background-image, filter; // 优化性能
     }
 
+    // 遮罩层伪元素，在背景图之上，内容之下
+    &::after {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        z-index: -998;
+        opacity: var(--background-mask-opacity, 0);
+        transition: opacity 0.3s ease, background-color 0.3s ease;
+        pointer-events: none; // 确保遮罩不阻挡交互
+        will-change: opacity, background-color; // 优化性能
+    }
+
     // 当没有背景图 CSS 变量时隐藏伪元素
-    &:not([style*='--background-image'])::before {
+    &:not([style*='--background-image'])::before,
+    &:not([style*='--background-image'])::after {
         display: none;
     }
 
     // 当有背景图时显示
-    &[style*='--background-image']::before {
+    &[style*='--background-image']::before,
+    &[style*='--background-image']::after {
         display: block;
+    }
+
+    // 根据主题自动切换遮罩颜色
+    &[data-theme='light']::after {
+        background-color: rgba(255, 255, 255, 1) !important; // 明色主题使用白色遮罩
+    }
+
+    &[data-theme='dark']::after {
+        background-color: rgba(0, 0, 0, 1) !important; // 暗色主题使用黑色遮罩
+    }
+    
+    // 确保遮罩在有背景图时显示
+    &[style*='--background-image']::after {
+        display: block !important;
+        opacity: var(--background-mask-opacity, 0) !important;
     }
 }
 
@@ -350,6 +415,20 @@ html[data-theme='dark']:not(.high-contrast-mode) .n-layout-sider {
 // 但是背景图本身不应该受不透明度影响（背景图在 html::before 上）
 html::before {
     opacity: 1 !important;
+}
+
+// 遮罩层也不应该受不透明度影响（遮罩在 html::after 上）
+html::after {
+    opacity: var(--background-mask-opacity, 0) !important;
+    background-color: rgba(0, 0, 0, 1) !important; // 默认黑色，会被主题覆盖
+}
+
+// 确保遮罩在背景图之上，并且正确显示
+html[style*='--background-image']::after {
+    z-index: -998 !important;
+    display: block !important;
+    opacity: var(--background-mask-opacity, 0) !important;
+    visibility: visible !important;
 }
 
 // 色弱模式样式
