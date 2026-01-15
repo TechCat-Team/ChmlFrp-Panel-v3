@@ -105,6 +105,7 @@ import {
     StatsChartOutline,
     CodeDownloadOutline,
     RefreshOutline,
+    PlayOutline,
 } from '@vicons/ionicons5';
 import { formatBytes } from '@/utils/formatBytes';
 import type { TunnelCard } from '../types';
@@ -119,6 +120,7 @@ interface Props {
     onOffline: (card: TunnelCard) => void;
     onDelete: (card: TunnelCard) => void;
     onCopyAddress: (address: string) => void;
+    onStart: (card: TunnelCard) => void;
 }
 
 const props = defineProps<Props>();
@@ -127,6 +129,15 @@ const trafficIn = computed(() => formatBytes(props.card.today_traffic_in));
 const trafficOut = computed(() => formatBytes(props.card.today_traffic_out));
 
 const dropdownOptions = computed(() => [
+    {
+        label: '启动隧道',
+        key: 'start',
+        icon: () => h(NIcon, null, { default: () => h(PlayOutline) }),
+    },
+    {
+        type: 'divider',
+        key: 'd0',
+    },
     {
         label: '编辑隧道',
         key: 'edit',
@@ -177,6 +188,9 @@ const dropdownOptions = computed(() => [
 
 const handleDropdownSelect = (key: string) => {
     switch (key) {
+        case 'start':
+            props.onStart(props.card);
+            break;
         case 'edit':
             props.onEdit(props.card);
             break;
