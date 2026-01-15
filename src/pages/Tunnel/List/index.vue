@@ -81,6 +81,7 @@
             <TunnelCardComponent
                 :card="card"
                 :deletet-tunnel-success="deletetTunnelSuccess"
+                :is-mobile="isHidden"
                 :on-edit="editTunnel"
                 :on-get-config="getConfigCode"
                 :on-refresh="handleRefreshTunnel"
@@ -154,7 +155,7 @@ const dialog = useDialog();
 const router = useRouter();
 
 const screenStore = useScreenStore();
-const { screenWidth } = storeToRefs(screenStore);
+const { screenWidth, isHidden } = storeToRefs(screenStore);
 
 // 根据屏幕宽度决定对话框大小
 const widthStyle = computed(() => ({
@@ -397,10 +398,8 @@ const editTunnel = async (card: TunnelCard) => {
 
     // 判断 card.dorp 是否为数字类型的字符串
     if (!isNaN(Number(card.dorp))) {
-        // 如果是数字字符串，转换为字符串并赋值给 formData.dorp
         formData.dorp = String(card.dorp);
     } else {
-        // 否则将其赋值给 formData.domain
         formData.domain = card.dorp;
     }
 

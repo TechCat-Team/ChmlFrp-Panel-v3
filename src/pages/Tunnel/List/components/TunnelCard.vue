@@ -113,6 +113,7 @@ import type { TunnelCard } from '../types';
 interface Props {
     card: TunnelCard;
     deletetTunnelSuccess: boolean;
+    isMobile?: boolean;
     onEdit: (card: TunnelCard) => void;
     onGetConfig: (card: TunnelCard) => void;
     onRefresh: (card: TunnelCard) => void;
@@ -128,45 +129,51 @@ const message = useMessage();
 const trafficIn = computed(() => formatBytes(props.card.today_traffic_in));
 const trafficOut = computed(() => formatBytes(props.card.today_traffic_out));
 
-const dropdownOptions = computed(() => [
-    {
-        label: '启动隧道',
-        key: 'start',
-        icon: () => h(NIcon, null, { default: () => h(PlayOutline) }),
-    },
-    {
-        type: 'divider',
-        key: 'd0',
-    },
-    {
+const dropdownOptions = computed(() => {
+    const options = [];
+    
+    // 只在非手机端显示启动隧道功能
+    if (!props.isMobile) {
+        options.push({
+            label: '启动隧道',
+            key: 'start',
+            icon: () => h(NIcon, null, { default: () => h(PlayOutline) }),
+        });
+        options.push({
+            type: 'divider',
+            key: 'd0',
+        });
+    }
+    
+    options.push({
         label: '编辑隧道',
         key: 'edit',
         icon: () => h(NIcon, null, { default: () => h(CreateOutline) }),
-    },
-    {
+    });
+    options.push({
         label: '获取配置代码',
         key: 'config',
         icon: () => h(NIcon, null, { default: () => h(CodeSlashOutline) }),
-    },
-    {
+    });
+    options.push({
         type: 'divider',
         key: 'd1',
-    },
-    {
+    });
+    options.push({
         label: '刷新流量等数据',
         key: 'refresh',
         icon: () => h(NIcon, null, { default: () => h(RefreshOutline) }),
-    },
-    {
+    });
+    options.push({
         label: '获取近七天流量',
         key: 'stats',
         icon: () => h(NIcon, null, { default: () => h(StatsChartOutline) }),
-    },
-    {
+    });
+    options.push({
         type: 'divider',
         key: 'd2',
-    },
-    {
+    });
+    options.push({
         label: '强制下线隧道',
         key: 'offtunnel',
         icon: () => h(NIcon, { color: '#ff4d4f' }, { default: () => h(CodeDownloadOutline) }),
@@ -174,8 +181,8 @@ const dropdownOptions = computed(() => [
             style: { color: '#ff4d4f' },
         },
         disabled: !props.deletetTunnelSuccess,
-    },
-    {
+    });
+    options.push({
         label: '删除隧道',
         key: 'delete',
         icon: () => h(NIcon, { color: '#ff4d4f' }, { default: () => h(TrashOutline) }),
@@ -183,8 +190,10 @@ const dropdownOptions = computed(() => [
             style: { color: '#ff4d4f' },
         },
         disabled: !props.deletetTunnelSuccess,
-    },
-]);
+    });
+    
+    return options;
+});
 
 const handleDropdownSelect = (key: string) => {
     switch (key) {
