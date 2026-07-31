@@ -33,9 +33,9 @@ export const BASE_MONTHLY_COST: MembershipCost = {
 
 // 终身会员价格（元）
 export const LIFETIME_MEMBER_PRICE: MembershipCost = {
-    普通会员: 80,
-    高级会员: 120,
-    超级会员: 160,
+    普通会员: 120,
+    高级会员: 160,
+    超级会员: 200,
 };
 
 // 会员特性配置
