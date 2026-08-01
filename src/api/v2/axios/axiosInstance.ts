@@ -34,7 +34,7 @@ interface RetryableRequestConfig extends InternalAxiosRequestConfig {
 }
 
 const axiosInstance = axios.create({
-    baseURL: 'https://cf-v2.uapis.cn',
+    baseURL: import.meta.env.VITE_API_BASE_URL,
     timeout: 30000,
     withCredentials: false,
     headers: {
