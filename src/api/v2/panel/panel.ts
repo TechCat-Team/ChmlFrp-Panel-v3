@@ -93,7 +93,7 @@ interface LauncherUpdateData {
  * 获取图形客户端更新信息
  */
 export const getLauncherUpdateInfo = async (): Promise<LauncherUpdateData> => {
-    const res = await fetch('https://cf-v2.uapis.cn/launcher/update');
+    const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/launcher/update`);
     if (!res.ok) throw new Error('Failed to fetch launcher update info');
     return res.json();
 };

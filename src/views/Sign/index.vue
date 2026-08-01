@@ -42,7 +42,7 @@ import { useRoute, useRouter } from 'vue-router';
 import api from '@/api';
 import { hasAuthTokens } from '@/utils/authToken';
 
-const apiBaseUrl = 'https://cf-v2.uapis.cn';
+const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
 const panelOrigin = 'https://panel.chmlfrp.net';
 
 const route = useRoute();
