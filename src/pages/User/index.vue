@@ -94,20 +94,6 @@
             </n-gi>
         </n-grid>
     </n-flex>
-    <!-- 模糊遮罩 -->
-    <div
-        v-show="showBlurOverlay"
-        style="
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            backdrop-filter: blur(var(--modal-filter));
-            z-index: 9998;
-            pointer-events: all;
-        "
-    ></div>
 </template>
 
 <script setup lang="ts">
@@ -136,7 +122,6 @@ const {
     loadingButton: loadingQianDaoButton,
     qianDaoText: QianDaoTest,
     signedInSuccess,
-    showBlurOverlay,
     signInInfo,
     fetchSignInInfo,
     onSignButtonClick,

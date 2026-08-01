@@ -45,8 +45,6 @@
         <n-image :src="wxImage" />
     </n-modal>
 
-    <!-- 模糊遮罩 -->
-    <div v-show="showBlurOverlay" :style="blurOverlayStyle"></div>
 </template>
 
 <script lang="ts" setup>
@@ -93,7 +91,6 @@ const {
     loadingButton: signInLoadingButton,
     qianDaoText,
     signedInSuccess,
-    showBlurOverlay,
     signInInfo,
     fetchSignInInfo,
     onSignButtonClick,
@@ -124,18 +121,6 @@ const cards = computed(() => {
         { title: '积分数', value: userInfo?.integral || 0, icon: markRaw(ServerOutline), precision: 0 },
     ];
 });
-
-// 模糊遮罩样式
-const blurOverlayStyle = computed(() => ({
-    position: 'fixed' as const,
-    top: '0',
-    left: '0',
-    width: '100%',
-    height: '100%',
-    backdropFilter: 'blur(var(--modal-filter))',
-    zIndex: 9998,
-    pointerEvents: 'all' as const,
-}));
 
 // 对话框和倒计时
 const showDialog = ref(false);

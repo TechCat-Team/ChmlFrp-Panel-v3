@@ -1,8 +1,8 @@
 import { ref } from 'vue';
 import { useDialog, useMessage } from 'naive-ui';
-import { loadGeetestScript } from '@/utils/loadGeetest';
+import { verifySignInCaptcha } from '@/utils/qzhuaCaptcha';
 import api from '@/api';
-import { SIGN_IN_BUTTON_TEXT, SIGN_IN_STEPS, GEETEST_CAPTCHA_ID, SUCCESS_MESSAGE_DURATION } from '../constants';
+import { SIGN_IN_BUTTON_TEXT, SIGN_IN_STEPS, SUCCESS_MESSAGE_DURATION } from '../constants';
 import type { SignInInfo } from '../types';
 
 /**
@@ -16,7 +16,6 @@ export function useSignIn(_userInfo: { id?: number; usertoken?: string }) {
     const loadingButton = ref(false);
     const qianDaoText = ref(SIGN_IN_BUTTON_TEXT);
     const signedInSuccess = ref(false);
-    const showBlurOverlay = ref(false);
 
     const signInInfo = ref<SignInInfo>({
         last_sign_in_time: '',
@@ -48,17 +47,11 @@ export function useSignIn(_userInfo: { id?: number; usertoken?: string }) {
         }
     };
 
-    const signIn = async (geetestResult: GeetestResult) => {
+    const signIn = async (token: string) => {
         qianDaoText.value = SIGN_IN_STEPS.API;
 
         try {
-            const data = await api.v2.user.signIn(
-                geetestResult.lot_number,
-                geetestResult.captcha_output,
-                geetestResult.pass_token,
-                geetestResult.gen_time
-            );
-            showBlurOverlay.value = false;
+            const data = await api.v2.user.signIn(token);
             loadingButton.value = false;
             signedInSuccess.value = true;
             dialog.success({
@@ -67,14 +60,12 @@ export function useSignIn(_userInfo: { id?: number; usertoken?: string }) {
                 positiveText: '哇',
             });
         } catch (error) {
-            showBlurOverlay.value = false;
             signedInSuccess.value = false;
             loadingButton.value = false;
             qianDaoText.value = SIGN_IN_BUTTON_TEXT;
             message.error('签到失败：' + (error as Error).message);
         }
         setTimeout(() => {
-            showBlurOverlay.value = false;
             signedInSuccess.value = false;
             loadingButton.value = false;
             qianDaoText.value = SIGN_IN_BUTTON_TEXT;
@@ -87,37 +78,9 @@ export function useSignIn(_userInfo: { id?: number; usertoken?: string }) {
         qianDaoText.value = SIGN_IN_STEPS.INIT;
 
         try {
-            await loadGeetestScript();
-
-            window.initGeetest4(
-                {
-                    product: 'bind',
-                    captchaId: GEETEST_CAPTCHA_ID,
-                    width: '100%',
-                },
-                (captchaObj: CaptchaObj) => {
-                    captchaObj.onNextReady(() => {
-                        qianDaoText.value = SIGN_IN_STEPS.VERIFY;
-                    });
-                    captchaObj.showCaptcha();
-
-                    showBlurOverlay.value = true;
-
-                    captchaObj.onClose(() => {
-                        message.warning('签到验证关闭，此次签到未成功');
-                        showBlurOverlay.value = false;
-                        loadingButton.value = false;
-                        qianDaoText.value = SIGN_IN_BUTTON_TEXT;
-                    });
-                    captchaObj.onSuccess(() => {
-                        const result = captchaObj.getValidate() as GeetestResult | null;
-                        if (result) {
-                            console.log('Geetest 验证成功:', result);
-                            signIn(result);
-                        }
-                    });
-                }
-            );
+            qianDaoText.value = SIGN_IN_STEPS.VERIFY;
+            const token = await verifySignInCaptcha();
+            await signIn(token);
         } catch (error) {
             message.error('加载验证码失败: ' + (error as Error).message);
             loadingButton.value = false;
@@ -130,7 +93,6 @@ export function useSignIn(_userInfo: { id?: number; usertoken?: string }) {
         loadingButton,
         qianDaoText,
         signedInSuccess,
-        showBlurOverlay,
         signInInfo,
         fetchSignInInfo,
         onSignButtonClick,
