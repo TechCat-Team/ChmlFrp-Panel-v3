@@ -203,16 +203,6 @@ const routes: Array<RouteRecordRaw> = [
         },
     },
     {
-        path: '/node/info',
-        name: '节点详情',
-        component: () => import('@/views/NodeInfo/index.vue'),
-        meta: {
-            title: '节点详情 - ChmlFrp',
-            keywords: 'ChmlFrp, 节点详情, 内网穿透, 端口映射, frp, 免费frp, 映射',
-            description: 'ChmlFrp单个节点详情，这里会展示映射节点关联数据。',
-        },
-    },
-    {
         path: '/',
         name: '管理面板',
         component: () => import('@/views/Home/index.vue'),

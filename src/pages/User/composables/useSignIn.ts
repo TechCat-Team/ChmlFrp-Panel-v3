@@ -96,7 +96,7 @@ export function useSignIn(_userInfo: { id?: number; usertoken?: string }) {
             const token = await verifySignInCaptcha();
             await signIn(token);
         } catch (error) {
-            message.error('加载验证码失败: ' + (error as Error).message);
+            message.error((error as Error).message);
             loadingButton.value = false;
             qianDaoText.value = SIGN_IN_BUTTON_TEXT;
         }
