@@ -70,6 +70,7 @@ import { useSignIn } from './composables/useSignIn';
 import { usePanelInfo } from './composables/usePanelInfo';
 
 // Utils & Constants
+import { isTodayOrYesterdayLocal } from '@/utils/formatApiDateTime';
 import { formatBytes } from '@/utils/formatBytes';
 import { COUNTDOWN_DURATION, TIME_UPDATE_INTERVAL, TUTORIAL_URL } from './constants';
 
@@ -132,19 +133,8 @@ const userAlertsCardRef = ref<InstanceType<typeof UserAlertsCard>>();
 // 检查是否第一次访问
 const checkFirstVisit = () => {
     const hasVisited = localStorage.getItem('hasVisitedPage');
-    const isRecentRegistration = () => {
-        if (!userInfo?.regtime) return false;
-        const today = new Date();
-        const todayStr = today.toISOString().split('T')[0];
 
-        const yesterday = new Date();
-        yesterday.setDate(yesterday.getDate() - 1);
-        const yesterdayStr = yesterday.toISOString().split('T')[0];
-
-        return userInfo.regtime === todayStr || userInfo.regtime === yesterdayStr;
-    };
-
-    if (!hasVisited && userInfo?.regtime && isRecentRegistration()) {
+    if (!hasVisited && userInfo?.regtime && isTodayOrYesterdayLocal(userInfo.regtime)) {
         showDialog.value = true;
         localStorage.setItem('hasVisitedPage', 'true');
     }

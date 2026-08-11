@@ -4,7 +4,7 @@ import { useUserStore } from '@/stores/user';
 import api from '@/api';
 import type { MembershipType } from '../types';
 import { useMembershipPricing } from './useMembershipPricing';
-import { LIFETIME_TERM_DATE } from '../constants';
+import { isLifetimeTerm } from '@/utils/formatApiDateTime';
 
 /**
  * 会员升级 composable
@@ -23,7 +23,7 @@ export function useMembershipUpgrade(
     const upgradeCost = computed(() => {
         if (
             userInfo?.usergroup === '免费用户' ||
-            userInfo?.term === LIFETIME_TERM_DATE ||
+            isLifetimeTerm(userInfo?.term) ||
             userInfo?.usergroup === '超级会员'
         ) {
             return 0;

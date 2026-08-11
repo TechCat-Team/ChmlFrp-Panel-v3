@@ -8,7 +8,7 @@
                 <n-text depth="2" style="text-align: center; line-height: 1.6" class="perk-desc">
                     ChmlFrp运营至今已满5周年，<br />
                     感谢您一直以来的信任与支持。<br />
-                    四年坚持，初心不改；<br />
+                    五年坚持，初心不改；<br />
                     免费服务，始终无广。
                 </n-text>
 

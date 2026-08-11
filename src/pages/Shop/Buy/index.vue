@@ -37,7 +37,7 @@
         v-model:show="lifetimeShowModal"
         :target-group="lifetimeTargetGroup"
         :user-group="userInfo?.usergroup"
-        :is-lifetime="userInfo?.term === LIFETIME_TERM_DATE"
+                :is-lifetime="isLifetimeTerm(userInfo?.term)"
         :pay-amount="lifetimePayAmount"
         :loading="lifetimeLoading"
         @pay="handleLifetimePayAction"
@@ -54,7 +54,7 @@
         :remaining-points-after-upgrade="remainingPointsAfterUpgrade"
         :remaining-days="remainingDays"
         :user-group="userInfo?.usergroup"
-        :is-lifetime="userInfo?.term === LIFETIME_TERM_DATE"
+        :is-lifetime="isLifetimeTerm(userInfo?.term)"
         :loading="purchaseLoading || upgradeLoading"
         @purchase="handlePurchase"
         @upgrade="handleUpgrade"
@@ -71,6 +71,7 @@ import { useMembershipPurchase } from './composables/useMembershipPurchase';
 import { useMembershipUpgrade } from './composables/useMembershipUpgrade';
 import { useLifetimePurchase } from './composables/useLifetimePurchase';
 import { useTradeStatus } from './composables/useTradeStatus';
+import { isLifetimeTerm } from '@/utils/formatApiDateTime';
 import MembershipCard from './components/MembershipCard.vue';
 import AnniversaryCard from './components/AnniversaryCard.vue';
 import PerkCard from './components/PerkCard.vue';
@@ -84,7 +85,6 @@ import {
     PAYMENT_CONFIG,
     MEMBERSHIP_PRICE_TEXT,
     BUTTON_TEXT,
-    LIFETIME_TERM_DATE,
 } from './constants';
 
 const userStore = useUserStore();

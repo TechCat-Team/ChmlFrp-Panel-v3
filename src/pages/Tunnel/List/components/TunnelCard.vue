@@ -41,7 +41,7 @@
             </a>
             <br />
             <span v-if="card.uptime" style="color: gray; font-size: 10px">
-                {{ card.uptime }}
+                {{ formattedUptime }}
             </span>
             <span v-else style="color: gray; font-size: 10px"> 尚未启动过此隧道 </span>
         </n-thing>
@@ -107,6 +107,7 @@ import {
     RefreshOutline,
     PlayOutline,
 } from '@vicons/ionicons5';
+import { formatApiDateTime } from '@/utils/formatApiDateTime';
 import { formatBytes } from '@/utils/formatBytes';
 import type { TunnelCard } from '../types';
 
@@ -128,6 +129,7 @@ const props = defineProps<Props>();
 const message = useMessage();
 const trafficIn = computed(() => formatBytes(props.card.today_traffic_in));
 const trafficOut = computed(() => formatBytes(props.card.today_traffic_out));
+const formattedUptime = computed(() => formatApiDateTime(props.card.uptime, { omitMidnight: true }));
 
 const dropdownOptions = computed(() => {
     const options = [];

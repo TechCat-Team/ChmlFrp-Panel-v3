@@ -20,7 +20,7 @@
                 size="large"
             >
                 <n-descriptions-item label="注册时间">
-                    {{ userInfo?.regtime }}
+                    {{ formattedRegtime }}
                 </n-descriptions-item>
                 <n-descriptions-item label="QQ">
                     {{ userInfo?.qq }}
@@ -29,7 +29,7 @@
                     {{ userInfo?.usergroup }}
                 </n-descriptions-item>
                 <n-descriptions-item label="到期时间">
-                    {{ userInfo?.term }}
+                    {{ formattedTerm }}
                 </n-descriptions-item>
                 <n-descriptions-item label="实名状态">
                     {{ userInfo?.realname }}
@@ -73,6 +73,7 @@ import { useScreenStore } from '@/stores/useScreen';
 import { useStyleStore } from '@/stores/style';
 import { storeToRefs } from 'pinia';
 import { KeyOutline } from '@vicons/ionicons5';
+import { formatApiDateTime } from '@/utils/formatApiDateTime';
 
 interface Props {
     userInfo?: {
@@ -100,6 +101,8 @@ const screenStore = useScreenStore();
 const { screenWidth } = storeToRefs(screenStore);
 const styleStore = useStyleStore();
 const cardStyle = computed(() => styleStore.getCardStyle());
+const formattedRegtime = computed(() => formatApiDateTime(props.userInfo?.regtime, { omitMidnight: true }));
+const formattedTerm = computed(() => formatApiDateTime(props.userInfo?.term, { omitMidnight: true }));
 
 const showToken = ref(false);
 
