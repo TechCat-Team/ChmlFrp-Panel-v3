@@ -43,7 +43,7 @@ export function useTunnelConfig(userInfo: { usertoken?: string; id?: number }) {
             const url = window.URL.createObjectURL(blob);
             const link = document.createElement('a');
             link.href = url;
-            link.download = 'frpc.ini';
+            link.download = 'frpc.toml';
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);

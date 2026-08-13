@@ -32,7 +32,7 @@
         <template #footer>
             <n-grid cols="1 m:3" item-responsive responsive="screen" :x-gap="12" :y-gap="12">
                 <n-grid-item span="1 m:2">
-                    <n-card title="Frpc.ini">
+                    <n-card title="Frpc.toml">
                         <template #header-extra>
                             <n-space>
                                 <n-button text @click="handleCopy('tunnelConfig')">
@@ -145,7 +145,7 @@
                     <n-step title="步骤2" description="在网站下载页面下载对应的软件版本(一般为amd64)" />
                     <n-step
                         title="步骤3"
-                        description="解压好下载的软件后，打开frpc.ini，在里面粘贴此页面生成的配置文件，然后保存"
+                        description="解压好下载的软件后，打开frpc.toml，在里面粘贴此页面生成的配置文件，然后保存"
                     />
                     <n-step title="步骤4" description="在frp的windows路径栏输入cmd然后回车，启动cmd软件" />
                     <n-step title="步骤4" description="在打开的cmd内输入frpc启动映射" />
@@ -199,7 +199,7 @@ const downloadConfig = () => {
         const url = window.URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
-        link.download = 'frpc.ini';
+        link.download = 'frpc.toml';
 
         // 触发下载
         document.body.appendChild(link);

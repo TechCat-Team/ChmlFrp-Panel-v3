@@ -2,7 +2,7 @@
     <n-card hoverable class="anniversary-card perk-card">
         <n-flex vertical align="center" justify="center" class="thank-you-content">
             <n-flex align="center" justify="center" class="celebration-header">
-                <n-text strong type="error" style="font-size: 20px; margin-left: 8px"> 我们四岁啦！🎉 </n-text>
+                <n-text strong type="error" style="font-size: 20px; margin-left: 8px"> 我们五岁啦！🎉 </n-text>
             </n-flex>
             <n-flex vertical align="center" class="thank-you-message">
                 <n-text depth="2" style="text-align: center; line-height: 1.6" class="perk-desc">

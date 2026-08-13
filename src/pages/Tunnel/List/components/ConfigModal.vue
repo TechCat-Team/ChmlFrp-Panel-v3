@@ -37,9 +37,9 @@
                         </n-space>
                     </div>
                 </n-collapse-item>
-                <n-collapse-item title="Frpc.ini 配置" name="5">
+                <n-collapse-item title="Frpc.toml 配置" name="5">
                     <n-card size="small">
-                        <n-code :code="frpcIniConfig" language="ini" word-wrap />
+                        <n-code :code="frpcIniConfig" language="toml" word-wrap />
                         <template #action>
                             <n-space>
                                 <n-button secondary type="primary" size="small" @click="onCopy(frpcIniConfig)">
