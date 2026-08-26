@@ -270,6 +270,15 @@ const routes: Array<RouteRecordRaw> = [
                     requiresAuth: true,
                 },
             },
+            {
+                path: '/admin/violation-review',
+                name: '违规复审',
+                component: () => import('@/pages/Admin/ViolationReview/index.vue'),
+                meta: {
+                    title: '违规复审 - 管理员控制台 - ChmlFrp',
+                    requiresAuth: true,
+                },
+            },
         ],
     },
     {

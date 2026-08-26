@@ -26,6 +26,7 @@ import {
     ListCircleOutline,
     ServerOutline,
     KeyOutline,
+    ShieldCheckmarkOutline,
 } from '@vicons/ionicons5';
 
 const userStore = useUserStore();
@@ -273,6 +274,18 @@ export const computedMenuOptionsAdmin = computed(() => [
                             ),
                         key: '系统管理',
                         icon: renderIcon(ConstructOutline),
+                    },
+                    {
+                        label: () =>
+                            h(
+                                RouterLink,
+                                {
+                                    to: { name: '违规复审' },
+                                },
+                                { default: () => '违规复审' }
+                            ),
+                        key: '违规复审',
+                        icon: renderIcon(ShieldCheckmarkOutline),
                     },
                 ],
             },
