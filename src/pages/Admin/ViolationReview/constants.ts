@@ -1,13 +1,6 @@
 /**
- * 违规复审页面常量、映射与模拟数据
+ * 违规审查页面常量、映射与模拟数据
  */
-import type { Component } from 'vue';
-import {
-    CheckmarkDoneOutline,
-    ImageOutline,
-    LinkOutline,
-    TimeOutline,
-} from '@vicons/ionicons5';
 import dayjs from 'dayjs';
 import type { Violation, ViolationStatus, ViolationType } from './types';
 
@@ -36,13 +29,6 @@ export const TYPE_OPTIONS: Array<{ label: string; value: ViolationType }> = [
     { label: '其他违规', value: 'other' },
 ];
 
-export const STATUS_OPTIONS: Array<{ label: string; value: ViolationStatus }> = [
-    { label: '待复审', value: 'pending' },
-    { label: '已放行', value: 'passed' },
-    { label: '已封禁', value: 'banned' },
-    { label: '已驳回', value: 'rejected' },
-];
-
 // 标签颜色映射
 export const getTypeTagType = (type: ViolationType): 'default' | 'info' | 'success' | 'warning' | 'error' => {
     if (type === 'porn') return 'error';
@@ -60,51 +46,6 @@ export const getStatusTagType = (status: ViolationStatus): 'default' | 'info' | 
 // 时间格式化
 export const formatViolationTime = (time: string) =>
     time ? dayjs(time).format('YYYY-MM-DD HH:mm:ss') : '';
-
-// 统计卡片元数据
-export interface StatCardMeta {
-    key: string;
-    label: string;
-    className: string;
-    iconBg: string;
-    icon: Component;
-    match: (item: Violation) => boolean;
-}
-
-export const STAT_CARD_META: StatCardMeta[] = [
-    {
-        key: 'pending',
-        label: '待复审',
-        className: 'stat-pending',
-        iconBg: 'rgba(240, 160, 32, 0.16)',
-        icon: TimeOutline,
-        match: (item) => item.status === 'pending',
-    },
-    {
-        key: 'porn',
-        label: '色情图片',
-        className: 'stat-porn',
-        iconBg: 'rgba(208, 48, 80, 0.14)',
-        icon: ImageOutline,
-        match: (item) => item.type === 'porn',
-    },
-    {
-        key: 'site',
-        label: '违规站点',
-        className: 'stat-site',
-        iconBg: 'rgba(32, 128, 240, 0.14)',
-        icon: LinkOutline,
-        match: (item) => item.type === 'site',
-    },
-    {
-        key: 'processed',
-        label: '已处理',
-        className: 'stat-processed',
-        iconBg: 'rgba(24, 160, 88, 0.14)',
-        icon: CheckmarkDoneOutline,
-        match: (item) => item.status !== 'pending',
-    },
-];
 
 // 证据图片资源（占位生成图，仅用于 UI 展示）
 const IMG_BASE = 'https://coresg-normal.trae.ai/api/ide/v1/text_to_image?image_size=landscape_16_9&prompt=';
@@ -193,8 +134,8 @@ export const MOCK_VIOLATIONS: Violation[] = [
         user: { id: 10309, username: '一只咸鱼' },
         reporter: '用户举报',
         reportedAt: '2026-08-08 18:02:55',
-        description: '该站点提供大量未经授权影视资源下载，侵犯版权，多次警告后仍未整改。',
-        status: 'rejected',
+        description: '该站点提供大量未经授权影视资源下载，侵犯版权，多次警告后已整改。',
+        status: 'passed',
         attachments: 4,
         evidences: [evidenceImage('a movie download website homepage')],
     },

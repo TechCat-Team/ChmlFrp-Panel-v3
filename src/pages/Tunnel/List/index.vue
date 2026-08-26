@@ -395,6 +395,10 @@ const editTunnel = async (card: TunnelCard) => {
     formData.nport = String(card.nport);
     formData.type = card.type.toUpperCase(); // 转换为大写
     formData.tunnelid = card.id;
+    formData.ipRuleMode = card.ipRuleMode;
+    formData.ipRules = card.ipRules;
+    formData.regionRuleMode = card.regionRuleMode;
+    formData.regionRules = card.regionRules;
 
     // 判断 card.dorp 是否为数字类型的字符串
     if (!isNaN(Number(card.dorp))) {

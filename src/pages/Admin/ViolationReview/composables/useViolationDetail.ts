@@ -1,5 +1,5 @@
 /**
- * 违规复审 - 详情弹窗与审核动作 composable
+ * 违规审查 - 详情弹窗与审核动作 composable
  */
 import { ref } from 'vue';
 import { useMessage } from 'naive-ui';

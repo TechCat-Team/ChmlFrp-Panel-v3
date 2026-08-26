@@ -1,72 +1,69 @@
 <template>
     <n-back-top :right="100" />
     <n-space vertical :size="16">
-        <!-- 统计卡片 -->
-        <ViolationStatsCards :stats="stats" />
-
-        <!-- 复审列表 -->
-        <n-card title="违规复审" :bordered="false">
-            <n-space vertical :size="16">
-                <!-- 筛选栏 -->
-                <n-space justify="space-between">
-                    <n-space>
-                        <n-input
-                            v-model:value="filters.keyword"
-                            placeholder="搜索违规内容、用户或域名"
-                            clearable
-                            style="width: 260px"
-                        >
-                            <template #prefix>
-                                <n-icon :component="SearchOutline" />
-                            </template>
-                        </n-input>
-                        <n-select
-                            v-model:value="filters.type"
-                            placeholder="违规类型"
-                            clearable
-                            style="width: 140px"
-                            :options="TYPE_OPTIONS"
-                        />
-                        <n-select
-                            v-model:value="filters.status"
-                            placeholder="复审状态"
-                            clearable
-                            style="width: 140px"
-                            :options="STATUS_OPTIONS"
-                        />
-                        <n-date-picker
-                            v-model:value="filters.timeRange"
-                            type="datetimerange"
-                            style="width: 320px"
-                            clearable
-                            start-placeholder="开始时间"
-                            end-placeholder="结束时间"
-                        />
-                        <n-button class="reset-btn" @click="handleReset">
-                            <template #icon>
-                                <n-icon :component="RefreshOutline" />
-                            </template>
-                            重置
-                        </n-button>
-                    </n-space>
-                </n-space>
-
-                <!-- 表格 -->
-                <n-data-table
-                    :columns="columns"
-                    :data="filteredData"
-                    :pagination="pagination"
-                    :loading="false"
-                    :bordered="false"
-                    striped
-                    :row-key="(row: Violation) => row.id"
-                    :scroll-x="1200"
+        <!-- 全局筛选栏 -->
+        <n-card :bordered="false">
+            <n-space>
+                <n-input
+                    v-model:value="filters.keyword"
+                    placeholder="搜索违规内容、用户或域名"
+                    clearable
+                    style="width: 260px"
+                >
+                    <template #prefix>
+                        <n-icon :component="SearchOutline" />
+                    </template>
+                </n-input>
+                <n-select
+                    v-model:value="filters.type"
+                    placeholder="违规类型"
+                    clearable
+                    style="width: 140px"
+                    :options="TYPE_OPTIONS"
                 />
+                <n-date-picker
+                    v-model:value="filters.timeRange"
+                    type="datetimerange"
+                    style="width: 320px"
+                    clearable
+                    start-placeholder="开始时间"
+                    end-placeholder="结束时间"
+                />
+                <n-button class="reset-btn" @click="handleReset">
+                    <template #icon>
+                        <n-icon :component="RefreshOutline" />
+                    </template>
+                    重置
+                </n-button>
             </n-space>
         </n-card>
+
+        <!-- 待审查 -->
+        <ViolationTableCard
+            title="违规审查"
+            :data="pendingList"
+            :columns="columns"
+            :pagination="pendingPagination"
+        />
+
+        <!-- 已封禁 -->
+        <ViolationTableCard
+            title="违规封禁"
+            :data="bannedList"
+            :columns="columns"
+            :pagination="bannedPagination"
+        />
+
+        <!-- 放行记录 -->
+        <ViolationTableCard
+            title="放行记录"
+            :data="passedList"
+            :columns="columns"
+            :pagination="passedPagination"
+        />
     </n-space>
 
-    <!-- 复审详情 -->
+    <!-- 审查详情 -->
     <ViolationDetailModal
         :show="showDetailModal"
         :violation="current"
@@ -77,15 +74,23 @@
 
 <script lang="ts" setup>
 import { SearchOutline, RefreshOutline } from '@vicons/ionicons5';
-import ViolationStatsCards from './components/ViolationStatsCards.vue';
+import ViolationTableCard from './components/ViolationTableCard.vue';
 import ViolationDetailModal from './components/ViolationDetailModal.vue';
 import { useViolationList } from './composables/useViolationList';
 import { useViolationDetail } from './composables/useViolationDetail';
 import { useViolationTable } from './composables/useViolationTable';
-import { STATUS_OPTIONS, TYPE_OPTIONS } from './constants';
-import type { Violation } from './types';
+import { TYPE_OPTIONS } from './constants';
 
-const { filters, filteredData, stats, pagination, handleReset } = useViolationList();
+const {
+    filters,
+    pendingList,
+    bannedList,
+    passedList,
+    pendingPagination,
+    bannedPagination,
+    passedPagination,
+    handleReset,
+} = useViolationList();
 const { showDetailModal, current, handleViewDetail, handleReviewAction } = useViolationDetail();
 const columns = useViolationTable({
     onView: handleViewDetail,
@@ -98,11 +103,5 @@ const columns = useViolationTable({
     font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
     font-size: 13px;
     color: var(--n-text-color-2);
-}
-
-:deep(.n-data-table) {
-    .n-data-table-th {
-        font-weight: 600;
-    }
 }
 </style>

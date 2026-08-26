@@ -1,5 +1,5 @@
 /**
- * 违规复审 - 表格列定义 composable
+ * 违规审查 - 表格列定义 composable
  */
 import { h } from 'vue';
 import { NButton, NIcon, NTag, NDropdown, type DataTableColumns } from 'naive-ui';
@@ -92,7 +92,7 @@ export function useViolationTable({ onView, onReview }: TableHandlers): DataTabl
             render(row) {
                 const options = [
                     {
-                        label: '查看复审',
+                        label: '查看详情',
                         key: 'detail',
                         icon: () => h(NIcon, { component: EyeOutline }),
                         props: { onClick: () => onView(row) },

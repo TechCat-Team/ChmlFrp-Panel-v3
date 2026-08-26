@@ -280,11 +280,11 @@ export const computedMenuOptionsAdmin = computed(() => [
                             h(
                                 RouterLink,
                                 {
-                                    to: { name: '违规复审' },
+                                    to: { name: '违规审查' },
                                 },
-                                { default: () => '违规复审' }
+                                { default: () => '违规审查' }
                             ),
-                        key: '违规复审',
+                        key: '违规审查',
                         icon: renderIcon(ShieldCheckmarkOutline),
                     },
                 ],

@@ -25,7 +25,7 @@
             </n-alert>
             <n-alert
                 title="注意"
-                style="margin-bottom: 32px"
+                style="margin-bottom: 16px"
                 type="warning"
                 v-if="formData.domainNameLabel === '自定义' && (formData.type === 'HTTP' || formData.type === 'HTTPS')"
             >
@@ -34,7 +34,7 @@
             <n-alert
                 title="注意"
                 type="info"
-                style="margin-bottom: 32px"
+                style="margin-bottom: 16px"
                 v-if="
                     isEdit &&
                     formData.domainNameLabel === '免费域名' &&
@@ -43,146 +43,202 @@
             >
                 免费域名禁止用于中国境内节点(中国特别行政区除外)建站，如果您给国内节点解析免费域名并建站，会被备案拦截导致无法访问。此外，更改节点后免费域名解析会自动更改。
             </n-alert>
-            <n-row :gutter="15" style="margin-top: 15px">
-                <n-form ref="tunnelForm" :model="formData" size="medium" label-width="100px">
-                    <n-col :span="12">
-                        <n-form-item label="隧道名称" path="name">
-                            <n-input v-model:value="formData.name" placeholder="请输入隧道名称" clearable />
-                        </n-form-item>
-                    </n-col>
-                    <n-col :span="12">
-                        <n-form-item label="本地IP" path="localip">
-                            <n-input v-model:value="formData.localip" placeholder="请输入本地IP" clearable />
-                        </n-form-item>
-                    </n-col>
-                    <n-col :span="12">
-                        <n-form-item label="节点选择" path="node" @click="isEdit ? undefined : $emit('select-node')">
-                            <n-select
-                                v-model:value="formData.node"
-                                :options="nodeOptions"
-                                placeholder="请选择节点"
-                                @update:value="$emit('node-change', $event)"
-                            />
-                        </n-form-item>
-                    </n-col>
-                    <n-col :span="12">
-                        <n-form-item label="端口类型" path="type">
-                            <n-select
-                                v-model:value="formData.type"
-                                :options="typeOptions"
-                                placeholder="请选择端口类型"
-                                clearable
-                                @update:value="$emit('type-change', $event)"
-                            />
-                        </n-form-item>
-                    </n-col>
-                    <n-col :span="12">
-                        <n-form-item label="内网端口" path="nport">
-                            <n-input
-                                v-model:value="formData.nport"
-                                clearable
-                                placeholder="请输入内网端口"
-                                :maxlength="5"
-                                @keypress="handlePortKeypress"
-                                @update:value="handleNportInput"
-                                @blur="handleNportBlur"
-                            />
-                        </n-form-item>
-                    </n-col>
-                    <n-col :span="12">
-                        <n-form-item
-                            v-if="formData.type === 'HTTP' || formData.type === 'HTTPS'"
-                            label="域名类型"
-                            path="domainNameLabel"
-                        >
-                            <n-select
-                                v-model:value="formData.domainNameLabel"
-                                :options="domainTypeOptions"
-                                placeholder="请选择域名类型"
-                                @update:value="$emit('domain-type-change', $event)"
-                            />
-                        </n-form-item>
-                        <n-form-item v-else label="外网端口" path="dorp">
-                            <n-input
-                                v-model:value="formData.dorp"
-                                clearable
-                                :maxlength="5"
-                                :placeholder="getDorpPlaceholder()"
-                                @keypress="handlePortKeypress"
-                                @update:value="handleDorpInput"
-                                @blur="handleDorpBlur"
-                            />
-                        </n-form-item>
-                    </n-col>
-                    <n-col
-                        :span="24"
-                        v-if="
-                            formData.domainNameLabel === '自定义' &&
-                            (formData.type === 'HTTP' || formData.type === 'HTTPS')
-                        "
-                    >
-                        <n-form-item label="域名" path="dorp">
-                            <n-input v-model:value="formData.domain" placeholder="请输入您的域名" clearable />
-                        </n-form-item>
-                    </n-col>
-                    <n-col
-                        v-if="
-                            formData.domainNameLabel === '免费域名' &&
-                            (formData.type === 'HTTP' || formData.type === 'HTTPS')
-                        "
-                        :span="12"
-                    >
-                        <n-form-item :label="isEdit ? '免费域名选择' : '请选择免费域名'" path="choose">
-                            <n-select v-model:value="formData.choose" :options="domainNameOptions" />
-                        </n-form-item>
-                    </n-col>
-                    <n-col
-                        v-if="
-                            formData.domainNameLabel === '免费域名' &&
-                            (formData.type === 'HTTP' || formData.type === 'HTTPS')
-                        "
-                        :span="12"
-                    >
-                        <n-form-item :label="isEdit ? '域名前缀' : '新建域名'" path="dorp">
-                            <n-input v-model:value="formData.recordValue" placeholder="请输入域名前缀">
-                                <template #suffix> .{{ formData.choose }} </template>
-                            </n-input>
-                        </n-form-item>
-                    </n-col>
-                    <n-collapse style="margin-top: 10px">
-                        <n-collapse-item title="高级设置">
-                            <n-alert type="info" style="margin-bottom: 16px">
-                                {{
-                                    isEdit
-                                        ? '不懂请不要设置，否则可能会导致无法启动隧道'
-                                        : '不懂请不要设置，否则可能会导致无法使用隧道'
-                                }}
-                            </n-alert>
-                            <n-col :span="12">
-                                <n-flex>
-                                    <n-p>数据加密</n-p>
-                                    <n-switch v-model:value="formData.encryption" />
-                                </n-flex>
+
+            <n-form ref="tunnelForm" :model="formData" size="medium" label-width="100px">
+                <n-tabs v-model:value="activeTab" :placement="tabPlacement" type="line" animated class="tunnel-tabs">
+                    <!-- 基础信息 -->
+                    <n-tab-pane name="basic" tab="基础信息">
+                        <n-row :gutter="15" class="tab-pane-content">
+                            <n-col :span="isMobile ? 24 : 12">
+                                <n-form-item label="隧道名称" path="name">
+                                    <n-input v-model:value="formData.name" placeholder="请输入隧道名称" clearable>
+                                        <template #suffix>
+                                            <n-button
+                                                text
+                                                color="#C2C2C2"
+                                                size="small"
+                                                title="随机隧道名"
+                                                @click="$emit('random-name')"
+                                            >
+                                                <template #icon>
+                                                    <n-icon :component="RefreshOutline" />
+                                                </template>
+                                            </n-button>
+                                        </template>
+                                    </n-input>
+                                </n-form-item>
                             </n-col>
-                            <n-col :span="12">
-                                <n-flex>
-                                    <n-p>数据压缩</n-p>
-                                    <n-switch v-model:value="formData.compression" />
-                                </n-flex>
+                            <n-col :span="isMobile ? 24 : 12">
+                                <n-form-item label="本地IP" path="localip">
+                                    <n-input v-model:value="formData.localip" placeholder="请输入本地IP" clearable />
+                                </n-form-item>
                             </n-col>
-                            <n-form-item label="额外参数" path="ap" style="margin-top: 8px">
+                            <n-col :span="isMobile ? 24 : 12">
+                                <n-form-item label="节点选择" path="node" @click="isEdit ? undefined : $emit('select-node')">
+                                    <n-select
+                                        v-model:value="formData.node"
+                                        :options="nodeOptions"
+                                        placeholder="请选择节点"
+                                        @update:value="$emit('node-change', $event)"
+                                    />
+                                </n-form-item>
+                            </n-col>
+                            <n-col :span="isMobile ? 24 : 12">
+                                <n-form-item label="端口类型" path="type">
+                                    <n-select
+                                        v-model:value="formData.type"
+                                        :options="typeOptions"
+                                        placeholder="请选择端口类型"
+                                        clearable
+                                        @update:value="$emit('type-change', $event)"
+                                    />
+                                </n-form-item>
+                            </n-col>
+                            <n-col :span="isMobile ? 24 : 12">
+                                <n-form-item label="内网端口" path="nport">
+                                    <n-input
+                                        v-model:value="formData.nport"
+                                        clearable
+                                        placeholder="请输入内网端口"
+                                        :maxlength="5"
+                                        @keypress="handlePortKeypress"
+                                        @update:value="handleNportInput"
+                                        @blur="handleNportBlur"
+                                    />
+                                </n-form-item>
+                            </n-col>
+                            <n-col :span="isMobile ? 24 : 12">
+                                <n-form-item
+                                    v-if="formData.type === 'HTTP' || formData.type === 'HTTPS'"
+                                    label="域名类型"
+                                    path="domainNameLabel"
+                                >
+                                    <n-select
+                                        v-model:value="formData.domainNameLabel"
+                                        :options="domainTypeOptions"
+                                        placeholder="请选择域名类型"
+                                        @update:value="$emit('domain-type-change', $event)"
+                                    />
+                                </n-form-item>
+                                <n-form-item v-else label="外网端口" path="dorp">
+                                        <n-input
+                                            v-model:value="formData.dorp"
+                                            clearable
+                                            :maxlength="5"
+                                            :placeholder="getDorpPlaceholder()"
+                                            @keypress="handlePortKeypress"
+                                            @update:value="handleDorpInput"
+                                            @blur="handleDorpBlur"
+                                        >
+                                            <template #suffix>
+                                                <n-button
+                                                    text
+                                                    color="#C2C2C2"
+                                                    size="small"
+                                                    title="随机外网端口"
+                                                    @click="$emit('random-port')"
+                                                >
+                                                    <template #icon>
+                                                        <n-icon :component="RefreshOutline" />
+                                                    </template>
+                                                </n-button>
+                                            </template>
+                                        </n-input>
+                                    </n-form-item>
+                            </n-col>
+                            <n-col
+                                :span="24"
+                                v-if="
+                                    formData.domainNameLabel === '自定义' &&
+                                    (formData.type === 'HTTP' || formData.type === 'HTTPS')
+                                "
+                            >
+                                <n-form-item label="域名" path="dorp">
+                                    <n-input v-model:value="formData.domain" placeholder="请输入您的域名" clearable />
+                                </n-form-item>
+                            </n-col>
+                            <n-col
+                                :span="isMobile ? 24 : 12"
+                                v-if="
+                                    formData.domainNameLabel === '免费域名' &&
+                                    (formData.type === 'HTTP' || formData.type === 'HTTPS')
+                                "
+                            >
+                                <n-form-item :label="isEdit ? '免费域名选择' : '请选择免费域名'" path="choose">
+                                    <n-select v-model:value="formData.choose" :options="domainNameOptions" />
+                                </n-form-item>
+                            </n-col>
+                            <n-col
+                                :span="isMobile ? 24 : 12"
+                                v-if="
+                                    formData.domainNameLabel === '免费域名' &&
+                                    (formData.type === 'HTTP' || formData.type === 'HTTPS')
+                                "
+                            >
+                                <n-form-item :label="isEdit ? '域名前缀' : '新建域名'" path="dorp">
+                                    <n-input v-model:value="formData.recordValue" placeholder="请输入域名前缀">
+                                        <template #suffix> .{{ formData.choose }} </template>
+                                    </n-input>
+                                </n-form-item>
+                            </n-col>
+                        </n-row>
+                    </n-tab-pane>
+
+                    <!-- 访问控制 -->
+                    <n-tab-pane name="access" tab="访问控制">
+                        <n-space vertical class="tab-pane-content">
+                            <n-form-item label="IP 模式">
+                                <n-select v-model:value="formData.ipRuleMode" :options="ruleModeOptions" />
+                            </n-form-item>
+                            <n-form-item v-if="formData.ipRuleMode !== 'none'" label="IP/CIDR">
+                                <n-input
+                                    v-model:value="ipRulesText"
+                                    type="textarea"
+                                    placeholder="每行一个 IPv4 或 CIDR，留空表示不限制"
+                                    :autosize="{ minRows: 3, maxRows: 8 }"
+                                />
+                            </n-form-item>
+                            <n-form-item label="地区模式">
+                                <n-select v-model:value="formData.regionRuleMode" :options="ruleModeOptions" />
+                            </n-form-item>
+                            <n-form-item v-if="formData.regionRuleMode !== 'none'" label="国家/地区">
+                                <n-select
+                                    v-model:value="formData.regionRules"
+                                    multiple
+                                    filterable
+                                    :options="regionOptions"
+                                    placeholder="请选择国家/地区，留空表示不限制"
+                                />
+                            </n-form-item>
+                        </n-space>
+                    </n-tab-pane>
+
+                    <!-- 高级设置 -->
+                    <n-tab-pane name="advanced" tab="高级设置">
+                        <n-space vertical class="tab-pane-content">
+                            <n-row :gutter="15">
+                                <n-col :span="isMobile ? 24 : 12">
+                                    <n-flex justify="space-between" align="center">
+                                        <n-p>数据加密</n-p>
+                                        <n-switch v-model:value="formData.encryption" />
+                                    </n-flex>
+                                </n-col>
+                                <n-col :span="isMobile ? 24 : 12">
+                                    <n-flex justify="space-between" align="center">
+                                        <n-p>数据压缩</n-p>
+                                        <n-switch v-model:value="formData.compression" />
+                                    </n-flex>
+                                </n-col>
+                            </n-row>
+                            <n-form-item label="额外参数" path="ap" style="margin-top: 12px">
                                 <n-input v-model:value="formData.ap" type="textarea" />
                             </n-form-item>
-                        </n-collapse-item>
-                    </n-collapse>
-                </n-form>
-            </n-row>
+                        </n-space>
+                    </n-tab-pane>
+                </n-tabs>
+            </n-form>
             <template #footer>
                 <n-flex justify="end">
-                    <n-button v-if="formData.type === 'TCP' || formData.type === 'UDP'" @click="$emit('random-port')"
-                        >随机外网端口</n-button
-                    >
-                    <n-button @click="$emit('random-name')">随机隧道名</n-button>
                     <n-button @click="$emit('cancel')">取消</n-button>
                     <n-button v-if="!isEdit" @click="$emit('back')">上一步</n-button>
                     <n-button type="primary" @click="$emit('submit')" :loading="loading">确定</n-button>
@@ -193,8 +249,13 @@
 </template>
 
 <script lang="ts" setup>
+import { computed, ref } from 'vue';
 import { useMessage } from 'naive-ui';
+import { storeToRefs } from 'pinia';
 import type { TunnelFormData, NodeInfo } from '../types';
+import { ACCESS_RULE_MODE_OPTIONS, REGION_OPTIONS } from '../constants';
+import { useScreenStore } from '@/stores/useScreen';
+import { RefreshOutline } from '@vicons/ionicons5';
 
 interface Props {
     show: boolean;
@@ -211,6 +272,24 @@ interface Props {
 
 const props = defineProps<Props>();
 const message = useMessage();
+const ruleModeOptions = ACCESS_RULE_MODE_OPTIONS;
+const regionOptions = REGION_OPTIONS;
+
+const screenStore = useScreenStore();
+const { screenWidth } = storeToRefs(screenStore);
+const isMobile = computed(() => screenWidth.value < 768);
+const tabPlacement = computed(() => (isMobile.value ? 'top' : 'left'));
+const activeTab = ref('basic');
+
+const ipRulesText = computed({
+    get: () => props.formData.ipRules.join('\n'),
+    set: (value: string) => {
+        props.formData.ipRules = value
+            .split(/\r?\n/)
+            .map((rule) => rule.trim())
+            .filter(Boolean);
+    },
+});
 
 // 限制端口输入只能输入数字
 const handlePortKeypress = (e: KeyboardEvent) => {
@@ -363,3 +442,34 @@ const emit = defineEmits<{
     submit: [];
 }>();
 </script>
+
+<style scoped lang="scss">
+.tunnel-tabs {
+    margin-top: 8px;
+}
+
+.tab-pane-content {
+    padding-top: 4px;
+}
+
+/* 桌面左侧菜单：紧凑 + 禁用横向滚动 */
+:deep(.tunnel-tabs.n-tabs--left) {
+    .n-tabs-nav,
+    .n-tabs-nav-scroll-content,
+    .n-tabs-nav-swipe-content,
+    .n-tabs-nav-scroll-content-wrap {
+        overflow: hidden !important;
+    }
+
+    .n-tabs-nav {
+        min-width: 0;
+        flex: none;
+    }
+
+    .n-tab {
+        padding: 6px 10px;
+        font-size: 14px;
+        flex-shrink: 0;
+    }
+}
+</style>

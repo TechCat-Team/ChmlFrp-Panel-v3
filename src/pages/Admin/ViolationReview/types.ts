@@ -1,7 +1,6 @@
 /**
- * 违规复审页面类型定义
+ * 违规审查页面类型定义
  */
-import type { Component } from 'vue';
 
 export type ViolationType = 'porn' | 'site' | 'other';
 
@@ -29,15 +28,7 @@ export interface Violation {
 export interface ViolationFilters {
     keyword: string;
     type: ViolationType | null;
-    status: ViolationStatus | null;
     timeRange: [number, number] | null;
 }
 
-export interface ViolationStatsItem {
-    key: string;
-    label: string;
-    value: number;
-    className: string;
-    iconBg: string;
-    icon: Component;
-}
+

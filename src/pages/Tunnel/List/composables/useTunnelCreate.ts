@@ -70,6 +70,10 @@ export function useTunnelCreate(
                 extraparams: formData.ap,
                 banddomain: isHttp ? banddomain : undefined,
                 remoteport: isHttp ? undefined : Number(formData.dorp),
+                ipRuleMode: formData.ipRuleMode,
+                ipRules: formData.ipRules.map((rule) => rule.trim()).filter(Boolean),
+                regionRuleMode: formData.regionRuleMode,
+                regionRules: formData.regionRules.map((rule) => rule.trim().toUpperCase()).filter(Boolean),
             };
 
             // 尝试创建免费域名（如果需要）

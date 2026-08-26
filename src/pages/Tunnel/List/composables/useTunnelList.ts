@@ -45,6 +45,10 @@ export function useTunnelList(_userInfo: { usertoken?: string }) {
                         status,
                         tags,
                         ip,
+                        ipRuleMode: card.ipRuleMode || 'none',
+                        ipRules: card.ipRules || [],
+                        regionRuleMode: card.regionRuleMode || 'none',
+                        regionRules: card.regionRules || [],
                     };
                 });
             }

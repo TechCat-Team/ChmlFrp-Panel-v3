@@ -28,6 +28,10 @@ export interface TunnelCard {
     ap: string;
     encryption: string;
     compression: string;
+    ipRuleMode: 'none' | 'whitelist' | 'blacklist';
+    ipRules: string[];
+    regionRuleMode: 'none' | 'whitelist' | 'blacklist';
+    regionRules: string[];
 }
 
 export interface NodeCard {
@@ -89,6 +93,10 @@ export interface TunnelFormData {
     recordValueOld: string;
     nodeOld: string;
     nameOld: string;
+    ipRuleMode: 'none' | 'whitelist' | 'blacklist';
+    ipRules: string[];
+    regionRuleMode: 'none' | 'whitelist' | 'blacklist';
+    regionRules: string[];
 }
 
 export interface NodeFilters {

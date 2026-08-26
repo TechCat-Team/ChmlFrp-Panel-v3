@@ -2,7 +2,7 @@
     <n-modal
         v-model:show="showModel"
         preset="card"
-        :title="`违规复审 · #${violation?.id ?? ''}`"
+        :title="`违规审查 · #${violation?.id ?? ''}`"
         size="large"
         style="max-width: 860px"
         :bordered="false"

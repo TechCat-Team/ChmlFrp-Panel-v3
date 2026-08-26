@@ -22,6 +22,10 @@ interface TunnelListResponse extends BaseResponse {
         cur_conns: number;
         nodestate: string;
         ip: string | null;
+        ipRuleMode?: 'none' | 'whitelist' | 'blacklist';
+        ipRules?: string[];
+        regionRuleMode?: 'none' | 'whitelist' | 'blacklist';
+        regionRules?: string[];
     }> | null;
 }
 
@@ -73,6 +77,7 @@ interface CreateTunnelResponse extends BaseResponse {
  * @returns {Promise<CreateTunnelResponse>} 返回创建隧道的响应数据
  */
 export const createTunnel = (params: {
+    token?: string;
     tunnelname: string;
     node: string;
     porttype: string;
@@ -83,6 +88,10 @@ export const createTunnel = (params: {
     remoteport?: number;
     banddomain?: string;
     extraparams?: string;
+    ipRuleMode?: 'none' | 'whitelist' | 'blacklist';
+    ipRules?: string[];
+    regionRuleMode?: 'none' | 'whitelist' | 'blacklist';
+    regionRules?: string[];
 }): Promise<CreateTunnelResponse> => {
     return axiosInstance.post('/create_tunnel', params);
 };
@@ -126,6 +135,10 @@ export const updateTunnel = (params: {
     encryption?: boolean | string;
     compression?: boolean | string;
     extraparams?: string;
+    ipRuleMode?: 'none' | 'whitelist' | 'blacklist';
+    ipRules?: string[];
+    regionRuleMode?: 'none' | 'whitelist' | 'blacklist';
+    regionRules?: string[];
 }): Promise<BaseResponse> => {
     return axiosInstance.post('/update_tunnel', params);
 };
