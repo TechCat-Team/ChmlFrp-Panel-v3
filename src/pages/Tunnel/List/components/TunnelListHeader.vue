@@ -13,6 +13,24 @@
                 </template>
                 添加隧道
             </n-button>
+            <n-button
+                round
+                quaternary
+                :type="selectionMode ? 'warning' : 'default'"
+                @click="$emit('toggle-selection')"
+            >
+                {{ selectionMode ? '退出管理' : '批量管理' }}
+            </n-button>
+            <n-button
+                v-if="selectionMode"
+                type="error"
+                round
+                :loading="batchDeleting"
+                :disabled="selectedCount === 0"
+                @click="$emit('batch-delete')"
+            >
+                删除选中({{ selectedCount }})
+            </n-button>
         </template>
     </n-card>
 </template>
@@ -23,6 +41,9 @@ import { AddOutline, RefreshOutline } from '@vicons/ionicons5';
 interface Props {
     loading: boolean;
     adding: boolean;
+    selectionMode: boolean;
+    selectedCount: number;
+    batchDeleting: boolean;
 }
 
 defineProps<Props>();
@@ -30,5 +51,7 @@ defineProps<Props>();
 defineEmits<{
     refresh: [];
     add: [];
+    'toggle-selection': [];
+    'batch-delete': [];
 }>();
 </script>

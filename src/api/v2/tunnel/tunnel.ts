@@ -108,6 +108,15 @@ export const deleteTunnel = (tunnelid: number): Promise<BaseResponse> => {
 };
 
 /**
+ * 批量删除隧道
+ * @param {number[]} tunnelids 要删除的隧道 ID 列表
+ * @returns {Promise<BaseResponse>} 返回批量删除隧道的响应数据
+ */
+export const batchDeleteTunnels = (tunnelids: number[]): Promise<BaseResponse> => {
+    return axiosInstance.post('/batch_delete_tunnel', { tunnelids });
+};
+
+/**
  * 修改隧道
  * @param {Object} params 包含隧道修改所需的数据
  * @param {number} params.tunnelid 隧道 ID

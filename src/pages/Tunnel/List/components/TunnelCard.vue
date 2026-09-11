@@ -1,8 +1,15 @@
 <template>
-    <n-card size="small">
+    <n-card
+        size="small"
+        :class="{ 'tunnel-card--selected': selectionMode && selected }"
+        :style="selectionMode ? 'cursor: pointer' : ''"
+        @click="handleCardClick"
+    >
         <template #header>
-            {{ card.name }}
-            <span style="color: gray; font-size: 14px">{{ card.id }}</span>
+            <div style="display: flex; align-items: center; gap: 6px">
+                <span>{{ card.name }}</span>
+                <span style="color: gray; font-size: 14px">{{ card.id }}</span>
+            </div>
         </template>
         <template #header-extra>
             <n-tooltip trigger="hover">
@@ -115,6 +122,8 @@ interface Props {
     card: TunnelCard;
     deletetTunnelSuccess: boolean;
     isMobile?: boolean;
+    selectionMode?: boolean;
+    selected?: boolean;
     onEdit: (card: TunnelCard) => void;
     onGetConfig: (card: TunnelCard) => void;
     onRefresh: (card: TunnelCard) => void;
@@ -123,6 +132,7 @@ interface Props {
     onDelete: (card: TunnelCard) => void;
     onCopyAddress: (address: string) => void;
     onStart: (card: TunnelCard) => void;
+    onToggleSelect: (id: number) => void;
 }
 
 const props = defineProps<Props>();
@@ -130,6 +140,14 @@ const message = useMessage();
 const trafficIn = computed(() => formatBytes(props.card.today_traffic_in));
 const trafficOut = computed(() => formatBytes(props.card.today_traffic_out));
 const formattedUptime = computed(() => formatApiDateTime(props.card.uptime, { omitMidnight: true }));
+
+// 批量管理模式下点击整张卡片切换选中
+const handleCardClick = (e: MouseEvent) => {
+    if (!props.selectionMode) return;
+    const el = e.target as HTMLElement;
+    if (el.closest('button, a, input, .n-dropdown, .n-base-selection')) return;
+    props.onToggleSelect(props.card.id);
+};
 
 const dropdownOptions = computed(() => {
     const options = [];
@@ -231,3 +249,16 @@ const handleDropdownSelect = (key: string) => {
     }
 };
 </script>
+
+<style scoped>
+.tunnel-card--selected {
+    background-color: #fbe9e9;
+    border: none;
+    box-shadow: none;
+}
+
+/* 底部操作栏有独立的背景变量，需要同步覆盖 */
+.tunnel-card--selected :deep(.n-card__action) {
+    background-color: #fbe9e9;
+}
+</style>
