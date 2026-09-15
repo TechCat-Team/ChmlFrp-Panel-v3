@@ -194,7 +194,7 @@
                                 <n-input
                                     v-model:value="ipRulesText"
                                     type="textarea"
-                                    placeholder="每行一个 IPv4 或 CIDR，留空表示不限制"
+                                    placeholder="每行一个 IPv4/IPv6 或 CIDR（如 203.0.113.0/24、2400:3200::/32），留空表示不限制"
                                     :autosize="{ minRows: 3, maxRows: 8 }"
                                 />
                             </n-form-item>
