@@ -4,6 +4,7 @@ import * as node from './node/node';
 import * as panel from './panel/panel';
 import * as domain from './domain/domain';
 import * as admin from './admin/admin';
+import * as violation from './admin/violation';
 import * as payment from './payment/payment';
 import * as giftcard from './giftcard/giftcard';
 import * as ssl from './ssl/ssl';
@@ -16,6 +17,7 @@ export default {
     panel,
     domain,
     admin,
+    violation,
     payment,
     giftcard,
     ssl,

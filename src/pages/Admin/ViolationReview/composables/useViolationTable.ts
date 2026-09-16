@@ -4,6 +4,7 @@
 import { h } from 'vue';
 import { NButton, NIcon, NTag, NDropdown, type DataTableColumns } from 'naive-ui';
 import { BanOutline, CheckmarkCircle, EllipsisVertical, EyeOutline } from '@vicons/ionicons5';
+import type { ViolationRecord, ViolationReviewAction } from '@/api/v2/admin/violation';
 import {
     formatViolationTime,
     getStatusLabel,
@@ -11,14 +12,13 @@ import {
     getTypeLabel,
     getTypeTagType,
 } from '../constants';
-import type { Violation } from '../types';
 
 interface TableHandlers {
-    onView: (row: Violation) => void;
-    onReview: (action: string) => void;
+    onView: (row: ViolationRecord) => void;
+    onReview: (action: ViolationReviewAction, row: ViolationRecord) => void;
 }
 
-export function useViolationTable({ onView, onReview }: TableHandlers): DataTableColumns<Violation> {
+export function useViolationTable({ onView, onReview }: TableHandlers): DataTableColumns<ViolationRecord> {
     return [
         {
             title: 'ID',
@@ -51,23 +51,31 @@ export function useViolationTable({ onView, onReview }: TableHandlers): DataTabl
             key: 'target',
             minWidth: 240,
             render(row) {
-                return h('span', { class: 'mono-text' }, row.target);
+                return h('span', { class: 'violation-mono' }, row.target || '-');
             },
         },
         {
             title: '关联用户',
-            key: 'user',
+            key: 'username',
             width: 130,
             render(row) {
-                return h('span', { style: 'white-space: nowrap;' }, row.user.username);
+                return h('span', { style: 'white-space: nowrap;' }, row.username || '-');
+            },
+        },
+        {
+            title: '违规节点',
+            key: 'node_name',
+            width: 130,
+            render(row) {
+                return h('span', { class: 'violation-mono' }, row.node_name || '-');
             },
         },
         {
             title: '发现时间',
-            key: 'reportedAt',
+            key: 'reported_at',
             width: 170,
             render(row) {
-                return formatViolationTime(row.reportedAt);
+                return formatViolationTime(row.reported_at);
             },
         },
         {
@@ -105,13 +113,13 @@ export function useViolationTable({ onView, onReview }: TableHandlers): DataTabl
                         label: '通过',
                         key: 'pass',
                         icon: () => h(NIcon, { component: CheckmarkCircle, style: 'color:#18a058' }),
-                        props: { onClick: () => onReview('通过') },
+                        props: { onClick: () => onReview('pass', row) },
                     },
                     {
                         label: '封禁处理',
                         key: 'ban',
                         icon: () => h(NIcon, { component: BanOutline, style: 'color:#d03050' }),
-                        props: { onClick: () => onReview('封禁处理') },
+                        props: { onClick: () => onReview('ban', row) },
                     },
                 ];
                 return h(
