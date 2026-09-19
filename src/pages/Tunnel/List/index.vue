@@ -435,6 +435,7 @@ const editTunnel = async (card: TunnelCard) => {
     // 强行转换 card.encryption 和 card.compression
     formData.encryption = card.encryption === 'true';
     formData.compression = card.compression === 'true';
+    formData.forceHttps = card.forceHttps === 'true';
 
     if (card.type === 'http' || card.type === 'https') {
         // 调用API获取用户的免费二级域名

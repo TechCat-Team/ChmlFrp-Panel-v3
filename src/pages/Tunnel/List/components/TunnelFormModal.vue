@@ -216,17 +216,35 @@
                     <!-- 高级设置 -->
                     <n-tab-pane name="advanced" tab="高级设置">
                         <n-space vertical class="tab-pane-content">
-                            <n-row :gutter="15">
+                            <n-row :gutter="[15, 12]">
                                 <n-col :span="isMobile ? 24 : 12">
                                     <n-flex justify="space-between" align="center">
-                                        <n-p>数据加密</n-p>
+                                        <n-p class="switch-row-label">数据加密</n-p>
                                         <n-switch v-model:value="formData.encryption" />
                                     </n-flex>
                                 </n-col>
                                 <n-col :span="isMobile ? 24 : 12">
                                     <n-flex justify="space-between" align="center">
-                                        <n-p>数据压缩</n-p>
+                                        <n-p class="switch-row-label">数据压缩</n-p>
                                         <n-switch v-model:value="formData.compression" />
+                                    </n-flex>
+                                </n-col>
+                                <n-col v-if="formData.type === 'HTTPS'" :span="isMobile ? 24 : 12">
+                                    <n-flex justify="space-between" align="center">
+                                        <n-flex align="center" :size="4">
+                                            <n-p class="switch-row-label">强制HTTPS</n-p>
+                                            <n-tooltip trigger="hover">
+                                                <template #trigger>
+                                                    <n-icon
+                                                        :component="HelpCircleOutline"
+                                                        color="#C2C2C2"
+                                                        style="cursor: help"
+                                                    />
+                                                </template>
+                                                开启后，访问 http://您的域名 将自动 301 跳转到 https://您的域名
+                                            </n-tooltip>
+                                        </n-flex>
+                                        <n-switch v-model:value="formData.forceHttps" />
                                     </n-flex>
                                 </n-col>
                             </n-row>
@@ -255,7 +273,7 @@ import { storeToRefs } from 'pinia';
 import type { TunnelFormData, NodeInfo } from '../types';
 import { ACCESS_RULE_MODE_OPTIONS, REGION_OPTIONS } from '../constants';
 import { useScreenStore } from '@/stores/useScreen';
-import { RefreshOutline } from '@vicons/ionicons5';
+import { RefreshOutline, HelpCircleOutline } from '@vicons/ionicons5';
 
 interface Props {
     show: boolean;
@@ -450,6 +468,13 @@ const emit = defineEmits<{
 
 .tab-pane-content {
     padding-top: 4px;
+}
+
+/* n-p 默认带 16px 上下外边距，仅当它是父容器首/末子元素时才清零。
+   这些开关行里 n-p 后面还有开关，底部外边距会生效并把文字顶高，
+   这里手动清零，保证文字与右侧开关垂直居中。 */
+.switch-row-label {
+    margin: 0;
 }
 
 /* 桌面左侧菜单：紧凑 + 禁用横向滚动 */

@@ -26,6 +26,7 @@ interface TunnelListResponse extends BaseResponse {
         ipRules?: string[];
         regionRuleMode?: 'none' | 'whitelist' | 'blacklist';
         regionRules?: string[];
+        forceHttps?: string;
     }> | null;
 }
 
@@ -74,6 +75,7 @@ interface CreateTunnelResponse extends BaseResponse {
  * @param {number} [params.remoteport] 远程端口号（可选）
  * @param {string} [params.banddomain] 绑定的域名（可选）
  * @param {string} [params.extraparams] 额外参数（可选）
+ * @param {boolean} [params.forceHttps] 是否强制HTTPS（仅 https 类型有效，可选）
  * @returns {Promise<CreateTunnelResponse>} 返回创建隧道的响应数据
  */
 export const createTunnel = (params: {
@@ -88,6 +90,7 @@ export const createTunnel = (params: {
     remoteport?: number;
     banddomain?: string;
     extraparams?: string;
+    forceHttps?: boolean;
     ipRuleMode?: 'none' | 'whitelist' | 'blacklist';
     ipRules?: string[];
     regionRuleMode?: 'none' | 'whitelist' | 'blacklist';
@@ -130,6 +133,7 @@ export const batchDeleteTunnels = (tunnelids: number[]): Promise<BaseResponse> =
  * @param {boolean} [params.encryption] 是否启用数据加密（可选）
  * @param {boolean} [params.compression] 是否启用数据压缩（可选）
  * @param {string} [params.extraparams] 额外参数（可选）
+ * @param {boolean} [params.forceHttps] 是否强制HTTPS（仅 https 类型有效，可选）
  * @returns {Promise<BaseResponse>} 返回修改隧道的响应数据
  */
 export const updateTunnel = (params: {
@@ -144,6 +148,7 @@ export const updateTunnel = (params: {
     encryption?: boolean | string;
     compression?: boolean | string;
     extraparams?: string;
+    forceHttps?: boolean;
     ipRuleMode?: 'none' | 'whitelist' | 'blacklist';
     ipRules?: string[];
     regionRuleMode?: 'none' | 'whitelist' | 'blacklist';

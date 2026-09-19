@@ -70,6 +70,7 @@ export function useTunnelCreate(
                 extraparams: formData.ap,
                 banddomain: isHttp ? banddomain : undefined,
                 remoteport: isHttp ? undefined : Number(formData.dorp),
+                forceHttps: formData.type === 'HTTPS' ? formData.forceHttps : undefined,
                 ipRuleMode: formData.ipRuleMode,
                 ipRules: formData.ipRules.map((rule) => rule.trim()).filter(Boolean),
                 regionRuleMode: formData.regionRuleMode,

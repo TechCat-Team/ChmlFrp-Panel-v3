@@ -32,6 +32,7 @@ export interface TunnelCard {
     ipRules: string[];
     regionRuleMode: 'none' | 'whitelist' | 'blacklist';
     regionRules: string[];
+    forceHttps?: string;
 }
 
 export interface NodeCard {
@@ -97,6 +98,7 @@ export interface TunnelFormData {
     ipRules: string[];
     regionRuleMode: 'none' | 'whitelist' | 'blacklist';
     regionRules: string[];
+    forceHttps: boolean;
 }
 
 export interface NodeFilters {

@@ -164,6 +164,7 @@ export function useTunnelEdit(
             encryption: formData.encryption.toString(),
             compression: formData.compression.toString(),
             extraparams: formData.ap || undefined,
+            forceHttps: typeLower === 'https' ? formData.forceHttps : undefined,
             ipRuleMode: formData.ipRuleMode,
             ipRules: formData.ipRules.map((rule) => rule.trim()).filter(Boolean),
             regionRuleMode: formData.regionRuleMode,

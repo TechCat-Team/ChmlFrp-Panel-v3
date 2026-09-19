@@ -45,6 +45,7 @@ export function useTunnelForm(
         ipRules: [],
         regionRuleMode: 'none',
         regionRules: [],
+        forceHttps: false,
     });
 
     const domainNameOptions = ref<{ label: string; value: string }[]>([]);
