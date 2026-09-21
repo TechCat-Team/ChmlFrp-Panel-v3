@@ -66,6 +66,14 @@
             @update:page-size="handleBannedPageSize"
         />
 
+        <!-- 申诉处理 -->
+        <AppealTableCard
+            title="申诉处理"
+            :data="appealList"
+            :columns="appealColumns"
+            :loading="appealLoading"
+        />
+
         <!-- 放行记录 -->
         <ViolationTableCard
             title="放行记录"
@@ -88,6 +96,15 @@
         @review="handleReviewAction"
     />
 
+    <!-- 申诉处理详情 -->
+    <AppealDetailModal
+        :show="showAppealDetailModal"
+        :appeal="currentAppeal"
+        :reviewing="appealReviewing"
+        @update:show="showAppealDetailModal = $event"
+        @review="handleAppealReview"
+    />
+
     <!-- 证据解密私钥（仅保存在本地浏览器会话） -->
     <EvidencePrivateKeyModal v-model:show="showPrivateKeyModal" />
 </template>
@@ -98,10 +115,13 @@ import { KeyOutline, RefreshOutline, SearchOutline } from '@vicons/ionicons5';
 import ViolationTableCard from './components/ViolationTableCard.vue';
 import ViolationDetailModal from './components/ViolationDetailModal.vue';
 import EvidencePrivateKeyModal from './components/EvidencePrivateKeyModal.vue';
+import AppealTableCard from './components/AppealTableCard.vue';
+import AppealDetailModal from './components/AppealDetailModal.vue';
 import { useViolationList } from './composables/useViolationList';
 import { useViolationDetail } from './composables/useViolationDetail';
 import { useViolationTable } from './composables/useViolationTable';
 import { useEvidencePrivateKey } from './composables/useEvidencePrivateKey';
+import { useAppealList } from './composables/useAppealList';
 import { TYPE_OPTIONS } from './constants';
 
 const showPrivateKeyModal = ref(false);
@@ -135,6 +155,17 @@ const columns = useViolationTable({
     onView: handleViewDetail,
     onReview: handleReviewAction,
 });
+
+// 申诉处理
+const {
+    list: appealList,
+    loading: appealLoading,
+    columns: appealColumns,
+    showDetailModal: showAppealDetailModal,
+    current: currentAppeal,
+    reviewing: appealReviewing,
+    handleReview: handleAppealReview,
+} = useAppealList();
 
 onMounted(loadAll);
 </script>

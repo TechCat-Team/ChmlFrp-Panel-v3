@@ -59,3 +59,53 @@ export const formatEvidenceSize = (bytes: number | null | undefined) => {
     if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
     return `${(bytes / 1024 / 1024).toFixed(2)} MB`;
 };
+
+/** 申诉处理状态 */
+export type AppealStatus = 'pending' | 'approved' | 'rejected';
+
+/** 用户提交的申诉记录 */
+export interface AppealRecord {
+    id: number;
+    /** 关联的违规封禁记录 id */
+    violationId: number;
+    userId: number | null;
+    username: string;
+    type: ViolationType;
+    /** 违规隧道名 */
+    tunnelName: string;
+    /** 违规URL */
+    url: string;
+    /** 违规节点 */
+    nodeName: string;
+    /** 封禁原因（原审核备注） */
+    banReason: string;
+    /** 用户填写的申诉理由 */
+    appealReason: string;
+    /** 用户填写的联系方式 */
+    contact: string;
+    /** 佐证图片文件名 */
+    images: string[];
+    /** 申诉提交时间 */
+    appealedAt: string;
+    status: AppealStatus;
+    reviewedBy: string | null;
+    reviewedAt: string | null;
+    reviewRemark: string;
+}
+
+export const APPEAL_STATUS_LABEL: Record<AppealStatus, string> = {
+    pending: '待处理',
+    approved: '已通过',
+    rejected: '已驳回',
+};
+
+export const getAppealStatusLabel = (status: AppealStatus) => APPEAL_STATUS_LABEL[status] ?? status;
+
+export const getAppealStatusTagType = (status: AppealStatus): 'warning' | 'success' | 'error' => {
+    if (status === 'approved') return 'success';
+    if (status === 'rejected') return 'error';
+    return 'warning';
+};
+
+/** 申诉的两种处理结果 */
+export type AppealReviewResult = Extract<AppealStatus, 'approved' | 'rejected'>;
