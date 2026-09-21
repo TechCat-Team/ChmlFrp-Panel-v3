@@ -1,4 +1,5 @@
 import * as user from './user/user';
+import * as userViolation from './user/violation';
 import * as tunnel from './tunnel/tunnel';
 import * as node from './node/node';
 import * as panel from './panel/panel';
@@ -12,6 +13,7 @@ import { ApiError } from './axios/axiosInstance';
 
 export default {
     user,
+    userViolation,
     tunnel,
     node,
     panel,

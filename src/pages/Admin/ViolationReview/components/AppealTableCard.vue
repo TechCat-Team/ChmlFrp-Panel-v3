@@ -1,36 +1,39 @@
 <template>
     <n-card :title="title" :bordered="false">
         <n-data-table
+            remote
             :columns="columns"
             :data="data"
-            :bordered="false"
+            :pagination="pagination"
             :loading="loading"
+            :bordered="false"
             :row-key="rowKey"
             :scroll-x="1260"
-            :pagination="pagination"
             striped
+            @update:page="emit('update:page', $event)"
+            @update:page-size="emit('update:page-size', $event)"
         />
     </n-card>
 </template>
 
 <script lang="ts" setup>
 import type { DataTableColumns, PaginationProps } from 'naive-ui';
-import type { AppealRecord } from '../constants';
+import type { ViolationAppealRecord } from '@/api/v2/admin/violation';
 
-withDefaults(
-    defineProps<{
-        title: string;
-        data: AppealRecord[];
-        columns: DataTableColumns<AppealRecord>;
-        pagination?: PaginationProps;
-        loading?: boolean;
-    }>(),
-    {
-        pagination: () => ({ pageSize: 10 }),
-    }
-);
+defineProps<{
+    title: string;
+    data: ViolationAppealRecord[];
+    columns: DataTableColumns<ViolationAppealRecord>;
+    pagination: PaginationProps;
+    loading?: boolean;
+}>();
 
-const rowKey = (row: AppealRecord) => row.id;
+const emit = defineEmits<{
+    'update:page': [page: number];
+    'update:page-size': [pageSize: number];
+}>();
+
+const rowKey = (row: ViolationAppealRecord) => row.id;
 </script>
 
 <style scoped lang="scss">

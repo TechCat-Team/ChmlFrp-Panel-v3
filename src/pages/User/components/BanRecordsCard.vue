@@ -1,9 +1,17 @@
 <template>
     <n-card title="封禁记录" :bordered="false">
         <template #header-extra>
-            <n-tag v-if="records.length" :bordered="false" size="small" round type="error">
-                共 {{ records.length }} 条
-            </n-tag>
+            <n-space align="center" :size="8">
+                <n-tag v-if="records.length" :bordered="false" size="small" round type="error">
+                    共 {{ records.length }} 条
+                </n-tag>
+                <n-button size="small" quaternary :loading="loading" @click="loadRecords">
+                    <template #icon>
+                        <n-icon :component="RefreshOutline" />
+                    </template>
+                    刷新
+                </n-button>
+            </n-space>
         </template>
 
         <n-alert v-if="records.length" type="warning" :bordered="false" class="ban-alert">
@@ -13,6 +21,7 @@
         <n-data-table
             :columns="columns"
             :data="records"
+            :loading="loading"
             :bordered="false"
             :row-key="rowKey"
             :scroll-x="1230"
@@ -20,76 +29,72 @@
         />
     </n-card>
 
-    <BanAppealModal v-model:show="showAppealModal" :record="appealRecord" @submitted="handleAppealSubmitted" />
+    <BanAppealModal v-model:show="showAppealModal" :record="appealRecord" @submitted="loadRecords" />
 </template>
 
 <script lang="ts" setup>
-import { computed, h, ref } from 'vue';
-import { NButton, NTag, NTooltip, type DataTableColumns } from 'naive-ui';
+import { computed, h, onMounted, ref } from 'vue';
+import { NButton, NIcon, NTag, NTooltip, useMessage, type DataTableColumns } from 'naive-ui';
+import { RefreshOutline } from '@vicons/ionicons5';
 import { formatApiDateTime } from '@/utils/formatApiDateTime';
+import { getMyBanRecords, type MyBanRecord } from '@/api/v2/user/violation';
 import BanAppealModal from './BanAppealModal.vue';
 import {
     BAN_APPEAL_STATUS_LABEL,
     BAN_APPEAL_STATUS_TAG,
     BAN_TYPE_LABEL,
     BAN_TYPE_TAG,
-    canSubmitAppeal,
-    type BanRecord,
 } from '../constants';
 
-// TODO: 待接入封禁记录查询接口后替换为服务端数据
-const records = ref<BanRecord[]>([
-    {
-        id: 1024,
-        type: 'porn',
-        tunnelName: 'web-tunnel',
-        url: 'https://web-01.example.com/img',
-        nodeName: '香港-01',
-        reason: '隧道指向的站点存在色情内容，违反服务条款第 3.2 条',
-        bannedAt: '2026-09-12 14:32:10',
-        appealStatus: 'none',
-    },
-    {
-        id: 987,
-        type: 'site',
-        tunnelName: 'mc-server',
-        url: 'https://mc.example.com:25565',
-        nodeName: '上海-03',
-        reason: '隧道被用于搭建未备案的违规站点',
-        bannedAt: '2026-08-30 09:05:44',
-        appealStatus: 'rejected',
-    },
-    {
-        id: 902,
-        type: 'other',
-        tunnelName: 'api-test',
-        url: 'https://api.example.com/v1/report',
-        nodeName: '北京-02',
-        reason: '长时间大带宽占用，影响节点其他用户使用',
-        bannedAt: '2026-08-11 21:48:03',
-        appealStatus: 'pending',
-    },
-]);
+const message = useMessage();
 
+const records = ref<MyBanRecord[]>([]);
+const loading = ref(false);
 const showAppealModal = ref(false);
-const appealRecord = ref<BanRecord | null>(null);
+const appealRecord = ref<MyBanRecord | null>(null);
 
-const rowKey = (row: BanRecord) => row.id;
+const rowKey = (row: MyBanRecord) => row.id;
 
-const openAppeal = (row: BanRecord) => {
+const loadRecords = async () => {
+    loading.value = true;
+    try {
+        const response = await getMyBanRecords();
+        records.value = response.data?.ban_records ?? [];
+    } catch (error: any) {
+        records.value = [];
+        message.error(error?.message || '加载封禁记录失败');
+    } finally {
+        loading.value = false;
+    }
+};
+
+const openAppeal = (row: MyBanRecord) => {
     appealRecord.value = row;
     showAppealModal.value = true;
 };
 
-// 提交成功后回写本地申诉状态（后端接口接入后应改为重新拉取列表）
-const handleAppealSubmitted = () => {
-    if (appealRecord.value) {
-        appealRecord.value.appealStatus = 'pending';
+// 已解封的记录直接展示「已解封」，其余展示最近一次申诉的状态
+const statusLabel = (row: MyBanRecord) =>
+    row.unbanned_at ? '已解封' : BAN_APPEAL_STATUS_LABEL[row.appeal_status];
+
+const statusTagType = (row: MyBanRecord) =>
+    row.unbanned_at ? 'success' : BAN_APPEAL_STATUS_TAG[row.appeal_status];
+
+const disabledAppealTip = (row: MyBanRecord) => {
+    if (row.unbanned_at) {
+        return '该封禁记录已解封，无需申诉';
     }
+    if (row.appeal_status === 'pending') {
+        return '申诉审核中，暂不可重复提交';
+    }
+    if (row.appeal_status === 'approved') {
+        return '申诉已通过，无需再次提交';
+    }
+    return '当前不可提交申诉';
 };
 
-const renderAppealAction = (row: BanRecord) => {
-    if (canSubmitAppeal(row.appealStatus)) {
+const renderAppealAction = (row: MyBanRecord) => {
+    if (row.can_appeal) {
         return h(
             NButton,
             { size: 'small', type: 'primary', tertiary: true, onClick: () => openAppeal(row) },
@@ -106,18 +111,18 @@ const renderAppealAction = (row: BanRecord) => {
                     { size: 'small', tertiary: true, disabled: true },
                     { default: () => '申诉' }
                 ),
-            default: () => `${BAN_APPEAL_STATUS_LABEL[row.appealStatus]}，暂不可再次申诉`,
+            default: () => disabledAppealTip(row),
         }
     );
 };
 
-const columns = computed<DataTableColumns<BanRecord>>(() => [
+const columns = computed<DataTableColumns<MyBanRecord>>(() => [
     {
         title: '封禁时间',
-        key: 'bannedAt',
+        key: 'banned_at',
         width: 170,
         ellipsis: { tooltip: true },
-        render: (row) => formatApiDateTime(row.bannedAt),
+        render: (row) => formatApiDateTime(row.banned_at),
     },
     {
         title: '违规类型',
@@ -133,7 +138,7 @@ const columns = computed<DataTableColumns<BanRecord>>(() => [
     },
     {
         title: '违规隧道',
-        key: 'tunnelName',
+        key: 'tunnel_name',
         width: 160,
         ellipsis: { tooltip: true },
     },
@@ -145,10 +150,10 @@ const columns = computed<DataTableColumns<BanRecord>>(() => [
     },
     {
         title: '所属节点',
-        key: 'nodeName',
+        key: 'node_name',
         width: 130,
         ellipsis: { tooltip: true },
-        render: (row) => h('span', { class: 'ban-mono' }, row.nodeName || '-'),
+        render: (row) => h('span', { class: 'ban-mono' }, row.node_name || '-'),
     },
     {
         title: '封禁原因',
@@ -158,14 +163,14 @@ const columns = computed<DataTableColumns<BanRecord>>(() => [
     },
     {
         title: '申诉状态',
-        key: 'appealStatus',
+        key: 'appeal_status',
         width: 110,
         align: 'center',
         render: (row) =>
             h(
                 NTag,
-                { type: BAN_APPEAL_STATUS_TAG[row.appealStatus], size: 'small', round: true },
-                { default: () => BAN_APPEAL_STATUS_LABEL[row.appealStatus] }
+                { type: statusTagType(row), size: 'small', round: true },
+                { default: () => statusLabel(row) }
             ),
     },
     {
@@ -177,6 +182,8 @@ const columns = computed<DataTableColumns<BanRecord>>(() => [
         render: renderAppealAction,
     },
 ]);
+
+onMounted(loadRecords);
 </script>
 
 <style scoped lang="scss">

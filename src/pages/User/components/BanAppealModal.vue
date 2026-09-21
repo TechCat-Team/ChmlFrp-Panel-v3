@@ -12,7 +12,7 @@
             <n-alert v-if="record" type="error" :bordered="false" class="record-summary">
                 <template #header>被申诉的封禁记录 · #{{ record.id }}</template>
                 <div class="summary-line">
-                    <span class="summary-label">违规隧道：</span>{{ record.tunnelName || '-' }}
+                    <span class="summary-label">违规隧道：</span>{{ record.tunnel_name || '-' }}
                 </div>
                 <div class="summary-line">
                     <span class="summary-label">违规URL：</span>{{ record.url || '-' }}
@@ -55,7 +55,8 @@
                         :max="BAN_APPEAL_IMAGE_MAX"
                     />
                     <n-text depth="3" class="upload-tip">
-                        选填，最多 {{ BAN_APPEAL_IMAGE_MAX }} 张，支持 JPG / PNG / WEBP；请勿上传与申诉无关的内容。
+                        选填，最多 {{ BAN_APPEAL_IMAGE_MAX }} 张、单张不超过 {{ maxImageSizeText }}，支持 JPG / PNG /
+                        WEBP；请勿上传与申诉无关的内容。
                     </n-text>
                 </n-space>
             </n-form-item>
@@ -74,11 +75,17 @@
 import { computed, ref, watch } from 'vue';
 import { useMessage, type FormInst, type FormRules, type UploadFileInfo } from 'naive-ui';
 import { formatApiDateTime } from '@/utils/formatApiDateTime';
-import { BAN_APPEAL_IMAGE_MAX, BAN_APPEAL_REASON_MAX, type BanRecord } from '../constants';
+import { formatBytes } from '@/utils/formatBytes';
+import { submitViolationAppeal, type MyBanRecord } from '@/api/v2/user/violation';
+import {
+    BAN_APPEAL_IMAGE_MAX,
+    BAN_APPEAL_IMAGE_MAX_BYTES,
+    BAN_APPEAL_REASON_MAX,
+} from '../constants';
 
 const props = defineProps<{
     show: boolean;
-    record: BanRecord | null;
+    record: MyBanRecord | null;
 }>();
 
 const emit = defineEmits<{
@@ -98,7 +105,12 @@ const form = ref({ reason: '', contact: '' });
 const fileList = ref<UploadFileInfo[]>([]);
 const submitting = ref(false);
 
-const formattedBannedAt = computed(() => formatApiDateTime(props.record?.bannedAt));
+const formattedBannedAt = computed(() => formatApiDateTime(props.record?.banned_at));
+
+const maxImageSizeText = computed(() => {
+    const { value, suffix } = formatBytes(BAN_APPEAL_IMAGE_MAX_BYTES);
+    return `${value} ${suffix}`;
+});
 
 const rules: FormRules = {
     reason: {
@@ -136,6 +148,9 @@ watch(
     }
 );
 
+const collectImages = () =>
+    fileList.value.map((item) => item.file).filter((file): file is File => file instanceof File);
+
 const handleSubmit = async () => {
     try {
         await formRef.value?.validate();
@@ -143,12 +158,36 @@ const handleSubmit = async () => {
         return;
     }
 
-    // TODO: 待接入申诉提交接口（含图片上传），当前仅做表单校验与状态回写
+    const target = props.record;
+    if (!target) {
+        return;
+    }
+
+    const images = collectImages();
+    const oversize = images.find((file) => file.size > BAN_APPEAL_IMAGE_MAX_BYTES);
+    if (oversize) {
+        message.error(`图片「${oversize.name}」超过单张 ${maxImageSizeText.value} 的上限`);
+        return;
+    }
+
     submitting.value = true;
-    message.warning('申诉提交接口尚未接入，本次仅演示交互流程');
-    submitting.value = false;
-    emit('submitted');
-    showModel.value = false;
+    try {
+        await submitViolationAppeal(
+            {
+                banRecordId: target.id,
+                reason: form.value.reason.trim(),
+                contact: form.value.contact.trim(),
+            },
+            images
+        );
+        message.success('申诉已提交，我们会尽快复核并通过您填写的联系方式回复');
+        emit('submitted');
+        showModel.value = false;
+    } catch (error: any) {
+        message.error(error?.message || '申诉提交失败，请稍后重试');
+    } finally {
+        submitting.value = false;
+    }
 };
 </script>
 

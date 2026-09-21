@@ -71,7 +71,10 @@
             title="申诉处理"
             :data="appealList"
             :columns="appealColumns"
+            :pagination="appealPagination"
             :loading="appealLoading"
+            @update:page="handleAppealPage"
+            @update:page-size="handleAppealPageSize"
         />
 
         <!-- 放行记录 -->
@@ -100,6 +103,7 @@
     <AppealDetailModal
         :show="showAppealDetailModal"
         :appeal="currentAppeal"
+        :loading="appealDetailLoading"
         :reviewing="appealReviewing"
         @update:show="showAppealDetailModal = $event"
         @review="handleAppealReview"
@@ -156,16 +160,24 @@ const columns = useViolationTable({
     onReview: handleReviewAction,
 });
 
-// 申诉处理
+// 申诉处理，与违规列表共用同一份筛选条件
 const {
     list: appealList,
     loading: appealLoading,
     columns: appealColumns,
+    pagination: appealPagination,
     showDetailModal: showAppealDetailModal,
     current: currentAppeal,
+    detailLoading: appealDetailLoading,
     reviewing: appealReviewing,
+    load: loadAppeals,
+    changePage: handleAppealPage,
+    changePageSize: handleAppealPageSize,
     handleReview: handleAppealReview,
-} = useAppealList();
+} = useAppealList(filters);
 
-onMounted(loadAll);
+onMounted(() => {
+    loadAll();
+    void loadAppeals();
+});
 </script>

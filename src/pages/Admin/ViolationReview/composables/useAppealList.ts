@@ -1,138 +1,144 @@
 /**
  * 申诉处理 - 列表 / 详情 / 审核 composable
  *
- * 当前为本地 mock 数据，待后端申诉接口就绪后替换为服务端分页数据。
+ * 与违规列表共用同一份筛选条件（关键字、时间范围），数据来自服务端分页接口。
  */
-import { h, ref } from 'vue';
+import { h, reactive, ref, watch } from 'vue';
 import { NButton, NDropdown, NIcon, NTag, useMessage, type DataTableColumns } from 'naive-ui';
 import { CheckmarkCircle, CloseCircle, EllipsisVertical, EyeOutline } from '@vicons/ionicons5';
+import {
+    getViolationAppealDetail,
+    getViolationAppeals,
+    reviewViolationAppeal,
+    type AppealReviewAction,
+    type ViolationAppealDetail,
+    type ViolationAppealRecord,
+} from '@/api/v2/admin/violation';
 import {
     formatViolationTime,
     getAppealStatusLabel,
     getAppealStatusTagType,
     getTypeLabel,
     getTypeTagType,
-    type AppealRecord,
-    type AppealReviewResult,
 } from '../constants';
+import type { ViolationFilters } from './useViolationList';
 
-// TODO: 待接入申诉列表接口后替换为服务端数据
-const MOCK_APPEALS: AppealRecord[] = [
-    {
-        id: 3001,
-        violationId: 1024,
-        userId: 1001,
-        username: 'alice',
-        type: 'porn',
-        tunnelName: 'web-tunnel',
-        url: 'https://web-01.example.com/img',
-        nodeName: '香港-01',
-        banReason: '隧道指向的站点存在色情内容，违反服务条款第 3.2 条',
-        appealReason: '该域名下的违规内容已全部清理，当前站点为个人博客，申请解除封禁，可随时复查。',
-        contact: 'QQ 123456789',
-        images: ['整改截图-1.png', '整改截图-2.png'],
-        appealedAt: '2026-09-13 10:20:00',
-        status: 'pending',
-        reviewedBy: null,
-        reviewedAt: null,
-        reviewRemark: '',
-    },
-    {
-        id: 3002,
-        violationId: 902,
-        userId: 1002,
-        username: 'bob',
-        type: 'other',
-        tunnelName: 'api-test',
-        url: 'https://api.example.com/v1/report',
-        nodeName: '北京-02',
-        banReason: '长时间大带宽占用，影响节点其他用户使用',
-        appealReason: '该隧道仅用于接口联调，已把并发压测脚本下线，后续会限制请求频率。',
-        contact: 'bob@example.com',
-        images: [],
-        appealedAt: '2026-09-14 16:42:31',
-        status: 'pending',
-        reviewedBy: null,
-        reviewedAt: null,
-        reviewRemark: '',
-    },
-    {
-        id: 3003,
-        violationId: 987,
-        userId: 1003,
-        username: 'carol',
-        type: 'site',
-        tunnelName: 'mc-server',
-        url: 'https://mc.example.com:25565',
-        nodeName: '上海-03',
-        banReason: '隧道被用于搭建未备案的违规站点',
-        appealReason: '域名已完成备案，备案号可在工信部系统查询，附件为备案截图。',
-        contact: 'QQ 987654321',
-        images: ['备案截图.png'],
-        appealedAt: '2026-09-02 09:15:08',
-        status: 'approved',
-        reviewedBy: 'admin',
-        reviewedAt: '2026-09-03 11:02:45',
-        reviewRemark: '备案信息核验无误，已解除封禁。',
-    },
-    {
-        id: 3004,
-        violationId: 880,
-        userId: 1004,
-        username: 'dave',
-        type: 'porn',
-        tunnelName: 'media-server',
-        url: 'https://media.example.com/hls',
-        nodeName: '广州-01',
-        banReason: '隧道转发内容涉及传播淫秽色情信息',
-        appealReason: '内容为正常的影视资源，不存在违规情况。',
-        contact: 'dave@example.com',
-        images: [],
-        appealedAt: '2026-08-20 20:31:57',
-        status: 'rejected',
-        reviewedBy: 'admin',
-        reviewedAt: '2026-08-21 10:12:03',
-        reviewRemark: '复议证据截图仍存在违规内容，维持原判。',
-    },
-];
+const REVIEW_ACTION_LABEL: Record<AppealReviewAction, string> = {
+    approve: '通过申诉',
+    reject: '驳回申诉',
+};
 
-export function useAppealList() {
+export function useAppealList(filters: ViolationFilters) {
     const message = useMessage();
 
-    const list = ref<AppealRecord[]>(MOCK_APPEALS.map((item) => ({ ...item })));
+    const list = ref<ViolationAppealRecord[]>([]);
     const loading = ref(false);
+    const pagination = reactive({
+        page: 1,
+        pageSize: 10,
+        itemCount: 0,
+        pageSizes: [10, 20, 50],
+        showSizePicker: true,
+    });
+
     const showDetailModal = ref(false);
-    const current = ref<AppealRecord | null>(null);
+    const current = ref<ViolationAppealDetail | null>(null);
+    const detailLoading = ref(false);
     const reviewing = ref(false);
 
-    const handleViewDetail = (row: AppealRecord) => {
-        current.value = row;
+    const load = async () => {
+        loading.value = true;
+        try {
+            const response = await getViolationAppeals({
+                keyword: filters.keyword,
+                startTime: filters.timeRange?.[0] ?? null,
+                endTime: filters.timeRange?.[1] ?? null,
+                page: pagination.page,
+                size: pagination.pageSize,
+            });
+            list.value = response.data?.appeals ?? [];
+            pagination.itemCount = response.data?.total ?? 0;
+        } catch (error: any) {
+            list.value = [];
+            pagination.itemCount = 0;
+            message.error(error?.message || '加载申诉列表失败');
+        } finally {
+            loading.value = false;
+        }
+    };
+
+    const changePage = (page: number) => {
+        pagination.page = page;
+        void load();
+    };
+
+    const changePageSize = (pageSize: number) => {
+        pagination.pageSize = pageSize;
+        pagination.page = 1;
+        void load();
+    };
+
+    const reloadFromFirstPage = () => {
+        pagination.page = 1;
+        void load();
+    };
+
+    const handleViewDetail = async (row: ViolationAppealRecord) => {
         showDetailModal.value = true;
+        detailLoading.value = true;
+        current.value = null;
+        try {
+            const response = await getViolationAppealDetail(row.id);
+            current.value = response.data;
+        } catch (error: any) {
+            message.error(error?.message || '加载申诉详情失败');
+            showDetailModal.value = false;
+        } finally {
+            detailLoading.value = false;
+        }
     };
 
     /**
-     * 审核申诉。当前仅本地回写状态，待后端接口就绪后改为调用接口并刷新列表。
+     * 审核申诉。从表格下拉触发时传入 row，从详情弹窗触发时使用当前详情。
      */
-    const handleReview = (result: AppealReviewResult, row?: AppealRecord | null) => {
+    const handleReview = async (action: AppealReviewAction, row?: ViolationAppealRecord) => {
         const target = row ?? current.value;
         if (!target || reviewing.value) {
             return;
         }
-        if (target.status !== 'pending') {
-            message.warning('该申诉已处理，无需重复操作');
-            return;
-        }
-
         reviewing.value = true;
-        target.status = result;
-        target.reviewedBy = 'admin';
-        target.reviewedAt = formatViolationTime(new Date().toISOString());
-        message.warning('申诉审核接口尚未接入，本次仅演示交互流程');
-        reviewing.value = false;
-        showDetailModal.value = false;
+        try {
+            const response = await reviewViolationAppeal(target.id, action);
+            message.success(
+                action === 'approve' && response.data?.unbanned
+                    ? '申诉已通过，封禁已解除并恢复账号权益'
+                    : `已${REVIEW_ACTION_LABEL[action]}`
+            );
+            showDetailModal.value = false;
+            void load();
+        } catch (error: any) {
+            message.error(error?.message || '审核失败，请稍后重试');
+        } finally {
+            reviewing.value = false;
+        }
     };
 
-    const columns: DataTableColumns<AppealRecord> = [
+    // 与违规列表共用筛选条件，下拉与时间范围变化立即重新查询
+    watch(() => filters.timeRange, reloadFromFirstPage);
+
+    // 关键字输入做防抖，避免每敲一个字都发请求
+    let keywordTimer: ReturnType<typeof setTimeout> | undefined;
+    watch(
+        () => filters.keyword,
+        () => {
+            if (keywordTimer) {
+                clearTimeout(keywordTimer);
+            }
+            keywordTimer = setTimeout(reloadFromFirstPage, 400);
+        }
+    );
+
+    const columns: DataTableColumns<ViolationAppealRecord> = [
         {
             title: 'ID',
             key: 'id',
@@ -144,23 +150,28 @@ export function useAppealList() {
             key: 'username',
             width: 130,
             ellipsis: { tooltip: true },
-            render: (row) => (row.userId ? `#${row.userId} · ${row.username}` : '未关联'),
+            render: (row) => (row.user_id ? `#${row.user_id} · ${row.username}` : '未关联'),
         },
         {
             title: '违规类型',
             key: 'type',
             width: 110,
             align: 'center',
-            render: (row) =>
-                h(
+            render: (row) => {
+                const type = row.type;
+                if (!type) {
+                    return '-';
+                }
+                return h(
                     NTag,
-                    { type: getTypeTagType(row.type), size: 'small', round: true },
-                    { default: () => getTypeLabel(row.type) }
-                ),
+                    { type: getTypeTagType(type), size: 'small', round: true },
+                    { default: () => getTypeLabel(type) }
+                );
+            },
         },
         {
             title: '违规隧道',
-            key: 'tunnelName',
+            key: 'tunnel_name',
             width: 150,
             ellipsis: { tooltip: true },
         },
@@ -172,16 +183,16 @@ export function useAppealList() {
         },
         {
             title: '申诉理由',
-            key: 'appealReason',
+            key: 'reason',
             width: 240,
             ellipsis: { tooltip: true },
         },
         {
             title: '申诉时间',
-            key: 'appealedAt',
+            key: 'appealed_at',
             width: 170,
             ellipsis: { tooltip: true },
-            render: (row) => formatViolationTime(row.appealedAt),
+            render: (row) => formatViolationTime(row.appealed_at),
         },
         {
             title: '状态',
@@ -207,23 +218,25 @@ export function useAppealList() {
                         label: '查看详情',
                         key: 'detail',
                         icon: () => h(NIcon, { component: EyeOutline }),
-                        props: { onClick: () => handleViewDetail(row) },
+                        props: { onClick: () => void handleViewDetail(row) },
                     },
                     {
                         type: 'divider' as const,
                         key: 'd1',
                     },
                     {
-                        label: '申诉通过',
+                        label: '通过申诉',
                         key: 'approve',
                         icon: () => h(NIcon, { component: CheckmarkCircle, style: 'color:#18a058' }),
-                        props: { onClick: () => handleReview('approved', row) },
+                        disabled: row.status !== 'pending',
+                        props: { onClick: () => void handleReview('approve', row) },
                     },
                     {
                         label: '驳回申诉',
                         key: 'reject',
                         icon: () => h(NIcon, { component: CloseCircle, style: 'color:#d03050' }),
-                        props: { onClick: () => handleReview('rejected', row) },
+                        disabled: row.status !== 'pending',
+                        props: { onClick: () => void handleReview('reject', row) },
                     },
                 ];
                 return h(
@@ -246,9 +259,14 @@ export function useAppealList() {
         list,
         loading,
         columns,
+        pagination,
         showDetailModal,
         current,
+        detailLoading,
         reviewing,
+        load,
+        changePage,
+        changePageSize,
         handleViewDetail,
         handleReview,
     };
