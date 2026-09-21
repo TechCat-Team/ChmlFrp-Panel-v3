@@ -1,6 +1,7 @@
 <template>
     <n-back-top :right="100" />
     <n-flex vertical>
+        <BanRecordsCard />
         <n-grid cols="1 s:5" responsive="screen" :x-gap="15" :y-gap="20">
             <n-gi :span="3">
                 <n-card style="margin-bottom: 15px">
@@ -112,6 +113,7 @@ import SystemMessagesCard from './components/SystemMessagesCard.vue';
 import UserSettingsCard from './components/UserSettingsCard.vue';
 import UserProfileCard from './components/UserProfileCard.vue';
 import ExchangeCodeForm from './components/ExchangeCodeForm.vue';
+import BanRecordsCard from './components/BanRecordsCard.vue';
 
 const userStore = useUserStore();
 const userInfo = userStore.userInfo;
