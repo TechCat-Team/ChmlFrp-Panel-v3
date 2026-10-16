@@ -1,6 +1,6 @@
 # 节点违规闭环：实施与部署
 
-本次实现接入现有跨境 VPN/代理协议检测。网站内容扫描、截图采集是后续独立检测器，不在本次节点检测范围内。
+当前实现包含跨境 VPN/代理协议检测，以及可选的 HTTP 响应图片内容检测。图片副本压缩后提交模型服务，连续风险分达到 0.75 进入色情内容待审核案件，并按本节点持久化 URL 记录阻断后续同 URL 访问（403）；图片保持流式转发，hash 仅用于识别去重；主动爬站、截图和端到端 HTTPS 解密不在当前范围内。
 
 ## 实现结构
 
@@ -12,6 +12,7 @@
 | API | `BanNotificationService` / `BanNotificationWorker` | 事务内私人站内信、权益快照、事务外邮件投递与状态核对 |
 | API | `RestrictionService` | 用户/隧道限制叠加、统一准入及历史身份保留 |
 | API | `ViolationEvidenceUploadService` | 证据预留、对象上传、幂等确认，网络调用与数据库事务分开 |
+| frp | `server/contentcheck` | 有界 HTTP 图片采样、JPEG 压缩、持久分类缓存、URL 拦截和模型 API 适配 |
 | frp | `server/violation` | 本地事务队列、隔离恢复、后台投递、限制同步与注册互斥 |
 | frp | `server/proxy/active_connections` | 关闭现有转发连接，防止仅关监听端口仍可继续传输 |
 | 面板 | `utils/idempotentRequest` | 超时及刷新后复用原请求 ID 和绝对到期时间 |
@@ -72,7 +73,7 @@ multipart: file=<原加密密文>, key_id=<SPKI DER SHA-256>, content_type=image
 
 支持 PNG、JPEG、WebP 元数据，默认每文件 10 MiB、每事件 20 张。上传前加密一次，重试保持相同证据 ID、密文、密钥 ID 和类型。预留记录与对象键固定；上传失败可重试，成功重放不重复生成证据。事件与证据状态分别展示。
 
-公钥接口返回 `key_id`，浏览器可保存多版本私钥并自动匹配历史证据。API 和对象存储不持有私钥。节点当前 VPN 检测仅发送结构化依据；图片接口为后续具备取证能力的检测器保留。
+公钥接口返回 `key_id`，浏览器可保存多版本私钥并自动匹配历史证据。API 和对象存储不持有私钥。VPN 检测发送结构化依据；启用 imageDetection 后，HTTP 图片检测会上传实际送检 JPEG 的加密证据。详细配置和覆盖范围见 frp 仓库的 `doc/content-image-detection.md`。
 
 申诉仍支持可选图片。提交和审核都使用幂等请求 ID，同一封禁同时只允许一条待审申诉。申诉通过只解除对应限制；面板会提示仍有其他限制。历史申诉 multipart 图片保留兼容事务路径，S3 调用有超时并在明确回滚时清理对象。
 
