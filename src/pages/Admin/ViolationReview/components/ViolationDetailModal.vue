@@ -137,6 +137,7 @@
 
                 <WorkflowPanel
                     v-if="violation.workflow"
+                    :key="violation.id"
                     :workflow="violation.workflow"
                     :refreshing="loading || false"
                     @refresh="emit('refresh')"

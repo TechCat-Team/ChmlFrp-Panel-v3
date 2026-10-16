@@ -7,16 +7,36 @@
             <n-text
                 >共接收 {{ workflow.event_count }} 条独立事件 · 最近命中 {{ time(workflow.last_occurred_at) }}</n-text
             >
-            <n-alert type="info" :bordered="false"
-                >管理决策保存后，节点会同步执行。离线或尚未同步的节点会保持待执行状态。</n-alert
-            >
-            <n-data-table
-                :columns="columns"
-                :data="workflow.execution"
-                :bordered="false"
-                size="small"
-                :scroll-x="650"
-            />
+            <n-space align="center" :size="8">
+                <n-text depth="3">节点同步 · {{ workflow.execution.length }} 个</n-text>
+                <n-tag v-for="item in nodeSummary" :key="item.status" :type="item.type" size="small">
+                    {{ item.label }} {{ item.count }}
+                </n-tag>
+            </n-space>
+            <n-collapse>
+                <n-collapse-item title="查看节点同步明细" name="nodes">
+                    <n-space vertical :size="12">
+                        <n-text depth="3">
+                            这里展示全网节点的策略同步状态。管理决策保存后由节点同步执行，离线或尚未同步的节点会保持待执行状态。
+                        </n-text>
+                        <div class="node-filters">
+                            <n-input v-model:value="nodeKeyword" placeholder="搜索节点名称" size="small" clearable />
+                            <n-select v-model:value="nodeFilter" :options="nodeFilterOptions" size="small" />
+                        </div>
+                        <n-data-table
+                            :columns="columns"
+                            :data="filteredNodes"
+                            :row-key="(row: NodeExecution) => row.node_id"
+                            :pagination="nodePagination"
+                            :paginate-single-page="false"
+                            :bordered="false"
+                            :max-height="320"
+                            size="small"
+                            :scroll-x="650"
+                        />
+                    </n-space>
+                </n-collapse-item>
+            </n-collapse>
             <n-alert
                 v-if="workflow.attachments?.some((item) => item.status !== 'ready')"
                 type="warning"
@@ -101,13 +121,63 @@
 </template>
 
 <script setup lang="ts">
-import { h } from 'vue';
+import { computed, h, ref, watch } from 'vue';
 import dayjs from 'dayjs';
 import { NTag, type DataTableColumns } from 'naive-ui';
 import { isLifetimeTerm, formatApiDateTime } from '@/utils/formatApiDateTime';
 import type { ViolationWorkflow, NodeExecution } from '@/api/v2/admin/violation';
-defineProps<{ workflow: ViolationWorkflow; refreshing: boolean }>();
+const props = defineProps<{ workflow: ViolationWorkflow; refreshing: boolean }>();
 defineEmits<{ refresh: [] }>();
+type NodeStatus = 'failed' | 'offline' | 'pending' | 'applied';
+const nodeStatuses = [
+    { status: 'failed', label: '执行失败', type: 'error' },
+    { status: 'pending', label: '待同步', type: 'warning' },
+    { status: 'offline', label: '离线 / 未同步', type: 'default' },
+    { status: 'applied', label: '已同步', type: 'success' },
+] as const;
+const nodeKeyword = ref('');
+const nodeFilter = ref<NodeStatus | 'all'>('all');
+const nodePage = ref(1);
+const nodePageSize = 8;
+const nodeStatus = (row: NodeExecution): NodeStatus => {
+    if (row.last_error) return 'failed';
+    if (!row.last_sync || Date.now() - row.last_sync > 60_000) return 'offline';
+    return row.desired_revision != null && (row.applied_revision ?? 0) >= row.desired_revision ? 'applied' : 'pending';
+};
+const nodeSummary = computed(() =>
+    nodeStatuses.map((item) => ({
+        ...item,
+        count: props.workflow.execution.filter((node) => nodeStatus(node) === item.status).length,
+    }))
+);
+const nodeFilterOptions = computed(() => [
+    { label: '全部状态', value: 'all' },
+    ...nodeSummary.value.map((item) => ({ label: `${item.label}（${item.count}）`, value: item.status })),
+]);
+const filteredNodes = computed(() => {
+    const keyword = nodeKeyword.value.trim().toLocaleLowerCase();
+    return props.workflow.execution.filter(
+        (node) =>
+            (nodeFilter.value === 'all' || nodeStatus(node) === nodeFilter.value) &&
+            (!keyword || node.name.toLocaleLowerCase().includes(keyword))
+    );
+});
+watch([nodeKeyword, nodeFilter], () => {
+    nodePage.value = 1;
+});
+watch(
+    () => filteredNodes.value.length,
+    (count) => {
+        nodePage.value = Math.min(nodePage.value, Math.max(1, Math.ceil(count / nodePageSize)));
+    }
+);
+const nodePagination = computed(() => ({
+    page: nodePage.value,
+    pageSize: nodePageSize,
+    onUpdatePage: (page: number) => {
+        nodePage.value = page;
+    },
+}));
 const snapshotTerm = (value: string | null) =>
     isLifetimeTerm(value) ? '永久' : formatApiDateTime(value, { omitMidnight: true, fallback: '—' });
 const noticeLabels: Record<string, string> = {
@@ -138,21 +208,19 @@ const actions: Record<string, string> = {
 };
 const time = (value?: number | null) => (value ? dayjs(value).format('YYYY-MM-DD HH:mm:ss') : '—');
 const columns: DataTableColumns<NodeExecution> = [
-    { title: '节点', key: 'name' },
+    { title: '节点', key: 'name', width: 160, ellipsis: { tooltip: true } },
     {
-        title: '执行状态',
+        title: '同步状态',
         key: 'status',
         render(row) {
-            const offline = !row.last_sync || Date.now() - row.last_sync > 60_000;
-            const applied = row.desired_revision != null && (row.applied_revision ?? 0) >= row.desired_revision;
-            const label = row.last_error ? '执行失败' : offline ? '离线 / 未同步' : applied ? '已执行' : '待执行';
+            const status = nodeStatuses.find((item) => item.status === nodeStatus(row))!;
             return h(
                 NTag,
                 {
                     size: 'small',
-                    type: row.last_error ? 'error' : offline ? 'default' : applied ? 'success' : 'warning',
+                    type: status.type,
                 },
-                () => label
+                () => status.label
             );
         },
     },
@@ -185,6 +253,18 @@ const formatEvent = (payload: string) => {
 </script>
 
 <style scoped>
+.node-filters {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 180px;
+    gap: 8px;
+}
+
+@media (max-width: 600px) {
+    .node-filters {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
 .event-facts {
     white-space: pre-wrap;
     overflow-wrap: anywhere;
