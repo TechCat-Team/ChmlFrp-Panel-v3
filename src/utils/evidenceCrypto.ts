@@ -11,6 +11,7 @@
  * 服务端与对象存储只有密文，无法还原图片。
  */
 const KEY_STORAGE = 'chmlfrp_violation_evidence_private_key';
+const KEY_RING_STORAGE = `${KEY_STORAGE}_versions`;
 
 const WRAPPED_KEY_LENGTH_FIELD = 2;
 const IV_LENGTH = 12;
@@ -21,22 +22,40 @@ const isClient = () => typeof window !== 'undefined';
 /**
  * 读取管理员在面板中粘贴的 PKCS#8 RSA 私钥（PEM），未设置时返回空串。
  */
-export const getEvidencePrivateKey = (): string => {
+export const getEvidencePrivateKey = (keyId?: string | null): string => {
     if (!isClient()) {
         return '';
+    }
+    if (keyId) {
+        try {
+            const keys = JSON.parse(sessionStorage.getItem(KEY_RING_STORAGE) || '{}');
+            if (keys[keyId]) return keys[keyId];
+        } catch {
+            /* legacy single key remains supported */
+        }
     }
     return sessionStorage.getItem(KEY_STORAGE)?.trim() ?? '';
 };
 
 export const hasEvidencePrivateKey = () => getEvidencePrivateKey().length > 0;
 
-export const setEvidencePrivateKey = (value: string) => {
+export const setEvidencePrivateKey = (value: string, keyId?: string) => {
     if (!isClient()) {
         return;
     }
     const trimmed = value.trim();
     if (trimmed) {
         sessionStorage.setItem(KEY_STORAGE, trimmed);
+        if (keyId) {
+            let keys: Record<string, string> = {};
+            try {
+                keys = JSON.parse(sessionStorage.getItem(KEY_RING_STORAGE) || '{}');
+            } catch {
+                /* replace corrupt ring */
+            }
+            keys[keyId] = trimmed;
+            sessionStorage.setItem(KEY_RING_STORAGE, JSON.stringify(keys));
+        }
     } else {
         sessionStorage.removeItem(KEY_STORAGE);
     }
@@ -47,6 +66,9 @@ export const clearEvidencePrivateKey = () => {
         return;
     }
     sessionStorage.removeItem(KEY_STORAGE);
+    sessionStorage.removeItem(KEY_RING_STORAGE);
+    cachedPem = '';
+    cachedPrivateKey = null;
 };
 
 const pemToArrayBuffer = (pem: string): ArrayBuffer => {
@@ -91,7 +113,9 @@ const importPrivateKey = async (pem: string): Promise<CryptoKey> => {
             ['decrypt']
         );
     } catch {
-        throw new Error('私钥格式不正确，需要 PKCS#8 PEM（BEGIN PRIVATE KEY），可用 openssl pkcs8 -topk8 -nocrypt 转换');
+        throw new Error(
+            '私钥格式不正确，需要 PKCS#8 PEM（BEGIN PRIVATE KEY），可用 openssl pkcs8 -topk8 -nocrypt 转换'
+        );
     }
 
     cachedPem = pem;
@@ -104,12 +128,34 @@ const importPrivateKey = async (pem: string): Promise<CryptoKey> => {
  */
 export const validateEvidencePrivateKey = async (pem: string) => {
     await importPrivateKey(pem.trim());
+    const privateKey = await window.crypto.subtle.importKey(
+        'pkcs8',
+        pemToArrayBuffer(pem),
+        { name: 'RSA-OAEP', hash: 'SHA-256' },
+        true,
+        ['decrypt']
+    );
+    const jwk = await window.crypto.subtle.exportKey('jwk', privateKey);
+    const publicKey = await window.crypto.subtle.importKey(
+        'jwk',
+        { kty: 'RSA', n: jwk.n, e: jwk.e, alg: 'RSA-OAEP-256', ext: true },
+        { name: 'RSA-OAEP', hash: 'SHA-256' },
+        true,
+        ['encrypt']
+    );
+    const der = await window.crypto.subtle.exportKey('spki', publicKey);
+    const digest = await window.crypto.subtle.digest('SHA-256', der);
+    return Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, '0')).join('');
 };
 
 /**
  * 解密一张证据图片，返回可直接用于展示的 Blob。
  */
-export const decryptEvidence = async (payload: ArrayBuffer, contentType?: string): Promise<Blob> => {
+export const decryptEvidence = async (
+    payload: ArrayBuffer,
+    contentType?: string,
+    keyId?: string | null
+): Promise<Blob> => {
     const bytes = new Uint8Array(payload);
     if (bytes.byteLength <= WRAPPED_KEY_LENGTH_FIELD + IV_LENGTH + GCM_TAG_LENGTH) {
         throw new Error('证据数据不完整，无法解密');
@@ -121,7 +167,7 @@ export const decryptEvidence = async (payload: ArrayBuffer, contentType?: string
         throw new Error('证据数据格式不正确，无法解密');
     }
 
-    const privateKey = await importPrivateKey(getEvidencePrivateKey());
+    const privateKey = await importPrivateKey(getEvidencePrivateKey(keyId));
 
     let rawSessionKey: ArrayBuffer;
     try {
@@ -134,13 +180,9 @@ export const decryptEvidence = async (payload: ArrayBuffer, contentType?: string
         throw new Error('会话密钥解密失败，请确认私钥与服务端配置的公钥是同一对');
     }
 
-    const sessionKey = await window.crypto.subtle.importKey(
-        'raw',
-        rawSessionKey,
-        { name: 'AES-GCM' },
-        false,
-        ['decrypt']
-    );
+    const sessionKey = await window.crypto.subtle.importKey('raw', rawSessionKey, { name: 'AES-GCM' }, false, [
+        'decrypt',
+    ]);
     const iv = bytes.subarray(contentOffset, contentOffset + IV_LENGTH);
     const ciphertext = bytes.subarray(contentOffset + IV_LENGTH);
 

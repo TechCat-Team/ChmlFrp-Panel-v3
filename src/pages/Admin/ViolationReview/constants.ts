@@ -18,7 +18,9 @@ export const VIOLATION_STATUS_LABEL: Record<ViolationStatus, string> = {
 };
 
 export const REVIEW_ACTION_LABEL: Record<ViolationReviewAction, string> = {
-    pass: '放行',
+    pass: '误报放行',
+    warn: '警告',
+    release: '解除封禁',
     ban: '封禁',
     reject: '驳回',
 };

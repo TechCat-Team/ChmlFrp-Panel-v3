@@ -3,6 +3,7 @@
  *
  * 与违规列表共用同一份筛选条件（关键字、时间范围），数据来自服务端分页接口。
  */
+import { prepareIdempotentRequest, completeIdempotentRequest } from '@/utils/idempotentRequest';
 import { h, reactive, ref, watch } from 'vue';
 import { NButton, NDropdown, NIcon, NTag, useMessage, type DataTableColumns } from 'naive-ui';
 import { CheckmarkCircle, CloseCircle, EllipsisVertical, EyeOutline } from '@vicons/ionicons5';
@@ -108,10 +109,15 @@ export function useAppealList(filters: ViolationFilters) {
         }
         reviewing.value = true;
         try {
-            const response = await reviewViolationAppeal(target.id, action);
+            const key = `appeal-review:${target.id}`;
+            const submission = prepareIdempotentRequest(key, JSON.stringify({ action }), () => ({ action }));
+            const response = await reviewViolationAppeal(target.id, action, undefined, submission.request_id);
+            completeIdempotentRequest(key);
             message.success(
                 action === 'approve' && response.data?.unbanned
-                    ? '申诉已通过，封禁已解除并恢复账号权益'
+                    ? response.data.other_restrictions > 0
+                        ? '本条封禁已解除，账号仍有其他有效限制'
+                        : '本条封禁已解除'
                     : `已${REVIEW_ACTION_LABEL[action]}`
             );
             showDetailModal.value = false;

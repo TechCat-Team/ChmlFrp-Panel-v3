@@ -77,6 +77,16 @@
             @update:page-size="handleAppealPageSize"
         />
 
+        <ViolationTableCard
+            title="驳回记录"
+            :data="rejectedList"
+            :columns="columns"
+            :pagination="rejectedPagination"
+            :loading="rejectedLoading"
+            @update:page="handleRejectedPage"
+            @update:page-size="handleRejectedPageSize"
+        />
+
         <!-- 放行记录 -->
         <ViolationTableCard
             title="放行记录"
@@ -97,6 +107,7 @@
         :reviewing="reviewing"
         @update:show="showDetailModal = $event"
         @review="handleReviewAction"
+        @refresh="refreshDetail"
     />
 
     <!-- 申诉处理详情 -->
@@ -136,6 +147,11 @@ const {
     pendingList,
     bannedList,
     passedList,
+    rejectedList,
+    rejectedLoading,
+    rejectedPagination,
+    handleRejectedPage,
+    handleRejectedPageSize,
     pendingLoading,
     bannedLoading,
     passedLoading,
@@ -152,12 +168,14 @@ const {
     loadAll,
 } = useViolationList();
 
-const { showDetailModal, current, detailLoading, reviewing, handleViewDetail, handleReviewAction } =
+const { showDetailModal, current, detailLoading, reviewing, handleViewDetail, handleReviewAction, refreshDetail } =
     useViolationDetail(loadAll);
 
 const columns = useViolationTable({
     onView: handleViewDetail,
-    onReview: handleReviewAction,
+    onReview: (_action, row) => {
+        void handleViewDetail(row);
+    },
 });
 
 // 申诉处理，与违规列表共用同一份筛选条件

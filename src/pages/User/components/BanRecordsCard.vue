@@ -39,12 +39,7 @@ import { RefreshOutline } from '@vicons/ionicons5';
 import { formatApiDateTime } from '@/utils/formatApiDateTime';
 import { getMyBanRecords, type MyBanRecord } from '@/api/v2/user/violation';
 import BanAppealModal from './BanAppealModal.vue';
-import {
-    BAN_APPEAL_STATUS_LABEL,
-    BAN_APPEAL_STATUS_TAG,
-    BAN_TYPE_LABEL,
-    BAN_TYPE_TAG,
-} from '../constants';
+import { BAN_APPEAL_STATUS_LABEL, BAN_APPEAL_STATUS_TAG, BAN_TYPE_LABEL, BAN_TYPE_TAG } from '../constants';
 
 const message = useMessage();
 
@@ -75,10 +70,10 @@ const openAppeal = (row: MyBanRecord) => {
 
 // 已解封的记录直接展示「已解封」，其余展示最近一次申诉的状态
 const statusLabel = (row: MyBanRecord) =>
-    row.unbanned_at ? '已解封' : BAN_APPEAL_STATUS_LABEL[row.appeal_status];
+    row.unbanned_at ? '已解封' : row.active === false ? '已到期' : BAN_APPEAL_STATUS_LABEL[row.appeal_status];
 
 const statusTagType = (row: MyBanRecord) =>
-    row.unbanned_at ? 'success' : BAN_APPEAL_STATUS_TAG[row.appeal_status];
+    row.unbanned_at || row.active === false ? 'success' : BAN_APPEAL_STATUS_TAG[row.appeal_status];
 
 const disabledAppealTip = (row: MyBanRecord) => {
     if (row.unbanned_at) {
@@ -105,18 +100,20 @@ const renderAppealAction = (row: MyBanRecord) => {
         NTooltip,
         { trigger: 'hover' },
         {
-            trigger: () =>
-                h(
-                    NButton,
-                    { size: 'small', tertiary: true, disabled: true },
-                    { default: () => '申诉' }
-                ),
+            trigger: () => h(NButton, { size: 'small', tertiary: true, disabled: true }, { default: () => '申诉' }),
             default: () => disabledAppealTip(row),
         }
     );
 };
 
 const columns = computed<DataTableColumns<MyBanRecord>>(() => [
+    { title: '范围', key: 'scope', width: 90, render: (row) => (row.scope === 'tunnel' ? '隧道' : '账号') },
+    {
+        title: '到期时间',
+        key: 'expires_at',
+        width: 170,
+        render: (row) => (row.expires_at ? formatApiDateTime(new Date(row.expires_at).toISOString()) : '永久'),
+    },
     {
         title: '封禁时间',
         key: 'banned_at',
@@ -167,11 +164,7 @@ const columns = computed<DataTableColumns<MyBanRecord>>(() => [
         width: 110,
         align: 'center',
         render: (row) =>
-            h(
-                NTag,
-                { type: statusTagType(row), size: 'small', round: true },
-                { default: () => statusLabel(row) }
-            ),
+            h(NTag, { type: statusTagType(row), size: 'small', round: true }, { default: () => statusLabel(row) }),
     },
     {
         title: '操作',

@@ -102,7 +102,12 @@
                         </div>
                     </template>
 
-                    <n-alert v-if="!hasPrivateKey && violation.evidences.length" type="warning" :bordered="false" class="key-alert">
+                    <n-alert
+                        v-if="!hasPrivateKey && violation.evidences.length"
+                        type="warning"
+                        :bordered="false"
+                        class="key-alert"
+                    >
                         证据图片已加密存储，请先点击筛选栏右侧的「设置解密私钥」按钮完成设置后再查看。
                     </n-alert>
 
@@ -130,40 +135,69 @@
                     <n-empty v-else description="该记录没有证据附件" />
                 </n-card>
 
-                <!-- 审核操作 -->
+                <WorkflowPanel
+                    v-if="violation.workflow"
+                    :workflow="violation.workflow"
+                    :refreshing="loading || false"
+                    @refresh="emit('refresh')"
+                />
                 <n-divider />
-                <div class="action-bar">
-                    <n-space justify="space-between" :size="16">
-                        <n-space>
-                            <n-button :disabled="reviewing" @click="showModel = false">
-                                <template #icon>
-                                    <n-icon :component="CloseCircle" />
-                                </template>
-                                关闭
-                            </n-button>
-                        </n-space>
-                        <n-space>
-                            <n-button :disabled="reviewing" @click="emit('review', 'reject')">
-                                <template #icon>
-                                    <n-icon :component="CloseCircle" />
-                                </template>
-                                不通过
-                            </n-button>
-                            <n-button type="warning" :loading="reviewing" @click="emit('review', 'ban')">
-                                <template #icon>
-                                    <n-icon :component="BanOutline" />
-                                </template>
-                                封禁处理
-                            </n-button>
-                            <n-button type="primary" :disabled="reviewing" @click="emit('review', 'pass')">
-                                <template #icon>
-                                    <n-icon :component="CheckmarkCircle" />
-                                </template>
-                                通过
-                            </n-button>
-                        </n-space>
+                <n-space v-if="violation.status === 'pending' || violation.status === 'banned'" vertical>
+                    <n-form label-placement="top">
+                        <n-form-item label="处置范围">
+                            <n-select
+                                v-model:value="scope"
+                                :disabled="reviewing || violation.status === 'banned'"
+                                :options="scopeOptions"
+                            />
+                        </n-form-item>
+                        <n-form-item v-if="violation.status === 'pending'" label="封禁期限">
+                            <n-select
+                                v-model:value="durationSeconds"
+                                :disabled="reviewing"
+                                :options="durationOptions"
+                            />
+                        </n-form-item>
+                        <n-form-item label="处置理由（封禁必填）">
+                            <n-input
+                                v-model:value="reason"
+                                type="textarea"
+                                maxlength="500"
+                                show-count
+                                :disabled="reviewing"
+                                placeholder="填写判定依据和处置原因"
+                            />
+                        </n-form-item>
+                    </n-form>
+                    <n-space justify="end">
+                        <template v-if="violation.status === 'pending'">
+                            <n-button :disabled="reviewing" @click="review('reject')">驳回上报</n-button>
+                            <n-button :disabled="reviewing" @click="review('warn')">警告</n-button>
+                            <n-button type="success" :disabled="reviewing" @click="review('pass')"
+                                >误报放行并解除隔离</n-button
+                            >
+                            <n-popconfirm @positive-click="review('ban')">
+                                <template #trigger
+                                    ><n-button type="error" :disabled="reviewing || !reason.trim()" :loading="reviewing"
+                                        >确认封禁</n-button
+                                    ></template
+                                >
+                                将限制{{
+                                    scope === 'user' ? '该账号的全部隧道' : '当前隧道'
+                                }}，并关闭已有连接，确认执行？
+                            </n-popconfirm>
+                        </template>
+                        <n-popconfirm v-else @positive-click="review('release')">
+                            <template #trigger
+                                ><n-button type="warning" :disabled="reviewing" :loading="reviewing"
+                                    >解除本条封禁</n-button
+                                ></template
+                            >
+                            仅解除本条封禁，其他有效限制将继续生效。
+                        </n-popconfirm>
+                        <n-button :disabled="reviewing" @click="showModel = false">关闭</n-button>
                     </n-space>
-                </div>
+                </n-space>
             </n-space>
             <n-empty v-else-if="!loading" description="暂无记录详情" />
         </n-spin>
@@ -172,6 +206,7 @@
 
 <script lang="ts" setup>
 import { computed, onBeforeUnmount, ref, watch } from 'vue';
+import WorkflowPanel from './WorkflowPanel.vue';
 import {
     BanOutline,
     CheckmarkCircle,
@@ -184,6 +219,7 @@ import {
     fetchViolationEvidenceCiphertext,
     type ViolationDetail,
     type ViolationReviewAction,
+    type ViolationDecisionDraft,
 } from '@/api/v2/admin/violation';
 import { decryptEvidence } from '@/utils/evidenceCrypto';
 import {
@@ -205,8 +241,40 @@ const props = defineProps<{
 
 const emit = defineEmits<{
     'update:show': [value: boolean];
-    review: [action: ViolationReviewAction];
+    review: [action: ViolationReviewAction, draft: ViolationDecisionDraft];
+    refresh: [];
 }>();
+
+const scope = ref<'user' | 'tunnel'>('tunnel');
+const reason = ref('');
+const durationSeconds = ref(86400);
+const scopeOptions = computed(() => [
+    { label: '仅当前隧道', value: 'tunnel', disabled: !props.violation?.workflow?.tunnel_id },
+    { label: '整个账号', value: 'user' },
+]);
+const durationOptions = [
+    { label: '1 小时', value: 3600 },
+    { label: '24 小时', value: 86400 },
+    { label: '7 天', value: 604800 },
+    { label: '永久', value: 0 },
+];
+watch(
+    () => `${props.violation?.id}:${props.violation?.status}:${props.violation?.workflow?.version}`,
+    () => {
+        reason.value = '';
+        durationSeconds.value = 86400;
+        const original = props.violation?.workflow?.restrictions?.find((item) => !item.revoked_at);
+        scope.value = original
+            ? original.tunnel_id
+                ? 'tunnel'
+                : 'user'
+            : props.violation?.workflow?.tunnel_id
+              ? 'tunnel'
+              : 'user';
+    }
+);
+const review = (action: ViolationReviewAction) =>
+    emit('review', action, { scope: scope.value, reason: reason.value, durationSeconds: durationSeconds.value });
 
 const showModel = computed({
     get: () => props.show,
@@ -228,14 +296,16 @@ const revokeUrls = () => {
 
 // 记录已加载的签名，避免同一记录被 show / violation 两次变更重复解密
 let loadedSignature = '';
+let evidenceGeneration = 0;
 
 const loadEvidences = async () => {
     const evidences = props.violation?.evidences ?? [];
-    const signature = `${props.violation?.id ?? 0}:${revision.value}:${hasPrivateKey.value}`;
+    const signature = `${props.violation?.id ?? 0}:${revision.value}:${hasPrivateKey.value}:${evidences.map((item) => item.id).join(',')}`;
     if (signature === loadedSignature) {
         return;
     }
     loadedSignature = signature;
+    const generation = ++evidenceGeneration;
 
     revokeUrls();
     evidenceErrors.value = {};
@@ -254,14 +324,14 @@ const loadEvidences = async () => {
         evidences.map(async (item) => {
             try {
                 const ciphertext = await fetchViolationEvidenceCiphertext(item.id);
-                const blob = await decryptEvidence(ciphertext, item.content_type);
-                evidenceUrls.value[item.id] = URL.createObjectURL(blob);
+                const blob = await decryptEvidence(ciphertext, item.content_type, item.key_id);
+                if (generation === evidenceGeneration) evidenceUrls.value[item.id] = URL.createObjectURL(blob);
             } catch (error: any) {
-                evidenceErrors.value[item.id] = error?.message || '证据解密失败';
+                if (generation === evidenceGeneration) evidenceErrors.value[item.id] = error?.message || '证据解密失败';
             }
         })
     );
-    decrypting.value = false;
+    if (generation === evidenceGeneration) decrypting.value = false;
 };
 
 watch(
@@ -278,7 +348,10 @@ watch(
     { immediate: true }
 );
 
-onBeforeUnmount(revokeUrls);
+onBeforeUnmount(() => {
+    evidenceGeneration += 1;
+    revokeUrls();
+});
 </script>
 
 <style scoped lang="scss">

@@ -1,7 +1,7 @@
 /**
  * 违规审查 - 详情弹窗与审核动作 composable
  */
-import { ref } from 'vue';
+import { ref, watch, onBeforeUnmount } from 'vue';
 import { useMessage } from 'naive-ui';
 import {
     getViolationDetail,
@@ -9,7 +9,9 @@ import {
     type ViolationDetail,
     type ViolationRecord,
     type ViolationReviewAction,
+    type ViolationDecisionDraft,
 } from '@/api/v2/admin/violation';
+import { prepareIdempotentRequest, completeIdempotentRequest } from '@/utils/idempotentRequest';
 import { REVIEW_ACTION_LABEL } from '../constants';
 
 export function useViolationDetail(onReviewed: () => void) {
@@ -35,26 +37,69 @@ export function useViolationDetail(onReviewed: () => void) {
         }
     };
 
-    /**
-     * 审核动作。从表格下拉触发时传入 row，从详情弹窗触发时使用当前详情。
-     */
-    const handleReviewAction = async (action: ViolationReviewAction, row?: ViolationRecord) => {
-        const target = row ?? current.value;
-        if (!target || reviewing.value) {
+    const handleReviewAction = async (action: ViolationReviewAction, draft?: ViolationDecisionDraft) => {
+        const target = current.value;
+        if (!target || !draft || reviewing.value) return;
+        if (action === 'ban' && !draft.reason.trim()) {
+            message.warning('请填写封禁原因');
             return;
         }
+        const key = `decision:${target.id}`;
+        const expectedVersion = target.workflow.version;
+        const signature = JSON.stringify({ action, ...draft, expectedVersion });
+        const submission = prepareIdempotentRequest(key, signature, () => ({
+            action,
+            scope: draft.scope,
+            reason: draft.reason.trim(),
+            expected_version: expectedVersion,
+            expires_at: action === 'ban' && draft.durationSeconds ? Date.now() + draft.durationSeconds * 1000 : null,
+        }));
         reviewing.value = true;
         try {
-            await reviewViolation(target.id, action);
-            message.success(`已${REVIEW_ACTION_LABEL[action]}`);
-            showDetailModal.value = false;
+            const result = await reviewViolation(target.id, submission);
+            completeIdempotentRequest(key);
+            message.success(`${REVIEW_ACTION_LABEL[action]}决策已保存，正在同步节点`);
+            target.status = result.data.status;
+            target.workflow.version = result.data.version;
             onReviewed();
         } catch (error: any) {
-            message.error(error?.message || '审核失败，请稍后重试');
+            if (error?.details?.status === 409 || error?.details?.code === 409) {
+                completeIdempotentRequest(key);
+                await handleViewDetail(target);
+                onReviewed();
+            }
+            message.error(error?.details?.data?.msg || error?.message || '提交失败；重试会复用本次请求，不会重复处理');
         } finally {
             reviewing.value = false;
+            void refreshDetail(true);
         }
     };
+
+    const refreshDetail = async (silent = false) => {
+        const id = current.value?.id;
+        if (!id || reviewing.value) return;
+        if (!silent) detailLoading.value = true;
+        try {
+            const result = await getViolationDetail(id);
+            if (current.value?.id === id) current.value = result.data;
+        } catch (error: any) {
+            if (!silent) message.error(error?.message || '刷新进度失败');
+        } finally {
+            if (!silent) detailLoading.value = false;
+        }
+    };
+    let poll: ReturnType<typeof setInterval> | undefined;
+    watch(showDetailModal, (visible) => {
+        if (poll) clearInterval(poll);
+        poll = visible
+            ? setInterval(() => {
+                  void refreshDetail(true);
+              }, 10_000)
+            : undefined;
+    });
+    onBeforeUnmount(() => {
+        if (poll) clearInterval(poll);
+    });
 
     return {
         showDetailModal,
@@ -63,5 +108,6 @@ export function useViolationDetail(onReviewed: () => void) {
         reviewing,
         handleViewDetail,
         handleReviewAction,
+        refreshDetail,
     };
 }

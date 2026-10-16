@@ -7,7 +7,7 @@ export type ViolationType = 'porn' | 'site' | 'other';
 export type ViolationStatus = 'pending' | 'passed' | 'banned' | 'rejected';
 
 /** 审核动作，与后端 /admin/violations/{id}/review 的 action 取值一一对应 */
-export type ViolationReviewAction = 'pass' | 'ban' | 'reject';
+export type ViolationReviewAction = 'pass' | 'ban' | 'reject' | 'warn' | 'release';
 
 /** 违规记录（列表项，不含违规描述） */
 export interface ViolationRecord {
@@ -36,13 +36,74 @@ export interface ViolationEvidenceMeta {
     size_bytes: number;
     sha256: string;
     crypto_alg: string;
+    key_id?: string | null;
     sort_order: number;
 }
 
 /** 违规记录详情 */
 export interface ViolationDetail extends ViolationRecord {
     description: string;
+    workflow: ViolationWorkflow;
     evidences: ViolationEvidenceMeta[];
+}
+
+export interface NodeExecution {
+    node_id: number;
+    name: string;
+    desired_revision: number | null;
+    applied_revision: number | null;
+    last_sync: number | null;
+    last_error: string | null;
+    queue_depth: number | null;
+    dead_events: number | null;
+    oldest_event_at: number | null;
+}
+export interface ViolationWorkflow {
+    version: number;
+    event_count: number;
+    last_occurred_at?: number;
+    tunnel_id?: number;
+    events: Array<{ event_id: string; payload_json: string; received_at: number }>;
+    decisions: Array<{
+        id: number;
+        admin_id: number;
+        action: string;
+        scope: string;
+        reason: string;
+        expires_at: number | null;
+        created_at: number;
+    }>;
+    execution: NodeExecution[];
+    notifications?: Array<{
+        id: number;
+        channel: 'inbox' | 'email';
+        status: 'pending' | 'sending' | 'delivered' | 'skipped' | 'failed' | 'unknown';
+        attempts: number;
+        last_error: string;
+        created_at: number;
+        updated_at: number;
+    }>;
+    entitlement_snapshot?: {
+        prev_usergroup: string | null;
+        prev_tunnel: number | null;
+        prev_bandwidth: number | null;
+        prev_term: string | null;
+    } | null;
+    attachments: Array<{ evidence_id: string; key_id: string; status: string; size_bytes: number }>;
+    restrictions: Array<{ id: number; tunnel_id: number | null; expires_at: number | null; revoked_at: number | null }>;
+}
+export interface ViolationDecisionDraft {
+    scope: 'user' | 'tunnel';
+    reason: string;
+    durationSeconds: number;
+}
+export interface ViolationDecisionRequest {
+    request_id: string;
+    expected_version: number;
+    action: ViolationReviewAction;
+    scope: 'user' | 'tunnel';
+    reason: string;
+    expires_at: number | null;
 }
 
 export interface ViolationListParams {
@@ -73,6 +134,8 @@ export interface ViolationReviewResponse extends BaseResponse {
     data: {
         id: number;
         status: ViolationStatus;
+        version: number;
+        revision: number;
     };
 }
 
@@ -106,10 +169,9 @@ export const getViolationDetail = async (id: number): Promise<ViolationDetailRes
  */
 export const reviewViolation = async (
     id: number,
-    action: ViolationReviewAction,
-    remark?: string
+    decision: ViolationDecisionRequest
 ): Promise<ViolationReviewResponse> => {
-    return axiosInstance.post(`/admin/violations/${id}/review`, { action, remark });
+    return axiosInstance.post(`/admin/violations/${id}/review`, decision);
 };
 
 /**
@@ -195,13 +257,16 @@ export interface AppealReviewResponse extends BaseResponse {
         id: number;
         status: AppealStatus;
         unbanned: boolean;
+        other_restrictions: number;
     };
 }
 
 /**
  * 分页查询封禁申诉（管理员）
  */
-export const getViolationAppeals = async (params: ViolationAppealListParams = {}): Promise<ViolationAppealListResponse> => {
+export const getViolationAppeals = async (
+    params: ViolationAppealListParams = {}
+): Promise<ViolationAppealListResponse> => {
     const { status, keyword, startTime, endTime, page = 1, size = 10 } = params;
     return axiosInstance.get('/admin/violation-appeals', {
         params: {
@@ -228,9 +293,10 @@ export const getViolationAppealDetail = async (id: number): Promise<ViolationApp
 export const reviewViolationAppeal = async (
     id: number,
     action: AppealReviewAction,
-    remark?: string
+    remark?: string,
+    requestId?: string
 ): Promise<AppealReviewResponse> => {
-    return axiosInstance.post(`/admin/violation-appeals/${id}/review`, { action, remark });
+    return axiosInstance.post(`/admin/violation-appeals/${id}/review`, { action, remark, request_id: requestId });
 };
 
 /**

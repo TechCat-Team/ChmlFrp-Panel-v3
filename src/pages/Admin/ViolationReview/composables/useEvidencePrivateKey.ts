@@ -26,8 +26,8 @@ export function useEvidencePrivateKey() {
             revision.value += 1;
             return;
         }
-        await validateEvidencePrivateKey(trimmed);
-        setEvidencePrivateKey(trimmed);
+        const keyId = await validateEvidencePrivateKey(trimmed);
+        setEvidencePrivateKey(trimmed, keyId);
         privateKeyValue.value = getEvidencePrivateKey();
         revision.value += 1;
     };

@@ -11,7 +11,7 @@
         <n-space vertical :size="14">
             <n-alert type="info" :bordered="false">
                 证据图片为端到端加密，服务端只持有公钥、无法解密。私钥仅保存在当前浏览器会话中
-                （sessionStorage），不会上传到服务端；关闭浏览器后需要重新填写。
+                （sessionStorage），不会上传到服务端；关闭浏览器后需要重新填写。可依次保存不同版本的私钥，历史证据会自动匹配。
             </n-alert>
 
             <n-space align="center" :size="8">
@@ -33,7 +33,7 @@
         <template #footer>
             <n-space justify="space-between" :size="12">
                 <n-button quaternary :disabled="!hasPrivateKey || saving" @click="handleClear">
-                    清除已保存私钥
+                    清除所有已保存私钥
                 </n-button>
                 <n-space :size="12">
                     <n-button :disabled="saving" @click="showModel = false">取消</n-button>
@@ -71,7 +71,7 @@ const saving = ref(false);
 
 const placeholder = computed(() =>
     hasPrivateKey.value
-        ? '已设置私钥；如需更换，请粘贴新的私钥覆盖'
+        ? '已设置私钥；如需更换，请粘贴其他版本的私钥添加'
         : '粘贴 RSA 私钥（PKCS#8 PEM，以 -----BEGIN PRIVATE KEY----- 开头）'
 );
 

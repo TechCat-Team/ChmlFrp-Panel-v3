@@ -6,7 +6,12 @@
  */
 import { reactive, ref, watch } from 'vue';
 import { useMessage } from 'naive-ui';
-import { getViolations, type ViolationRecord, type ViolationStatus, type ViolationType } from '@/api/v2/admin/violation';
+import {
+    getViolations,
+    type ViolationRecord,
+    type ViolationStatus,
+    type ViolationType,
+} from '@/api/v2/admin/violation';
 
 export interface ViolationFilters {
     keyword: string;
@@ -75,8 +80,9 @@ export function useViolationList() {
     const pending = createSection('pending', filters);
     const banned = createSection('banned', filters);
     const passed = createSection('passed', filters);
+    const rejected = createSection('rejected', filters);
 
-    const sections: ViolationSection[] = [pending, banned, passed];
+    const sections: ViolationSection[] = [pending, banned, passed, rejected];
 
     const loadAll = () => {
         sections.forEach((section) => void section.load());
@@ -121,6 +127,11 @@ export function useViolationList() {
         pendingList: pending.list,
         bannedList: banned.list,
         passedList: passed.list,
+        rejectedList: rejected.list,
+        rejectedLoading: rejected.loading,
+        rejectedPagination: rejected.pagination,
+        handleRejectedPage: rejected.changePage,
+        handleRejectedPageSize: rejected.changePageSize,
         pendingLoading: pending.loading,
         bannedLoading: banned.loading,
         passedLoading: passed.loading,
