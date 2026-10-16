@@ -89,13 +89,18 @@
                         </n-form-item>
                     </n-col>
                     <n-col :span="12">
-                        <n-form-item label="连接端口" path="port">
+                        <n-form-item label="TCP 端口" path="port">
                             <n-input-number
                                 v-model:value="createForm.port"
                                 :min="1"
                                 :max="65535"
                                 placeholder="默认7000"
                             />
+                        </n-form-item>
+                    </n-col>
+                    <n-col :span="12">
+                        <n-form-item label="QUIC 端口" path="quic_port">
+                            <n-input-number v-model:value="createForm.quic_port" :min="1" :max="65535" :precision="0" clearable placeholder="留空禁用 QUIC" />
                         </n-form-item>
                     </n-col>
                     <n-col :span="12">
@@ -232,8 +237,13 @@
                         </n-form-item>
                     </n-col>
                     <n-col :span="12">
-                        <n-form-item label="连接端口" path="port">
+                        <n-form-item label="TCP 端口" path="port">
                             <n-input-number v-model:value="editForm.port" :min="1" :max="65535" />
+                        </n-form-item>
+                    </n-col>
+                    <n-col :span="12">
+                        <n-form-item label="QUIC 端口" path="quic_port">
+                            <n-input-number v-model:value="editForm.quic_port" :min="1" :max="65535" :precision="0" clearable placeholder="留空禁用 QUIC" />
                         </n-form-item>
                     </n-col>
                     <n-col :span="12">
@@ -342,9 +352,12 @@
                 closable
                 @close="handleConfigModalClose"
             >
+                <n-p v-if="currentCodeNode?.quicPort">
+                    请使用下方配置部署并放行 QUIC 的 UDP 端口。现有一键部署脚本不配置 QUIC；QUIC 与 TCP 使用相同端口号时，下方配置不启用 KCP。
+                </n-p>
                 <n-collapse :default-expanded-names="['1', '2']">
                     <!-- 一键部署代码 -->
-                    <n-collapse-item title="一键部署代码" name="1">
+                    <n-collapse-item v-if="!currentCodeNode?.quicPort" title="一键部署代码" name="1">
                         <n-space vertical>
                             <n-card size="small">
                                 <template #header>
@@ -448,6 +461,7 @@ interface Node {
     ip: string;
     realIp: string;
     port: number;
+    quicPort?: number | null;
     adminPort: string;
     speed: string;
     area: string;
@@ -473,6 +487,7 @@ interface CreateForm {
     domain_prefix: string;
     real_IP: string;
     port: number | null;
+    quic_port: number | null;
     adminport: number | null;
     speed: string;
     area: string;
@@ -494,6 +509,7 @@ interface EditForm {
     ip: string;
     real_IP: string;
     port: number | null;
+    quic_port: number | null;
     adminport: number | null;
     speed: string;
     area: string;
@@ -538,6 +554,7 @@ const createForm = reactive<CreateForm>({
     domain_prefix: '',
     real_IP: '',
     port: 7000,
+    quic_port: null,
     adminport: 8233,
     speed: '',
     area: '',
@@ -559,6 +576,7 @@ const editForm = reactive<EditForm>({
     ip: '',
     real_IP: '',
     port: null,
+    quic_port: null,
     adminport: null,
     speed: '',
     area: '',
@@ -1033,6 +1051,7 @@ const handleCreate = async () => {
             domain_prefix: createForm.domain_prefix,
             real_IP: createForm.real_IP,
             port: createForm.port,
+            quic_port: createForm.quic_port,
             adminport: createForm.adminport,
             speed: createForm.speed,
             area: createForm.area,
@@ -1072,6 +1091,7 @@ const handleEditClick = (node: Node) => {
     editForm.ip = node.ip;
     editForm.real_IP = node.realIp;
     editForm.port = node.port;
+    editForm.quic_port = node.quicPort ?? null;
     editForm.adminport = parseInt(node.adminPort);
     editForm.speed = node.speed;
     editForm.area = node.area;
@@ -1122,6 +1142,7 @@ const handleEdit = async () => {
             ip: editForm.ip,
             real_IP: editForm.real_IP,
             port: editForm.port,
+            quic_port: editForm.quic_port,
             adminport: editForm.adminport,
             speed: editForm.speed,
             area: editForm.area,
@@ -1189,6 +1210,7 @@ const resetCreateForm = () => {
         domain_prefix: '',
         real_IP: '',
         port: 7000,
+        quic_port: null,
         adminport: 8233,
         speed: '',
         area: '',
@@ -1326,10 +1348,15 @@ vhost_https_port = 443
 `
         : '';
 
+    const udpTransportConfig = [
+        node.quicPort === node.port ? '' : `kcp_bind_port = ${node.port}`,
+        node.quicPort ? `quic_bind_port = ${node.quicPort}` : '',
+    ].filter(Boolean).join('\n');
+
     return `[common]
 bind_addr = 0.0.0.0
 bind_port = ${node.port}
-kcp_bind_port = ${node.port}
+${udpTransportConfig}
 dashboard_port = ${node.adminPort}
 dashboard_user = ${username}
 dashboard_pwd = ${password}

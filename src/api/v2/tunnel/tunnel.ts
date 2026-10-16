@@ -1,5 +1,6 @@
 import axiosInstance from '../axios/axiosInstance';
 import { BaseResponse } from '../axios/axiosInstance';
+import type { ConnectionProtocol } from '@/utils/frpcTransport';
 
 interface TunnelListResponse extends BaseResponse {
     data: Array<{
@@ -167,9 +168,9 @@ interface GetTunnelConfigResponse extends BaseResponse {
  * @param {string} [tunnel_names] 隧道名称，多个名称用逗号分隔（可选）
  * @returns {Promise<GetTunnelConfigResponse>} 返回隧道配置文件的响应数据
  */
-export const getTunnelConfig = (node: string, tunnel_names?: string): Promise<GetTunnelConfigResponse> => {
+export const getTunnelConfig = (node: string, tunnel_names?: string, protocol: ConnectionProtocol = 'tcp'): Promise<GetTunnelConfigResponse> => {
     return axiosInstance.get('/tunnel_config', {
-        params: { node, tunnel_names },
+        params: { node, tunnel_names, protocol },
     });
 };
 

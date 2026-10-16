@@ -119,6 +119,10 @@
     <TunnelListEmpty v-if="tunnelCards === null" :loading="addTheTunnelButtonShow" @create="createNodes" />
     <ConfigModal
         v-model:show="configModalShow"
+        :protocol="configProtocol"
+        :protocol-options="configProtocolOptions"
+        :loading="configLoading"
+        @update:protocol="changeConfigProtocol"
         :frpc-ini-config="frpcIniConfig"
         :windowsdaima="windowsdaima"
         :linuxdaima="linuxdaima"
@@ -212,6 +216,10 @@ const {
 
 const {
     showModal: configModalShow,
+    protocol: configProtocol,
+    protocolOptions: configProtocolOptions,
+    loading: configLoading,
+    changeProtocol: changeConfigProtocol,
     frpcIniConfig,
     windowsdaima,
     linuxdaima,
