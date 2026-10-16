@@ -1,14 +1,14 @@
 /**
- * 违规证据图片的解密工具（非对称混合加密，端到端）。
+ * 违规证据附件的解密工具（非对称混合加密，端到端）。
  *
  * 节点侧加密流程：
  *   1. 调 GET /v2/node/violation/public-key 获取 RSA 公钥
- *   2. 随机生成 32 字节 AES-256 会话密钥，用它以 AES-256-GCM 加密图片
+ *   2. 随机生成 32 字节 AES-256 会话密钥，用它以 AES-256-GCM 加密证据
  *   3. 用 RSA 公钥以 RSA-OAEP(SHA-256) 包裹该会话密钥
  *   4. 拼装上传：[2 字节大端被包裹密钥长度][被包裹的会话密钥][12 字节 IV][AES-GCM 密文 + 16 字节标签]
  *
  * 解密全在本浏览器完成：RSA 私钥只保存在 sessionStorage，
- * 服务端与对象存储只有密文，无法还原图片。
+ * 服务端与对象存储只有密文，无法还原证据。
  */
 const KEY_STORAGE = 'chmlfrp_violation_evidence_private_key';
 const KEY_RING_STORAGE = `${KEY_STORAGE}_versions`;
@@ -97,7 +97,7 @@ let cachedPrivateKey: CryptoKey | null = null;
 
 const importPrivateKey = async (pem: string): Promise<CryptoKey> => {
     if (!isClient() || !window.crypto?.subtle) {
-        throw new Error('当前环境不支持 WebCrypto，无法解密证据图片（请使用 HTTPS 访问面板）');
+        throw new Error('当前环境不支持 WebCrypto，无法解密证据附件（请使用 HTTPS 访问面板）');
     }
     if (cachedPrivateKey && cachedPem === pem) {
         return cachedPrivateKey;
@@ -149,7 +149,7 @@ export const validateEvidencePrivateKey = async (pem: string) => {
 };
 
 /**
- * 解密一张证据图片，返回可直接用于展示的 Blob。
+ * 解密一张证据附件，返回可直接用于展示的 Blob。
  */
 export const decryptEvidence = async (
     payload: ArrayBuffer,
@@ -190,6 +190,6 @@ export const decryptEvidence = async (
         const plain = await window.crypto.subtle.decrypt({ name: 'AES-GCM', iv }, sessionKey, ciphertext);
         return new Blob([plain], { type: contentType || 'image/jpeg' });
     } catch {
-        throw new Error('图片解密失败，数据可能已损坏');
+        throw new Error('证据解密失败，数据可能已损坏');
     }
 };

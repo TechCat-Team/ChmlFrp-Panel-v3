@@ -88,7 +88,26 @@
                             <span>违规描述</span>
                         </div>
                     </template>
-                    <div class="desc-text">{{ violation.description || '上报方未提供描述' }}</div>
+                    <n-alert
+                        v-if="textReview?.urlHold && violation.status === 'pending'"
+                        type="warning"
+                        :bordered="false"
+                        style="margin-bottom: 12px"
+                    >
+                        AI 判定不安全，该 URL
+                        已进入临时阻断。审核完成并同步到节点后解除；封禁决定产生的账号或隧道限制继续生效。
+                    </n-alert>
+                    <n-descriptions v-if="textReview" :column="2" bordered size="small">
+                        <n-descriptions-item label="转人工原因">{{ textReview.reason }}</n-descriptions-item>
+                        <n-descriptions-item label="响应文本字数">{{ textReview.characters }}</n-descriptions-item>
+                        <n-descriptions-item label="关键词">{{ textReview.keywords }}</n-descriptions-item>
+                        <n-descriptions-item label="AI 判定">{{ textReview.verdict }}</n-descriptions-item>
+                        <n-descriptions-item label="模型类别">{{ textReview.categories }}</n-descriptions-item>
+                        <n-descriptions-item label="证据范围">{{
+                            textReview.truncated ? '正文节选与命中上下文' : '完整响应文本'
+                        }}</n-descriptions-item>
+                    </n-descriptions>
+                    <div v-else class="desc-text">{{ violation.description || '上报方未提供描述' }}</div>
                 </n-card>
 
                 <n-card :bordered="false" embedded class="detail-content-card">
@@ -108,13 +127,24 @@
                         :bordered="false"
                         class="key-alert"
                     >
-                        证据图片已加密存储，请先点击筛选栏右侧的「设置解密私钥」按钮完成设置后再查看。
+                        证据附件已加密存储，请先点击筛选栏右侧的「设置解密私钥」按钮完成设置后再查看。
                     </n-alert>
 
                     <div v-if="violation.evidences.length" class="evidence-wrap">
                         <div v-for="item in violation.evidences" :key="item.id" class="evidence-item">
+                            <div v-if="evidenceTexts[item.id] !== undefined" class="text-evidence">
+                                <n-text depth="3">响应文本证据（仅以纯文本显示）</n-text>
+                                <pre>{{ evidenceTexts[item.id] }}</pre>
+                                <n-button
+                                    tag="a"
+                                    :href="evidenceUrls[item.id]"
+                                    :download="`evidence-${item.id}.txt`"
+                                    size="small"
+                                    >下载文本证据</n-button
+                                >
+                            </div>
                             <n-image
-                                v-if="evidenceUrls[item.id]"
+                                v-else-if="evidenceUrls[item.id]"
                                 :src="evidenceUrls[item.id]"
                                 width="260"
                                 class="evidence-img"
@@ -223,6 +253,7 @@ import {
     type ViolationDecisionDraft,
 } from '@/api/v2/admin/violation';
 import { decryptEvidence } from '@/utils/evidenceCrypto';
+import { summarizeTextReview } from '@/utils/textReview';
 import {
     formatEvidenceSize,
     formatViolationTime,
@@ -285,14 +316,18 @@ const showModel = computed({
 const { hasPrivateKey, revision } = useEvidencePrivateKey();
 
 const evidenceUrls = ref<Record<number, string>>({});
+const evidenceTexts = ref<Record<number, string>>({});
 const evidenceErrors = ref<Record<number, string>>({});
 const decrypting = ref(false);
+
+const textReview = computed(() => summarizeTextReview(props.violation));
 
 const isExternalTarget = computed(() => /^https?:\/\//i.test(props.violation?.target ?? ''));
 
 const revokeUrls = () => {
     Object.values(evidenceUrls.value).forEach((url) => URL.revokeObjectURL(url));
     evidenceUrls.value = {};
+    evidenceTexts.value = {};
 };
 
 // 记录已加载的签名，避免同一记录被 show / violation 两次变更重复解密
@@ -326,7 +361,11 @@ const loadEvidences = async () => {
             try {
                 const ciphertext = await fetchViolationEvidenceCiphertext(item.id);
                 const blob = await decryptEvidence(ciphertext, item.content_type, item.key_id);
-                if (generation === evidenceGeneration) evidenceUrls.value[item.id] = URL.createObjectURL(blob);
+                const text = item.content_type === 'text/plain' ? await blob.text() : undefined;
+                if (generation === evidenceGeneration) {
+                    evidenceUrls.value[item.id] = URL.createObjectURL(blob);
+                    if (text !== undefined) evidenceTexts.value[item.id] = text;
+                }
             } catch (error: any) {
                 if (generation === evidenceGeneration) evidenceErrors.value[item.id] = error?.message || '证据解密失败';
             }
@@ -341,6 +380,7 @@ watch(
         if (props.show) {
             void loadEvidences();
         } else {
+            evidenceGeneration += 1;
             revokeUrls();
             evidenceErrors.value = {};
             loadedSignature = '';
@@ -356,6 +396,18 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped lang="scss">
+.text-evidence {
+    width: min(760px, 100%);
+    pre {
+        max-height: 360px;
+        overflow: auto;
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+        font-size: 13px;
+        line-height: 1.7;
+    }
+}
+
 .detail-title {
     font-size: 16px;
     font-weight: 500;

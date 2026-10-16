@@ -46,6 +46,9 @@ test('rotated evidence keys decrypt their own historical envelopes and reject ta
     const current = await makeKey();
     assert.notEqual(current.id, old.id);
     assert.equal(await (await crypto.decryptEvidence(payload.buffer, 'image/png', old.id)).text(), 'historical evidence');
+    const textEvidence = await crypto.decryptEvidence(payload.buffer, 'text/plain', old.id);
+    assert.equal(textEvidence.type, 'text/plain');
+    assert.equal(await textEvidence.text(), 'historical evidence');
     payload[payload.length - 1] ^= 1;
     await assert.rejects(crypto.decryptEvidence(payload.buffer, 'image/png', old.id), /损坏/);
     crypto.clearEvidencePrivateKey();
