@@ -8,6 +8,7 @@ import * as admin from './admin/admin';
 import * as violation from './admin/violation';
 import * as payment from './payment/payment';
 import * as giftcard from './giftcard/giftcard';
+import * as integral from './integral/integral';
 import * as ssl from './ssl/ssl';
 import { ApiError } from './axios/axiosInstance';
 
@@ -22,6 +23,7 @@ export default {
     violation,
     payment,
     giftcard,
+    integral,
     ssl,
     ApiError,
 };

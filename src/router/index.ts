@@ -151,6 +151,17 @@ const routes: Array<RouteRecordRaw> = [
                     requiresAuth: true,
                 },
             },
+            {
+                path: '/shop/integral-log',
+                name: '积分明细',
+                component: () => import('@/pages/Shop/IntegralLog/index.vue'),
+                meta: {
+                    title: '积分明细 - ChmlFrp',
+                    keywords: 'ChmlFrp, 积分明细, 积分流水, 积分记录, 消费记录, 充值记录',
+                    description: '查看您的积分收入与支出记录，包括充值、签到、礼品卡、套餐购买等明细。',
+                    requiresAuth: true,
+                },
+            },
         ],
     },
     {

@@ -119,7 +119,7 @@ const cards = computed(() => {
             precision: 2,
             suffix: downloadFormatted.suffix,
         },
-        { title: '积分数', value: userInfo?.integral || 0, icon: markRaw(ServerOutline), precision: 0 },
+        { title: '积分数', value: userInfo?.integral || 0, icon: markRaw(ServerOutline), precision: 0, to: '/shop/integral-log' },
     ];
 });
 

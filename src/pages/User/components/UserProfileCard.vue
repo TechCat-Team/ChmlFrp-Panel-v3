@@ -35,7 +35,9 @@
                     {{ userInfo?.realname }}
                 </n-descriptions-item>
                 <n-descriptions-item label="剩余积分">
-                    {{ userInfo?.integral }}
+                    <RouterLink :to="{ name: '积分明细' }" class="integral-link">
+                        {{ userInfo?.integral }}
+                    </RouterLink>
                 </n-descriptions-item>
                 <n-descriptions-item label="隧道限制">
                     {{ userInfo?.tunnelCount }} / {{ userInfo?.tunnel }}
@@ -68,6 +70,7 @@
 
 <script lang="ts" setup>
 import { ref, computed } from 'vue';
+import { RouterLink } from 'vue-router';
 import { useMessage } from 'naive-ui';
 import { useScreenStore } from '@/stores/useScreen';
 import { useStyleStore } from '@/stores/style';
@@ -123,3 +126,10 @@ const copyToken = () => {
     toggleToken();
 };
 </script>
+
+<style scoped>
+.integral-link {
+    color: inherit;
+    text-decoration: none;
+}
+</style>

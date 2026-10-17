@@ -184,6 +184,18 @@ export const computedMenuOptionsUser = computed(() => [
                 key: '积分商城',
                 icon: renderIcon(PricetagOutline),
             },
+            {
+                label: () =>
+                    h(
+                        RouterLink,
+                        {
+                            to: { name: '积分明细' },
+                        },
+                        { default: () => '积分明细' }
+                    ),
+                key: '积分明细',
+                icon: renderIcon(DocumentTextOutline),
+            },
         ],
     },
     {

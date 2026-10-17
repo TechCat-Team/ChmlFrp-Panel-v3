@@ -1,7 +1,12 @@
 <template>
     <n-grid style="margin-top: 15px" cols="1 s:2 m:4" responsive="screen" :x-gap="15" :y-gap="20">
         <n-gi v-for="(card, index) in cards" :key="index">
-            <n-card :style="cardStyle" :title="card.title" size="small">
+            <n-card
+                :style="[cardStyle, card.to ? { cursor: 'pointer' } : {}]"
+                :title="card.title"
+                size="small"
+                @click="handleCardClick(card)"
+            >
                 <n-flex justify="space-between" align="center">
                     <n-icon size="32">
                         <component :is="card.icon" />
@@ -20,6 +25,7 @@
 
 <script lang="ts" setup>
 import { computed } from 'vue';
+import { useRouter } from 'vue-router';
 import { useStyleStore } from '@/stores/style';
 
 interface Card {
@@ -28,6 +34,7 @@ interface Card {
     icon: any;
     precision: number;
     suffix?: string;
+    to?: string;
 }
 
 interface Props {
@@ -36,6 +43,13 @@ interface Props {
 
 defineProps<Props>();
 
+const router = useRouter();
 const styleStore = useStyleStore();
 const cardStyle = computed(() => styleStore.getCardStyle());
+
+const handleCardClick = (card: Card) => {
+    if (card.to) {
+        router.push(card.to);
+    }
+};
 </script>
