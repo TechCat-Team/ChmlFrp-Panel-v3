@@ -42,6 +42,9 @@ import BanAppealModal from './BanAppealModal.vue';
 import { BAN_APPEAL_STATUS_LABEL, BAN_APPEAL_STATUS_TAG, BAN_TYPE_LABEL, BAN_TYPE_TAG } from '../constants';
 
 const message = useMessage();
+const emit = defineEmits<{
+    state: [records: MyBanRecord[] | null, loading: boolean];
+}>();
 
 const records = ref<MyBanRecord[]>([]);
 const loading = ref(false);
@@ -49,17 +52,27 @@ const showAppealModal = ref(false);
 const appealRecord = ref<MyBanRecord | null>(null);
 
 const rowKey = (row: MyBanRecord) => row.id;
+let latestRequest = 0;
 
 const loadRecords = async () => {
+    const request = ++latestRequest;
     loading.value = true;
+    emit('state', null, true);
+    let loaded: MyBanRecord[] | null = null;
     try {
         const response = await getMyBanRecords();
-        records.value = response.data?.ban_records ?? [];
+        if (request !== latestRequest) return;
+        loaded = response.data?.ban_records ?? [];
+        records.value = loaded;
     } catch (error: any) {
+        if (request !== latestRequest) return;
         records.value = [];
         message.error(error?.message || '加载封禁记录失败');
     } finally {
-        loading.value = false;
+        if (request === latestRequest) {
+            loading.value = false;
+            emit('state', loaded, false);
+        }
     }
 };
 

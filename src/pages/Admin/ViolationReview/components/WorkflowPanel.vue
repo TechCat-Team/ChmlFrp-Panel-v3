@@ -64,7 +64,7 @@
                     {{ workflow.entitlement_snapshot.prev_bandwidth ?? '—' }} Mbps · 到期
                     {{ snapshotTerm(workflow.entitlement_snapshot.prev_term) }}
                 </n-text>
-                <n-p depth="3">新封禁保留原会员权益，解封只撤销对应限制；还有其他有效限制时不会全部放行。</n-p>
+                <n-p depth="3">账户封禁时权限组变为“封禁”，最后一条有效账户封禁解除后恢复原组；会员到期按到期规则处理。隧道封禁不改变权限组，其他有效限制继续生效。</n-p>
             </n-card>
             <n-card v-if="workflow.notifications?.length" title="账户封禁通知" size="small">
                 <n-space vertical>

@@ -1,7 +1,7 @@
 <template>
     <n-back-top :right="100" />
     <n-flex vertical>
-        <BanRecordsCard />
+        <BanRecordsCard @state="updateBanRecordState" />
         <n-grid cols="1 s:5" responsive="screen" :x-gap="15" :y-gap="20">
             <n-gi :span="3">
                 <n-card style="margin-bottom: 15px">
@@ -71,6 +71,8 @@
                     :on-view-history="loadHistory"
                 />
                 <UserProfileCard
+                    :ban-records="banRecords"
+                    :ban-records-loading="banRecordsLoading"
                     :user-info="
                         userInfo
                             ? {
@@ -98,7 +100,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted } from 'vue';
+import { computed, onMounted, ref } from 'vue';
+import type { MyBanRecord } from '@/api/v2/user/violation';
 import { useUserStore } from '@/stores/user';
 import { useLoadUserInfo } from '@/components/useLoadUser';
 
@@ -117,6 +120,12 @@ import BanRecordsCard from './components/BanRecordsCard.vue';
 
 const userStore = useUserStore();
 const userInfo = userStore.userInfo;
+const banRecords = ref<MyBanRecord[] | null>(null);
+const banRecordsLoading = ref(true);
+const updateBanRecordState = (records: MyBanRecord[] | null, loading: boolean) => {
+    banRecords.value = records;
+    banRecordsLoading.value = loading;
+};
 
 // Composables
 const {
