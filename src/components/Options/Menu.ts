@@ -26,6 +26,7 @@ import {
     ListCircleOutline,
     ServerOutline,
     KeyOutline,
+    ShieldCheckmarkOutline,
 } from '@vicons/ionicons5';
 
 const userStore = useUserStore();
@@ -183,6 +184,18 @@ export const computedMenuOptionsUser = computed(() => [
                 key: '积分商城',
                 icon: renderIcon(PricetagOutline),
             },
+            {
+                label: () =>
+                    h(
+                        RouterLink,
+                        {
+                            to: { name: '积分明细' },
+                        },
+                        { default: () => '积分明细' }
+                    ),
+                key: '积分明细',
+                icon: renderIcon(DocumentTextOutline),
+            },
         ],
     },
     {
@@ -273,6 +286,18 @@ export const computedMenuOptionsAdmin = computed(() => [
                             ),
                         key: '系统管理',
                         icon: renderIcon(ConstructOutline),
+                    },
+                    {
+                        label: () =>
+                            h(
+                                RouterLink,
+                                {
+                                    to: { name: '违规审查' },
+                                },
+                                { default: () => '违规审查' }
+                            ),
+                        key: '违规审查',
+                        icon: renderIcon(ShieldCheckmarkOutline),
                     },
                 ],
             },

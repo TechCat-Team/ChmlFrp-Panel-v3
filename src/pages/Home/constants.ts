@@ -10,8 +10,6 @@ export const SIGN_IN_STEPS = {
     API: '调用签到API[3/3]',
 } as const;
 
-export const GEETEST_CAPTCHA_ID = '3891b578aa85e4866c5f8205b02b165a';
-
 export const COUNTDOWN_DURATION = 10;
 
 export const SUCCESS_MESSAGE_DURATION = 3000;

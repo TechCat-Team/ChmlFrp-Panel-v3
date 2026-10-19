@@ -78,7 +78,7 @@
         responsive="screen"
     >
         <n-grid-item v-for="(nodeStatusCard, index) in nodeStatusCards" :key="index">
-            <n-card size="small" hoverable @click="goToNodeInfo(nodeStatusCard.node_name)">
+            <n-card size="small">
                 <template #header>
                     {{ nodeStatusCard.node_name }}
                     <span style="color: gray; font-size: 14px">#{{ nodeStatusCard.id }}</span>
@@ -126,7 +126,7 @@
     </n-grid>
     <n-grid v-else :cols="1" style="margin-top: 20px" :x-gap="12" :y-gap="12" responsive="screen">
         <n-grid-item v-for="(node, index) in processedUptimeData" :key="index">
-            <n-card hoverable @click="goToNodeInfo(node.node_name)">
+            <n-card>
                 <ServiceUptime
                     :serverName="node.node_name"
                     :state="node.state"
@@ -141,17 +141,10 @@
 
 <script lang="ts" setup>
 import { LinkOutline, BarcodeOutline, ArrowUpOutline, ArrowDownOutline } from '@vicons/ionicons5';
-import { useRouter } from 'vue-router';
 
 const available = ref(false);
 const loadingStatus = ref(true);
 const loadingUptime = ref(true);
-
-const router = useRouter();
-const goToNodeInfo = (node_name: string) => {
-    const url = router.resolve({ path: `/node/info`, query: { node: node_name } }).href;
-    window.open(url, '_blank');
-};
 
 // 无限滚动
 const count = ref(16);

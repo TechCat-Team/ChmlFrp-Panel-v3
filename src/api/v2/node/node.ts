@@ -2,6 +2,7 @@ import axiosInstance from '../axios/axiosInstance';
 import { BaseResponse } from '../axios/axiosInstance';
 
 interface Node {
+    quic?: boolean;
     id: number;
     name: string;
     area: string;
@@ -26,6 +27,7 @@ export const getNodeList = async (): Promise<NodeListResponse> => {
 };
 
 interface NodeInfoData {
+    quicPort?: number | null;
     udp: 'true' | 'false';
     total_traffic_in: number;
     notes: string;

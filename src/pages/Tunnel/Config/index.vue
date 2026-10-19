@@ -1,11 +1,11 @@
 <template>
     <n-back-top :right="100" />
     <n-card title="配置文件">
-        <n-grid :x-gap="12" :y-gap="12" cols="9" item-responsive responsive="screen">
-            <n-grid-item span="10 m:2">
+        <n-grid :x-gap="12" :y-gap="12" cols="1 m:12" item-responsive responsive="screen">
+            <n-grid-item span="1 m:2">
                 <n-select v-model:value="nodeValue" :options="nodeOptions" placeholder="请选择节点" />
             </n-grid-item>
-            <n-grid-item span="10 m:5">
+            <n-grid-item span="1 m:4">
                 <n-select
                     placeholder="请选择隧道，不选则该节点全部隧道"
                     v-model:value="multipleSelectValue"
@@ -15,7 +15,24 @@
                     :options="tunnelOptions"
                 />
             </n-grid-item>
-            <n-grid-item span="10 m:2">
+            <n-grid-item span="1 m:2">
+                <n-tooltip trigger="hover" style="width: 100%">
+                    <template #trigger>
+                        <n-select
+                            v-model:value="connectionProtocol"
+                            :options="protocolOptions"
+                            :disabled="configFormat === 'ini'"
+                            aria-label="连接协议"
+                            style="width: 100%"
+                        />
+                    </template>
+                    与节点的通信协议，部分情况QUIC可能会优化连接；INI 格式固定使用 TCP
+                </n-tooltip>
+            </n-grid-item>
+            <n-grid-item span="1 m:2">
+                <n-select v-model:value="configFormat" :options="configFormatOptions" aria-label="配置文件格式" />
+            </n-grid-item>
+            <n-grid-item span="1 m:2">
                 <n-flex justify="end">
                     <n-button
                         type="primary"
@@ -24,15 +41,13 @@
                         :loading="loadingGenerate"
                         >生成</n-button
                     >
-                    <n-button type="primary" @click="copyToClipboard" :disabled="tunnelConfig === ''">复制</n-button>
-                    <n-button type="primary" @click="downloadConfig" :disabled="tunnelConfig === ''">下载</n-button>
                 </n-flex>
             </n-grid-item>
         </n-grid>
         <template #footer>
             <n-grid cols="1 m:3" item-responsive responsive="screen" :x-gap="12" :y-gap="12">
                 <n-grid-item span="1 m:2">
-                    <n-card title="Frpc.ini">
+                    <n-card :title="configFileName">
                         <template #header-extra>
                             <n-space>
                                 <n-button text @click="handleCopy('tunnelConfig')">
@@ -43,7 +58,7 @@
                                 </n-button>
                             </n-space>
                         </template>
-                        <n-code :code="tunnelConfig" language="ini" word-wrap v-if="tunnelConfig !== ''" />
+                        <n-code :code="tunnelConfig" :language="configFormat" word-wrap v-if="tunnelConfig !== ''" />
                         <div v-else-if="loadingGenerate">
                             <n-skeleton text width="68.93px" />
                             <br />
@@ -80,7 +95,7 @@
                                         <n-icon :component="CopyOutline" />
                                     </n-button>
                                 </template>
-                                仅支持frp核心版本为0.51.2_251023才支持此功能
+                                QUIC 快捷启动请使用支持该协议的最新版 ChmlFrp 客户端
                             </n-tooltip>
                         </template>
                         <n-code :code="startupCode" language="powershell" word-wrap v-if="startupCode !== ''" />
@@ -145,7 +160,7 @@
                     <n-step title="步骤2" description="在网站下载页面下载对应的软件版本(一般为amd64)" />
                     <n-step
                         title="步骤3"
-                        description="解压好下载的软件后，打开frpc.ini，在里面粘贴此页面生成的配置文件，然后保存"
+                        description="解压好下载的软件后，打开frpc.toml，在里面粘贴此页面生成的配置文件，然后保存"
                     />
                     <n-step title="步骤4" description="在frp的windows路径栏输入cmd然后回车，启动cmd软件" />
                     <n-step title="步骤4" description="在打开的cmd内输入frpc启动映射" />
@@ -156,7 +171,14 @@
 </template>
 
 <script lang="ts" setup>
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
+import {
+    configFormatOptions,
+    connectionProtocolOptions,
+    frpcStartCommand,
+    type ConfigFormat,
+    type ConnectionProtocol,
+} from '@/utils/frpcTransport';
 import { CopyOutline, DownloadOutline } from '@vicons/ionicons5';
 // 获取登录信息
 import { useUserStore } from '@/stores/user';
@@ -169,20 +191,11 @@ const userInfo = userStore.userInfo;
 const message = useMessage();
 
 onMounted(() => {
-    getTunnelList();
+    void getTunnelList();
+    void api.v2.node.getNodeList().then((response) => {
+        quicNodes.value = new Set(response.data.filter((node) => node.quic === true).map((node) => node.name));
+    }).catch(() => { /* TCP remains available if node capability lookup fails. */ });
 });
-
-const copyToClipboard = () => {
-    navigator.clipboard
-        .writeText(tunnelConfig.value)
-        .then(() => {
-            message.success('配置文件复制成功');
-        })
-        .catch((err) => {
-            console.error('复制配置文件失败:', err);
-            message.error('配置文件复制失败');
-        });
-};
 
 // 下载配置文件
 const downloadConfig = () => {
@@ -199,7 +212,7 @@ const downloadConfig = () => {
         const url = window.URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
-        link.download = 'frpc.ini';
+        link.download = configFileName.value;
 
         // 触发下载
         document.body.appendChild(link);
@@ -232,6 +245,26 @@ const tunnelConfig = ref<string>('');
 const LinuxScript = ref<string>('');
 const startupCode = ref<string>('');
 const loadingGenerate = ref(false);
+const connectionProtocol = ref<ConnectionProtocol>('tcp');
+const configFormat = ref<ConfigFormat>('toml');
+const configFileName = computed(() => (configFormat.value === 'ini' ? 'Frpc.ini' : 'Frpc.toml'));
+const quicNodes = ref(new Set<string>());
+const quicAvailable = computed(() => nodeValue.value !== null && quicNodes.value.has(nodeValue.value));
+const protocolOptions = computed(() => connectionProtocolOptions(quicAvailable.value));
+let configVersion = 0;
+
+const clearGeneratedConfig = () => {
+    tunnelConfig.value = '';
+    LinuxScript.value = '';
+    startupCode.value = '';
+};
+watch(quicAvailable, (available) => { if (!available) connectionProtocol.value = 'tcp'; });
+watch(configFormat, (format) => { if (format === 'ini') connectionProtocol.value = 'tcp'; });
+watch([nodeValue, multipleSelectValue, connectionProtocol, configFormat], () => {
+    ++configVersion;
+    clearGeneratedConfig();
+    loadingGenerate.value = false;
+}, { deep: true, flush: 'sync' });
 
 // 获取隧道列表 API
 const getTunnelList = async () => {
@@ -278,48 +311,27 @@ watch(nodeValue, (newNode: string | null) => {
 
 // 获取配置文件 API
 const getConfigFile = async () => {
-    tunnelConfig.value = '';
-    LinuxScript.value = '';
-    startupCode.value = '';
+    const node = nodeValue.value;
+    if (!node) return;
+    const protocol = configFormat.value === 'ini' ? 'tcp' : connectionProtocol.value;
+    const selectedIds = [...multipleSelectValue.value];
+    const tunnels = allTunnels.value.filter((tunnel) => tunnel.node === node &&
+        (selectedIds.length === 0 || selectedIds.includes(tunnel.id.toString())));
+    const version = ++configVersion;
+    clearGeneratedConfig();
     loadingGenerate.value = true;
     try {
-        const params: {
-            node: string | null;
-            tunnel_names?: string;
-        } = {
-            node: nodeValue.value,
-        };
-
-        // 生成启动代码
-        if (multipleSelectValue.value.length > 0) {
-            // 使用选中的隧道ID生成启动代码
-            startupCode.value = `frpc.exe -u ${userInfo?.usertoken} -p ${multipleSelectValue.value.join(',')}`;
-
-            // 获取选中隧道的名称用于API调用
-            const selectedTunnelNames = allTunnels.value
-                .filter((tunnel) => multipleSelectValue.value.includes(tunnel.id.toString()))
-                .map((tunnel) => tunnel.name);
-            params.tunnel_names = selectedTunnelNames.join(',');
-            LinuxScript.value = `curl -O https://www.chmlfrp.net/script/linux/frpc_install.sh && chmod +x frpc_install.sh && sudo ./frpc_install.sh "${userInfo?.usertoken}" "${nodeValue.value}" "${params.tunnel_names}"`;
-        } else {
-            // 如果没有选择特定隧道，使用该节点所有隧道的ID
-            const nodeTunnelIds = allTunnels.value
-                .filter((tunnel) => tunnel.node === nodeValue.value)
-                .map((tunnel) => tunnel.id.toString());
-            startupCode.value = `frpc.exe -u ${userInfo?.usertoken} -p ${nodeTunnelIds.join(',')}`;
-            LinuxScript.value = `curl -O https://www.chmlfrp.net/script/linux/frpc_install.sh && chmod +x frpc_install.sh && sudo ./frpc_install.sh "${userInfo?.usertoken}" "${nodeValue.value}"`;
-        }
-
-        const response = await api.v2.tunnel.getTunnelConfig(params.node || '', params.tunnel_names);
-
+        const names = selectedIds.length ? tunnels.map((tunnel) => tunnel.name).join(',') : undefined;
+        const response = await api.v2.tunnel.getTunnelConfig(node, names, protocol, configFormat.value);
+        if (version !== configVersion) return;
         tunnelConfig.value = response.data || '';
+        startupCode.value = frpcStartCommand(userInfo?.usertoken, tunnels.map((tunnel) => tunnel.id), protocol);
+        LinuxScript.value = frpcStartCommand(userInfo?.usertoken, tunnels.map((tunnel) => tunnel.id), protocol, 'unix');
     } catch (error) {
-        message.error('获取配置文件失败: ' + (error as Error).message);
-        tunnelConfig.value = (error as Error).message;
-        LinuxScript.value = (error as Error).message;
-        startupCode.value = (error as Error).message;
+        if (version === configVersion) message.error('获取配置文件失败: ' + (error as Error).message);
+    } finally {
+        if (version === configVersion) loadingGenerate.value = false;
     }
-    loadingGenerate.value = false;
 };
 
 const handleCopy = (type: string) => {

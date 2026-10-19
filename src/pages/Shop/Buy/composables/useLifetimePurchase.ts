@@ -4,7 +4,8 @@ import { useLoadUserInfo } from '@/components/useLoadUser';
 import api from '@/api/v2';
 import type { MembershipType } from '../types';
 import { useMembershipPricing } from './useMembershipPricing';
-import { LIFETIME_MEMBER_PRICE, LIFETIME_TERM_DATE } from '../constants';
+import { LIFETIME_MEMBER_PRICE } from '../constants';
+import { isLifetimeTerm } from '@/utils/formatApiDateTime';
 
 /**
  * 终身会员购买 composable
@@ -105,10 +106,10 @@ export function useLifetimePurchase(userInfo: { usertoken?: string; usergroup?: 
         const currentIdx = groups.indexOf(current);
         const targetIdx = groups.indexOf(target);
 
-        if (current === target && currentTerm === LIFETIME_TERM_DATE) {
+        if (current === target && isLifetimeTerm(currentTerm)) {
             return '您已购买此终身会员，感谢您的支持。';
         }
-        if (currentIdx > targetIdx && currentTerm === LIFETIME_TERM_DATE) {
+        if (currentIdx > targetIdx && isLifetimeTerm(currentTerm)) {
             return '您已购买更高等级终身会员，感谢您的支持。';
         }
         if (userInfo?.usergroup === '封禁') {
@@ -125,7 +126,7 @@ export function useLifetimePurchase(userInfo: { usertoken?: string; usergroup?: 
         const groups = ['免费用户', '普通会员', '高级会员', '超级会员', '封禁', '管理员', '定制会员'];
         const currentIdx = groups.indexOf(current);
         const targetIdx = groups.indexOf(target);
-        return !(currentTerm === LIFETIME_TERM_DATE && currentIdx >= targetIdx);
+        return !(isLifetimeTerm(currentTerm) && currentIdx >= targetIdx);
     };
 
     const openUpgradeModal = (group: MembershipType) => {

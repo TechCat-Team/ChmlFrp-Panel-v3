@@ -151,6 +151,17 @@ const routes: Array<RouteRecordRaw> = [
                     requiresAuth: true,
                 },
             },
+            {
+                path: '/shop/integral-log',
+                name: '积分明细',
+                component: () => import('@/pages/Shop/IntegralLog/index.vue'),
+                meta: {
+                    title: '积分明细 - ChmlFrp',
+                    keywords: 'ChmlFrp, 积分明细, 积分流水, 积分记录, 消费记录, 充值记录',
+                    description: '查看您的积分收入与支出记录，包括充值、签到、礼品卡、套餐购买等明细。',
+                    requiresAuth: true,
+                },
+            },
         ],
     },
     {
@@ -200,16 +211,6 @@ const routes: Array<RouteRecordRaw> = [
             keywords: 'ChmlFrp, 隧道详情, 内网穿透, 端口映射, frp, 免费frp, 映射',
             description:
                 'ChmlFrp用户隧道详情，这里会展示隧道连接数，今日流量，节点负载信息，隧道基础信息及关联程序等。',
-        },
-    },
-    {
-        path: '/node/info',
-        name: '节点详情',
-        component: () => import('@/views/NodeInfo/index.vue'),
-        meta: {
-            title: '节点详情 - ChmlFrp',
-            keywords: 'ChmlFrp, 节点详情, 内网穿透, 端口映射, frp, 免费frp, 映射',
-            description: 'ChmlFrp单个节点详情，这里会展示映射节点关联数据。',
         },
     },
     {
@@ -277,6 +278,15 @@ const routes: Array<RouteRecordRaw> = [
                 component: () => import('@/pages/Admin/DomainNameManagement/index.vue'),
                 meta: {
                     title: '免费域名管理 - 管理员控制台 - ChmlFrp',
+                    requiresAuth: true,
+                },
+            },
+            {
+                path: '/admin/violation-review',
+                name: '违规审查',
+                component: () => import('@/pages/Admin/ViolationReview/index.vue'),
+                meta: {
+                    title: '违规审查 - 管理员控制台 - ChmlFrp',
                     requiresAuth: true,
                 },
             },

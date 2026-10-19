@@ -45,8 +45,6 @@
         <n-image :src="wxImage" />
     </n-modal>
 
-    <!-- 模糊遮罩 -->
-    <div v-show="showBlurOverlay" :style="blurOverlayStyle"></div>
 </template>
 
 <script lang="ts" setup>
@@ -72,6 +70,7 @@ import { useSignIn } from './composables/useSignIn';
 import { usePanelInfo } from './composables/usePanelInfo';
 
 // Utils & Constants
+import { isTodayOrYesterdayLocal } from '@/utils/formatApiDateTime';
 import { formatBytes } from '@/utils/formatBytes';
 import { COUNTDOWN_DURATION, TIME_UPDATE_INTERVAL, TUTORIAL_URL } from './constants';
 
@@ -93,7 +92,6 @@ const {
     loadingButton: signInLoadingButton,
     qianDaoText,
     signedInSuccess,
-    showBlurOverlay,
     signInInfo,
     fetchSignInInfo,
     onSignButtonClick,
@@ -121,21 +119,9 @@ const cards = computed(() => {
             precision: 2,
             suffix: downloadFormatted.suffix,
         },
-        { title: '积分数', value: userInfo?.integral || 0, icon: markRaw(ServerOutline), precision: 0 },
+        { title: '积分数', value: userInfo?.integral || 0, icon: markRaw(ServerOutline), precision: 0, to: '/shop/integral-log' },
     ];
 });
-
-// 模糊遮罩样式
-const blurOverlayStyle = computed(() => ({
-    position: 'fixed' as const,
-    top: '0',
-    left: '0',
-    width: '100%',
-    height: '100%',
-    backdropFilter: 'blur(var(--modal-filter))',
-    zIndex: 9998,
-    pointerEvents: 'all' as const,
-}));
 
 // 对话框和倒计时
 const showDialog = ref(false);
@@ -147,19 +133,8 @@ const userAlertsCardRef = ref<InstanceType<typeof UserAlertsCard>>();
 // 检查是否第一次访问
 const checkFirstVisit = () => {
     const hasVisited = localStorage.getItem('hasVisitedPage');
-    const isRecentRegistration = () => {
-        if (!userInfo?.regtime) return false;
-        const today = new Date();
-        const todayStr = today.toISOString().split('T')[0];
 
-        const yesterday = new Date();
-        yesterday.setDate(yesterday.getDate() - 1);
-        const yesterdayStr = yesterday.toISOString().split('T')[0];
-
-        return userInfo.regtime === todayStr || userInfo.regtime === yesterdayStr;
-    };
-
-    if (!hasVisited && userInfo?.regtime && isRecentRegistration()) {
+    if (!hasVisited && userInfo?.regtime && isTodayOrYesterdayLocal(userInfo.regtime)) {
         showDialog.value = true;
         localStorage.setItem('hasVisitedPage', 'true');
     }

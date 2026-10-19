@@ -537,3 +537,73 @@ export const getSystemMessagesList = async (
 export const getSystemMessageDetail = async (id: number): Promise<SystemMessageDetailResponse> => {
     return axiosInstance.get(`/admin/message/detail/${id}`);
 };
+
+// ---------------- Available Domains (Admin) ----------------
+
+/**
+ * 可用主域名信息接口
+ */
+export interface AvailableDomain {
+    id: number;
+    domain: string;
+    cloudflare_zone_id: string;
+    cloudflare_api_key: string;
+    supplier: string | null;
+    icp_filing: boolean;
+    remarks: string | null;
+}
+
+/**
+ * 可用主域名列表数据
+ */
+interface AvailableDomainsListData {
+    domains: AvailableDomain[];
+    total: number;
+}
+
+/**
+ * 可用主域名列表响应
+ */
+export interface AvailableDomainsListResponse extends BaseResponse {
+    data: AvailableDomainsListData;
+}
+
+/**
+ * 新增/修改可用主域名请求参数
+ */
+export interface SaveAvailableDomainRequest {
+    domain: string;
+    cloudflare_zone_id: string;
+    cloudflare_api_key: string;
+    supplier?: string;
+    icp_filing?: boolean;
+    remarks?: string;
+}
+
+/**
+ * 获取可用主域名列表（管理员）
+ */
+export const getAvailableDomains = async (): Promise<AvailableDomainsListResponse> => {
+    return axiosInstance.get('/admin/domains');
+};
+
+/**
+ * 新增可用主域名（管理员）
+ */
+export const createAvailableDomain = async (payload: SaveAvailableDomainRequest): Promise<BaseResponse> => {
+    return axiosInstance.post('/admin/domains', payload);
+};
+
+/**
+ * 修改可用主域名（管理员）
+ */
+export const updateAvailableDomain = async (id: number, payload: SaveAvailableDomainRequest): Promise<BaseResponse> => {
+    return axiosInstance.put(`/admin/domains/${id}`, payload);
+};
+
+/**
+ * 删除可用主域名（管理员）
+ */
+export const deleteAvailableDomain = async (id: number): Promise<BaseResponse> => {
+    return axiosInstance.delete(`/admin/domains/${id}`);
+};

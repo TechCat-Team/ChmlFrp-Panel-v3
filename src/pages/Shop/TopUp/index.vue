@@ -2,7 +2,7 @@
     <n-back-top :right="100" />
     <n-card size="small">
         <n-alert title="提示" type="warning">
-            充值后不支持退款，如果无法支付或支付后未到账，请联系客服QQ：242247494开通临时支付渠道或进行补发。
+            充值后不支持退款，如果遇到问题，请前往主页加入任意交流群或发送问题邮件至support@chcat.cn
         </n-alert>
     </n-card>
     <n-card style="margin-top: 16px">

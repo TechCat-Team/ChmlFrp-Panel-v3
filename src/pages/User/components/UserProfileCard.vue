@@ -20,7 +20,7 @@
                 size="large"
             >
                 <n-descriptions-item label="注册时间">
-                    {{ userInfo?.regtime }}
+                    {{ formattedRegtime }}
                 </n-descriptions-item>
                 <n-descriptions-item label="QQ">
                     {{ userInfo?.qq }}
@@ -28,14 +28,19 @@
                 <n-descriptions-item label="权限组">
                     {{ userInfo?.usergroup }}
                 </n-descriptions-item>
-                <n-descriptions-item label="到期时间">
-                    {{ userInfo?.term }}
+                <n-descriptions-item label="会员到期时间">
+                    {{ formattedTerm }}
+                </n-descriptions-item>
+                <n-descriptions-item v-if="showAccountBan" label="账户封禁期限">
+                    {{ formattedAccountBanTerm }}
                 </n-descriptions-item>
                 <n-descriptions-item label="实名状态">
                     {{ userInfo?.realname }}
                 </n-descriptions-item>
                 <n-descriptions-item label="剩余积分">
-                    {{ userInfo?.integral }}
+                    <RouterLink :to="{ name: '积分明细' }" class="integral-link">
+                        {{ userInfo?.integral }}
+                    </RouterLink>
                 </n-descriptions-item>
                 <n-descriptions-item label="隧道限制">
                     {{ userInfo?.tunnelCount }} / {{ userInfo?.tunnel }}
@@ -44,6 +49,9 @@
                     国内{{ userInfo?.bandwidth }}m | 国外{{ userInfo?.bandwidth ? userInfo.bandwidth * 4 : 0 }}m
                 </n-descriptions-item>
             </n-descriptions>
+            <n-text v-if="showAccountBan" depth="3" style="display: block; margin-top: 12px">
+                会员到期不会自动解除封禁，解封后按实际会员有效期恢复权益。
+            </n-text>
         </n-card>
         <div style="display: flex; justify-content: center">
             <n-tag
@@ -68,13 +76,19 @@
 
 <script lang="ts" setup>
 import { ref, computed } from 'vue';
+import { RouterLink } from 'vue-router';
 import { useMessage } from 'naive-ui';
 import { useScreenStore } from '@/stores/useScreen';
 import { useStyleStore } from '@/stores/style';
 import { storeToRefs } from 'pinia';
 import { KeyOutline } from '@vicons/ionicons5';
+import { formatApiDateTime, isLifetimeTerm } from '@/utils/formatApiDateTime';
+import { summarizeAccountBan } from '@/utils/accountBan';
+import type { MyBanRecord } from '@/api/v2/user/violation';
 
 interface Props {
+    banRecords?: MyBanRecord[] | null;
+    banRecordsLoading?: boolean;
     userInfo?: {
         userimg?: string;
         username?: string;
@@ -100,6 +114,23 @@ const screenStore = useScreenStore();
 const { screenWidth } = storeToRefs(screenStore);
 const styleStore = useStyleStore();
 const cardStyle = computed(() => styleStore.getCardStyle());
+const formattedRegtime = computed(() => formatApiDateTime(props.userInfo?.regtime, { omitMidnight: true }));
+const formattedTerm = computed(() =>
+    isLifetimeTerm(props.userInfo?.term)
+        ? '永久'
+        : formatApiDateTime(props.userInfo?.term, { omitMidnight: true, fallback: '—' })
+);
+const accountBan = computed(() => summarizeAccountBan(props.banRecords ?? []));
+const showAccountBan = computed(() => props.userInfo?.usergroup === '封禁' || accountBan.value.status !== 'none');
+const formattedAccountBanTerm = computed(() => {
+    if (props.banRecordsLoading) return '加载中';
+    if (props.banRecords == null) return '获取失败，请刷新封禁记录';
+    if (accountBan.value.status === 'permanent') return '永久（需审核解封）';
+    if (accountBan.value.status === 'temporary') {
+        return formatApiDateTime(new Date(accountBan.value.expiresAt).toISOString());
+    }
+    return '请查看封禁记录或联系管理员';
+});
 
 const showToken = ref(false);
 
@@ -120,3 +151,10 @@ const copyToken = () => {
     toggleToken();
 };
 </script>
+
+<style scoped>
+.integral-link {
+    color: inherit;
+    text-decoration: none;
+}
+</style>

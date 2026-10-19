@@ -162,24 +162,11 @@ export const resetToken = async (): Promise<BaseResponse> => {
 
 /**
  * 用户签到
- * @param {string} lot_number - 验证码批次号
- * @param {string} captcha_output - 验证码输出
- * @param {string} pass_token - 验证通过的令牌
- * @param {string} gen_time - 验证码生成时间
+ * @param {string} token - 验证码验证令牌
  * @returns {Promise<BaseResponse>} 签到响应
  */
-export const signIn = async (
-    lot_number: string,
-    captcha_output: string,
-    pass_token: string,
-    gen_time: string
-): Promise<BaseResponse> => {
-    return axiosInstance.post('/qiandao', {
-        lot_number,
-        captcha_output,
-        pass_token,
-        gen_time,
-    });
+export const signIn = async (token: string): Promise<BaseResponse> => {
+    return axiosInstance.post('/qiandao', { token });
 };
 
 // 会员升级响应数据

@@ -73,26 +73,41 @@
     <TunnelListHeader
         :loading="loadingTunnel"
         :adding="addTheTunnelButtonShow"
+        :selection-mode="selectionMode"
+        :selected-count="selectedIds.length"
+        :batch-deleting="loadingBatchDelete"
         @refresh="fetchTunnelCards"
         @add="createNodes"
+        @toggle-selection="toggleSelectionMode"
+        @batch-delete="handleBatchDelete"
     />
-    <n-grid v-if="!loadingTunnel" cols="1 m:2 l:3 xl:4 2xl:5" :x-gap="12" :y-gap="12" responsive="screen">
-        <n-grid-item v-for="(card, index) in tunnelCards" :key="index">
-            <TunnelCardComponent
-                :card="card"
-                :deletet-tunnel-success="deletetTunnelSuccess"
-                :is-mobile="isHidden"
-                :on-edit="editTunnel"
-                :on-get-config="getConfigCode"
-                :on-refresh="handleRefreshTunnel"
-                :on-get-stats="handleGetStats"
-                :on-offline="handleOfflineTunnel"
-                :on-delete="handleConfirmDelete"
-                :on-copy-address="handleCopyAddress"
-                :on-start="handleStartTunnel"
-            />
-        </n-grid-item>
-    </n-grid>
+    <div
+        v-if="!loadingTunnel"
+        class="tunnel-grid-wrapper"
+        :class="{ 'tunnel-grid-wrapper--selecting': selectionMode }"
+        @mousedown="startDragSelect"
+    >
+        <n-grid cols="1 m:2 l:3 xl:4 2xl:5" :x-gap="12" :y-gap="12" responsive="screen">
+            <n-grid-item v-for="(card, index) in tunnelCards" :key="index" :data-tunnel-id="card.id">
+                <TunnelCardComponent
+                    :card="card"
+                    :deletet-tunnel-success="deletetTunnelSuccess"
+                    :is-mobile="isHidden"
+                    :selection-mode="selectionMode"
+                    :selected="selectedIds.includes(card.id)"
+                    :on-edit="editTunnel"
+                    :on-get-config="getConfigCode"
+                    :on-refresh="handleRefreshTunnel"
+                    :on-get-stats="handleGetStats"
+                    :on-offline="handleOfflineTunnel"
+                    :on-delete="handleConfirmDelete"
+                    :on-copy-address="handleCopyAddress"
+                    :on-start="handleStartTunnel"
+                    :on-toggle-select="handleCardSelect"
+                />
+            </n-grid-item>
+        </n-grid>
+    </div>
     <n-grid v-else cols="1 m:2 l:3 xl:4 2xl:5" :x-gap="12" :y-gap="12" responsive="screen">
         <n-grid-item v-for="i in count" :key="i">
             <n-infinite-scroll :distance="1" @load="handleLoad">
@@ -100,9 +115,14 @@
             </n-infinite-scroll>
         </n-grid-item>
     </n-grid>
+    <div v-if="marqueeVisible" class="drag-marquee" :style="marqueeStyle"></div>
     <TunnelListEmpty v-if="tunnelCards === null" :loading="addTheTunnelButtonShow" @create="createNodes" />
     <ConfigModal
         v-model:show="configModalShow"
+        :protocol="configProtocol"
+        :protocol-options="configProtocolOptions"
+        :loading="configLoading"
+        @update:protocol="changeConfigProtocol"
         :frpc-ini-config="frpcIniConfig"
         :windowsdaima="windowsdaima"
         :linuxdaima="linuxdaima"
@@ -183,10 +203,23 @@ const {
     refreshTunnelData,
     handleOfflineTunnel: handleOfflineTunnelOp,
     handleConfirmDelete,
+    selectionMode,
+    selectedIds,
+    loadingBatchDelete,
+    toggleSelectionMode,
+    handleCardSelect,
+    marqueeStyle,
+    marqueeVisible,
+    startDragSelect,
+    handleBatchDelete,
 } = useTunnelOperations(fetchTunnelCards);
 
 const {
     showModal: configModalShow,
+    protocol: configProtocol,
+    protocolOptions: configProtocolOptions,
+    loading: configLoading,
+    changeProtocol: changeConfigProtocol,
     frpcIniConfig,
     windowsdaima,
     linuxdaima,
@@ -395,6 +428,10 @@ const editTunnel = async (card: TunnelCard) => {
     formData.nport = String(card.nport);
     formData.type = card.type.toUpperCase(); // 转换为大写
     formData.tunnelid = card.id;
+    formData.ipRuleMode = card.ipRuleMode;
+    formData.ipRules = card.ipRules;
+    formData.regionRuleMode = card.regionRuleMode;
+    formData.regionRules = card.regionRules;
 
     // 判断 card.dorp 是否为数字类型的字符串
     if (!isNaN(Number(card.dorp))) {
@@ -406,6 +443,7 @@ const editTunnel = async (card: TunnelCard) => {
     // 强行转换 card.encryption 和 card.compression
     formData.encryption = card.encryption === 'true';
     formData.compression = card.compression === 'true';
+    formData.forceHttps = card.forceHttps === 'true';
 
     if (card.type === 'http' || card.type === 'https') {
         // 调用API获取用户的免费二级域名
@@ -623,3 +661,19 @@ onMounted(() => {
     initExpandedPanels();
 });
 </script>
+
+<style scoped>
+.tunnel-grid-wrapper--selecting {
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.drag-marquee {
+    position: fixed;
+    z-index: 1000;
+    pointer-events: none;
+    border: 1px solid #2080f0;
+    background-color: rgba(32, 128, 240, 0.15);
+    border-radius: 2px;
+}
+</style>

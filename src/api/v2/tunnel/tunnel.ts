@@ -1,5 +1,6 @@
 import axiosInstance from '../axios/axiosInstance';
 import { BaseResponse } from '../axios/axiosInstance';
+import type { ConfigFormat, ConnectionProtocol } from '@/utils/frpcTransport';
 
 interface TunnelListResponse extends BaseResponse {
     data: Array<{
@@ -22,6 +23,11 @@ interface TunnelListResponse extends BaseResponse {
         cur_conns: number;
         nodestate: string;
         ip: string | null;
+        ipRuleMode?: 'none' | 'whitelist' | 'blacklist';
+        ipRules?: string[];
+        regionRuleMode?: 'none' | 'whitelist' | 'blacklist';
+        regionRules?: string[];
+        forceHttps?: string;
     }> | null;
 }
 
@@ -70,9 +76,11 @@ interface CreateTunnelResponse extends BaseResponse {
  * @param {number} [params.remoteport] 远程端口号（可选）
  * @param {string} [params.banddomain] 绑定的域名（可选）
  * @param {string} [params.extraparams] 额外参数（可选）
+ * @param {boolean} [params.forceHttps] 是否强制HTTPS（仅 https 类型有效，可选）
  * @returns {Promise<CreateTunnelResponse>} 返回创建隧道的响应数据
  */
 export const createTunnel = (params: {
+    token?: string;
     tunnelname: string;
     node: string;
     porttype: string;
@@ -83,6 +91,11 @@ export const createTunnel = (params: {
     remoteport?: number;
     banddomain?: string;
     extraparams?: string;
+    forceHttps?: boolean;
+    ipRuleMode?: 'none' | 'whitelist' | 'blacklist';
+    ipRules?: string[];
+    regionRuleMode?: 'none' | 'whitelist' | 'blacklist';
+    regionRules?: string[];
 }): Promise<CreateTunnelResponse> => {
     return axiosInstance.post('/create_tunnel', params);
 };
@@ -99,6 +112,15 @@ export const deleteTunnel = (tunnelid: number): Promise<BaseResponse> => {
 };
 
 /**
+ * 批量删除隧道
+ * @param {number[]} tunnelids 要删除的隧道 ID 列表
+ * @returns {Promise<BaseResponse>} 返回批量删除隧道的响应数据
+ */
+export const batchDeleteTunnels = (tunnelids: number[]): Promise<BaseResponse> => {
+    return axiosInstance.post('/batch_delete_tunnel', { tunnelids });
+};
+
+/**
  * 修改隧道
  * @param {Object} params 包含隧道修改所需的数据
  * @param {number} params.tunnelid 隧道 ID
@@ -112,6 +134,7 @@ export const deleteTunnel = (tunnelid: number): Promise<BaseResponse> => {
  * @param {boolean} [params.encryption] 是否启用数据加密（可选）
  * @param {boolean} [params.compression] 是否启用数据压缩（可选）
  * @param {string} [params.extraparams] 额外参数（可选）
+ * @param {boolean} [params.forceHttps] 是否强制HTTPS（仅 https 类型有效，可选）
  * @returns {Promise<BaseResponse>} 返回修改隧道的响应数据
  */
 export const updateTunnel = (params: {
@@ -126,6 +149,11 @@ export const updateTunnel = (params: {
     encryption?: boolean | string;
     compression?: boolean | string;
     extraparams?: string;
+    forceHttps?: boolean;
+    ipRuleMode?: 'none' | 'whitelist' | 'blacklist';
+    ipRules?: string[];
+    regionRuleMode?: 'none' | 'whitelist' | 'blacklist';
+    regionRules?: string[];
 }): Promise<BaseResponse> => {
     return axiosInstance.post('/update_tunnel', params);
 };
@@ -138,11 +166,18 @@ interface GetTunnelConfigResponse extends BaseResponse {
  * 获取隧道配置文件
  * @param {string} node 节点名称
  * @param {string} [tunnel_names] 隧道名称，多个名称用逗号分隔（可选）
+ * @param {ConnectionProtocol} [protocol] 与节点的通信协议
+ * @param {ConfigFormat} [format] 配置文件格式，默认 toml
  * @returns {Promise<GetTunnelConfigResponse>} 返回隧道配置文件的响应数据
  */
-export const getTunnelConfig = (node: string, tunnel_names?: string): Promise<GetTunnelConfigResponse> => {
+export const getTunnelConfig = (
+    node: string,
+    tunnel_names?: string,
+    protocol: ConnectionProtocol = 'tcp',
+    format: ConfigFormat = 'toml'
+): Promise<GetTunnelConfigResponse> => {
     return axiosInstance.get('/tunnel_config', {
-        params: { node, tunnel_names },
+        params: { node, tunnel_names, protocol, format },
     });
 };
 

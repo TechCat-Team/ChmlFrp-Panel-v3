@@ -1,0 +1,5 @@
+allowBuilds:
+  '@parcel/watcher': true
+  core-js: true
+minimumReleaseAgeExclude:
+  - highlight.js@11.11.2

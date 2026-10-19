@@ -267,7 +267,43 @@ const columns: DataTableColumns<LogItem> = [
         key: 'resource_name',
         width: 200,
         render(row) {
-            return row.resource_name || '-';
+            const resourceName = row.resource_name || '-';
+            return h(
+                NTooltip,
+                {
+                    trigger: 'hover',
+                },
+                {
+                    trigger: () =>
+                        h(
+                            'span',
+                            {
+                                style: {
+                                    display: 'inline-block',
+                                    maxWidth: '100%',
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis',
+                                    whiteSpace: 'nowrap',
+                                    verticalAlign: 'bottom',
+                                    cursor: 'default',
+                                },
+                            },
+                            resourceName
+                        ),
+                    default: () =>
+                        h(
+                            'div',
+                            {
+                                style: {
+                                    maxWidth: '420px',
+                                    whiteSpace: 'pre-line',
+                                    wordBreak: 'break-all',
+                                },
+                            },
+                            resourceName
+                        ),
+                }
+            );
         },
     },
     {

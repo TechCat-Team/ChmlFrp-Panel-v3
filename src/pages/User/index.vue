@@ -1,6 +1,7 @@
 <template>
     <n-back-top :right="100" />
     <n-flex vertical>
+        <BanRecordsCard @state="updateBanRecordState" />
         <n-grid cols="1 s:5" responsive="screen" :x-gap="15" :y-gap="20">
             <n-gi :span="3">
                 <n-card style="margin-bottom: 15px">
@@ -70,6 +71,8 @@
                     :on-view-history="loadHistory"
                 />
                 <UserProfileCard
+                    :ban-records="banRecords"
+                    :ban-records-loading="banRecordsLoading"
                     :user-info="
                         userInfo
                             ? {
@@ -94,24 +97,11 @@
             </n-gi>
         </n-grid>
     </n-flex>
-    <!-- 模糊遮罩 -->
-    <div
-        v-show="showBlurOverlay"
-        style="
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            backdrop-filter: blur(var(--modal-filter));
-            z-index: 9998;
-            pointer-events: all;
-        "
-    ></div>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted } from 'vue';
+import { computed, onMounted, ref } from 'vue';
+import type { MyBanRecord } from '@/api/v2/user/violation';
 import { useUserStore } from '@/stores/user';
 import { useLoadUserInfo } from '@/components/useLoadUser';
 
@@ -126,9 +116,16 @@ import SystemMessagesCard from './components/SystemMessagesCard.vue';
 import UserSettingsCard from './components/UserSettingsCard.vue';
 import UserProfileCard from './components/UserProfileCard.vue';
 import ExchangeCodeForm from './components/ExchangeCodeForm.vue';
+import BanRecordsCard from './components/BanRecordsCard.vue';
 
 const userStore = useUserStore();
 const userInfo = userStore.userInfo;
+const banRecords = ref<MyBanRecord[] | null>(null);
+const banRecordsLoading = ref(true);
+const updateBanRecordState = (records: MyBanRecord[] | null, loading: boolean) => {
+    banRecords.value = records;
+    banRecordsLoading.value = loading;
+};
 
 // Composables
 const {
@@ -136,7 +133,6 @@ const {
     loadingButton: loadingQianDaoButton,
     qianDaoText: QianDaoTest,
     signedInSuccess,
-    showBlurOverlay,
     signInInfo,
     fetchSignInInfo,
     onSignButtonClick,

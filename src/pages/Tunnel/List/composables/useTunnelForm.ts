@@ -9,7 +9,7 @@ import {
     DEFAULT_DORP,
     DEFAULT_TUNNEL_NAME_LENGTH,
     RANDOM_PORT_CHARS,
-    CHINA_SPECIAL_REGIONS,
+    CHINA_SPECIAL_REGIONS
 } from '../constants';
 
 /**
@@ -41,6 +41,11 @@ export function useTunnelForm(
         recordValueOld: '',
         nodeOld: '',
         nameOld: '',
+        ipRuleMode: 'none',
+        ipRules: [],
+        regionRuleMode: 'none',
+        regionRules: [],
+        forceHttps: false,
     });
 
     const domainNameOptions = ref<{ label: string; value: string }[]>([]);
