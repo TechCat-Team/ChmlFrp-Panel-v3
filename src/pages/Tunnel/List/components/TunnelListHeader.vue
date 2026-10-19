@@ -7,12 +7,6 @@
                 </template>
                 刷新
             </n-button>
-            <n-button @click="$emit('add')" :loading="adding" type="primary" round quaternary :disabled="adding">
-                <template #icon>
-                    <n-icon v-if="!adding" :component="AddOutline" />
-                </template>
-                添加隧道
-            </n-button>
             <n-button
                 round
                 quaternary
@@ -30,6 +24,12 @@
                 @click="$emit('batch-delete')"
             >
                 删除选中({{ selectedCount }})
+            </n-button>
+            <n-button @click="$emit('add')" :loading="adding" type="primary" round quaternary :disabled="adding">
+                <template #icon>
+                    <n-icon v-if="!adding" :component="AddOutline" />
+                </template>
+                添加隧道
             </n-button>
         </template>
     </n-card>
