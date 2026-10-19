@@ -1,5 +1,12 @@
 export type ConnectionProtocol = 'tcp' | 'quic';
 
+export type ConfigFormat = 'ini' | 'toml';
+
+export const configFormatOptions = [
+    { label: 'TOML（默认）', value: 'toml' },
+    { label: 'INI', value: 'ini' },
+];
+
 export function connectionProtocolOptions(quicAvailable: boolean) {
     return [
         { label: 'TCP（默认）', value: 'tcp' },

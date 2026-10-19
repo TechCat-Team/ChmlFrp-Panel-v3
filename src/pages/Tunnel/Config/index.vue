@@ -5,7 +5,7 @@
             <n-grid-item span="1 m:2">
                 <n-select v-model:value="nodeValue" :options="nodeOptions" placeholder="请选择节点" />
             </n-grid-item>
-            <n-grid-item span="1 m:5">
+            <n-grid-item span="1 m:4">
                 <n-select
                     placeholder="请选择隧道，不选则该节点全部隧道"
                     v-model:value="multipleSelectValue"
@@ -16,9 +16,23 @@
                 />
             </n-grid-item>
             <n-grid-item span="1 m:2">
-                <n-select v-model:value="connectionProtocol" :options="protocolOptions" aria-label="连接协议" />
+                <n-tooltip trigger="hover" style="width: 100%">
+                    <template #trigger>
+                        <n-select
+                            v-model:value="connectionProtocol"
+                            :options="protocolOptions"
+                            :disabled="configFormat === 'ini'"
+                            aria-label="连接协议"
+                            style="width: 100%"
+                        />
+                    </template>
+                    与节点的通信协议，部分情况QUIC可能会优化连接；INI 格式固定使用 TCP
+                </n-tooltip>
             </n-grid-item>
-            <n-grid-item span="1 m:3">
+            <n-grid-item span="1 m:2">
+                <n-select v-model:value="configFormat" :options="configFormatOptions" aria-label="配置文件格式" />
+            </n-grid-item>
+            <n-grid-item span="1 m:2">
                 <n-flex justify="end">
                     <n-button
                         type="primary"
@@ -27,18 +41,13 @@
                         :loading="loadingGenerate"
                         >生成</n-button
                     >
-                    <n-button type="primary" @click="copyToClipboard" :disabled="tunnelConfig === ''">复制</n-button>
-                    <n-button type="primary" @click="downloadConfig" :disabled="tunnelConfig === ''">下载</n-button>
                 </n-flex>
             </n-grid-item>
         </n-grid>
-        <n-text depth="3" style="display: block; margin-top: 8px">
-            连接协议用于客户端与节点之间的通信，不会改变隧道类型。
-        </n-text>
         <template #footer>
             <n-grid cols="1 m:3" item-responsive responsive="screen" :x-gap="12" :y-gap="12">
                 <n-grid-item span="1 m:2">
-                    <n-card title="Frpc.toml">
+                    <n-card :title="configFileName">
                         <template #header-extra>
                             <n-space>
                                 <n-button text @click="handleCopy('tunnelConfig')">
@@ -49,7 +58,7 @@
                                 </n-button>
                             </n-space>
                         </template>
-                        <n-code :code="tunnelConfig" language="toml" word-wrap v-if="tunnelConfig !== ''" />
+                        <n-code :code="tunnelConfig" :language="configFormat" word-wrap v-if="tunnelConfig !== ''" />
                         <div v-else-if="loadingGenerate">
                             <n-skeleton text width="68.93px" />
                             <br />
@@ -163,7 +172,13 @@
 
 <script lang="ts" setup>
 import { computed, ref } from 'vue';
-import { connectionProtocolOptions, frpcStartCommand, type ConnectionProtocol } from '@/utils/frpcTransport';
+import {
+    configFormatOptions,
+    connectionProtocolOptions,
+    frpcStartCommand,
+    type ConfigFormat,
+    type ConnectionProtocol,
+} from '@/utils/frpcTransport';
 import { CopyOutline, DownloadOutline } from '@vicons/ionicons5';
 // 获取登录信息
 import { useUserStore } from '@/stores/user';
@@ -182,18 +197,6 @@ onMounted(() => {
     }).catch(() => { /* TCP remains available if node capability lookup fails. */ });
 });
 
-const copyToClipboard = () => {
-    navigator.clipboard
-        .writeText(tunnelConfig.value)
-        .then(() => {
-            message.success('配置文件复制成功');
-        })
-        .catch((err) => {
-            console.error('复制配置文件失败:', err);
-            message.error('配置文件复制失败');
-        });
-};
-
 // 下载配置文件
 const downloadConfig = () => {
     if (!tunnelConfig.value) {
@@ -209,7 +212,7 @@ const downloadConfig = () => {
         const url = window.URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
-        link.download = 'frpc.toml';
+        link.download = configFileName.value;
 
         // 触发下载
         document.body.appendChild(link);
@@ -243,6 +246,8 @@ const LinuxScript = ref<string>('');
 const startupCode = ref<string>('');
 const loadingGenerate = ref(false);
 const connectionProtocol = ref<ConnectionProtocol>('tcp');
+const configFormat = ref<ConfigFormat>('toml');
+const configFileName = computed(() => (configFormat.value === 'ini' ? 'Frpc.ini' : 'Frpc.toml'));
 const quicNodes = ref(new Set<string>());
 const quicAvailable = computed(() => nodeValue.value !== null && quicNodes.value.has(nodeValue.value));
 const protocolOptions = computed(() => connectionProtocolOptions(quicAvailable.value));
@@ -254,7 +259,8 @@ const clearGeneratedConfig = () => {
     startupCode.value = '';
 };
 watch(quicAvailable, (available) => { if (!available) connectionProtocol.value = 'tcp'; });
-watch([nodeValue, multipleSelectValue, connectionProtocol], () => {
+watch(configFormat, (format) => { if (format === 'ini') connectionProtocol.value = 'tcp'; });
+watch([nodeValue, multipleSelectValue, connectionProtocol, configFormat], () => {
     ++configVersion;
     clearGeneratedConfig();
     loadingGenerate.value = false;
@@ -307,7 +313,7 @@ watch(nodeValue, (newNode: string | null) => {
 const getConfigFile = async () => {
     const node = nodeValue.value;
     if (!node) return;
-    const protocol = connectionProtocol.value;
+    const protocol = configFormat.value === 'ini' ? 'tcp' : connectionProtocol.value;
     const selectedIds = [...multipleSelectValue.value];
     const tunnels = allTunnels.value.filter((tunnel) => tunnel.node === node &&
         (selectedIds.length === 0 || selectedIds.includes(tunnel.id.toString())));
@@ -316,7 +322,7 @@ const getConfigFile = async () => {
     loadingGenerate.value = true;
     try {
         const names = selectedIds.length ? tunnels.map((tunnel) => tunnel.name).join(',') : undefined;
-        const response = await api.v2.tunnel.getTunnelConfig(node, names, protocol);
+        const response = await api.v2.tunnel.getTunnelConfig(node, names, protocol, configFormat.value);
         if (version !== configVersion) return;
         tunnelConfig.value = response.data || '';
         startupCode.value = frpcStartCommand(userInfo?.usertoken, tunnels.map((tunnel) => tunnel.id), protocol);
