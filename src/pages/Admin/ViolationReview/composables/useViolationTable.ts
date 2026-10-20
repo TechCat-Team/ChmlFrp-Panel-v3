@@ -18,13 +18,14 @@ export function useViolationTable({ onView, onReview }: TableHandlers): DataTabl
             title: 'ID',
             key: 'id',
             width: 70,
-            sorter: 'default',
+            sorter: true,
         },
         {
             title: '违规类型',
             key: 'type',
             width: 110,
             align: 'center',
+            sorter: true,
             render(row) {
                 return h(
                     NTag,
@@ -37,7 +38,7 @@ export function useViolationTable({ onView, onReview }: TableHandlers): DataTabl
             title: '违规内容',
             key: 'title',
             width: 200,
-            sorter: 'default',
+            sorter: true,
             ellipsis: { tooltip: true },
         },
         {
@@ -52,6 +53,7 @@ export function useViolationTable({ onView, onReview }: TableHandlers): DataTabl
             title: '关联用户',
             key: 'username',
             width: 130,
+            sorter: true,
             render(row) {
                 return h('span', { style: 'white-space: nowrap;' }, row.username || '-');
             },
@@ -60,6 +62,7 @@ export function useViolationTable({ onView, onReview }: TableHandlers): DataTabl
             title: '违规节点',
             key: 'node_name',
             width: 130,
+            sorter: true,
             render(row) {
                 return h('span', { class: 'violation-mono' }, row.node_name || '-');
             },
@@ -68,6 +71,7 @@ export function useViolationTable({ onView, onReview }: TableHandlers): DataTabl
             title: '发现时间',
             key: 'reported_at',
             width: 170,
+            sorter: true,
             render(row) {
                 return formatViolationTime(row.reported_at);
             },
@@ -77,6 +81,7 @@ export function useViolationTable({ onView, onReview }: TableHandlers): DataTabl
             key: 'status',
             width: 100,
             align: 'center',
+            sorter: true,
             render(row) {
                 return h(
                     NTag,

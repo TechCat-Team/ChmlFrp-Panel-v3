@@ -202,8 +202,6 @@
                     </n-form>
                     <n-space justify="end">
                         <template v-if="violation.status === 'pending'">
-                            <n-button :disabled="reviewing" @click="review('reject')">驳回上报</n-button>
-                            <n-button :disabled="reviewing" @click="review('warn')">警告</n-button>
                             <n-button type="success" :disabled="reviewing" @click="review('pass')"
                                 >误报放行并解除隔离</n-button
                             >
@@ -277,32 +275,26 @@ const emit = defineEmits<{
     refresh: [];
 }>();
 
-const scope = ref<'user' | 'tunnel'>('tunnel');
+const scope = ref<'user' | 'tunnel'>('user');
 const reason = ref('');
-const durationSeconds = ref(86400);
+const durationSeconds = ref(0);
 const scopeOptions = computed(() => [
-    { label: '仅当前隧道', value: 'tunnel', disabled: !props.violation?.workflow?.tunnel_id },
     { label: '整个账号', value: 'user' },
+    { label: '仅当前隧道', value: 'tunnel', disabled: !props.violation?.workflow?.tunnel_id },
 ]);
 const durationOptions = [
+    { label: '永久', value: 0 },
     { label: '1 小时', value: 3600 },
     { label: '24 小时', value: 86400 },
     { label: '7 天', value: 604800 },
-    { label: '永久', value: 0 },
 ];
 watch(
     () => `${props.violation?.id}:${props.violation?.status}:${props.violation?.workflow?.version}`,
     () => {
         reason.value = '';
-        durationSeconds.value = 86400;
+        durationSeconds.value = 0;
         const original = props.violation?.workflow?.restrictions?.find((item) => !item.revoked_at);
-        scope.value = original
-            ? original.tunnel_id
-                ? 'tunnel'
-                : 'user'
-            : props.violation?.workflow?.tunnel_id
-              ? 'tunnel'
-              : 'user';
+        scope.value = original ? (original.tunnel_id ? 'tunnel' : 'user') : 'user';
     }
 );
 const review = (action: ViolationReviewAction) =>

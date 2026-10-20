@@ -19,12 +19,26 @@ export interface ViolationFilters {
     timeRange: [number, number] | null;
 }
 
+/** naive-ui 远程排序事件携带的排序状态 */
+export interface TableSorter {
+    columnKey?: string | number;
+    order: 'ascend' | 'descend' | false;
+}
+export type TableSorterState = TableSorter | TableSorter[] | null;
+
+const DEFAULT_SORT_BY = 'reported_at';
+const DEFAULT_SORT_ORDER: 'asc' | 'desc' = 'desc';
+
 type ViolationSection = ReturnType<typeof createSection>;
 
 function createSection(status: ViolationStatus, filters: ViolationFilters) {
     const message = useMessage();
     const list = ref<ViolationRecord[]>([]);
     const loading = ref(false);
+    const sorter = reactive({
+        sortBy: DEFAULT_SORT_BY,
+        sortOrder: DEFAULT_SORT_ORDER as 'asc' | 'desc',
+    });
     const pagination = reactive({
         page: 1,
         pageSize: 10,
@@ -42,6 +56,8 @@ function createSection(status: ViolationStatus, filters: ViolationFilters) {
                 keyword: filters.keyword,
                 startTime: filters.timeRange?.[0] ?? null,
                 endTime: filters.timeRange?.[1] ?? null,
+                sortBy: sorter.sortBy,
+                sortOrder: sorter.sortOrder,
                 page: pagination.page,
                 size: pagination.pageSize,
             });
@@ -67,7 +83,21 @@ function createSection(status: ViolationStatus, filters: ViolationFilters) {
         void load();
     };
 
-    return { list, loading, pagination, load, changePage, changePageSize };
+    /** 表头排序：远程模式下由前端收集排序状态并回源查询 */
+    const changeSorter = (state: TableSorterState) => {
+        const current = Array.isArray(state) ? state[0] : state;
+        if (!current?.order || current.columnKey === undefined) {
+            sorter.sortBy = DEFAULT_SORT_BY;
+            sorter.sortOrder = DEFAULT_SORT_ORDER;
+        } else {
+            sorter.sortBy = String(current.columnKey);
+            sorter.sortOrder = current.order === 'ascend' ? 'asc' : 'desc';
+        }
+        pagination.page = 1;
+        void load();
+    };
+
+    return { list, loading, pagination, load, changePage, changePageSize, changeSorter };
 }
 
 export function useViolationList() {
@@ -132,6 +162,7 @@ export function useViolationList() {
         rejectedPagination: rejected.pagination,
         handleRejectedPage: rejected.changePage,
         handleRejectedPageSize: rejected.changePageSize,
+        handleRejectedSort: rejected.changeSorter,
         pendingLoading: pending.loading,
         bannedLoading: banned.loading,
         passedLoading: passed.loading,
@@ -144,6 +175,9 @@ export function useViolationList() {
         handlePendingPageSize: pending.changePageSize,
         handleBannedPageSize: banned.changePageSize,
         handlePassedPageSize: passed.changePageSize,
+        handlePendingSort: pending.changeSorter,
+        handleBannedSort: banned.changeSorter,
+        handlePassedSort: passed.changeSorter,
         handleReset,
         loadAll,
         reloadFromFirstPage,

@@ -12,6 +12,7 @@
             striped
             @update:page="emit('update:page', $event)"
             @update:page-size="emit('update:page-size', $event)"
+            @update:sorter="emit('update:sorter', $event)"
         />
     </n-card>
 </template>
@@ -19,6 +20,7 @@
 <script lang="ts" setup>
 import type { DataTableColumns, PaginationProps } from 'naive-ui';
 import type { ViolationAppealRecord } from '@/api/v2/admin/violation';
+import type { TableSorterState } from '../composables/useViolationList';
 
 defineProps<{
     title: string;
@@ -31,6 +33,7 @@ defineProps<{
 const emit = defineEmits<{
     'update:page': [page: number];
     'update:page-size': [pageSize: number];
+    'update:sorter': [sorter: TableSorterState];
 }>();
 
 const rowKey = (row: ViolationAppealRecord) => row.id;

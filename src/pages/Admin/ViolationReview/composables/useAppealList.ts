@@ -22,7 +22,7 @@ import {
     getTypeLabel,
     getTypeTagType,
 } from '../constants';
-import type { ViolationFilters } from './useViolationList';
+import type { ViolationFilters, TableSorterState } from './useViolationList';
 
 const REVIEW_ACTION_LABEL: Record<AppealReviewAction, string> = {
     approve: '通过申诉',
@@ -34,6 +34,10 @@ export function useAppealList(filters: ViolationFilters) {
 
     const list = ref<ViolationAppealRecord[]>([]);
     const loading = ref(false);
+    const sorter = reactive({
+        sortBy: 'appealed_at',
+        sortOrder: 'desc' as 'asc' | 'desc',
+    });
     const pagination = reactive({
         page: 1,
         pageSize: 10,
@@ -54,6 +58,8 @@ export function useAppealList(filters: ViolationFilters) {
                 keyword: filters.keyword,
                 startTime: filters.timeRange?.[0] ?? null,
                 endTime: filters.timeRange?.[1] ?? null,
+                sortBy: sorter.sortBy,
+                sortOrder: sorter.sortOrder,
                 page: pagination.page,
                 size: pagination.pageSize,
             });
@@ -80,6 +86,20 @@ export function useAppealList(filters: ViolationFilters) {
     };
 
     const reloadFromFirstPage = () => {
+        pagination.page = 1;
+        void load();
+    };
+
+    /** 表头排序：远程模式下由前端收集排序状态并回源查询 */
+    const changeSorter = (state: TableSorterState) => {
+        const current = Array.isArray(state) ? state[0] : state;
+        if (!current?.order || current.columnKey === undefined) {
+            sorter.sortBy = 'appealed_at';
+            sorter.sortOrder = 'desc';
+        } else {
+            sorter.sortBy = String(current.columnKey);
+            sorter.sortOrder = current.order === 'ascend' ? 'asc' : 'desc';
+        }
         pagination.page = 1;
         void load();
     };
@@ -149,12 +169,13 @@ export function useAppealList(filters: ViolationFilters) {
             title: 'ID',
             key: 'id',
             width: 70,
-            sorter: 'default',
+            sorter: true,
         },
         {
             title: '关联用户',
             key: 'username',
             width: 130,
+            sorter: true,
             ellipsis: { tooltip: true },
             render: (row) => (row.user_id ? `#${row.user_id} · ${row.username}` : '未关联'),
         },
@@ -197,6 +218,7 @@ export function useAppealList(filters: ViolationFilters) {
             title: '申诉时间',
             key: 'appealed_at',
             width: 170,
+            sorter: true,
             ellipsis: { tooltip: true },
             render: (row) => formatViolationTime(row.appealed_at),
         },
@@ -205,6 +227,7 @@ export function useAppealList(filters: ViolationFilters) {
             key: 'status',
             width: 100,
             align: 'center',
+            sorter: true,
             render: (row) =>
                 h(
                     NTag,
@@ -273,6 +296,7 @@ export function useAppealList(filters: ViolationFilters) {
         load,
         changePage,
         changePageSize,
+        changeSorter,
         handleViewDetail,
         handleReview,
     };
