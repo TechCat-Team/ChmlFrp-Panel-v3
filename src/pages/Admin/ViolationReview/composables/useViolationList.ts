@@ -131,6 +131,7 @@ export function useViolationList() {
 
     // 关键字输入做防抖，避免每敲一个字都发请求
     let keywordTimer: ReturnType<typeof setTimeout> | undefined;
+    let skipNextKeywordReload = false;
     const clearKeywordTimer = () => {
         if (keywordTimer) {
             clearTimeout(keywordTimer);
@@ -140,10 +141,26 @@ export function useViolationList() {
     watch(
         () => filters.keyword,
         () => {
+            if (skipNextKeywordReload) {
+                skipNextKeywordReload = false;
+                return;
+            }
             clearKeywordTimer();
             keywordTimer = setTimeout(reloadFromFirstPage, 400);
         }
     );
+
+    /** 点击关联用户名：清空类型与时间筛选，按用户名搜索该用户的全部违纪记录 */
+    const searchByUser = (username: string) => {
+        const keyword = username.trim();
+        if (!keyword) return;
+        clearKeywordTimer();
+        skipNextKeywordReload = filters.keyword !== keyword;
+        filters.type = null;
+        filters.timeRange = null;
+        filters.keyword = keyword;
+        reloadFromFirstPage();
+    };
 
     const handleReset = () => {
         clearKeywordTimer();
@@ -179,6 +196,7 @@ export function useViolationList() {
         handleBannedSort: banned.changeSorter,
         handlePassedSort: passed.changeSorter,
         handleReset,
+        searchByUser,
         loadAll,
         reloadFromFirstPage,
     };

@@ -18,7 +18,14 @@
                             </n-tag>
                         </n-descriptions-item>
                         <n-descriptions-item label="关联用户">
-                            <span v-if="violation.user_id">#{{ violation.user_id }} · {{ violation.username }}</span>
+                            <span
+                                v-if="violation.user_id"
+                                style="cursor: pointer; white-space: nowrap"
+                                title="点击搜索该用户的全部违纪记录"
+                                @click="emit('search-user', violation.username)"
+                            >
+                                #{{ violation.user_id }} · {{ violation.username }}
+                            </span>
                             <span v-else class="mono-text">未关联</span>
                         </n-descriptions-item>
                         <n-descriptions-item label="违规内容">
@@ -273,6 +280,7 @@ const emit = defineEmits<{
     'update:show': [value: boolean];
     review: [action: ViolationReviewAction, draft: ViolationDecisionDraft];
     refresh: [];
+    'search-user': [username: string];
 }>();
 
 const scope = ref<'user' | 'tunnel'>('user');

@@ -13,7 +13,14 @@
                 <n-card :bordered="false" embedded>
                     <n-descriptions :column="2" bordered>
                         <n-descriptions-item label="关联用户">
-                            <span v-if="appeal.user_id">#{{ appeal.user_id }} · {{ appeal.username }}</span>
+                            <span
+                                v-if="appeal.user_id"
+                                style="cursor: pointer; white-space: nowrap"
+                                title="点击搜索该用户的全部违纪记录"
+                                @click="emit('search-user', appeal.username)"
+                            >
+                                #{{ appeal.user_id }} · {{ appeal.username }}
+                            </span>
                             <span v-else class="mono-text">未关联</span>
                         </n-descriptions-item>
                         <n-descriptions-item label="违规类型">
@@ -134,12 +141,20 @@
         <n-divider />
         <div class="action-bar">
             <n-space justify="space-between" :size="16">
-                <n-button :disabled="reviewing" @click="showModel = false">
-                    <template #icon>
-                        <n-icon :component="CloseCircle" />
-                    </template>
-                    关闭
-                </n-button>
+                <n-space>
+                    <n-button :disabled="reviewing" @click="showModel = false">
+                        <template #icon>
+                            <n-icon :component="CloseCircle" />
+                        </template>
+                        关闭
+                    </n-button>
+                    <n-button :disabled="!appeal?.ban_record_id" @click="emit('view-ban-record')">
+                        <template #icon>
+                            <n-icon :component="BanOutline" />
+                        </template>
+                        转入关联封禁案件
+                    </n-button>
+                </n-space>
                 <n-space>
                     <n-tooltip :disabled="canReview" trigger="hover">
                         <template #trigger>
@@ -207,6 +222,8 @@ const props = defineProps<{
 const emit = defineEmits<{
     'update:show': [value: boolean];
     review: [action: AppealReviewAction];
+    'view-ban-record': [];
+    'search-user': [username: string];
 }>();
 
 const showModel = computed({

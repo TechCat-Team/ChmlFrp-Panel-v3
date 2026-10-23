@@ -6,7 +6,7 @@
 import { prepareIdempotentRequest, completeIdempotentRequest } from '@/utils/idempotentRequest';
 import { h, reactive, ref, watch } from 'vue';
 import { NButton, NDropdown, NIcon, NTag, useMessage, type DataTableColumns } from 'naive-ui';
-import { CheckmarkCircle, CloseCircle, EllipsisVertical, EyeOutline } from '@vicons/ionicons5';
+import { BanOutline, CheckmarkCircle, CloseCircle, EllipsisVertical, EyeOutline } from '@vicons/ionicons5';
 import {
     getViolationAppealDetail,
     getViolationAppeals,
@@ -29,7 +29,7 @@ const REVIEW_ACTION_LABEL: Record<AppealReviewAction, string> = {
     reject: '驳回申诉',
 };
 
-export function useAppealList(filters: ViolationFilters) {
+export function useAppealList(filters: ViolationFilters, onViewBanRecord?: (row: ViolationAppealRecord) => void) {
     const message = useMessage();
 
     const list = ref<ViolationAppealRecord[]>([]);
@@ -252,6 +252,17 @@ export function useAppealList(filters: ViolationFilters) {
                     {
                         type: 'divider' as const,
                         key: 'd1',
+                    },
+                    {
+                        label: '转入关联封禁案件',
+                        key: 'ban-record',
+                        icon: () => h(NIcon, { component: BanOutline, style: 'color:#d03050' }),
+                        disabled: !row.ban_record_id,
+                        props: { onClick: () => onViewBanRecord?.(row) },
+                    },
+                    {
+                        type: 'divider' as const,
+                        key: 'd2',
                     },
                     {
                         label: '通过申诉',

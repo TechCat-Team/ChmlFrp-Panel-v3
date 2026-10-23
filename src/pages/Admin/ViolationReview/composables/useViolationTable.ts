@@ -10,9 +10,14 @@ import { formatViolationTime, getStatusLabel, getStatusTagType, getTypeLabel, ge
 interface TableHandlers {
     onView: (row: ViolationRecord) => void;
     onReview: (action: ViolationReviewAction, row: ViolationRecord) => void;
+    onSearchUser?: (username: string) => void;
 }
 
-export function useViolationTable({ onView, onReview }: TableHandlers): DataTableColumns<ViolationRecord> {
+export function useViolationTable({
+    onView,
+    onReview,
+    onSearchUser,
+}: TableHandlers): DataTableColumns<ViolationRecord> {
     return [
         {
             title: 'ID',
@@ -55,7 +60,19 @@ export function useViolationTable({ onView, onReview }: TableHandlers): DataTabl
             width: 130,
             sorter: true,
             render(row) {
-                return h('span', { style: 'white-space: nowrap;' }, row.username || '-');
+                if (!row.username) {
+                    return h('span', { style: 'white-space: nowrap;' }, '-');
+                }
+                // 点击用户名按该用户搜索全部违纪记录，保持原有文字样式，仅增加可点击提示
+                return h(
+                    'span',
+                    {
+                        style: 'white-space: nowrap; cursor: pointer;',
+                        title: '点击搜索该用户的全部违纪记录',
+                        onClick: () => onSearchUser?.(row.username),
+                    },
+                    row.username
+                );
             },
         },
         {

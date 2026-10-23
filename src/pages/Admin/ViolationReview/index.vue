@@ -139,6 +139,7 @@
         @update:show="showDetailModal = $event"
         @review="handleReviewAction"
         @refresh="refreshDetail"
+        @search-user="handleSearchUserFromDetail"
     />
 
     <!-- 申诉处理详情 -->
@@ -149,6 +150,8 @@
         :reviewing="appealReviewing"
         @update:show="showAppealDetailModal = $event"
         @review="handleAppealReview"
+        @view-ban-record="handleViewAppealBanRecord()"
+        @search-user="handleSearchUserFromAppeal"
     />
 
     <!-- 证据解密私钥（仅保存在本地浏览器会话） -->
@@ -212,17 +215,25 @@ const {
     handlePassedSort,
     handleRejectedSort,
     handleReset,
+    searchByUser,
     loadAll,
 } = useViolationList();
 
 const { showDetailModal, current, detailLoading, reviewing, handleViewDetail, handleReviewAction, refreshDetail } =
     useViolationDetail(loadAll);
 
+// 详情弹窗中点击关联用户名，关闭弹窗并按该用户搜索全部违纪记录
+const handleSearchUserFromDetail = (username: string) => {
+    showDetailModal.value = false;
+    searchByUser(username);
+};
+
 const columns = useViolationTable({
     onView: handleViewDetail,
     onReview: (_action, row) => {
         void handleViewDetail(row);
     },
+    onSearchUser: searchByUser,
 });
 
 // 待审查 / 违规封禁表格额外带勾选列，用于批量封禁与批量解除封禁
@@ -272,6 +283,13 @@ watch(bannedList, (list) => {
 });
 
 // 申诉处理，与违规列表共用同一份筛选条件
+const handleViewAppealBanRecord = (row?: { ban_record_id: number } | null) => {
+    const id = row?.ban_record_id ?? currentAppeal.value?.ban_record_id;
+    if (!id) return;
+    showAppealDetailModal.value = false;
+    void handleViewDetail({ id });
+};
+
 const {
     list: appealList,
     loading: appealLoading,
@@ -286,7 +304,13 @@ const {
     changePageSize: handleAppealPageSize,
     changeSorter: handleAppealSort,
     handleReview: handleAppealReview,
-} = useAppealList(filters);
+} = useAppealList(filters, handleViewAppealBanRecord);
+
+// 申诉详情中点击关联用户名，关闭弹窗并按该用户搜索全部违纪记录
+const handleSearchUserFromAppeal = (username: string) => {
+    showAppealDetailModal.value = false;
+    searchByUser(username);
+};
 
 onMounted(() => {
     loadAll();

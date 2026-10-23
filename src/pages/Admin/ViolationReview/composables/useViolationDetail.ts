@@ -22,7 +22,8 @@ export function useViolationDetail(onReviewed: () => void) {
     const detailLoading = ref(false);
     const reviewing = ref(false);
 
-    const handleViewDetail = async (row: ViolationRecord) => {
+    /** 打开违规详情；申诉列表可传入关联封禁记录 id 直接转入对应案件 */
+    const handleViewDetail = async (row: Pick<ViolationRecord, 'id'>) => {
         showDetailModal.value = true;
         detailLoading.value = true;
         current.value = null;
