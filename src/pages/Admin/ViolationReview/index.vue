@@ -283,8 +283,9 @@ watch(bannedList, (list) => {
 });
 
 // 申诉处理，与违规列表共用同一份筛选条件
-const handleViewAppealBanRecord = (row?: { ban_record_id: number } | null) => {
-    const id = row?.ban_record_id ?? currentAppeal.value?.ban_record_id;
+const handleViewAppealBanRecord = (row?: { violation_id: number | null } | null) => {
+    // ban_record_id 是封禁记录 id，违规案件需要用 violation_id 才能定位
+    const id = row?.violation_id ?? currentAppeal.value?.violation_id;
     if (!id) return;
     showAppealDetailModal.value = false;
     void handleViewDetail({ id });

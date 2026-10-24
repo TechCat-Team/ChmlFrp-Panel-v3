@@ -104,18 +104,23 @@ export function useAppealList(filters: ViolationFilters, onViewBanRecord?: (row:
         void load();
     };
 
+    let detailRequestSeq = 0;
     const handleViewDetail = async (row: ViolationAppealRecord) => {
+        const seq = ++detailRequestSeq;
         showDetailModal.value = true;
         detailLoading.value = true;
         current.value = null;
         try {
             const response = await getViolationAppealDetail(row.id);
+            // 丢弃过期响应，避免先发起的请求覆盖后打开的申诉
+            if (seq !== detailRequestSeq) return;
             current.value = response.data;
         } catch (error: any) {
+            if (seq !== detailRequestSeq) return;
             message.error(error?.message || '加载申诉详情失败');
             showDetailModal.value = false;
         } finally {
-            detailLoading.value = false;
+            if (seq === detailRequestSeq) detailLoading.value = false;
         }
     };
 
@@ -257,7 +262,7 @@ export function useAppealList(filters: ViolationFilters, onViewBanRecord?: (row:
                         label: '转入关联封禁案件',
                         key: 'ban-record',
                         icon: () => h(NIcon, { component: BanOutline, style: 'color:#d03050' }),
-                        disabled: !row.ban_record_id,
+                        disabled: !row.violation_id,
                         props: { onClick: () => onViewBanRecord?.(row) },
                     },
                     {

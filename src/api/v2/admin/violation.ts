@@ -227,6 +227,8 @@ export type AppealReviewAction = 'approve' | 'reject';
 export interface ViolationAppealRecord {
     id: number;
     ban_record_id: number;
+    /** 关联的违规记录 id，用于转入对应的违规封禁案件 */
+    violation_id: number | null;
     user_id: number | null;
     username: string;
     type: ViolationType | null;

@@ -148,7 +148,7 @@
                         </template>
                         关闭
                     </n-button>
-                    <n-button :disabled="!appeal?.ban_record_id" @click="emit('view-ban-record')">
+                    <n-button :disabled="!appeal?.violation_id" @click="emit('view-ban-record')">
                         <template #icon>
                             <n-icon :component="BanOutline" />
                         </template>

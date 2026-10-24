@@ -5,6 +5,7 @@
             <n-button
                 v-if="!signInInfo.is_signed_in_today"
                 :loading="loadingButton && !signedInSuccess"
+                :disabled="signedInSuccess"
                 type="primary"
                 strong
                 secondary

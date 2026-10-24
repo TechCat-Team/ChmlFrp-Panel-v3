@@ -22,19 +22,24 @@ export function useViolationDetail(onReviewed: () => void) {
     const detailLoading = ref(false);
     const reviewing = ref(false);
 
-    /** 打开违规详情；申诉列表可传入关联封禁记录 id 直接转入对应案件 */
+    /** 打开违规详情；申诉列表可传入关联封禁记录对应的违规记录 id 直接转入对应案件 */
+    let detailRequestSeq = 0;
     const handleViewDetail = async (row: Pick<ViolationRecord, 'id'>) => {
+        const seq = ++detailRequestSeq;
         showDetailModal.value = true;
         detailLoading.value = true;
         current.value = null;
         try {
             const response = await getViolationDetail(row.id);
+            // 丢弃过期响应，避免先发起的请求覆盖后打开的记录
+            if (seq !== detailRequestSeq) return;
             current.value = response.data;
         } catch (error: any) {
+            if (seq !== detailRequestSeq) return;
             message.error(error?.message || '加载违规详情失败');
             showDetailModal.value = false;
         } finally {
-            detailLoading.value = false;
+            if (seq === detailRequestSeq) detailLoading.value = false;
         }
     };
 
