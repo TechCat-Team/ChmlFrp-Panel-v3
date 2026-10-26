@@ -29,4 +29,26 @@ test('text verdict preserves model categories, handles legacy malformed facts, a
     assert.equal(result.keywords, '["truncated');
     assert.equal(result.truncated, false);
     assert.equal(result.urlHold, true);
+    assert.equal(result.excerpt, false);
+    assert.equal(result.reviewScope, '—');
+});
+
+test('unsafe excerpt is shown as partial AI review without a URL hold', () => {
+    const result = summarizeTextReview({ reporter: 'frps-textcheck', description: JSON.stringify({
+        review_reason: 'ai_unsafe', ai_label: 'unsafe', risk_level: 'high', characters: '18000',
+        ai_scope: 'excerpt', url_blocked: 'false', text_truncated: 'true',
+    }) });
+    assert.equal(result.excerpt, true);
+    assert.equal(result.reviewScope, '命中上下文节选');
+    assert.equal(result.verdict, '不安全 · 高风险');
+    assert.equal(result.truncated, true);
+    assert.equal(result.urlHold, false);
+});
+
+test('full response reviews and unavailable legacy contexts keep their explanations', () => {
+    const result = summarizeTextReview({ reporter: 'frps-textcheck', description: JSON.stringify({
+        review_reason: 'missing_match_context', ai_label: 'unknown', ai_scope: 'full', characters: '8000',
+    }) });
+    assert.match(result.reason, /缺少可用命中上下文/);
+    assert.equal(result.reviewScope, '完整响应正文');
 });

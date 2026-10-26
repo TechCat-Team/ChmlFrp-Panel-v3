@@ -104,11 +104,20 @@
                         AI 判定不安全，该 URL
                         已进入临时阻断。审核完成并同步到节点后解除；封禁决定产生的账号或隧道限制继续生效。
                     </n-alert>
+                    <n-alert
+                        v-if="textReview?.excerpt && !textReview.urlHold && violation.status === 'pending'"
+                        type="info"
+                        :bordered="false"
+                        style="margin-bottom: 12px"
+                    >
+                        AI 审查的是命中上下文节选，当前仅提交人工复审，未自动阻断该 URL。确认违规后再按人工决定处置。
+                    </n-alert>
                     <n-descriptions v-if="textReview" :column="2" bordered size="small">
                         <n-descriptions-item label="转人工原因">{{ textReview.reason }}</n-descriptions-item>
                         <n-descriptions-item label="响应文本字数">{{ textReview.characters }}</n-descriptions-item>
                         <n-descriptions-item label="关键词">{{ textReview.keywords }}</n-descriptions-item>
                         <n-descriptions-item label="AI 判定">{{ textReview.verdict }}</n-descriptions-item>
+                        <n-descriptions-item label="AI 审查范围">{{ textReview.reviewScope }}</n-descriptions-item>
                         <n-descriptions-item label="模型类别">{{ textReview.categories }}</n-descriptions-item>
                         <n-descriptions-item label="证据范围">{{
                             textReview.truncated ? '正文节选与命中上下文' : '完整响应文本'
