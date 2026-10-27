@@ -13,10 +13,9 @@
         "useDefineForClassFields": true,
         "sourceMap": true,
         "isolatedModules": true,
-        "baseUrl": ".",
         "types": ["./src/auto-imports.d.ts", "vite/client"],
         "paths": {
-            "@/*": ["src/*"]
+            "@/*": ["./src/*"]
         },
         "lib": ["esnext", "dom", "dom.iterable", "scripthost"],
         "noUnusedLocals": true,

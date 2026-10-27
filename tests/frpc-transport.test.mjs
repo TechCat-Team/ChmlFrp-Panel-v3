@@ -1,8 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
-import ts from 'typescript';
-import * as vue from 'vue';
+import { registerHooks } from 'node:module';
 import * as transport from '../src/utils/frpcTransport.ts';
 
 const tick = () => new Promise(resolve => setImmediate(resolve));
@@ -12,22 +10,45 @@ const deferred = () => {
     return { promise, resolve, reject };
 };
 
-function configFlow(getConfig, quic = true) {
+// Node 原生类型擦除直接加载 .ts，依赖通过 loader hook 按用例隔离地注入。
+const composableUrl = new URL('../src/pages/Tunnel/List/composables/useTunnelConfig.ts', import.meta.url).href;
+const transportUrl = new URL('../src/utils/frpcTransport.ts', import.meta.url).href;
+const mocks = new Map();
+const dataModule = code => `data:text/javascript,${encodeURIComponent(code)}`;
+const caseIdOf = parentURL => new URL(parentURL).searchParams.get('case');
+
+registerHooks({
+    resolve(specifier, context, nextResolve) {
+        if (specifier === '@/utils/frpcTransport') {
+            return { url: transportUrl, shortCircuit: true };
+        }
+        const caseId = context.parentURL?.startsWith('file:') ? caseIdOf(context.parentURL) : null;
+        if (specifier === '@/api') {
+            assert.ok(mocks.has(caseId), `unexpected dependency ${specifier} loaded outside a config flow`);
+            return { url: dataModule(`export default globalThis.__configFlowMocks.get(${JSON.stringify(caseId)}).api`), shortCircuit: true };
+        }
+        if (specifier === 'naive-ui') {
+            assert.ok(mocks.has(caseId), `unexpected dependency ${specifier} loaded outside a config flow`);
+            return { url: dataModule(`export const useMessage = () => globalThis.__configFlowMocks.get(${JSON.stringify(caseId)}).message`), shortCircuit: true };
+        }
+        return nextResolve(specifier, context);
+    },
+});
+globalThis.__configFlowMocks = mocks;
+
+let caseSeq = 0;
+async function configFlow(getConfig, quic = true) {
     const errors = [];
-    const api = { v2: {
-        tunnel: { getTunnelConfig: getConfig },
-        node: { getNodeList: async () => ({ data: [{ name: 'node-a', quic }] }) },
-    } };
-    const source = readFileSync(new URL('../src/pages/Tunnel/List/composables/useTunnelConfig.ts', import.meta.url), 'utf8');
-    const { outputText } = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.CommonJS } });
-    const exports = {};
-    const imports = { vue, 'naive-ui': { useMessage: () => ({ error: text => errors.push(text) }) },
-        '@/api': { __esModule: true, default: api }, '@/utils/frpcTransport': transport };
-    new Function('require', 'exports', outputText)(name => {
-        assert.ok(name in imports, `unexpected dependency ${name}`);
-        return imports[name];
-    }, exports);
-    return { flow: exports.useTunnelConfig({ usertoken: 'test-token' }), errors };
+    const caseId = String(++caseSeq);
+    mocks.set(caseId, {
+        api: { v2: {
+            tunnel: { getTunnelConfig: getConfig },
+            node: { getNodeList: async () => ({ data: [{ name: 'node-a', quic }] }) },
+        } },
+        message: { error: text => errors.push(text) },
+    });
+    const module = await import(`${composableUrl}?case=${caseId}`);
+    return { flow: module.useTunnelConfig({ usertoken: 'test-token' }), errors };
 }
 const card = { id: 42, node: 'node-a', name: 'demo' };
 
@@ -42,7 +63,7 @@ test('QUIC shortcuts select QUIC explicitly, while TCP retains the compatible de
 test('late TCP response cannot replace a newer QUIC configuration or its shortcuts', async () => {
     const tcp = deferred(), quic = deferred();
     const calls = [];
-    const { flow } = configFlow((node, name, protocol) => {
+    const { flow } = await configFlow((node, name, protocol) => {
         calls.push({ node, name, protocol });
         return protocol === 'tcp' ? tcp.promise : quic.promise;
     });
@@ -68,7 +89,7 @@ test('late TCP response cannot replace a newer QUIC configuration or its shortcu
 test('closing a pending modal discards its response; unsupported nodes cannot request QUIC', async () => {
     const pending = deferred();
     let calls = 0;
-    const { flow } = configFlow(() => { calls++; return pending.promise; }, false);
+    const { flow } = await configFlow(() => { calls++; return pending.promise; }, false);
     const opening = flow.getConfigCode(card);
     await tick();
     flow.changeProtocol('quic');
@@ -82,7 +103,7 @@ test('closing a pending modal discards its response; unsupported nodes cannot re
 });
 
 test('failed protocol regeneration leaves no stale downloadable config or startup command', async () => {
-    const { flow, errors } = configFlow(async (_node, _name, protocol) => {
+    const { flow, errors } = await configFlow(async (_node, _name, protocol) => {
         if (protocol === 'quic') throw new Error('QUIC unavailable');
         return { data: 'tcp-config' };
     });

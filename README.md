@@ -138,7 +138,6 @@ pnpm preview
 
 - **Prettier**: `esbenp.prettier-vscode`
 - **Volar**: `Vue.volar` (Vue 3 官方扩展)
-- **ESLint**: `dbaeumer.vscode-eslint`
 
 > 在 VS Code 设置中启用 `editor.formatOnSave` 以自动格式化代码
 
@@ -148,14 +147,6 @@ pnpm preview
 # 格式化所有代码
 pnpm format
 ```
-
-### ESLint
-
-项目使用 ESLint 进行代码检查，配置了：
-
-- Vue 3 推荐规则
-- TypeScript 推荐规则
-- 自定义规则覆盖
 
 ---
 
