@@ -62,6 +62,9 @@ export const formatEvidenceSize = (bytes: number | null | undefined) => {
     return `${(bytes / 1024 / 1024).toFixed(2)} MB`;
 };
 
+/** 申诉审核备注（驳回理由）最大长度，与后端 ViolationAppealAdminController 的校验保持一致 */
+export const APPEAL_REVIEW_REMARK_MAX = 500;
+
 /** 申诉处理状态标签 */
 export const APPEAL_STATUS_LABEL: Record<AppealStatus, string> = {
     pending: '待处理',

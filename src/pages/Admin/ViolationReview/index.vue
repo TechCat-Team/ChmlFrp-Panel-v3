@@ -149,7 +149,7 @@
         :loading="appealDetailLoading"
         :reviewing="appealReviewing"
         @update:show="showAppealDetailModal = $event"
-        @review="handleAppealReview"
+        @review="handleAppealReviewFromDetail"
         @view-ban-record="handleViewAppealBanRecord()"
         @search-user="handleSearchUserFromAppeal"
     />
@@ -170,7 +170,7 @@
 import { computed, onMounted, ref, watch } from 'vue';
 import type { DataTableColumns } from 'naive-ui';
 import { KeyOutline, RefreshOutline, SearchOutline } from '@vicons/ionicons5';
-import type { ViolationRecord } from '@/api/v2/admin/violation';
+import type { AppealReviewAction, ViolationRecord } from '@/api/v2/admin/violation';
 import ViolationTableCard from './components/ViolationTableCard.vue';
 import ViolationDetailModal from './components/ViolationDetailModal.vue';
 import EvidencePrivateKeyModal from './components/EvidencePrivateKeyModal.vue';
@@ -306,6 +306,11 @@ const {
     changeSorter: handleAppealSort,
     handleReview: handleAppealReview,
 } = useAppealList(filters, handleViewAppealBanRecord);
+
+// 申诉详情中的审核操作，驳回时可携带选填的驳回理由
+const handleAppealReviewFromDetail = (action: AppealReviewAction, remark?: string) => {
+    void handleAppealReview(action, undefined, remark);
+};
 
 // 申诉详情中点击关联用户名，关闭弹窗并按该用户搜索全部违纪记录
 const handleSearchUserFromAppeal = (username: string) => {

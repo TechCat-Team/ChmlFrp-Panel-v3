@@ -120,6 +120,23 @@
                     <n-empty v-else size="small" description="用户未上传佐证图片" />
                 </n-card>
 
+                <n-card v-if="canReview" :bordered="false" embedded>
+                    <template #header>
+                        <div class="content-header">
+                            <n-icon :component="ChatboxEllipsesOutline" :size="18" />
+                            <span>驳回理由</span>
+                        </div>
+                    </template>
+                    <n-input
+                        v-model:value="rejectRemark"
+                        type="textarea"
+                        placeholder="选填，填写后会展示给申诉用户，便于用户了解驳回原因"
+                        :maxlength="APPEAL_REVIEW_REMARK_MAX"
+                        show-count
+                        :autosize="{ minRows: 2, maxRows: 5 }"
+                    />
+                </n-card>
+
                 <n-card v-if="appeal.status !== 'pending'" :bordered="false" embedded>
                     <template #header>
                         <div class="content-header">
@@ -158,7 +175,10 @@
                 <n-space>
                     <n-tooltip :disabled="canReview" trigger="hover">
                         <template #trigger>
-                            <n-button :disabled="reviewing || !canReview" @click="emit('review', 'reject')">
+                            <n-button
+                                :disabled="reviewing || !canReview"
+                                @click="emit('review', 'reject', rejectRemark.trim() || undefined)"
+                            >
                                 <template #icon>
                                     <n-icon :component="CloseCircle" />
                                 </template>
@@ -193,6 +213,7 @@
 import { computed, onBeforeUnmount, ref, watch } from 'vue';
 import {
     BanOutline,
+    ChatboxEllipsesOutline,
     CheckmarkCircle,
     CloseCircle,
     DocumentTextOutline,
@@ -204,6 +225,7 @@ import {
     type ViolationAppealDetail,
 } from '@/api/v2/admin/violation';
 import {
+    APPEAL_REVIEW_REMARK_MAX,
     formatEvidenceSize,
     formatViolationTime,
     getAppealStatusLabel,
@@ -221,7 +243,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
     'update:show': [value: boolean];
-    review: [action: AppealReviewAction];
+    review: [action: AppealReviewAction, remark?: string];
     'view-ban-record': [];
     'search-user': [username: string];
 }>();
@@ -232,6 +254,9 @@ const showModel = computed({
 });
 
 const canReview = computed(() => props.appeal?.status === 'pending');
+
+// 驳回理由为选填，提交后会随审核结果返回给用户查看
+const rejectRemark = ref('');
 
 const imageUrls = ref<Record<number, string>>({});
 const imageErrors = ref<Record<number, string>>({});
@@ -277,6 +302,7 @@ watch(
     () => [props.show, props.appeal?.id],
     () => {
         if (props.show) {
+            rejectRemark.value = '';
             void loadImages();
         } else {
             revokeUrls();

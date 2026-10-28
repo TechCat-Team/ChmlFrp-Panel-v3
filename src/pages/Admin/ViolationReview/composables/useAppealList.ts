@@ -5,7 +5,7 @@
  */
 import { prepareIdempotentRequest, completeIdempotentRequest } from '@/utils/idempotentRequest';
 import { h, reactive, ref, watch } from 'vue';
-import { NButton, NDropdown, NIcon, NTag, useMessage, type DataTableColumns } from 'naive-ui';
+import { NButton, NDropdown, NIcon, NInput, NTag, useDialog, useMessage, type DataTableColumns } from 'naive-ui';
 import { BanOutline, CheckmarkCircle, CloseCircle, EllipsisVertical, EyeOutline } from '@vicons/ionicons5';
 import {
     getViolationAppealDetail,
@@ -16,6 +16,7 @@ import {
     type ViolationAppealRecord,
 } from '@/api/v2/admin/violation';
 import {
+    APPEAL_REVIEW_REMARK_MAX,
     formatViolationTime,
     getAppealStatusLabel,
     getAppealStatusTagType,
@@ -31,6 +32,7 @@ const REVIEW_ACTION_LABEL: Record<AppealReviewAction, string> = {
 
 export function useAppealList(filters: ViolationFilters, onViewBanRecord?: (row: ViolationAppealRecord) => void) {
     const message = useMessage();
+    const dialog = useDialog();
 
     const list = ref<ViolationAppealRecord[]>([]);
     const loading = ref(false);
@@ -126,17 +128,21 @@ export function useAppealList(filters: ViolationFilters, onViewBanRecord?: (row:
 
     /**
      * 审核申诉。从表格下拉触发时传入 row，从详情弹窗触发时使用当前详情。
+     * remark 为可选的审核备注（驳回理由），会随记录返回给用户查看。
      */
-    const handleReview = async (action: AppealReviewAction, row?: ViolationAppealRecord) => {
+    const handleReview = async (action: AppealReviewAction, row?: ViolationAppealRecord, remark?: string) => {
         const target = row ?? current.value;
         if (!target || reviewing.value) {
             return;
         }
+        const normalizedRemark = remark?.trim() || undefined;
         reviewing.value = true;
         try {
             const key = `appeal-review:${target.id}`;
-            const submission = prepareIdempotentRequest(key, JSON.stringify({ action }), () => ({ action }));
-            const response = await reviewViolationAppeal(target.id, action, undefined, submission.request_id);
+            const submission = prepareIdempotentRequest(key, JSON.stringify({ action, remark: normalizedRemark }), () => ({
+                action,
+            }));
+            const response = await reviewViolationAppeal(target.id, action, normalizedRemark, submission.request_id);
             completeIdempotentRequest(key);
             message.success(
                 action === 'approve' && response.data?.unbanned
@@ -152,6 +158,43 @@ export function useAppealList(filters: ViolationFilters, onViewBanRecord?: (row:
         } finally {
             reviewing.value = false;
         }
+    };
+
+    /** 表格内直接驳回时，弹窗让管理员选填驳回理由 */
+    const promptReject = (row: ViolationAppealRecord) => {
+        const remark = ref('');
+        const instance = dialog.warning({
+            title: '驳回申诉',
+            content: () =>
+                h('div', { style: 'display: flex; flex-direction: column; gap: 8px' }, [
+                    h(
+                        'div',
+                        { style: 'font-size: 13px; line-height: 1.6; color: var(--n-text-color-2)' },
+                        '驳回理由为选填，填写后会展示给申诉用户。'
+                    ),
+                    h(NInput, {
+                        value: remark.value,
+                        type: 'textarea',
+                        placeholder: '可填写驳回原因，便于用户了解处理结果',
+                        maxlength: APPEAL_REVIEW_REMARK_MAX,
+                        showCount: true,
+                        autosize: { minRows: 3, maxRows: 6 },
+                        'onUpdate:value': (value: string) => {
+                            remark.value = value;
+                        },
+                    }),
+                ]),
+            positiveText: '确认驳回',
+            negativeText: '取消',
+            onPositiveClick: async () => {
+                instance.loading = true;
+                try {
+                    await handleReview('reject', row, remark.value);
+                } finally {
+                    instance.loading = false;
+                }
+            },
+        });
     };
 
     // 与违规列表共用筛选条件，下拉与时间范围变化立即重新查询
@@ -281,7 +324,7 @@ export function useAppealList(filters: ViolationFilters, onViewBanRecord?: (row:
                         key: 'reject',
                         icon: () => h(NIcon, { component: CloseCircle, style: 'color:#d03050' }),
                         disabled: row.status !== 'pending',
-                        props: { onClick: () => void handleReview('reject', row) },
+                        props: { onClick: () => promptReject(row) },
                     },
                 ];
                 return h(
