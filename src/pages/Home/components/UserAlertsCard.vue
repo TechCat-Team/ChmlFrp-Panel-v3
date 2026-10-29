@@ -32,6 +32,14 @@
             >
                 QQ三群
             </n-button>
+            <n-button
+                style="border-radius: 5px"
+                tertiary
+                type="primary"
+                @click="() => goToQqGroup(qqGroup4Link, qqGroup4Number)"
+            >
+                QQ四群
+            </n-button>
             <n-button style="border-radius: 5px" tertiary type="primary" @click="showWxGroup = true"> 微信群 </n-button>
         </n-flex>
     </n-card>
@@ -41,7 +49,7 @@
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useDialog } from 'naive-ui';
-import { DOCS_URL, QQ_GROUP_LINK, QQ_GROUP_NUMBER } from '../constants';
+import { DOCS_URL, QQ_GROUP_LINK, QQ_GROUP_NUMBER, QQ_GROUP_4_LINK, QQ_GROUP_4_NUMBER } from '../constants';
 
 interface Props {
     userInfo?: {
@@ -59,6 +67,8 @@ const showWxGroup = ref(false);
 const docsUrl = DOCS_URL;
 const qqGroupLink = QQ_GROUP_LINK;
 const qqGroupNumber = QQ_GROUP_NUMBER;
+const qqGroup4Link = QQ_GROUP_4_LINK;
+const qqGroup4Number = QQ_GROUP_4_NUMBER;
 
 const goToUserPage = () => {
     router.push('/user');

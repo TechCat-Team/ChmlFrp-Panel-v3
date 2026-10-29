@@ -18,7 +18,14 @@
                             </n-tag>
                         </n-descriptions-item>
                         <n-descriptions-item label="关联用户">
-                            <span v-if="violation.user_id">#{{ violation.user_id }} · {{ violation.username }}</span>
+                            <span
+                                v-if="violation.user_id"
+                                style="cursor: pointer; white-space: nowrap"
+                                title="点击搜索该用户的全部违纪记录"
+                                @click="emit('search-user', violation.username)"
+                            >
+                                #{{ violation.user_id }} · {{ violation.username }}
+                            </span>
                             <span v-else class="mono-text">未关联</span>
                         </n-descriptions-item>
                         <n-descriptions-item label="违规内容">
@@ -97,11 +104,20 @@
                         AI 判定不安全，该 URL
                         已进入临时阻断。审核完成并同步到节点后解除；封禁决定产生的账号或隧道限制继续生效。
                     </n-alert>
+                    <n-alert
+                        v-if="textReview?.excerpt && !textReview.urlHold && violation.status === 'pending'"
+                        type="info"
+                        :bordered="false"
+                        style="margin-bottom: 12px"
+                    >
+                        AI 审查的是命中上下文节选，当前仅提交人工复审，未自动阻断该 URL。确认违规后再按人工决定处置。
+                    </n-alert>
                     <n-descriptions v-if="textReview" :column="2" bordered size="small">
                         <n-descriptions-item label="转人工原因">{{ textReview.reason }}</n-descriptions-item>
                         <n-descriptions-item label="响应文本字数">{{ textReview.characters }}</n-descriptions-item>
                         <n-descriptions-item label="关键词">{{ textReview.keywords }}</n-descriptions-item>
                         <n-descriptions-item label="AI 判定">{{ textReview.verdict }}</n-descriptions-item>
+                        <n-descriptions-item label="AI 审查范围">{{ textReview.reviewScope }}</n-descriptions-item>
                         <n-descriptions-item label="模型类别">{{ textReview.categories }}</n-descriptions-item>
                         <n-descriptions-item label="证据范围">{{
                             textReview.truncated ? '正文节选与命中上下文' : '完整响应文本'
@@ -202,8 +218,6 @@
                     </n-form>
                     <n-space justify="end">
                         <template v-if="violation.status === 'pending'">
-                            <n-button :disabled="reviewing" @click="review('reject')">驳回上报</n-button>
-                            <n-button :disabled="reviewing" @click="review('warn')">警告</n-button>
                             <n-button type="success" :disabled="reviewing" @click="review('pass')"
                                 >误报放行并解除隔离</n-button
                             >
@@ -275,34 +289,29 @@ const emit = defineEmits<{
     'update:show': [value: boolean];
     review: [action: ViolationReviewAction, draft: ViolationDecisionDraft];
     refresh: [];
+    'search-user': [username: string];
 }>();
 
-const scope = ref<'user' | 'tunnel'>('tunnel');
+const scope = ref<'user' | 'tunnel'>('user');
 const reason = ref('');
-const durationSeconds = ref(86400);
+const durationSeconds = ref(0);
 const scopeOptions = computed(() => [
-    { label: '仅当前隧道', value: 'tunnel', disabled: !props.violation?.workflow?.tunnel_id },
     { label: '整个账号', value: 'user' },
+    { label: '仅当前隧道', value: 'tunnel', disabled: !props.violation?.workflow?.tunnel_id },
 ]);
 const durationOptions = [
+    { label: '永久', value: 0 },
     { label: '1 小时', value: 3600 },
     { label: '24 小时', value: 86400 },
     { label: '7 天', value: 604800 },
-    { label: '永久', value: 0 },
 ];
 watch(
     () => `${props.violation?.id}:${props.violation?.status}:${props.violation?.workflow?.version}`,
     () => {
         reason.value = '';
-        durationSeconds.value = 86400;
+        durationSeconds.value = 0;
         const original = props.violation?.workflow?.restrictions?.find((item) => !item.revoked_at);
-        scope.value = original
-            ? original.tunnel_id
-                ? 'tunnel'
-                : 'user'
-            : props.violation?.workflow?.tunnel_id
-              ? 'tunnel'
-              : 'user';
+        scope.value = original ? (original.tunnel_id ? 'tunnel' : 'user') : 'user';
     }
 );
 const review = (action: ViolationReviewAction) =>

@@ -2,6 +2,7 @@ import type { ViolationDetail } from '@/api/v2/admin/violation';
 
 const reasons: Record<string, string> = {
     text_too_long: '达到 6000 字，直接人工审核',
+    missing_match_context: '缺少可用命中上下文，需要人工审核',
     incomplete_response: '响应未完整传输，直接人工审核',
     ai_unavailable: 'AI 服务异常，已启动五分钟冷却',
     ai_circuit_open: 'AI 处于五分钟冷却或恢复探测阶段',
@@ -38,6 +39,7 @@ export function summarizeTextReview(detail: ViolationDetail | null) {
     const reason = String(facts.review_reason ?? '');
     const label = String(facts.ai_label ?? 'unknown');
     const risk = String(facts.risk_level ?? '');
+    const excerpt = facts.ai_scope === 'excerpt';
     return {
         reason: reasons[reason] || reason || '待人工审核',
         characters: /^\d+$/.test(String(facts.characters)) ? String(facts.characters) : '—',
@@ -46,5 +48,7 @@ export function summarizeTextReview(detail: ViolationDetail | null) {
         verdict: `${verdicts[label] || label}${risks[risk] ? ` · ${risks[risk]}风险` : ''}`,
         truncated: facts.text_truncated === 'true',
         urlHold: facts.url_blocked === 'true',
+        excerpt,
+        reviewScope: excerpt ? '命中上下文节选' : facts.ai_scope === 'full' ? '完整响应正文' : '—',
     };
 }

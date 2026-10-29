@@ -24,7 +24,7 @@
             :loading="loading"
             :bordered="false"
             :row-key="rowKey"
-            :scroll-x="1230"
+            :scroll-x="1450"
             striped
         />
     </n-card>
@@ -178,6 +178,13 @@ const columns = computed<DataTableColumns<MyBanRecord>>(() => [
         align: 'center',
         render: (row) =>
             h(NTag, { type: statusTagType(row), size: 'small', round: true }, { default: () => statusLabel(row) }),
+    },
+    {
+        title: '审核意见',
+        key: 'appeal_review_remark',
+        width: 220,
+        ellipsis: { tooltip: true },
+        render: (row) => row.appeal_review_remark || '-',
     },
     {
         title: '操作',

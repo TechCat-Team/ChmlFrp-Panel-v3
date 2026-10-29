@@ -80,6 +80,10 @@ export function useSignIn(_userInfo: { id?: number; usertoken?: string }) {
             message.error('签到失败: ' + (error as Error).message);
         }
         setTimeout(() => {
+            // 签到成功后立即锁定状态，避免刷新签到信息前重复点击
+            if (signedInSuccess.value) {
+                signInInfo.value.is_signed_in_today = true;
+            }
             signedInSuccess.value = false;
             loadingButton.value = false;
             qianDaoText.value = SIGN_IN_BUTTON_TEXT;
@@ -88,6 +92,8 @@ export function useSignIn(_userInfo: { id?: number; usertoken?: string }) {
     };
 
     const onSignButtonClick = async () => {
+        // 签到流程进行中或刚签到成功时不响应点击，避免重复提交
+        if (loadingButton.value || signedInSuccess.value) return;
         loadingButton.value = true;
         qianDaoText.value = SIGN_IN_STEPS.INIT;
 

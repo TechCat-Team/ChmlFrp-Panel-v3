@@ -10,21 +10,27 @@ import { formatViolationTime, getStatusLabel, getStatusTagType, getTypeLabel, ge
 interface TableHandlers {
     onView: (row: ViolationRecord) => void;
     onReview: (action: ViolationReviewAction, row: ViolationRecord) => void;
+    onSearchUser?: (username: string) => void;
 }
 
-export function useViolationTable({ onView, onReview }: TableHandlers): DataTableColumns<ViolationRecord> {
+export function useViolationTable({
+    onView,
+    onReview,
+    onSearchUser,
+}: TableHandlers): DataTableColumns<ViolationRecord> {
     return [
         {
             title: 'ID',
             key: 'id',
             width: 70,
-            sorter: 'default',
+            sorter: true,
         },
         {
             title: '违规类型',
             key: 'type',
             width: 110,
             align: 'center',
+            sorter: true,
             render(row) {
                 return h(
                     NTag,
@@ -37,7 +43,7 @@ export function useViolationTable({ onView, onReview }: TableHandlers): DataTabl
             title: '违规内容',
             key: 'title',
             width: 200,
-            sorter: 'default',
+            sorter: true,
             ellipsis: { tooltip: true },
         },
         {
@@ -52,14 +58,28 @@ export function useViolationTable({ onView, onReview }: TableHandlers): DataTabl
             title: '关联用户',
             key: 'username',
             width: 130,
+            sorter: true,
             render(row) {
-                return h('span', { style: 'white-space: nowrap;' }, row.username || '-');
+                if (!row.username) {
+                    return h('span', { style: 'white-space: nowrap;' }, '-');
+                }
+                // 点击用户名按该用户搜索全部违纪记录，保持原有文字样式，仅增加可点击提示
+                return h(
+                    'span',
+                    {
+                        style: 'white-space: nowrap; cursor: pointer;',
+                        title: '点击搜索该用户的全部违纪记录',
+                        onClick: () => onSearchUser?.(row.username),
+                    },
+                    row.username
+                );
             },
         },
         {
             title: '违规节点',
             key: 'node_name',
             width: 130,
+            sorter: true,
             render(row) {
                 return h('span', { class: 'violation-mono' }, row.node_name || '-');
             },
@@ -68,6 +88,7 @@ export function useViolationTable({ onView, onReview }: TableHandlers): DataTabl
             title: '发现时间',
             key: 'reported_at',
             width: 170,
+            sorter: true,
             render(row) {
                 return formatViolationTime(row.reported_at);
             },
@@ -77,6 +98,7 @@ export function useViolationTable({ onView, onReview }: TableHandlers): DataTabl
             key: 'status',
             width: 100,
             align: 'center',
+            sorter: true,
             render(row) {
                 return h(
                     NTag,

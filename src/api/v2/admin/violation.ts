@@ -112,6 +112,8 @@ export interface ViolationListParams {
     keyword?: string;
     startTime?: number | null;
     endTime?: number | null;
+    sortBy?: string;
+    sortOrder?: 'asc' | 'desc';
     page?: number;
     size?: number;
 }
@@ -143,7 +145,7 @@ export interface ViolationReviewResponse extends BaseResponse {
  * 按状态分页查询违规记录（管理员）
  */
 export const getViolations = async (params: ViolationListParams): Promise<ViolationListResponse> => {
-    const { status, type, keyword, startTime, endTime, page = 1, size = 10 } = params;
+    const { status, type, keyword, startTime, endTime, sortBy, sortOrder, page = 1, size = 10 } = params;
     return axiosInstance.get('/admin/violations', {
         params: {
             status,
@@ -151,6 +153,8 @@ export const getViolations = async (params: ViolationListParams): Promise<Violat
             keyword: keyword?.trim() || undefined,
             start_time: startTime || undefined,
             end_time: endTime || undefined,
+            sort_by: sortBy || undefined,
+            sort_order: sortOrder || undefined,
             page,
             size,
         },
@@ -172,6 +176,33 @@ export const reviewViolation = async (
     decision: ViolationDecisionRequest
 ): Promise<ViolationReviewResponse> => {
     return axiosInstance.post(`/admin/violations/${id}/review`, decision);
+};
+
+/** 批量处置请求：ids 中的案件共用同一份决策（ban 封禁 / release 解除封禁） */
+export interface ViolationBatchReviewRequest {
+    request_id: string;
+    ids: number[];
+    action: 'ban' | 'release';
+    scope: 'user' | 'tunnel';
+    reason: string;
+    expires_at: number | null;
+}
+
+export interface ViolationBatchReviewResponse extends BaseResponse {
+    data: {
+        success: number;
+        failed: Array<{ id: number; code: number; msg: string }>;
+    };
+}
+
+/**
+ * 批量处置（管理员）：支持批量封禁与批量解除封禁。
+ * 单条失败不影响其余案件，返回成功数量与失败明细。
+ */
+export const batchReviewViolations = async (
+    payload: ViolationBatchReviewRequest
+): Promise<ViolationBatchReviewResponse> => {
+    return axiosInstance.post('/admin/violations/batch-review', payload);
 };
 
 /**
@@ -196,6 +227,8 @@ export type AppealReviewAction = 'approve' | 'reject';
 export interface ViolationAppealRecord {
     id: number;
     ban_record_id: number;
+    /** 关联的违规记录 id，用于转入对应的违规封禁案件 */
+    violation_id: number | null;
     user_id: number | null;
     username: string;
     type: ViolationType | null;
@@ -234,6 +267,8 @@ export interface ViolationAppealListParams {
     keyword?: string;
     startTime?: number | null;
     endTime?: number | null;
+    sortBy?: string;
+    sortOrder?: 'asc' | 'desc';
     page?: number;
     size?: number;
 }
@@ -267,13 +302,15 @@ export interface AppealReviewResponse extends BaseResponse {
 export const getViolationAppeals = async (
     params: ViolationAppealListParams = {}
 ): Promise<ViolationAppealListResponse> => {
-    const { status, keyword, startTime, endTime, page = 1, size = 10 } = params;
+    const { status, keyword, startTime, endTime, sortBy, sortOrder, page = 1, size = 10 } = params;
     return axiosInstance.get('/admin/violation-appeals', {
         params: {
             status: status || undefined,
             keyword: keyword?.trim() || undefined,
             start_time: startTime || undefined,
             end_time: endTime || undefined,
+            sort_by: sortBy || undefined,
+            sort_order: sortOrder || undefined,
             page,
             size,
         },

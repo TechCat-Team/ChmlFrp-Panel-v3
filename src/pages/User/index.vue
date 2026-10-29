@@ -33,6 +33,7 @@
                                 v-if="!signInInfo.is_signed_in_today"
                                 round
                                 :loading="loadingQianDaoButton && !signedInSuccess"
+                                :disabled="signedInSuccess"
                                 type="primary"
                                 quaternary
                                 @click="onSignButtonClick"
