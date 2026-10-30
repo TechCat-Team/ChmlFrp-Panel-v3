@@ -8,6 +8,7 @@ import { h, reactive, ref, watch } from 'vue';
 import { NButton, NDropdown, NIcon, NInput, NTag, useDialog, useMessage, type DataTableColumns } from 'naive-ui';
 import { BanOutline, CheckmarkCircle, CloseCircle, EllipsisVertical, EyeOutline } from '@vicons/ionicons5';
 import {
+    amendViolationAppeal,
     getViolationAppealDetail,
     getViolationAppeals,
     reviewViolationAppeal,
@@ -106,6 +107,9 @@ export function useAppealList(filters: ViolationFilters, onViewBanRecord?: (row:
         void load();
     };
 
+    /** 案件维度记录上的审核/修改操作，都作用于最近一次申诉 */
+    const resolveAppealId = (target: ViolationAppealRecord) => target.latest_appeal_id ?? target.id;
+
     let detailRequestSeq = 0;
     const handleViewDetail = async (row: ViolationAppealRecord) => {
         const seq = ++detailRequestSeq;
@@ -135,14 +139,15 @@ export function useAppealList(filters: ViolationFilters, onViewBanRecord?: (row:
         if (!target || reviewing.value) {
             return;
         }
+        const appealId = resolveAppealId(target);
         const normalizedRemark = remark?.trim() || undefined;
         reviewing.value = true;
         try {
-            const key = `appeal-review:${target.id}`;
+            const key = `appeal-review:${appealId}`;
             const submission = prepareIdempotentRequest(key, JSON.stringify({ action, remark: normalizedRemark }), () => ({
                 action,
             }));
-            const response = await reviewViolationAppeal(target.id, action, normalizedRemark, submission.request_id);
+            const response = await reviewViolationAppeal(appealId, action, normalizedRemark, submission.request_id);
             completeIdempotentRequest(key);
             message.success(
                 action === 'approve' && response.data?.unbanned
@@ -155,6 +160,37 @@ export function useAppealList(filters: ViolationFilters, onViewBanRecord?: (row:
             void load();
         } catch (error: any) {
             message.error(error?.message || '审核失败，请稍后重试');
+        } finally {
+            reviewing.value = false;
+        }
+    };
+
+    /**
+     * 修改已审核申诉的结果。改为通过会补做解封，改为驳回会恢复此前的封禁。
+     * 仅作用于最近一次申诉，与后端限制保持一致。
+     */
+    const handleAmend = async (action: AppealReviewAction, remark?: string) => {
+        const target = current.value;
+        if (!target || reviewing.value) {
+            return;
+        }
+        const appealId = resolveAppealId(target);
+        const normalizedRemark = remark?.trim() || undefined;
+        reviewing.value = true;
+        try {
+            const key = `appeal-amend:${appealId}`;
+            const submission = prepareIdempotentRequest(key, JSON.stringify({ action, remark: normalizedRemark }), () => ({
+                action,
+            }));
+            await amendViolationAppeal(appealId, action, normalizedRemark, submission.request_id);
+            completeIdempotentRequest(key);
+            message.success(
+                action === 'approve' ? '审核结果已改为通过，对应封禁已解除' : '审核结果已改为驳回，对应封禁已恢复'
+            );
+            showDetailModal.value = false;
+            void load();
+        } catch (error: any) {
+            message.error(error?.message || '修改审核结果失败，请稍后重试');
         } finally {
             reviewing.value = false;
         }
@@ -257,13 +293,20 @@ export function useAppealList(filters: ViolationFilters, onViewBanRecord?: (row:
             ellipsis: { tooltip: true },
         },
         {
-            title: '申诉理由',
+            title: '申诉次数',
+            key: 'appeal_count',
+            width: 90,
+            align: 'center',
+            render: (row) => `${row.appeal_count ?? 1} 次`,
+        },
+        {
+            title: '最近申诉理由',
             key: 'reason',
             width: 240,
             ellipsis: { tooltip: true },
         },
         {
-            title: '申诉时间',
+            title: '最近申诉时间',
             key: 'appealed_at',
             width: 170,
             sorter: true,
@@ -358,5 +401,6 @@ export function useAppealList(filters: ViolationFilters, onViewBanRecord?: (row:
         changeSorter,
         handleViewDetail,
         handleReview,
+        handleAmend,
     };
 }
