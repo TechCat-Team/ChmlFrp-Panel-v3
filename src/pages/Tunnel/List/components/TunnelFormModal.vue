@@ -1,27 +1,21 @@
 <template>
     <n-modal :show="show" @update:show="$emit('update:show', $event)">
         <n-card style="width: 800px" :title="title" :bordered="false" size="huge" role="dialog" aria-modal="true">
-            <n-alert
-                title="注意"
-                type="info"
-                style="margin-bottom: 8px"
-                v-if="
-                    formData.domainNameLabel === '自定义' &&
-                    (formData.type === 'HTTP' || formData.type === 'HTTPS') &&
-                    nodeInfo.china !== 'no'
-                "
-            >
-                自定义域名解析到中国境内节点(中国特别行政区除外)建站，您的域名必须在工信部备案，不备案将被拦截导致无法访问。
+            <n-alert title="备案与过白要求" type="info" style="margin-bottom: 8px" v-if="requiresWhitelist">
+                中国大陆节点的 HTTP/HTTPS 隧道需要使用已备案且已过白的域名。完成 ICP 备案后，请前往 “扩展功能 →
+                备案过白”提交申请，验证通过后再{{ isEdit ? '保存' : '创建' }}隧道。
+                <n-button text type="primary" @click="router.push(DOMAIN_WHITELIST_PATH)">前往备案过白</n-button>
             </n-alert>
             <n-alert
                 title="注意"
                 type="info"
                 style="margin-bottom: 8px"
-                v-if="formData.type === 'TCP' && nodeInfo.china !== 'no'"
+                v-if="formData.type === 'TCP' && isMainland"
             >
-                中国境内节点禁止使用TCP隧道建站，如果您是用于网站用途，请使用中国境外节点或解析自己的已备案域名至{{
-                    nodeInfo.ip
-                }}，通过 您解析的域名:外网端口 访问
+                中国大陆节点不支持直接通过 IP:端口访问网站。如需使用 TCP 隧道建站，请先完成域名 ICP 备案，再前往
+                “扩展功能 → 备案过白”提交申请。过白通过后，将域名解析至 {{ nodeInfo.ip }}，通过“域名:外网端口”访问。
+                您也可以选择境外节点。
+                <n-button text type="primary" @click="router.push(DOMAIN_WHITELIST_PATH)">前往备案过白</n-button>
             </n-alert>
             <n-alert
                 title="注意"
@@ -41,7 +35,7 @@
                     (formData.type === 'HTTP' || formData.type === 'HTTPS')
                 "
             >
-                免费域名禁止用于中国境内节点(中国特别行政区除外)建站，如果您给国内节点解析免费域名并建站，会被备案拦截导致无法访问。此外，更改节点后免费域名解析会自动更改。
+                免费域名同样需要符合节点的备案过白要求。更改节点后，免费域名解析会自动更新，请确认新节点支持建站。
             </n-alert>
 
             <n-form ref="tunnelForm" :model="formData" size="medium" label-width="100px">
@@ -268,6 +262,8 @@
 
 <script lang="ts" setup>
 import { computed, ref } from 'vue';
+import { useRouter } from 'vue-router';
+import { DOMAIN_WHITELIST_PATH, isMainlandNode, requiresTunnelDomainWhitelist } from '@/utils/tunnelDomainWhitelist';
 import { useMessage } from 'naive-ui';
 import { storeToRefs } from 'pinia';
 import type { TunnelFormData, NodeInfo } from '../types';
@@ -289,6 +285,9 @@ interface Props {
 }
 
 const props = defineProps<Props>();
+const router = useRouter();
+const isMainland = computed(() => isMainlandNode(props.nodeInfo));
+const requiresWhitelist = computed(() => requiresTunnelDomainWhitelist(props.nodeInfo, props.formData.type));
 const message = useMessage();
 const ruleModeOptions = ACCESS_RULE_MODE_OPTIONS;
 const regionOptions = REGION_OPTIONS;

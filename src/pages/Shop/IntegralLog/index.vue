@@ -84,6 +84,7 @@ const sourceOptions = [
     { label: '套餐购买', value: '套餐购买' },
     { label: '套餐升级', value: '套餐升级' },
     { label: '证书删除', value: '证书删除' },
+    { label: '过白域名删除', value: '过白域名删除' },
     { label: '积分兑换', value: '积分兑换' },
     { label: '退回', value: '退回' },
     { label: '管理员调整', value: '管理员调整' },
