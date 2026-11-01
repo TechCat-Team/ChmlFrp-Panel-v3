@@ -177,15 +177,23 @@ const parseNodeAuth = (node: Node) => {
 // 判断是否可建站
 const canWebNode = (node: Node) => (node.web === 'yes' || node.web === 'true' ? 'true' : 'false');
 
+// 备案过白校验：仅中国大陆、非港澳台、非 VIP 节点默认开启
+const DOMAIN_WHITELIST_EXCLUDED_REGIONS = ['香港', '澳门', '澳門', '台湾', '台灣'];
+const domainWhitelistNode = (node: Node) =>
+    (node.china === 'yes' || node.china === 'true') &&
+    node.nodegroup !== 'vip' &&
+    !DOMAIN_WHITELIST_EXCLUDED_REGIONS.some((region) => node.name.includes(region));
+
 // 生成 Linux 部署/更新命令的公共参数
 const buildNodeArgs = (node: Node) => {
     const { username, password } = parseNodeAuth(node);
     const canWeb = canWebNode(node);
+    const domainWhitelist = domainWhitelistNode(node);
 
     // QUIC 端口留空时不传；vhost 端口由脚本按是否可建站自动决定
     const quicFlag = node.quicPort && node.quicPort > 0 ? ` --quic-port ${node.quicPort}` : '';
 
-    return `${node.port} ${node.adminPort} ${username} ${password} ${node.nodetoken} ${FRP_API_BASE_URL} "${node.apitoken}" ${canWeb} --overseas-ip-block false${quicFlag}`;
+    return `${node.port} ${node.adminPort} ${username} ${password} ${node.nodetoken} ${FRP_API_BASE_URL} "${node.apitoken}" ${canWeb} --overseas-ip-block false --domain-whitelist ${domainWhitelist}${quicFlag}`;
 };
 
 // 生成 Windows 部署/更新命令的公共参数（命名参数可出现在任意位置）
@@ -203,6 +211,8 @@ const buildNodeArgsWindows = (node: Node) => {
         canWebNode(node),
         '-OverseasIpBlock',
         'false',
+        '-DomainWhitelist',
+        String(domainWhitelistNode(node)),
     ];
     if (node.quicPort && node.quicPort > 0) {
         args.push('-QuicPort', String(node.quicPort));
@@ -303,6 +313,12 @@ connLimitBanSeconds = 1800
 
 # 封禁海外 IP
 overseasIPBlockEnable = false
+
+# 备案过白校验（仅中国大陆、非港澳台、非 VIP 节点默认开启）
+domainWhitelist.enable = ${domainWhitelistNode(node)}
+domainWhitelist.syncIntervalSeconds = 30
+domainWhitelist.maxStaleSeconds = 86400
+domainWhitelist.statePath = "./data/domain-whitelist.json"
 
 # 仅向客户端返回必要错误信息
 detailedErrorsToClient = false
