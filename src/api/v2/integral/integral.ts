@@ -13,7 +13,7 @@ export interface IntegralLogItem {
     amount: number;
     balanceBefore: number;
     balanceAfter: number;
-    /** 变动来源：充值、签到、礼品卡、套餐购买、套餐升级、证书删除、管理员调整 */
+    /** 变动来源：充值、签到、礼品卡、套餐购买、套餐升级、证书删除、过白域名删除、管理员调整 */
     source: string;
     description: string | null;
     relatedId: string | null;

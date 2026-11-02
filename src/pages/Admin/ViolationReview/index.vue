@@ -150,6 +150,7 @@
         :reviewing="appealReviewing"
         @update:show="showAppealDetailModal = $event"
         @review="handleAppealReviewFromDetail"
+        @amend="handleAmend"
         @view-ban-record="handleViewAppealBanRecord()"
         @search-user="handleSearchUserFromAppeal"
     />
@@ -305,6 +306,7 @@ const {
     changePageSize: handleAppealPageSize,
     changeSorter: handleAppealSort,
     handleReview: handleAppealReview,
+    handleAmend,
 } = useAppealList(filters, handleViewAppealBanRecord);
 
 // 申诉详情中的审核操作，驳回时可携带选填的驳回理由

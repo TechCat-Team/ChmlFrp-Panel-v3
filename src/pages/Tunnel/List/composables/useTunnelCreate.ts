@@ -1,6 +1,7 @@
 import { ref, unref, type Ref } from 'vue';
 import { useMessage, useDialog } from 'naive-ui';
 import api from '@/api';
+import { useTunnelDomainWhitelist } from './useTunnelDomainWhitelist';
 import type { TunnelFormData, NodeInfo } from '../types';
 
 /**
@@ -17,6 +18,7 @@ export function useTunnelCreate(
     const message = useMessage();
     const dialog = useDialog();
     const loading = ref(false);
+    const { ensureDomainWhitelisted, handleWhitelistError } = useTunnelDomainWhitelist();
 
     // 获取实际的节点信息（处理 ref 嵌套）
     const getActualNodeInfo = (): NodeInfo => {
@@ -56,6 +58,10 @@ export function useTunnelCreate(
             const isHttp = formData.type === 'HTTP' || formData.type === 'HTTPS';
             const isFreeDomain = formData.domainNameLabel === '免费域名';
             const banddomain = isFreeDomain && isHttp ? `${formData.recordValue}.${formData.choose}` : formData.domain;
+
+            // Check before creating DNS records; the server rechecks when saving the tunnel.
+            if (!(await ensureDomainWhitelisted({ ...actualNodeInfo, name: formData.node }, formData.type, banddomain)))
+                return;
 
             // 构建隧道请求体
             const tunnelPayload = {
@@ -98,7 +104,7 @@ export function useTunnelCreate(
             try {
                 await api.v2.tunnel.createTunnel(tunnelPayload);
             } catch (error) {
-                message.error('隧道创建失败: ' + (error as Error).message);
+                if (!handleWhitelistError(error)) message.error('隧道创建失败: ' + (error as Error).message);
 
                 // 如果是免费域名进行回退
                 if (isHttp && isFreeDomain) {

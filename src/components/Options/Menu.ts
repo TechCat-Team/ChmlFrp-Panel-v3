@@ -142,6 +142,11 @@ export const computedMenuOptionsUser = computed(() => [
                 icon: renderIcon(LinkOutline),
             },
             {
+                label: () => h(RouterLink, { to: { name: '备案过白' } }, { default: () => '备案过白' }),
+                key: '备案过白',
+                icon: renderIcon(ShieldCheckmarkOutline),
+            },
+            {
                 label: () =>
                     h(
                         RouterLink,
@@ -362,14 +367,12 @@ export const computedMenuOptionsAdmin = computed(() => [
                 key: 'people',
                 children: [
                     {
-                        label: () =>
-                            h(
-                                RouterLink,
-                                {
-                                    to: { name: '免费域名管理' },
-                                },
-                                { default: () => '免费域名管理' }
-                            ),
+                        label: () => h(RouterLink, { to: { name: '备案过白管理' } }, { default: () => '备案过白管理' }),
+                        key: '备案过白管理',
+                        icon: renderIcon(ShieldCheckmarkOutline),
+                    },
+                    {
+                        label: () => h(RouterLink, { to: { name: '免费域名管理' } }, { default: () => '免费域名管理' }),
                         key: '免费域名管理',
                         icon: renderIcon(LinkOutline),
                     },
@@ -478,7 +481,7 @@ export const computedMenuOptionsGuest = computed(() => [
 ]);
 
 export const computedMenuOptions = computed(() => {
-    if (userInfo.value?.usergroup === '管理员') {
+    if (['管理员', 'admin', '超级管理员'].includes(userInfo.value?.usergroup || '')) {
         return [...computedMenuOptionsUser.value, ...computedMenuOptionsAdmin.value];
     } else if (!userInfo.value) {
         return computedMenuOptionsGuest.value;

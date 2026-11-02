@@ -100,6 +100,12 @@ const routes: Array<RouteRecordRaw> = [
                 },
             },
             {
+                path: '/expand/domain-whitelist',
+                name: '备案过白',
+                component: () => import('@/pages/Expand/DomainWhitelist/index.vue'),
+                meta: { title: '备案过白 - ChmlFrp', requiresAuth: true },
+            },
+            {
                 path: '/expand/free-ssl',
                 name: '免费SSL',
                 component: () => import('@/pages/Expand/FreeSSL/index.vue'),
@@ -282,6 +288,12 @@ const routes: Array<RouteRecordRaw> = [
                 },
             },
             {
+                path: '/admin/domain-whitelist',
+                name: '备案过白管理',
+                component: () => import('@/pages/Admin/DomainWhitelistManagement/index.vue'),
+                meta: { title: '备案过白管理 - 管理员控制台 - ChmlFrp', requiresAuth: true, requiresAdmin: true },
+            },
+            {
                 path: '/admin/violation-review',
                 name: '违规审查',
                 component: () => import('@/pages/Admin/ViolationReview/index.vue'),
@@ -333,6 +345,10 @@ router.beforeEach(async (to, from, next) => {
         try {
             const res = await api.v2.user.getUserInfo();
             userStore.setUser(res.data);
+            if (to.meta.requiresAdmin && !['管理员', 'admin', '超级管理员'].includes(res.data.usergroup)) {
+                next('/home');
+                return;
+            }
             next();
         } catch {
             next({
@@ -341,6 +357,10 @@ router.beforeEach(async (to, from, next) => {
             });
         }
     } else {
+        if (to.meta.requiresAdmin && !['管理员', 'admin', '超级管理员'].includes(userStore.userInfo?.usergroup || '')) {
+            next('/home');
+            return;
+        }
         next();
     }
 });

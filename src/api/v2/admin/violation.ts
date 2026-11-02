@@ -223,9 +223,13 @@ export type AppealStatus = 'pending' | 'approved' | 'rejected';
 /** 审核动作，与后端 /admin/violation-appeals/{id}/review 的 action 取值一一对应 */
 export type AppealReviewAction = 'approve' | 'reject';
 
-/** 申诉列表项，附带关联封禁记录的信息 */
+/** 申诉列表项，附带关联封禁记录的信息。id 为案件 id（首次申诉 id），同一封禁记录的多次申诉合并为一条。 */
 export interface ViolationAppealRecord {
     id: number;
+    /** 最近一次申诉 id，审核与修改结果都针对该条申诉 */
+    latest_appeal_id: number;
+    /** 同一封禁记录累计提交的申诉次数 */
+    appeal_count: number;
     ban_record_id: number;
     /** 关联的违规记录 id，用于转入对应的违规封禁案件 */
     violation_id: number | null;
@@ -258,8 +262,23 @@ export interface ViolationAppealImageMeta {
     sort_order: number;
 }
 
-export interface ViolationAppealDetail extends ViolationAppealRecord {
+/** 同一案件下的一轮申诉，包含这一轮的申诉内容与审核结果 */
+export interface ViolationAppealRound {
+    id: number;
+    reason: string;
+    contact: string;
+    status: AppealStatus;
+    appealed_at: string;
+    reviewed_by: number | null;
+    reviewed_by_name: string | null;
+    reviewed_at: string | null;
+    review_remark: string | null;
     images: ViolationAppealImageMeta[];
+}
+
+export interface ViolationAppealDetail extends ViolationAppealRecord {
+    /** 历次申诉，按申诉先后升序 */
+    appeals: ViolationAppealRound[];
 }
 
 export interface ViolationAppealListParams {
@@ -293,6 +312,15 @@ export interface AppealReviewResponse extends BaseResponse {
         status: AppealStatus;
         unbanned: boolean;
         other_restrictions: number;
+    };
+}
+
+export interface AppealAmendResponse extends BaseResponse {
+    data: {
+        id: number;
+        ban_record_id: number;
+        status: AppealStatus;
+        unbanned: boolean;
     };
 }
 
@@ -334,6 +362,19 @@ export const reviewViolationAppeal = async (
     requestId?: string
 ): Promise<AppealReviewResponse> => {
     return axiosInstance.post(`/admin/violation-appeals/${id}/review`, { action, remark, request_id: requestId });
+};
+
+/**
+ * 修改已审核申诉的结果（管理员）。approve 会补做解封，reject 会恢复此前的封禁。
+ * remark 为可选的修改理由，会作为审核意见展示给用户。
+ */
+export const amendViolationAppeal = async (
+    id: number,
+    action: AppealReviewAction,
+    remark?: string,
+    requestId?: string
+): Promise<AppealAmendResponse> => {
+    return axiosInstance.post(`/admin/violation-appeals/${id}/amend`, { action, remark, request_id: requestId });
 };
 
 /**

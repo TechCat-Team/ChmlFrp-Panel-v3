@@ -10,6 +10,7 @@ import * as payment from './payment/payment';
 import * as giftcard from './giftcard/giftcard';
 import * as integral from './integral/integral';
 import * as ssl from './ssl/ssl';
+import * as whitelist from './whitelist/whitelist';
 import { ApiError } from './axios/axiosInstance';
 
 export default {
@@ -25,5 +26,6 @@ export default {
     giftcard,
     integral,
     ssl,
+    whitelist,
     ApiError,
 };

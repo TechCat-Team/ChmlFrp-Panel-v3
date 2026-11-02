@@ -1,6 +1,7 @@
 import { ref, unref, type Ref } from 'vue';
 import { useMessage, useDialog } from 'naive-ui';
 import api from '@/api';
+import { useTunnelDomainWhitelist } from './useTunnelDomainWhitelist';
 import type { TunnelFormData, NodeInfo } from '../types';
 
 /**
@@ -16,6 +17,7 @@ export function useTunnelEdit(
     const message = useMessage();
     const dialog = useDialog();
     const loading = ref(false);
+    const { ensureDomainWhitelisted, handleWhitelistError } = useTunnelDomainWhitelist();
 
     // 获取实际的节点信息（处理 ref 嵌套）
     const getActualNodeInfo = (): NodeInfo => {
@@ -206,6 +208,15 @@ export function useTunnelEdit(
 
             if (isHttpOrHttps) {
                 const freeDomainEnabled = formData.domainNameLabel === '免费域名';
+                const boundDomain = freeDomainEnabled ? `${formData.recordValue}.${formData.choose}` : formData.domain;
+                if (
+                    !(await ensureDomainWhitelisted(
+                        { ...actualNodeInfo, name: formData.node },
+                        formData.type,
+                        boundDomain
+                    ))
+                )
+                    return;
                 const freeDomainChanged =
                     formData.choose !== formData.chooseOld ||
                     formData.recordValue !== formData.recordValueOld ||
@@ -250,7 +261,7 @@ export function useTunnelEdit(
                     await apiChangeTunnel();
                     handleSuccessfulUpdate(freeDomainEnabled && freeDomainChanged);
                 } catch (error) {
-                    message.error('隧道编辑失败: ' + (error as Error).message);
+                    if (!handleWhitelistError(error)) message.error('隧道编辑失败: ' + (error as Error).message);
                     if (freeDomainEnabled && freeDomainChanged) {
                         let nodeInfoOld = await apiGetNodeInfo(formData.nodeOld);
                         if (nodeInfoOld === null) {
@@ -287,7 +298,7 @@ export function useTunnelEdit(
                     await apiChangeTunnel();
                     handleSuccessfulUpdate();
                 } catch (error) {
-                    message.error('隧道编辑失败: ' + (error as Error).message);
+                    if (!handleWhitelistError(error)) message.error('隧道编辑失败: ' + (error as Error).message);
                 }
             }
         } finally {
