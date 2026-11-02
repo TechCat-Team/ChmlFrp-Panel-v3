@@ -27,10 +27,24 @@
                         <template #icon><n-icon :component="RefreshOutline" /></template>
                         刷新
                     </n-button>
-                    <n-button v-if="!admin" round quaternary @click="showRules = true">
-                        <template #icon><n-icon :component="InformationCircleOutline" /></template>
+                    <n-dropdown v-if="!admin" trigger="click" :options="userStatusOptions" @select="selectUserStatus">
+                        <n-button
+                            circle
+                            quaternary
+                            :aria-label="`筛选域名状态：${userStatusLabel}`"
+                            :title="`筛选域名状态：${userStatusLabel}`"
+                        >
+                            <template #icon><n-icon :component="FilterOutline" /></template>
+                        </n-button>
+                    </n-dropdown>
+                    <n-tooltip v-if="!admin" trigger="hover" placement="top">
+                        <template #trigger>
+                            <n-button circle quaternary aria-label="过白规则" @click="showRules = true">
+                                <template #icon><n-icon :component="InformationCircleOutline" /></template>
+                            </n-button>
+                        </template>
                         过白规则
-                    </n-button>
+                    </n-tooltip>
                     <n-button type="primary" round quaternary :disabled="!canSubmit" @click="openCreate">
                         <template #icon><n-icon :component="AddOutline" /></template>
                         {{ admin ? '添加域名' : '提交域名' }}
@@ -115,14 +129,14 @@
                 </n-grid-item>
             </n-grid>
             <n-grid
-                v-else-if="rows.length"
+                v-else-if="filteredUserRows.length"
                 cols="1 m:2 l:3 xl:4 2xl:5"
                 :x-gap="24"
                 :y-gap="24"
                 responsive="screen"
                 class="domain-grid"
             >
-                <n-grid-item v-for="row in rows" :key="row.id" class="grid-item">
+                <n-grid-item v-for="row in filteredUserRows" :key="row.id" class="grid-item">
                     <DomainWhitelistCard
                         :record="row"
                         :status-label="statusLabel(row.status)"
@@ -132,7 +146,7 @@
                 </n-grid-item>
             </n-grid>
             <n-card v-else class="empty-card">
-                <n-empty description="您还没有提交过白域名">
+                <n-empty :description="userStatus === 'all' ? '您还没有提交过白域名' : `暂无${userStatusLabel}域名`">
                     <template #icon><n-icon :component="GlobeOutline" /></template>
                     <template #extra>
                         <n-button size="small" :disabled="!canSubmit" @click="openCreate">
@@ -397,6 +411,7 @@ import {
     NDataTable,
     NDescriptions,
     NDescriptionsItem,
+    NDropdown,
     NDivider,
     NEmpty,
     NForm,
@@ -416,6 +431,7 @@ import {
     NTag,
     NTimeline,
     NTimelineItem,
+    NTooltip,
     useDialog,
     useMessage,
     type DataTableColumns,
@@ -427,6 +443,7 @@ import {
     InformationCircleOutline,
     GlobeOutline,
     PeopleOutline,
+    FilterOutline,
 } from '@vicons/ionicons5';
 import DomainWhitelistCard from './whitelist/DomainWhitelistCard.vue';
 import api from '@/api';
@@ -529,6 +546,23 @@ const labels: Record<string, string> = {
     revoked: '已移除',
 };
 const statusOptions = Object.entries(labels).map(([value, label]) => ({ value, label }));
+const userStatus = ref('approved');
+const userStatusLabel = computed(() => (userStatus.value === 'all' ? '全部状态' : labels[userStatus.value]));
+const userStatusOptions = computed(() =>
+    [
+        { value: 'all', label: '全部状态' },
+        ...statusOptions.filter(({ value }) => !['verifying', 'revoked'].includes(value)),
+    ].map(({ value, label }) => ({
+        key: value,
+        label: `${userStatus.value === value ? '✓ ' : ''}${label}`,
+    }))
+);
+const filteredUserRows = computed(() =>
+    userStatus.value === 'all' ? rows.value : rows.value.filter((row) => row.status === userStatus.value)
+);
+function selectUserStatus(value: string) {
+    userStatus.value = value;
+}
 const statusLabel = (value: string) => labels[value] || value;
 const actionLabel = (value: string) =>
     ({
@@ -733,13 +767,15 @@ async function prepareSubmit() {
             remarks: remarks.value,
             userId: props.admin ? createUserId.value! : undefined,
         };
-        dialog.warning({
+        const submitDialog = dialog.warning({
             title: '确认提交备案验证',
             content: `将提交 ${body.domain}。${props.admin ? '此次添加不消耗用户每日次数。' : '进入验证后消耗今日1次提交额度。'}`,
             positiveText: '确认并验证',
             negativeText: '取消',
             onPositiveClick: async () => {
+                if (submitting.value) return false;
                 submitting.value = true;
+                submitDialog.loading = true;
                 try {
                     const result = await service.submit(body, !!props.admin);
                     showCreate.value = false;
@@ -750,8 +786,12 @@ async function prepareSubmit() {
                 } catch (error) {
                     message.error(errorText(error));
                 } finally {
-                    submitting.value = false;
-                    await refresh();
+                    try {
+                        await refresh();
+                    } finally {
+                        submitting.value = false;
+                        submitDialog.loading = false;
+                    }
                 }
             },
         });
@@ -783,7 +823,8 @@ async function confirmDelete(row: WhitelistRecord) {
             await refresh();
             return;
         }
-        dialog.warning({
+        let deleting = false;
+        const deleteDialog = dialog.warning({
             title: '删除过白域名',
             content:
                 latest.delete_fee > 0
@@ -792,6 +833,9 @@ async function confirmDelete(row: WhitelistRecord) {
             positiveText: latest.delete_fee > 0 ? '扣除500积分并删除' : '确认免费删除',
             negativeText: '取消',
             onPositiveClick: async () => {
+                if (deleting) return false;
+                deleting = true;
+                deleteDialog.loading = true;
                 try {
                     const result = await service.remove(row.id, latest.delete_fee > 0);
                     userStore.setUser({ integral: result.data.balance });
@@ -799,6 +843,9 @@ async function confirmDelete(row: WhitelistRecord) {
                     await refresh();
                 } catch (error) {
                     message.error(errorText(error));
+                } finally {
+                    deleting = false;
+                    deleteDialog.loading = false;
                 }
             },
         });
