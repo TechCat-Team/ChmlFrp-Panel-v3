@@ -12,9 +12,9 @@
                 style="margin-bottom: 8px"
                 v-if="formData.type === 'TCP' && isMainland"
             >
-                中国大陆节点不支持直接通过 IP:端口访问网站。如需使用 TCP 隧道建站，请先完成域名 ICP 备案，再前往
+                中国大陆免费节点不支持直接通过 IP:端口访问网站。如需使用 TCP 隧道建站，请先完成域名 ICP 备案，再前往
                 “扩展功能 → 备案过白”提交申请。过白通过后，将域名解析至 {{ nodeInfo.ip }}，通过“域名:外网端口”访问。
-                您也可以选择境外节点。
+                您也可以选择境外节点。（会员节点无此限制）
                 <n-button text type="primary" @click="router.push(DOMAIN_WHITELIST_PATH)">前往备案过白</n-button>
             </n-alert>
             <n-alert
