@@ -2,7 +2,7 @@
     <n-modal :show="show" @update:show="$emit('update:show', $event)">
         <n-card style="width: 600px" size="small" :bordered="false" role="dialog" aria-modal="true">
             <n-tabs type="line" size="large" @update:value="$emit('tab-change', $event)">
-                <n-tab-pane name="自定义解析">
+                <n-tab-pane key="custom" name="自定义解析">
                     <n-form style="margin-top: 10px" ref="formRef" :model="model" :rules="rules">
                         <n-grid cols="1 s:2" x-gap="12" responsive="screen">
                             <n-grid-item>
@@ -82,7 +82,7 @@
                         </div>
                     </n-form>
                 </n-tab-pane>
-                <n-tab-pane name="快速解析">
+                <n-tab-pane key="fast" name="快速解析">
                     <n-alert title="注意" type="info" v-if="fastModel.selectedRecordType === 'CNAME'">
                         {{ cnameWarning }}
                     </n-alert>

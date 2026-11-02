@@ -13,6 +13,17 @@ export function useDomainCreate(_userInfo: { usertoken?: string } | undefined, o
     const loading = ref(false);
 
     const createDomain = async (formData: DomainFormModel) => {
+        if (loading.value) return false;
+        if (
+            !formData.selectedDomain?.trim() ||
+            !formData.recordValue?.trim() ||
+            !formData.target?.trim() ||
+            !formData.selectedRecordType ||
+            !formData.TTLValue
+        ) {
+            message.warning('请填写完整的域名、记录和目标');
+            return false;
+        }
         loading.value = true;
         try {
             await api.v2.domain.createFreeSubdomain({
@@ -43,8 +54,15 @@ export function useDomainCreate(_userInfo: { usertoken?: string } | undefined, o
     };
 
     const createFastDomain = async (formData: FastDomainFormModel, tunnelInfo: SelectedTunnelInfo | null) => {
-        if (!tunnelInfo) {
-            message.error('请选择隧道');
+        if (loading.value) return false;
+        if (
+            !formData.selectedDomain?.trim() ||
+            !formData.recordValue?.trim() ||
+            !formData.selectedRecordType ||
+            !formData.selectedTunnel ||
+            !tunnelInfo?.ip?.trim()
+        ) {
+            message.error('请填写完整的域名和记录，并选择具有有效目标地址的隧道');
             return false;
         }
 
