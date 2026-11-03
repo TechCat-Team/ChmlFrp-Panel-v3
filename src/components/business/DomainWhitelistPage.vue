@@ -53,7 +53,7 @@
             </template>
 
             <n-alert v-if="pageError" type="error" class="page-notice">{{ pageError }}</n-alert>
-            <n-alert v-if="policy && !policy.verificationConfigured" type="warning" class="page-notice">
+            <n-alert v-if="!admin && policy && !policy.verificationConfigured" type="warning" class="page-notice">
                 备案验证服务尚未配置，请联系管理员。
             </n-alert>
             <n-alert
@@ -254,6 +254,40 @@
                 <n-alert v-if="normalized" type="success" style="margin-bottom: 16px"
                     >实际提交：{{ normalized }}</n-alert
                 >
+                <template v-if="admin">
+                    <n-form-item label="备案号" required>
+                        <n-input
+                            v-model:value="manualLicence"
+                            :maxlength="128"
+                            :disabled="submitting"
+                            placeholder="例如 京ICP备12345678号-1"
+                        />
+                    </n-form-item>
+                    <n-form-item label="备案主体" required>
+                        <n-input
+                            v-model:value="manualCompany"
+                            :maxlength="255"
+                            :disabled="submitting"
+                            placeholder="请输入备案主体名称"
+                        />
+                    </n-form-item>
+                    <n-form-item label="主体性质（可选）">
+                        <n-input
+                            v-model:value="manualNature"
+                            :maxlength="50"
+                            :disabled="submitting"
+                            placeholder="例如 企业、个人"
+                        />
+                    </n-form-item>
+                    <n-form-item label="备案审核日期（可选）">
+                        <n-input
+                            v-model:value="manualCheckedDate"
+                            :maxlength="64"
+                            :disabled="submitting"
+                            placeholder="例如 2026-11-03"
+                        />
+                    </n-form-item>
+                </template>
                 <n-form-item :label="admin ? '添加原因' : '备注（可选）'" :required="admin">
                     <n-input
                         v-model:value="remarks"
@@ -266,14 +300,15 @@
                 <n-alert type="warning">
                     {{
                         admin
-                            ? '管理员添加不消耗用户每日次数，仍须通过备案验证且受30个域名上限限制。'
-                            : '提交进入验证后消耗1次当日额度，验证未通过或接口异常也计入。格式错误和重复提交不计入。'
+                            ? '管理员填写备案信息后直接过白，不调用备案验证服务，不消耗用户每日次数，仍受30个域名上限限制。'
+                            : '提交进入验证后消耗1次当日额度，验证未通过或接口异常也计入。格式错误和重复提交不计入。验证通过后自动过白。'
                     }}
-                    验证通过后自动过白。
                 </n-alert>
                 <n-space justify="end" style="margin-top: 20px">
                     <n-button round :disabled="submitting" @click="showCreate = false">取消</n-button>
-                    <n-button round type="primary" attr-type="submit" :loading="submitting">验证并提交</n-button>
+                    <n-button round type="primary" attr-type="submit" :loading="submitting">{{
+                        admin ? '添加并过白' : '验证并提交'
+                    }}</n-button>
                 </n-space>
             </n-form>
         </n-modal>
@@ -486,6 +521,10 @@ const domain = ref(''),
     normalized = ref(''),
     remarks = ref(''),
     createUserId = ref<number | null>(null);
+const manualLicence = ref(''),
+    manualCompany = ref(''),
+    manualNature = ref(''),
+    manualCheckedDate = ref('');
 const selected = ref<WhitelistDetail | null>(null),
     managedRecord = ref<WhitelistRecord | null>(null);
 const manageAction = ref(''),
@@ -531,11 +570,11 @@ const hasUserNotice = computed(
 );
 const canSubmit = computed(
     () =>
-        !!policy.value?.verificationConfigured &&
-        (props.admin ||
-            (!!userSummary.value &&
-                userSummary.value.activeCount < policy.value.domainLimit &&
-                userSummary.value.usedToday < policy.value.dailyLimit))
+        props.admin ||
+        (!!policy.value?.verificationConfigured &&
+            !!userSummary.value &&
+            userSummary.value.activeCount < policy.value.domainLimit &&
+            userSummary.value.usedToday < policy.value.dailyLimit)
 );
 const labels: Record<string, string> = {
     verifying: '验证中',
@@ -737,6 +776,10 @@ function openCreate() {
     normalized.value = '';
     remarks.value = '';
     createUserId.value = filterUserId.value;
+    manualLicence.value = '';
+    manualCompany.value = '';
+    manualNature.value = '';
+    manualCheckedDate.value = '';
     showCreate.value = true;
 }
 async function previewDomain() {
@@ -754,8 +797,11 @@ async function previewDomain() {
 }
 async function prepareSubmit() {
     if (submitting.value) return;
-    if (props.admin && (!createUserId.value || !remarks.value.trim())) {
-        message.warning('请填写用户ID和添加原因');
+    if (
+        props.admin &&
+        (!createUserId.value || !remarks.value.trim() || !manualLicence.value.trim() || !manualCompany.value.trim())
+    ) {
+        message.warning('请填写用户ID、备案号、备案主体和添加原因');
         return;
     }
     submitting.value = true;
@@ -766,11 +812,19 @@ async function prepareSubmit() {
             domain: normalized.value,
             remarks: remarks.value,
             userId: props.admin ? createUserId.value! : undefined,
+            ...(props.admin
+                ? {
+                      licence: manualLicence.value.trim(),
+                      company: manualCompany.value.trim(),
+                      nature: manualNature.value.trim(),
+                      checkedDate: manualCheckedDate.value.trim(),
+                  }
+                : {}),
         };
         const submitDialog = dialog.warning({
-            title: '确认提交备案验证',
-            content: `将提交 ${body.domain}。${props.admin ? '此次添加不消耗用户每日次数。' : '进入验证后消耗今日1次提交额度。'}`,
-            positiveText: '确认并验证',
+            title: props.admin ? '确认添加过白域名' : '确认提交备案验证',
+            content: `将提交 ${body.domain}。${props.admin ? '使用填写的备案信息直接过白，不进行备案验证，不消耗用户每日次数。' : '进入验证后消耗今日1次提交额度。'}`,
+            positiveText: props.admin ? '确认并过白' : '确认并验证',
             negativeText: '取消',
             onPositiveClick: async () => {
                 if (submitting.value) return false;
