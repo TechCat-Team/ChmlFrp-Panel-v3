@@ -78,13 +78,21 @@ export const listAll = (): Promise<Response<WhitelistRecord[]>> => axiosInstance
 export const detail = (id: number, admin = false): Promise<Response<WhitelistDetail>> =>
     axiosInstance.get(`${root(admin)}/${id}`);
 export const submit = (
-    body: { domain: string; remarks: string; userId?: number },
+    body: {
+        domain: string;
+        remarks: string;
+        userId?: number;
+        licence?: string;
+        company?: string;
+        nature?: string;
+        checkedDate?: string;
+    },
     admin = false
-): Promise<Response<WhitelistDetail>> => axiosInstance.post(root(admin), body);
+): Promise<Response<WhitelistDetail>> => axiosInstance.post(root(admin), body, { timeout: 40000 });
 export const remove = (id: number, acceptFee: boolean): Promise<Response<{ charged: number; balance: number }>> =>
     axiosInstance.post(`${root()}/${id}/delete`, { acceptFee });
 export const manage = (id: number, action: string, reason: string): Promise<Response<WhitelistDetail>> =>
-    axiosInstance.post(`${root(true)}/${id}`, { action, reason });
+    axiosInstance.post(`${root(true)}/${id}`, { action, reason }, { timeout: 40000 });
 export const quota = (userId: number): Promise<Response<QuotaDetail>> =>
     axiosInstance.get(`${root(true)}/users/${userId}`);
 export const resetQuota = (userId: number, reason: string): Promise<Response<QuotaDetail>> =>
