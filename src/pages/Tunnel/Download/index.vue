@@ -28,41 +28,51 @@
                     <n-grid-item v-for="os in launcherOsList" :key="os.name">
                         <n-card
                             style="text-align: center"
-                            @click="showLauncherCard(os.name)"
+                            @click="selectedLauncherOS = os.name"
                             :class="{ 'card-selected': selectedLauncherOS === os.name }"
                             hoverable
                         >
                             <n-icon :size="60" :component="os.icon" :color="os.color" />
-                            <n-divider></n-divider>
+                            <n-divider />
                             <h2>{{ os.label }}</h2>
                         </n-card>
                     </n-grid-item>
                 </n-grid>
 
-                <n-skeleton
-                    v-if="launcherLoading"
-                    v-for="i in 3"
-                    :key="i"
-                    style="margin-top: 20px; height: 64px; border-radius: 10px"
-                    :sharp="false"
-                    size="medium"
-                />
-                <div v-else-if="selectedLauncherOSData.length">
-                    <n-card style="margin-top: 20px" v-for="item in selectedLauncherOSData" :key="item.platform">
+                <template v-if="launcherLoading">
+                    <n-skeleton
+                        v-for="i in 3"
+                        :key="i"
+                        style="margin-top: 20px; height: 64px; border-radius: 10px"
+                        :sharp="false"
+                        size="medium"
+                    />
+                </template>
+                <n-empty v-else-if="launcherError" description="下载列表加载失败，请稍后重试" />
+                <n-empty v-else-if="!selectedLauncherOSData.length" description="暂无可下载的图形客户端" />
+                <div v-else>
+                    <n-card
+                        v-for="item in selectedLauncherOSData"
+                        :key="item.label + item.url"
+                        style="margin-top: 20px"
+                    >
                         <n-icon
                             :size="18"
                             style="top: 4px"
-                            :component="osIcon[selectedLauncherOS]"
-                            :color="osColors[selectedLauncherOS]"
+                            :component="selectedLauncherSystem?.icon"
+                            :color="selectedLauncherSystem?.color"
                         />
                         <n-divider vertical />
-                        <span>{{ item.platform }}</span>
+                        <span>{{ item.label }}</span>
                         <n-button
                             text
                             tag="a"
                             target="_blank"
+                            rel="noopener"
                             type="primary"
                             :href="item.url"
+                            @click="confirmLauncherDownload($event, item)"
+                            @auxclick.middle="confirmLauncherDownload($event, item)"
                             style="float: right; padding: 3px 0"
                         >
                             下载
@@ -136,12 +146,19 @@
 </template>
 
 <script lang="ts" setup>
-import { LogoWindows, LogoApple, LogoTux } from '@vicons/ionicons5';
+import { LogoWindows, LogoApple, LogoTux, LogoAndroid } from '@vicons/ionicons5';
 import { Freebsd } from '@vicons/fa';
+import { useDialog } from 'naive-ui';
 import { ref, onMounted, computed } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useScreenStore } from '@/stores/useScreen';
-import { getDownloadInfo, getLauncherUpdateInfo } from '@/api/v2/panel/panel';
+import {
+    getDownloadInfo,
+    getLauncherDownloads,
+    type LauncherDownloadData,
+    type LauncherDownloadLink,
+} from '@/api/v2/panel/panel';
+import { detectLauncherDevice, getLauncherDownloadMismatch, type LauncherDevice } from './launcherCompatibility';
 
 // 基础的手机端适配
 const screenStore = useScreenStore();
@@ -180,11 +197,18 @@ const Darwin = ref<Array<{ route: string; architecture: string }>>([]);
 const loading = ref<boolean>(true);
 
 // 图形客户端相关
-const selectedLauncherOS = ref<string>(detectOS() === 'freeBSD' ? 'Windows' : detectOS());
-const launcherLoading = ref<boolean>(true);
-const launcherWindows = ref<Array<{ platform: string; url: string }>>([]);
-const launcherLinux = ref<Array<{ platform: string; url: string }>>([]);
-const launcherDarwin = ref<Array<{ platform: string; url: string }>>([]);
+const selectedLauncherOS = ref(/Android/i.test(navigator.userAgent) ? 'android' : selectedOS.value.toLowerCase());
+const launcherLoading = ref(true);
+const launcherError = ref(false);
+const launcherRelease = ref<LauncherDownloadData | null>(null);
+const launcherDevice = ref<LauncherDevice | null>(null);
+const dialog = useDialog();
+const launcherSystems = [
+    { name: 'windows', label: 'Windows', icon: LogoWindows, color: '#409EFF' },
+    { name: 'linux', label: 'Linux', icon: LogoTux, color: '#e69824' },
+    { name: 'darwin', label: 'MacOS', icon: LogoApple, color: '#909399' },
+    { name: 'android', label: 'Android', icon: LogoAndroid, color: '#3DDC84' },
+];
 
 const osList = [
     { name: 'Windows', label: 'Windows', icon: LogoWindows, color: '#409EFF' },
@@ -193,11 +217,11 @@ const osList = [
     { name: 'Darwin', label: 'MacOS', icon: LogoApple, color: '#909399' },
 ];
 
-const launcherOsList = [
-    { name: 'Windows', label: 'Windows', icon: LogoWindows, color: '#409EFF' },
-    { name: 'Linux', label: 'Linux', icon: LogoTux, color: '#e69824' },
-    { name: 'Darwin', label: 'MacOS', icon: LogoApple, color: '#909399' },
-];
+const launcherOsList = computed(() =>
+    launcherSystems.filter(({ name }) =>
+        launcherRelease.value ? launcherRelease.value.platforms[name]?.length : name !== 'android'
+    )
+);
 
 const osIcon: Record<string, typeof LogoWindows | typeof LogoApple | typeof LogoTux | typeof Freebsd> = {
     Windows: LogoWindows,
@@ -223,15 +247,38 @@ const selectedOSData = computed(() => {
             : Darwin.value;
 });
 
-const selectedLauncherOSData = computed(() => {
-    return selectedLauncherOS.value === 'Windows'
-        ? launcherWindows.value
-        : selectedLauncherOS.value === 'Linux'
-          ? launcherLinux.value
-          : launcherDarwin.value;
-});
+const selectedLauncherOSData = computed(() => launcherRelease.value?.platforms[selectedLauncherOS.value] ?? []);
+const selectedLauncherSystem = computed(() => launcherSystems.find(({ name }) => name === selectedLauncherOS.value));
 
-onMounted(async () => {
+const confirmLauncherDownload = (event: MouseEvent, item: LauncherDownloadLink) => {
+    const mismatch = getLauncherDownloadMismatch(launcherDevice.value, item, launcherRelease.value);
+    if (!mismatch) return;
+
+    event.preventDefault();
+    const { device, recommended } = mismatch;
+    const system = launcherSystems.find(({ name }) => name === device.platform)?.label;
+    const architecture = device.architecture.startsWith('arm')
+        ? device.architecture.toUpperCase()
+        : device.architecture;
+    const deviceName = [system, architecture].filter(Boolean).join(' ');
+
+    dialog.warning({
+        title: '下载架构与设备不匹配',
+        content: recommended
+            ? `当前设备是 ${deviceName}，你选择了 ${item.label}。建议下载 ${recommended.label}。`
+            : `当前设备是 ${deviceName}，你选择了 ${item.label}。当前版本暂无匹配的安装包。`,
+        positiveText: recommended ? '下载推荐版本' : '返回下载列表',
+        negativeText: '继续下载',
+        onPositiveClick: () => {
+            if (recommended) window.open(recommended.url, '_blank', 'noopener');
+        },
+        onNegativeClick: () => {
+            window.open(item.url, '_blank', 'noopener');
+        },
+    });
+};
+
+onMounted(() => {
     // 获取核心程序下载信息
     getDownloadInfo()
         .then((response) => {
@@ -249,23 +296,16 @@ onMounted(async () => {
             loading.value = false;
         });
 
-    // 获取图形客户端更新信息
-    getLauncherUpdateInfo()
-        .then((response) => {
-            const platforms = response.platforms;
-            for (const [key, value] of Object.entries(platforms)) {
-                const item = { platform: key, url: value.url };
-                if (key.startsWith('windows')) {
-                    launcherWindows.value.push(item);
-                } else if (key.startsWith('linux')) {
-                    launcherLinux.value.push(item);
-                } else if (key.startsWith('darwin')) {
-                    launcherDarwin.value.push(item);
-                }
+    Promise.all([getLauncherDownloads(), detectLauncherDevice(navigator)])
+        .then(([{ data }, device]) => {
+            launcherDevice.value = device;
+            launcherRelease.value = data;
+            if (!selectedLauncherOSData.value.length) {
+                selectedLauncherOS.value = launcherOsList.value[0]?.name ?? '';
             }
         })
-        .catch((error) => {
-            console.error('图形客户端更新 API 调用失败：', error);
+        .catch(() => {
+            launcherError.value = true;
         })
         .finally(() => {
             launcherLoading.value = false;
@@ -274,10 +314,6 @@ onMounted(async () => {
 
 const showCard = (os: string) => {
     selectedOS.value = os;
-};
-
-const showLauncherCard = (os: string) => {
-    selectedLauncherOS.value = os;
 };
 </script>
 

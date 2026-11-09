@@ -116,22 +116,55 @@
                         更多教程
                     </n-button>
                 </template>
-                <n-h4>获取真实IP</n-h4>
+                <n-h4>获取访客真实 IP</n-h4>
+                <n-h5>HTTP 隧道</n-h5>
                 <n-p>
-                    创建隧道时添加额外参数：
-                    <n-code code="proxy_protocol_version = v2" language="ini" />
-                    即可。<br />
-                    web服务可以通过在nginx配置中启用"Proxy
-                    Protocol"的解析并将结果设置在"X-Real-IP"这个Header中就可以在自己的Web服务中通过 X-Real-IP
-                    获取到用户的真实 IP。<br />
-                    操作：<br />
-                    打开nginx网站的配置文件，将
-                    <n-code :code="nginxConfig1" language="nginx" word-wrap />
-                    改为
-                    <n-code :code="nginxConfig2" language="nginx" word-wrap />
-                    随后，在配置文件中随便找个位置放入这三行代码：
-                    <n-code :code="nginxConfig3" language="nginx" word-wrap />
+                    FRP 默认通过 <n-text code>X-Forwarded-For</n-text> 请求头传递访客 IP。
+                    在应用中配置受信任的代理，按代理链解析该请求头，避免把访客自行填写的值当作真实 IP。
                 </n-p>
+                <n-h5>TCP、HTTPS 和 UDP 隧道</n-h5>
+                <n-p>
+                    TCP 隧道（包括用 TCP 映射网站）和 HTTPS 透传可使用 PROXY Protocol v2，接收端须支持该协议。
+                    UDP 隧道也可使用 v2，接收端须支持解析 UDP 数据报中的 PROXY 头。
+                </n-p>
+                <n-ol>
+                    <n-li>
+                        <n-p>
+                            在「编辑隧道 → 高级设置 → 额外参数」加入下方设置，保存后在本页重新生成 TOML 配置。
+                            已填写旧版 INI 参数时，请先移除旧写法。
+                        </n-p>
+                        <n-code code='transport.proxyProtocolVersion = "v2"' language="toml" word-wrap />
+                        <n-p>
+                            手动修改生成的 TOML 时，在目标隧道的 <n-text code>[proxies.transport]</n-text> 段写
+                            <n-text code>proxyProtocolVersion = "v2"</n-text>。如使用旧版 INI，在下载的
+                            <n-text code>[隧道名]</n-text> 段使用
+                            <n-text code>proxy_protocol_version = v2</n-text>，并移除该段中带入的 TOML 写法。
+                        </n-p>
+                    </n-li>
+                    <n-li>
+                        <n-p>
+                            以下以 frpc 和 Nginx 同机部署的 TCP 网站隧道为例。为隧道配置独立的监听端口，
+                            将隧道的本地 IP 和端口设为 <n-text code>127.0.0.1</n-text> 和
+                            <n-text code>8081</n-text>，Nginx 需包含 HTTP Real IP 模块。
+                        </n-p>
+                        <n-code :code="nginxProxyProtocolConfig" language="nginx" word-wrap />
+                        <n-p>
+                            HTTPS 透传可改用 <n-text code>listen 127.0.0.1:8443 ssl proxy_protocol;</n-text>，
+                            保留站点证书配置，并将隧道的本地端口改为 8443。普通直连流量应使用其他端口。
+                            如果两者分开部署，请监听内网地址，通过防火墙限制来源，并在
+                            <n-text code>set_real_ip_from</n-text> 中填写 Nginx 实际看到的 frpc 来源地址。
+                        </n-p>
+                    </n-li>
+                    <n-li>
+                        <n-p>
+                            用 <n-text code>nginx -t</n-text> 检查配置，通过后重载 Nginx，再用新配置启动 frpc。
+                            从外部访问隧道，在 Nginx 访问日志中查看 <n-text code>$remote_addr</n-text>。
+                            如果 Nginx 还反向代理到应用，在对应的 <n-text code>location</n-text> 中设置
+                            <n-text code>proxy_set_header X-Real-IP $remote_addr;</n-text>，应用即可读取
+                            <n-text code>X-Real-IP</n-text>。
+                        </n-p>
+                    </n-li>
+                </n-ol>
                 <n-h4>通过代理连接节点</n-h4>
                 <n-p>
                     ChmlFrp可以通过http、socks5代理与节点建立连接。(此功能仅在tcp隧道生效)
@@ -354,19 +387,11 @@ const handleCopy = (type: string) => {
         .catch(() => message.error('复制失败'));
 };
 
-const nginxConfig1 = `
-listen 80;
-listen 443 ssl http2; #如果有就改，没有则不添加这个。
-`;
+const nginxProxyProtocolConfig = `server {
+    listen 127.0.0.1:8081 proxy_protocol;
+    set_real_ip_from 127.0.0.1;
+    real_ip_header proxy_protocol;
 
-const nginxConfig2 = `
-listen 80 proxy_protocol;
-listen 443 ssl http2 proxy_protocol;
-`;
-
-const nginxConfig3 = `
-real_ip_header proxy_protocol;
-real_ip_recursive on;
-set_real_ip_from 127.0.0.1; #创建隧道时填的本地ip
-`;
+    # 保留原有站点的 server_name、root 或 location 等设置
+}`;
 </script>

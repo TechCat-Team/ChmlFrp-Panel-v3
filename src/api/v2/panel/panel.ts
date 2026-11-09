@@ -77,23 +77,25 @@ export const getDownloadInfo = async (link?: string): Promise<DownloadInfoRespon
     });
 };
 
-interface LauncherPlatform {
-    signature: string;
+export interface LauncherDownloadLink {
+    label: string;
     url: string;
+    architecture?: string;
+    format?: string;
 }
 
-interface LauncherUpdateData {
-    pub_date: string;
-    notes: string;
-    version: string;
-    platforms: Record<string, LauncherPlatform>;
+export interface LauncherDownloadData {
+    version: string | null;
+    platforms: Partial<Record<string, LauncherDownloadLink[]>>;
+}
+
+interface LauncherDownloadsResponse extends BaseResponse {
+    data: LauncherDownloadData;
 }
 
 /**
- * 获取图形客户端更新信息
+ * 获取图形客户端下载列表
  */
-export const getLauncherUpdateInfo = async (): Promise<LauncherUpdateData> => {
-    const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/launcher/update`);
-    if (!res.ok) throw new Error('Failed to fetch launcher update info');
-    return res.json();
+export const getLauncherDownloads = async (): Promise<LauncherDownloadsResponse> => {
+    return axiosInstance.get('/launcher/downloads');
 };
