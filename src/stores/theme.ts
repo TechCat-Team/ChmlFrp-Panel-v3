@@ -4,7 +4,6 @@ interface ThemeState {
     theme: string;
     primaryColor: string;
     isAutoTheme: boolean;
-    isRGBMode: boolean;
     isDialogBoxHairGlass: boolean;
     backgroundImage: string;
     backgroundBlur: number;
@@ -20,7 +19,6 @@ interface ThemeState {
 const THEME_KEY = 'app-theme';
 const PRIMARY_COLOR_KEY = 'app-primary-color';
 const AUTO_THEME_KEY = 'app-auto-theme';
-const RGB_MODE_KEY = 'app-rgb-mode';
 const DBH_MODE_KEY = 'app-dialog-box-hair-glass';
 const BACKGROUND_IMAGE_KEY = 'app-background-image';
 const BACKGROUND_BLUR_KEY = 'app-background-blur';
@@ -37,7 +35,6 @@ export const useThemeStore = defineStore('theme', {
         theme: localStorage.getItem(THEME_KEY) || 'light',
         primaryColor: localStorage.getItem(PRIMARY_COLOR_KEY) || '#722ed1',
         isAutoTheme: localStorage.getItem(AUTO_THEME_KEY) === 'true' || localStorage.getItem(AUTO_THEME_KEY) === null,
-        isRGBMode: localStorage.getItem(RGB_MODE_KEY) === 'true' || false,
         isDialogBoxHairGlass: localStorage.getItem(DBH_MODE_KEY) === 'true' || false,
         backgroundImage: localStorage.getItem(BACKGROUND_IMAGE_KEY) || '',
         backgroundBlur: Number(localStorage.getItem(BACKGROUND_BLUR_KEY)) || 3,
@@ -69,10 +66,6 @@ export const useThemeStore = defineStore('theme', {
         setAutoTheme(isAuto: boolean) {
             this.isAutoTheme = isAuto;
             localStorage.setItem(AUTO_THEME_KEY, isAuto.toString());
-        },
-        setRGBMode(isRGB: boolean) {
-            this.isRGBMode = isRGB;
-            localStorage.setItem(RGB_MODE_KEY, isRGB.toString());
         },
         setDialogBoxHairGlass(isDBH: boolean) {
             this.isDialogBoxHairGlass = isDBH;

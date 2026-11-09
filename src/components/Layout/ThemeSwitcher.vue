@@ -125,13 +125,6 @@
             <div class="setting-content">
                 <div class="setting-item">
                     <div class="setting-label">
-                        <n-icon :component="ColorFilterOutline" :size="18" />
-                        <span>RGB模式</span>
-                    </div>
-                    <n-switch v-model:value="isRGBMode" :checked-value="true" :unchecked-value="false" />
-                </div>
-                <div class="setting-item">
-                    <div class="setting-label">
                         <n-icon :component="LayersOutline" :size="18" />
                         <span>对话框模糊</span>
                     </div>
@@ -281,7 +274,6 @@ import {
     SyncOutline,
     BrushOutline,
     EyeOutline,
-    ColorFilterOutline,
     LayersOutline,
     AccessibilityOutline,
     ColorWandOutline,
@@ -300,7 +292,6 @@ const themeStore = useThemeStore();
 const isDarkTheme = ref(themeStore.theme === 'dark');
 const primaryColor = ref(themeStore.primaryColor);
 const isAutoTheme = ref(themeStore.isAutoTheme);
-const isRGBMode = ref(themeStore.isRGBMode);
 const isDialogBoxHairGlass = ref(themeStore.isDialogBoxHairGlass);
 const backgroundImage = ref(themeStore.backgroundImage);
 const backgroundImageUrl = ref(themeStore.backgroundImage);
@@ -346,11 +337,6 @@ const setAutoTheme = (isAuto: boolean) => {
     themeStore.setAutoTheme(isAuto);
 };
 
-const setRGBMode = (isRGB: boolean) => {
-    isRGBMode.value = isRGB;
-    themeStore.setRGBMode(isRGB);
-};
-
 const setDialogBoxHairGlass = (isDBH: boolean) => {
     isDialogBoxHairGlass.value = isDBH;
     themeStore.setDialogBoxHairGlass(isDBH);
@@ -386,10 +372,6 @@ watch(isAutoTheme, (newVal) => {
         const systemDarkTheme = window.matchMedia('(prefers-color-scheme: dark)');
         systemDarkTheme.removeEventListener('change', handleSystemThemeChange);
     }
-});
-
-watch(isRGBMode, (newVal) => {
-    setRGBMode(newVal);
 });
 
 const setColorBlindMode = (enabled: boolean) => {

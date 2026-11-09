@@ -119,63 +119,6 @@ const themeOverrides = computed(() => {
     };
 });
 
-let animationFrameId: number | null = null;
-let isRGBRunning = false;
-
-const animatePrimaryColor = () => {
-    if (isRGBRunning) return;
-    isRGBRunning = true;
-
-    let r = 255,
-        g = 0,
-        b = 0;
-    let dr = -5,
-        dg = 5,
-        db = 0;
-
-    const step = () => {
-        if (!themeStore.isRGBMode) {
-            isRGBRunning = false;
-            return;
-        }
-        if (r <= 0 && g >= 255) {
-            dr = 0;
-            dg = -5;
-            db = 5;
-        }
-        if (g <= 0 && b >= 255) {
-            dr = 5;
-            dg = 0;
-            db = -5;
-        }
-        if (b <= 0 && r >= 255) {
-            dr = -5;
-            dg = 5;
-            db = 0;
-        }
-        r += dr;
-        g += dg;
-        b += db;
-
-        themeStore.primaryColor = `rgb(${r}, ${g}, ${b})`;
-        animationFrameId = requestAnimationFrame(step);
-    };
-
-    step();
-};
-
-watch(
-    () => themeStore.isRGBMode,
-    (newVal) => {
-        if (newVal) {
-            animatePrimaryColor();
-        } else if (animationFrameId) {
-            cancelAnimationFrame(animationFrameId);
-            animationFrameId = null;
-        }
-    }
-);
-
 // 监听背景图变化，更新主题覆盖
 watch(
     () => themeStore.backgroundImage,
@@ -229,9 +172,6 @@ const detectInputMethod = (event: PointerEvent) => {
 };
 
 onMounted(() => {
-    if (themeStore.isRGBMode) {
-        animatePrimaryColor();
-    }
     // 初始化模糊效果
     if (themeStore.isDialogBoxHairGlass) {
         document.documentElement.style.setProperty('--modal-filter', '10px');
@@ -271,10 +211,6 @@ onMounted(() => {
 });
 
 onUnmounted(() => {
-    if (animationFrameId) {
-        cancelAnimationFrame(animationFrameId);
-        animationFrameId = null;
-    }
     // 移除指针事件监听器
     window.removeEventListener('pointerdown', detectInputMethod);
 });
