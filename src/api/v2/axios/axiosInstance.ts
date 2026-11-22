@@ -1,4 +1,4 @@
-import axios, { AxiosHeaders, InternalAxiosRequestConfig } from 'axios';
+import axios, { AxiosHeaders, type AxiosInstance, type InternalAxiosRequestConfig } from 'axios';
 import router from '@/router';
 import { useUserStore } from '@/stores/user';
 import {
@@ -33,23 +33,18 @@ interface RetryableRequestConfig extends InternalAxiosRequestConfig {
     skipAuthRefresh?: boolean;
 }
 
-const axiosInstance = axios.create({
+const clientConfig = {
     baseURL: import.meta.env.VITE_API_BASE_URL,
     timeout: 30000,
     withCredentials: false,
     headers: {
         'Content-Type': 'application/json',
     },
-});
+};
 
-const authClient = axios.create({
-    baseURL: axiosInstance.defaults.baseURL,
-    timeout: axiosInstance.defaults.timeout,
-    withCredentials: false,
-    headers: {
-        'Content-Type': 'application/json',
-    },
-});
+const axiosInstance = axios.create(clientConfig);
+const authClient = axios.create(clientConfig);
+export const paymentClient = axios.create(clientConfig);
 
 let refreshPromise: Promise<string | null> | null = null;
 
@@ -75,7 +70,10 @@ const handleInvalidToken = () => {
     }
 };
 
-const isInvalidLoginState = (data: any) => {
+const isInvalidLoginState = (data: any, isPayment: boolean) => {
+    if (isPayment) {
+        return data?.success === false && data?.message === '无效的登录状态';
+    }
     return data?.msg === '缺少登录态' || (data?.msg === '无效的登录状态' && data?.state === 'fail');
 };
 
@@ -104,9 +102,12 @@ const refreshAccessToken = async () => {
                 });
                 return accessToken;
             })
-            .catch(() => {
-                handleInvalidToken();
-                return null;
+            .catch((error: unknown) => {
+                if (axios.isAxiosError(error) && error.response?.status === 401) {
+                    handleInvalidToken();
+                    throw new ApiError('response', '登录状态已失效，请重新登录');
+                }
+                throw new ApiError('network', '暂时无法刷新登录状态，请稍后重试');
             })
             .finally(() => {
                 refreshPromise = null;
@@ -117,6 +118,10 @@ const refreshAccessToken = async () => {
 };
 
 const ensureAccessToken = async () => {
+    if (refreshPromise) {
+        return refreshPromise;
+    }
+
     const accessToken = getAccessToken();
     if (accessToken && !isAccessTokenExpired()) {
         return accessToken;
@@ -129,7 +134,7 @@ const ensureAccessToken = async () => {
     return accessToken;
 };
 
-const retryWithRefresh = async (config?: RetryableRequestConfig) => {
+const retryWithRefresh = async (client: AxiosInstance, config?: RetryableRequestConfig) => {
     if (!config || config.skipAuthRefresh || config._retry) {
         return null;
     }
@@ -141,63 +146,78 @@ const retryWithRefresh = async (config?: RetryableRequestConfig) => {
 
     config._retry = true;
     applyAuthorizationHeader(config, refreshedToken);
-    return axiosInstance(config);
+    return client(config);
 };
 
-axiosInstance.interceptors.request.use(
-    async (config) => {
-        const requestConfig = config as RetryableRequestConfig;
-        if (requestConfig.skipAuthRefresh) {
+const installInterceptors = (client: AxiosInstance, isPayment = false) => {
+    client.interceptors.request.use(
+        async (config) => {
+            const requestConfig = config as RetryableRequestConfig;
+            if (requestConfig.skipAuthRefresh) {
+                return requestConfig;
+            }
+
+            const accessToken = await ensureAccessToken();
+            if (accessToken) {
+                applyAuthorizationHeader(requestConfig, accessToken);
+            }
+
             return requestConfig;
+        },
+        (error) => {
+            return Promise.reject(new ApiError('network', '向API发送请求失败', error));
         }
+    );
 
-        const accessToken = await ensureAccessToken();
-        if (accessToken) {
-            applyAuthorizationHeader(requestConfig, accessToken);
-        }
+    client.interceptors.response.use(
+        async (response) => {
+            const data = response.data;
 
-        return requestConfig;
-    },
-    (error) => {
-        return Promise.reject(new ApiError('network', '向API发送请求失败', error));
-    }
-);
-
-axiosInstance.interceptors.response.use(
-    async (response) => {
-        const data = response.data;
-
-        if (isInvalidLoginState(data)) {
-            const retriedResponse = await retryWithRefresh(response.config as RetryableRequestConfig);
-            if (retriedResponse) {
-                return retriedResponse;
+            if (isInvalidLoginState(data, isPayment)) {
+                const retriedResponse = await retryWithRefresh(client, response.config);
+                if (retriedResponse) {
+                    return retriedResponse;
+                }
+                handleInvalidToken();
             }
-            handleInvalidToken();
-            throw new ApiError('response', data.msg, data);
-        }
 
-        if (data.state !== 'success') {
-            throw new ApiError('response', data.msg || '后端返回了未知错误', data);
-        }
-
-        return data;
-    },
-    async (error) => {
-        if (!error.response) {
-            return Promise.reject(new ApiError('network', '连接到API网络失败，请稍候再试', error));
-        }
-
-        const originalConfig = error.config as RetryableRequestConfig | undefined;
-        if (isInvalidLoginState(error.response.data) || error.response.status === 401) {
-            const retriedResponse = await retryWithRefresh(originalConfig);
-            if (retriedResponse) {
-                return retriedResponse;
+            if (isPayment) {
+                return response;
             }
-            handleInvalidToken();
-        }
 
-        return Promise.reject(new ApiError('unknown', error.message || '未知错误', error.response));
-    }
-);
+            if (data.state !== 'success') {
+                throw new ApiError('response', data.msg || '后端返回了未知错误', data);
+            }
+
+            return data;
+        },
+        async (error) => {
+            if (error instanceof ApiError) {
+                throw error;
+            }
+
+            if (!error.response) {
+                throw new ApiError('network', '连接到API网络失败，请稍候再试', error);
+            }
+
+            if (isInvalidLoginState(error.response.data, isPayment) || error.response.status === 401) {
+                const retriedResponse = await retryWithRefresh(client, error.config);
+                if (retriedResponse) {
+                    return retriedResponse;
+                }
+                handleInvalidToken();
+            }
+
+            if (isPayment) {
+                throw error;
+            }
+
+            throw new ApiError('unknown', error.message || '未知错误', error.response);
+        }
+    );
+};
+
+installInterceptors(axiosInstance);
+installInterceptors(paymentClient, true);
 
 export default axiosInstance;

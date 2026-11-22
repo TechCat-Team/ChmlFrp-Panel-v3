@@ -1,5 +1,5 @@
 import axios from 'axios';
-import axiosInstance from '../axios/axiosInstance';
+import axiosInstance, { paymentClient } from '../axios/axiosInstance';
 import { getAuthorizationHeaders } from '@/utils/authToken';
 const PAYMENT_BASE_URL = axiosInstance.defaults.baseURL + '/api/payment';
 
@@ -87,10 +87,9 @@ export const createPayment = async (request: CreatePaymentRequest): Promise<Crea
             formData.append('type', request.type);
         }
 
-        const response = await axios.post<CreatePaymentResponse>(`${PAYMENT_BASE_URL}/create`, formData, {
+        const response = await paymentClient.post<CreatePaymentResponse>('/api/payment/create', formData, {
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
-                ...getAuthorizationHeaders(),
             },
         });
 
